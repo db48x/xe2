@@ -1,0 +1,55 @@
+* TODO STUN
+** TODO server grab command prompt
+** TODO simple protocol://linkdata URL handler system
+** TODO simple "verb object" commands
+** TODO stun.el
+** TODO Run stun as an emacs inferior process with sdtin/stdout
+** TODO Notification area with scrollback
+** TODO launch programs
+** TODO mount points
+** TODO Basically just a widget kit for emacs. emacs does the usb and shell stuff
+** TODO very basic menu widget with cursor nav
+* TODO SYS
+** TODO fix RT kernel issue
+** TODO configure xdm splash image
+** TODO configure gtk fonts/theme statically
+** TODO configure for gimp
+** TODO configure for ardour
+* TODO RLX
+** TODO micro elisp object system
+** TODO improve radio.el
+** TODO define browser keys (instead of queueing to :browser)
+** TODO fix lighting artifacts (light all possible destination squares within radius)
+** TODO Fix monsters jumping on me
+** TODO death!
+** TODO better maze walls
+** TODO oxygen death
+** TODO container sorting / aggregation
+** TODO Refactor browser line render strategy for :equipment and :inventory modes
+** TODO Browser menus
+** TODO browser item inspection
+** TODO Browser history
+** TODO fix equipment plist weirdness
+** TODO [#C] improve CLON object printing/inspection
+** TODO [#C] Ask Luke about my main loop and cpu usage
+** TODO [#A] examine current square
+** TODO [#B] monster generators, speed determined by game level
+** TODO [#B] infinite levels, color changes, you can't win!
+** TODO [#C] support colored border around formatters
+** TODO [#C] support titled formatters
+* OTHER TASKS
+** TODO map overlays 
+** TODO targeting reticle
+** TODO select a square
+** TODO pathfinding white graviceptor 
+** TODO design overview in rlx.lisp
+** DONE [#B] standardized prefix for common resource names like .startup?
+CLOSED: [2008-08-15 Fri 01:34]
+** TODO [#C] prompt arrow keybindings
+** TODO check weight on container add
+** TODO store container-parent link
+** TODO [#C] add console-style menus to output widget? probably simpler...
+** TODO [#C]  elisp for auto-updating PAK files to grab new images in dirs
+** TODO [#C] change index.pak to vm0.pak
+** TODO get rid of eon slot descriptor specs?
+** TODO :controller events for dvorak/svorak fun

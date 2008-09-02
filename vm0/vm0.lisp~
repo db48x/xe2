@@ -1,0 +1,125 @@
+;;; vm0.lisp --- void mission zero: a common lisp roguelike
+
+;; Copyright (C) 2006, 2007, 2008  David O'Toole
+
+;; Author: David O'Toole <dto@gnu.org>
+;; Keywords: games
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;;; Code:
+
+(eval-when (:execute :load-toplevel :compile-toplevel) 
+  (require :eon)
+  (require :rlx))
+
+(defpackage :vm0
+  (:documentation "A sci-fi roguelike for RLX.")
+  (:use :rlx :eon :common-lisp)
+  (:export play))
+
+(in-package :vm0)
+
+(rlx:install-game 
+ :title "Void Mission Zero"
+ :author "David O'Toole"
+ :email "dto@gnu.org"
+ :resource-directory "vm0"
+ :tile-size 16
+ :play-function #'play
+ :license "GPLv3")
+
+;;; Putting it all together
+
+(define-prototype dusk-terrain (:parent cell)
+  (tile :initform "Dusk-Terrain-Flat2"))
+
+(define-prototype dusk-terrain-icy (:parent cell)
+  (tile :initform "Dusk-Terrain-Icy2"))
+
+(define-prototype red-perceptor (:parent cell)
+  (categories :initform '(:actor :obstacle :opaque))
+  (speed :initform 5)
+  (tile :initform "RedPerceptor"))
+
+(define-method run red-perceptor ()
+  (let ((dir (nth (random (length *compass-directions*))
+		  *compass-directions*)))
+    [move self dir]))
+
+(define-prototype dusk-terrain-dark (:parent cell)
+  (tile :initform "Dusk-Terrain-Dark"))
+
+(define-prototype voyager (:parent cell)
+  (category :initform '(:actor :container :obstacle))
+  (speed :initform 10)
+  (tile :initform "Voyager-Normal"))
+
+(define-prototype vm0-prompt 
+    (:parent prompt))
+
+(defparameter *vm0-keybindings*
+  '(("Q" nil "move :northwest .")
+    ("W" nil "move :north .")
+    ("E" nil "move :northeast .")
+    ("A" nil "move :west .")
+    ("D" nil "move :east .")
+    ("Z" nil "move :southwest .")
+    ("X" nil "move :south .")
+    ("C" nil "move :southeast .")))
+  
+(define-method install-keybindings vm0-prompt ()
+  (dolist (k *vm0-keybindings*)
+    (apply #'bind-key-to-prompt-insertion self k)))
+  
+(define-method render vm0-prompt ()
+    0)
+
+(defun play ()
+  (rlx:initialize-engine)
+  (let* ((frame (clone *frame*))
+	 (prompt (clone *prompt*))
+	 (player-prompt (clone *vm0-prompt*))
+	 (output-area (clone *output-area*))
+	 (world (clone *world* :height 100 :width 100))
+	 (voyager (clone *voyager*))
+	 (viewport (clone *viewport* :world world)))
+    [install-keybindings prompt]
+    [install-keybindings player-prompt]
+    [set-player world voyager]
+    [set-output-area world output-area]
+    [set-origin viewport 0 0 30 20]
+    [set-content frame viewport]
+    [add-widget frame output-area]
+    [add-widget frame player-prompt]
+    [add-widget frame prompt]
+    [set-receiver prompt world]
+    [set-receiver player-prompt world]
+    ;;
+    (dotimes (i 100)
+      (dotimes (j 100)
+	[drop-cell world (clone *dusk-terrain*) i j]))
+    (dotimes (n 100)
+      [drop-cell world (clone *dusk-terrain-icy*) (random 100) (random 100)])
+    (dotimes (i 100)
+      [drop-cell world (clone *red-perceptor*) (random 100) (random 100)])
+    [drop-cell world voyager 0 0]
+    ;;
+    [run frame]))
+
+;; (play)
+
+;;; vm0.lisp ends here

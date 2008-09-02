@@ -1,0 +1,46 @@
+This README is a quick overview of the project and the repository.
+
+Description: RLX is a next-generation roguelike game engine written in
+             Common Lisp.
+
+Requirements: Common Lisp (SBCL recommended) http://www.sbcl.org
+	      LISPBUILDER-SDL http://lispbuilder.sourceforge.net/
+	      SDL http://www.libsdl.org/
+	          for game development only:
+	          GNU Emacs http://www.gnu.org/software/emacs
+
+Status: Pre-alpha. 
+
+Files overview: 
+
+README      This file.
+COPYING     GNU General Public License text.
+CREDITS     People I would like to thank.
+INSTALL     Installation instructions.
+
+radio.el    Code tagging and navigation tool.
+            Useful for getting around the code base.
+	    See rlx.lisp for a list of tags.
+
+clon.lisp   Classless object system for Common Lisp.
+
+clon.el     GNU Emacs editing support for CLON.
+
+grid.el     Two-dimensional array library for GNU Emacs.
+cell.el     Spreadsheet and tile map display for GNU Emacs.
+pak.el      GNU Emacs support for editing PAK files.
+
+console.lisp    Fundamental operations and SDL details.
+cells.lisp      Core roguelike game objects and rules.
+worlds.lisp     Active playable 2.5-D maps full of objects.
+browser.lisp    General purpose object interactor widget.
+math.lisp       Math support for geometry, terrain, lighting, etc. 
+rgb.lisp	Standard X11 color data. 
+rlx.asd         System definition. 
+rlx.lisp        Package definition. 
+standard/       Standard resources common to all RLX games. 
+vm0/            Example game module entitled "Void Mission Zero"
+widgets.lisp    Common GUI code and basic widgets (prompt, formatter)
+
+todo.org           Org-mode TODO list.   
+todo.org_archive   Archived TODOs and notes.

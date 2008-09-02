@@ -1,0 +1,36 @@
+This program requires a Common Lisp implementation and the
+LISPBUILDER-SDL packages. These are available from:
+http://lispbuilder.sourceforge.net/lispbuilder-sdl.html
+
+SBCL users can do the following to try out the test game:
+
+1. Link the rlx.asd file into your ~/.sbcl/systems via "ln -s"
+
+2. Enter these commands at the SBCL prompt if you need to install
+   LISPBUILDER-SDL.
+
+  (require :asdf)
+  (require :asdf-install)
+  (asdf-install:install :lispbuilder-sdl) 
+  (asdf-install:install :lispbuilder-sdl-image)
+
+  NOTE: The latest SVN version of lispbuilder is highly recommended
+  for correct rendering.  If you see ugly black borders around
+  objects, upgrade to the new version: 
+
+  svn co https://lispbuilder.svn.sourceforge.net/svnroot/lispbuilder/trunk lispbuilder
+
+3. Add something like this to a new file called ~/.rlxrc:
+
+  (setf rlx:*module-directories* '("/home/dto/rlx"))
+
+The filename should be wherever you installed the RLX source tree.
+
+4. Then at the SBCL REPL:
+
+  (require :rlx)
+  (rlx:play "vm0")
+  
+5. ESCAPE toggles the command prompt.  Use the numeric keypad to move
+   around. T to pick up objects.  E to equip slot 0, or enter "equip
+   N" at the command prompt to equip slot N.  Alt-DIRECTION to attack.

@@ -1,0 +1,17 @@
+((:name nil :type :pak :file "standard.pak" :data "standard")
+ (:name "mars-terrain-flat2" :type :image :file "mars-terrain-flat2.png")
+ (:name "mars-terrain-icy" :type :image :file "mars-terrain-icy.png")
+ (:name "turquoise-crystal" :type :image :file "turquoisecrystal.png")
+ (:name "purple-perceptor" :type :image :file "purpleperceptor.png")
+ (:name "electron" :type :image :file "electron.png")
+ (:name "energy" :type :image :file "energy.png")
+ (:name "gun" :type :image :file "gun.png")
+ (:name "red-perceptor" :type :image :file "redperceptor.png")
+ (:name "player" :type :image :file "voyager-normal.png")
+ (:name "rusty-wrench" :type :image :file "rustywrench.png")
+ (:name "shock-probe" :type :image :file "shock-probe.png")
+ (:name "gray-brick" :type :image :file "graybrick.png")
+ (:name ".startup" :type :lisp :file "vm0.lisp"))
+
+
+
