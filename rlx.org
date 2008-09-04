@@ -1,14 +1,3 @@
-* TODO STUN
-** TODO server grab command prompt
-** TODO simple protocol://linkdata URL handler system
-** TODO simple "verb object" commands
-** TODO stun.el
-** TODO Run stun as an emacs inferior process with sdtin/stdout
-** TODO Notification area with scrollback
-** TODO launch programs
-** TODO mount points
-** TODO Basically just a widget kit for emacs. emacs does the usb and shell stuff
-** TODO very basic menu widget with cursor nav
 * TODO SYS
 ** TODO fix RT kernel issue
 ** TODO configure xdm splash image
