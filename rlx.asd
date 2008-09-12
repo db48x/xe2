@@ -14,9 +14,8 @@
   :license "General Public License (GPL) Version 3"
   :description "An object-oriented graphical roguelike game engine."
   :serial t
-  :depends-on (:lispbuilder-sdl :lispbuilder-sdl-image)
+  :depends-on (:lispbuilder-sdl :lispbuilder-sdl-image :clon)
   :components ((:file "rlx")
-	       (:file "clon")
 	       (:file "math")
 	       (:file "rgb")
 	       (:file "console")
