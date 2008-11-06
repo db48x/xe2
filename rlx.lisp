@@ -59,8 +59,10 @@
 
 ;;; Code:
 
-(defpackage :rlx (:documentation "A graphical roguelike game engine
-  for Common Lisp.")  (:use :common-lisp) (:export
+(defpackage :rlx 
+  (:documentation "A graphical roguelike game engine for Common Lisp.")  
+  (:use :common-lisp :clon) 
+  (:export
   *default-frame-width* *default-frame-height* =viewport= =equipment=
   *default-world-axis-size* *default-world-z-size* =browser=
   *initialization-hook* initialize-engine message *screen-width*

@@ -1,4 +1,4 @@
-;;; console.lisp --- basic operations for the RLX Home Video Game System
+;;; console.lisp --- basic operations
 
 ;; Copyright (C) 2006, 2007, 2008  David O'Toole
 
@@ -13,7 +13,7 @@
 ;; This file is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;; GNU General Public License for more details.want to hear some electronic music
+;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program; see the file COPYING.  If not, write to
@@ -25,10 +25,11 @@
 ;; The "console" is the library which provides all RLX system
 ;; services. Primitive operations such as setting the resolution,
 ;; displaying bitmaps, drawing lines, playing sounds, file access, and
-;; keyboard/mouse input are handled here.
+;; keyboard/mouse input are handled here. 
 
 ;; Currently it uses the cross-platform SDL library (via
-;; LISPBUILDER-SDL) as its device driver. 
+;; LISPBUILDER-SDL) as its device driver, and wraps the library for
+;; use by the rest of RLX.
 
 ;; http://lispbuilder.sourceforge.net/
 
@@ -44,9 +45,9 @@
 ;;; Hooks
 
 ;; Hooks are special variables whose names are of the form
-;; `*foo-hook*' and whose values are lists of unary functions. The
-;; functions of a given hook are all invoked (in list order) whenever
-;; the hook is run with `run-hook'.
+;; `*foo-hook*' and whose values are lists of functions taking no
+;; arguments. The functions of a given hook are all invoked (in list
+;; order) whenever the hook is run with `run-hook'.
 
 (defun add-hook (hook func)
   "Arrange for FUNC to be invoked whenever HOOK is triggered with
@@ -126,7 +127,7 @@ else.")
 (defun normalize-event (event)
   "Convert EVENT to a normal form suitable for `equal' comparisons."
   (setf (rest event)
-	(sort (remove-duplicates (delete nil (rest event)))
+	(sornt (remove-duplicates (delete nil (rest event)))
 	      #'string< :key #'symbol-name))
   event)
 

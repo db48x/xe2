@@ -707,5 +707,4 @@ rectangles, or NIL if they would be smaller than one pixel."
 ;; 	    (getf to :row)
 ;;     (getf to :column)))
 
-
 ;;; math.lisp ends here

@@ -73,7 +73,6 @@ visually distinguished) version of the line."
 
 ;; TODO menu item cell
 
-
 ;;; An equipment browser
 
 (define-prototype equipment (:parent =browser=))
