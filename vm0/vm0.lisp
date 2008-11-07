@@ -202,7 +202,7 @@
 ;;; our world
 
 (define-prototype mars-world (:parent rlx:=world=)
-  (ambient-light :initform 4))
+  (ambient-light :initform :total))
 
 (define-method generate mars-world ()
   ;; create world

@@ -127,7 +127,7 @@ else.")
 (defun normalize-event (event)
   "Convert EVENT to a normal form suitable for `equal' comparisons."
   (setf (rest event)
-	(sornt (remove-duplicates (delete nil (rest event)))
+	(sort (remove-duplicates (delete nil (rest event)))
 	      #'string< :key #'symbol-name))
   event)
 
@@ -421,7 +421,8 @@ table."
 ;;; Driver-dependent resource object loading handlers
 
 (defun load-image-resource (resource)
-  (sdl-image:load-image (namestring (resource-file resource)) :surface-alpha t))
+  (sdl-image:load-image (namestring (resource-file resource)) 
+				  :alpha 255))
 
 (defun load-lisp-resource (resource)
   (load (resource-file resource)))
@@ -454,13 +455,16 @@ of the record.")
 (defun load-resource (resource)
   "Load the driver-dependent object of RESOURCE into the OBJECT field
 so that it can be fed to the console."
+  (message "Attempting to load resource ~S." (resource-name resource))
   (let ((handler (getf *resource-handlers* (resource-type resource))))
     (assert (functionp handler))
     ;; fill in the object field by invoking the handler
     (setf (resource-object resource)
 	  (funcall handler resource))
-    (message "Loaded resource ~S with result ~S." (resource-name resource)
-	    (resource-object resource))))
+    (if (null (resource-object resource))
+	(error "Failed to load resource ~S." (resource-name resource))
+	(message "Loaded resource ~S with result ~S." (resource-name resource)
+		 (resource-object resource)))))
 
 (defun find-resource (name &optional noerror)
   "Obtain the resource named NAME; unless NOERROR is non-nil, signal

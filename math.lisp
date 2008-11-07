@@ -366,7 +366,9 @@ rectangles, or NIL if they would be smaller than one pixel."
 	     (setf (aref grid (second M) (first M)) V))))
     grid))
 
-;; ;; (@* "Pathfinding with A*")
+;;; Pathfinding
+;; :. pathfinding >
+
 ;; ;;
 ;; ;; What follows is an implementation of the well-known A* pathfinding
 ;; ;; algorithm\footnote{http://en.wikipedia.org/wiki/A-star\_search\_algorithm}

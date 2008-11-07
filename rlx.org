@@ -1,12 +1,18 @@
-* TODO SYS
-** TODO fix RT kernel issue
-** TODO configure xdm splash image
-** TODO configure gtk fonts/theme statically
-** TODO configure for gimp
-** TODO configure for ardour
-* TODO RLX
-** TODO micro elisp object system
-** TODO improve radio.el
+* GET RLX RUNNING AGAIN
+
+** DONE Email Luke Crook
+CLOSED: [2008-11-06 Thu 19:59]
+** DONE Install newest lispbuilder
+CLOSED: [2008-11-06 Thu 20:08]
+** DONE SYNC API TO NEWEST LISPBUILDER
+CLOSED: [2008-11-07 Fri 14:53]
+** DONE Debug tiles not being loaded
+CLOSED: [2008-11-07 Fri 14:53]
+** TODO Get RLX running properly again
+
+* FLESH OUT VM0
+
+** TODO port pathfinding code
 ** TODO define browser keys (instead of queueing to :browser)
 ** TODO fix lighting artifacts (light all possible destination squares within radius)
 ** TODO Fix monsters jumping on me
@@ -19,6 +25,7 @@
 ** TODO browser item inspection
 ** TODO Browser history
 ** TODO fix equipment plist weirdness
+** TODO [#C] improve radio.el
 ** TODO [#C] improve CLON object printing/inspection
 ** TODO [#C] Ask Luke about my main loop and cpu usage
 ** TODO [#A] examine current square
@@ -26,6 +33,7 @@
 ** TODO [#B] infinite levels, color changes, you can't win!
 ** TODO [#C] support colored border around formatters
 ** TODO [#C] support titled formatters
+** TODO micro elisp object system
 * OTHER TASKS
 ** TODO map overlays 
 ** TODO targeting reticle
