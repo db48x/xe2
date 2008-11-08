@@ -1,12 +1,30 @@
-This program requires a Common Lisp implementation and the
-LISPBUILDER-SDL packages. These are available from:
-http://lispbuilder.sourceforge.net/lispbuilder-sdl.html
+This is the INSTALL file for the RLX roguelike engine.
 
-SBCL users can do the following to try out the test game:
+1. You need a Common Lisp implementation. Only tested on SBCL right
+   now.
 
-1. Link the rlx.asd file into your ~/.sbcl/systems via "ln -s"
+2. If you have not already done so, download RLX:
+  
+   mkdir ~/src
+   cd ~/src
+   git clone git://github.com/dto/rlx.git 
 
-2. The development version of LISPBUILDER-SDL is required. Use
+4. Then link the rlx.asd file into your ~/.sbcl/systems directory:
+
+   ln -s ~/src/rlx/rlx.asd ~/.sbcl/systems
+
+3. Download and install a required library called CLON. Example
+   commands:
+
+   mkdir ~/src
+   cd ~/src
+   git clone git://github.com/dto/clon.git
+
+   Then link the clon.asd file:
+
+   ln -s ~/src/clon/clon.asd ~/.sbcl/systems
+
+5. The development version of LISPBUILDER-SDL is required. Use
    Subversion to check out the source code:
 
    mkdir ~/src
@@ -19,17 +37,17 @@ SBCL users can do the following to try out the test game:
    cd ~/.sbcl/systems
    for i in `find ~/src/lispbuilder -name "*.asd"`; do ln -s $i .; done
 
-3. Add something like this to a new file called ~/.rlxrc:
+6. Add something like this to a new file called ~/.rlxrc:
 
-  (setf rlx:*module-directories* '("/home/dto/rlx"))
+  (setf rlx:*module-directories* '("/home/dto/src/rlx"))
 
 The filename should be wherever you installed the RLX source tree.
 
-4. Then at the SBCL REPL:
+7. Then at the SBCL REPL:
 
   (require :rlx)
   (rlx:play "vm0")
   
-5. ESCAPE toggles the command prompt.  Use the numeric keypad to move
+8. ESCAPE toggles the command prompt.  Use the numeric keypad to move
    around. T to pick up objects.  E to equip slot 0, or enter "equip
    N" at the command prompt to equip slot N.  Alt-DIRECTION to attack.
