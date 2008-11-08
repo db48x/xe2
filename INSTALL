@@ -9,11 +9,11 @@ This is the INSTALL file for the RLX roguelike engine.
    cd ~/src
    git clone git://github.com/dto/rlx.git 
 
-4. Then link the rlx.asd file into your ~/.sbcl/systems directory:
+3. Then link the rlx.asd file into your ~/.sbcl/systems directory:
 
    ln -s ~/src/rlx/rlx.asd ~/.sbcl/systems
 
-3. Download and install a required library called CLON. Example
+4. Download and install a required library called CLON. Example
    commands:
 
    mkdir ~/src
