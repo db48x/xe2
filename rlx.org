@@ -8,10 +8,12 @@ CLOSED: [2008-11-06 Thu 20:08]
 CLOSED: [2008-11-07 Fri 14:53]
 ** DONE Debug tiles not being loaded
 CLOSED: [2008-11-07 Fri 14:53]
-** TODO Get RLX running properly again
+** DONE Get RLX running properly again
+CLOSED: [2008-11-08 Sat 09:03]
 
 * FLESH OUT VM0
 
+** TODO Review codebase
 ** TODO port pathfinding code
 ** TODO define browser keys (instead of queueing to :browser)
 ** TODO fix lighting artifacts (light all possible destination squares within radius)
