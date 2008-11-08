@@ -6,19 +6,18 @@ SBCL users can do the following to try out the test game:
 
 1. Link the rlx.asd file into your ~/.sbcl/systems via "ln -s"
 
-2. Enter these commands at the SBCL prompt if you need to install
-   LISPBUILDER-SDL.
+2. The development version of LISPBUILDER-SDL is required. Use
+   Subversion to check out the source code:
 
-  (require :asdf)
-  (require :asdf-install)
-  (asdf-install:install :lispbuilder-sdl) 
-  (asdf-install:install :lispbuilder-sdl-image)
+   mkdir ~/src
+   cd ~/src
+   svn co https://lispbuilder.svn.sourceforge.net/svnroot/lispbuilder/trunk lispbuilder
+   
+   Then symlink all the .asd files in that tree into ~/.sbcl/systems
+   (or wherever your .ASD files go) like this:
 
-  NOTE: The latest SVN version of lispbuilder is highly recommended
-  for correct rendering.  If you see ugly black borders around
-  objects, upgrade to the new version: 
-
-  svn co https://lispbuilder.svn.sourceforge.net/svnroot/lispbuilder/trunk lispbuilder
+   cd ~/.sbcl/systems
+   for i in `find ~/src/lispbuilder -name "*.asd"`; do ln -s $i .; done
 
 3. Add something like this to a new file called ~/.rlxrc:
 
