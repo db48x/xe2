@@ -219,24 +219,22 @@
   (dotimes (i 12)
     [drop-cell self (clone =red-perceptor=) (random 100) (random 100) :loadout])
   (dotimes (i 12)
+    [drop-cell self (clone =purple-perceptor=) (random 100) (random 100) :loadout])
+  (dotimes (i 12)
     [drop-cell self (clone =crystal=) (random 100) (random 100) :loadout])
   (dotimes (i 8)
     [drop-cell self (clone =shock-probe=) (random 100) (random 100) :loadout])
   (dotimes (i 12)
     [drop-cell self (clone =rusty-wrench=) (random 100) (random 100) :loadout])
-
-  ;;   (dotimes (i 4)
-  ;;     (trace-octagon #'drop-brick 
-  ;; 		     (+ 20 (random 60))
-  ;; 		     (+ 20 (random 60))
-  ;; 		     (+ 3 (random 5)))
-  ;; (trace-line #'drop-brick (random 40) (random 40) (random 40) (random 40))))
- (labels ((drop-brick (x y)
- 	     [drop-cell self (clone =gray-brick=) y x])
- 	   (drop-crystal (x y)
-	     [drop-cell self (clone =crystal=) y x]))
-  (trace-line #'drop-brick 0 0 5 15))
-
+  (dotimes (i 4)
+    (labels ((drop-brick (x y)
+	       [drop-cell self (clone =gray-brick=) y x])
+	     (drop-crystal (x y)
+	       [drop-cell self (clone =crystal=) y x]))
+      (trace-octagon #'drop-brick 
+		     (+ 20 (random 60))
+		     (+ 20 (random 60))
+		     (+ 3 (random 5)))))
   ;; add player 
   [drop-cell self <player> 10 10])
 
