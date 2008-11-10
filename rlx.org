@@ -12,7 +12,15 @@ CLOSED: [2008-11-07 Fri 14:53]
 CLOSED: [2008-11-08 Sat 09:03]
 
 * FLESH OUT VM0
+* TODO ALPHA RELEASE
+** TODO RLX opening screen
 
+** TODO death screen
+** TODO treasure to be gained from enemy corpses
+** TODO container browse?
+
+
+* Other
 ** TODO loadout by default?
 ** TODO Review codebase
 ** TODO port pathfinding code
