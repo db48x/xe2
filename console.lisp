@@ -222,8 +222,8 @@ window. Set this in the game startup file.")
 		     (sdl:clear-display sdl:*black*)
 		     (dispatch-event (make-event key mod))
 		     (show-widgets)
-		     (sdl:update-display))
-    (:idle () (sdl:update-display))))
+		     (sdl:update-display))))
+
 
 ;;; The .rlxrc user init file
 
