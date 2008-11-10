@@ -70,7 +70,10 @@
 
 (defvar *active-widgets* nil "List of active widget objects. 
 These widgets receive input events and are rendered to the screen by
-the console. See also `send-event-to-widgets'.")
+the console. See also `send-event-to-widgets'.
+
+Do not set this variable directly from a module; instead, call
+`install-widgets'.")
 
 (defun show-widgets ()
   "Draw the active widgets to the screen."
@@ -79,6 +82,15 @@ the console. See also `send-event-to-widgets'.")
     (sdl:draw-surface-at-* (field-value :image widget)
 			   (field-value :x widget)
 			   (field-value :y widget))))
+
+(defvar *module-widgets* nil "List of widget objects in the current module.")
+
+(defun install-widgets (widgets)
+  "User-level function for setting the active widget set. Note that
+RLX may override the current widget set at any time for system menus
+and the like."
+  (setf *module-widgets* widgets)
+  (setf *active-widgets* widgets))
 
 ;;; Event handling and widgets
 
@@ -201,7 +213,7 @@ window. Set this in the game startup file.")
   (sdl:window *screen-width* *screen-height*
 	      :title-caption "RLX")
   (sdl:clear-display sdl:*black*)
-  ;; TODO splash screen
+  (show-widgets)
   (sdl:update-display)
   (sdl:with-events ()
     (:quit-event () t)
@@ -596,6 +608,13 @@ The default destination is the main window."
 		  :stroke-color (find-resource-object stroke-color)
 		  :surface destination))
 
+;;; Splash screen hook
+
+(defvar *splash-screen-hook* nil)
+
+(defun show-splash-screen ()
+  (run-hook '*splash-screen-hook*))
+
 ;;; Playing the game
 
 (defun play (module-name)
@@ -605,8 +624,10 @@ The default destination is the main window."
     (run-hook '*initialization-hook*)
     (initialize-resource-table)
     (initialize-colors)
+    (index-module "standard")
     (index-module module-name)
     (find-resource *startup*)
+    (show-splash-screen)
     (run)))
 
 ;;; Playing sounds

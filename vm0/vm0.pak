@@ -1,5 +1,4 @@
-((:name nil :type :pak :file "standard.pak" :data "standard")
- (:name "mars-terrain-flat2" :type :image :file "mars-terrain-flat2.png")
+((:name "mars-terrain-flat2" :type :image :file "mars-terrain-flat2.png")
  (:name "mars-terrain-icy" :type :image :file "mars-terrain-icy.png")
  (:name "turquoise-crystal" :type :image :file "turquoisecrystal.png")
  (:name "purple-perceptor" :type :image :file "purpleperceptor.png")

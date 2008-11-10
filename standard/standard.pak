@@ -1,4 +1,5 @@
-((:name ".default-font" :type :font :properties (:height 14 :width 7) :data "7x14")
+((:name ".splash-screen" :type :image :file "splash.png")
+ (:name ".default-font" :type :font :properties (:height 14 :width 7) :data "7x14")
  (:name ".asterisk" :type :image :file "asterisk.png")
  (:name ".gray-asterisk" :type :image :file "gray-asterisk.png")
  (:name ".gear" :type :image :file "gear.png")

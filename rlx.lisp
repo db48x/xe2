@@ -62,16 +62,15 @@
 (defpackage :rlx 
   (:documentation "A graphical roguelike game engine for Common Lisp.")  
   (:use :common-lisp :clon) 
-  (:export
-  *default-frame-width* *default-frame-height* =viewport= =equipment=
-  *default-world-axis-size* *default-world-z-size* =browser=
-  *initialization-hook* initialize-engine message *screen-width*
-  transform-method-body make-stat =formatter= initialize-colors
-  *standard-categories* *default-action-points* =world= roll
-  bind-key-to-method *colors* get-color =prompt= define-method
-  *default-font* *startup* field-value set-field-value object-fields
-  dispatch-event run *user-init-file-name* distance icon-resource
-  icon-image *compass-directions* *compass-opposites*
+  (:export *default-frame-width* *default-frame-height* =viewport=
+  =equipment= *default-world-axis-size* *default-world-z-size*
+  =browser= install-widgets *initialization-hook* initialize-engine
+  message *screen-width* transform-method-body make-stat =formatter=
+  initialize-colors *standard-categories* *default-action-points*
+  =world= roll bind-key-to-method *colors* get-color =prompt=
+  define-method *default-font* *startup* field-value set-field-value
+  object-fields dispatch-event run *user-init-file-name* distance
+  icon-resource icon-image *compass-directions* *compass-opposites*
   find-resource-property compose-blank-fields font-width font-height
   *browser* browser set-browser transform-field-reference
   *screen-height* =inventory= formatted-string-height
@@ -79,26 +78,26 @@
   define-prototype has-field set-field-options field-option-value
   index-resource find-module-path index-module load-image-resource
   load-lisp-resource *resource-handlers* load-resource find-resource
-  find-resource-object *colors* *active-world*
-  load-user-init-file *module-directories* resource-to-plist
-  make-event =widget= *active-widgets* bind-key-to-prompt-insertion
-  make-field-initializer clone make-field-initializer-body
-  make-key-modifier-symbol make-key-string normalize-event
-  make-keyword make-object queue-head queue-max queue-count *sender*
-  make-special-variable-name field-reference-p null-parent
-  *message-send-symbol-suffix* *x11-color-data* object-name
-  object-parent send send-super send-queue self opposite-direction
-  object-address-string object step-in-direction direction-to =cell=
-  plasma-rect subdivide-rect render-plasma add-hook run-hook
-  queue-tail make-queue queue unqueue queue-message queued-messages-p
-  unqueue-message send-queue field-value random-direction
-  load-font-resource draw-string-solid read-pak *resource-table*
-  initialize-resource-table render-formatted-paragraph
-  make-formatted-string draw-string-shaded render-formatted-string
-  render-formatted-line resource write-sexp-to-file
-  with-message-sender *message-sender* read-sexp-from-file write-pak
-  send-event-to-widgets *event-handler-function* trace-rectangle
-  trace-octagon trace-line midpoint =asterisk= =gray-asterisk= self
+  find-resource-object *colors* *active-world* load-user-init-file
+  *module-directories* resource-to-plist make-event =widget=
+  *active-widgets* bind-key-to-prompt-insertion make-field-initializer
+  clone make-field-initializer-body make-key-modifier-symbol
+  make-key-string normalize-event make-keyword make-object queue-head
+  queue-max queue-count *sender* make-special-variable-name
+  field-reference-p null-parent *message-send-symbol-suffix*
+  *x11-color-data* object-name object-parent send send-super
+  send-queue self opposite-direction object-address-string object
+  step-in-direction direction-to =cell= plasma-rect subdivide-rect
+  render-plasma add-hook run-hook queue-tail make-queue queue unqueue
+  queue-message queued-messages-p unqueue-message send-queue
+  field-value random-direction load-font-resource draw-string-solid
+  read-pak *resource-table* initialize-resource-table
+  render-formatted-paragraph make-formatted-string draw-string-shaded
+  render-formatted-string render-formatted-line resource
+  write-sexp-to-file with-message-sender *message-sender*
+  read-sexp-from-file write-pak send-event-to-widgets *splash-screen-hook*
+  *event-handler-function* trace-rectangle trace-octagon trace-line
+  midpoint =asterisk= =gray-asterisk= self *module-widgets*
   transform-declaration-field-descriptor no-such-field =narrator=
   transform-tree operation-symbol message-symbol with-message-queue
   set-field-option-value field-options))
