@@ -13,8 +13,9 @@ CLOSED: [2008-11-08 Sat 09:03]
 
 * FLESH OUT VM0
 * TODO ALPHA RELEASE
-** TODO RLX opening screen
-
+** DONE paint RLX opening screen
+CLOSED: [2008-11-10 Mon 08:13]
+** TODO display splash screen on startup
 ** TODO death screen
 ** TODO treasure to be gained from enemy corpses
 ** TODO container browse?
