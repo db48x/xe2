@@ -1,0 +1,153 @@
+#+TITLE: VM0 Design version 2
+
+This is another design document for the RLX demo game Void Mission
+Zero.
+
+* Setting
+
+You are a humanoid mercenary equipped with a rusty wrench, a basic
+environment suit, and a particle gun. You work for a powerful
+megacorporation as they battle with other companies to monopolize and
+exploit the technology and resources of a newly discovered ancient
+"machine planet".
+
+* Stats
+
+You have the following stats to keep track of:
+
+  - Action points (AP). Every action has an AP cost.
+  - Speed (SPD).  Number of action points to spend each turn.
+  - Hit points (HP). When this reaches zero, you die.
+  - Energy (EN).  Energy weapons use up these points when fired. When
+     this reaches zero, you cannot fire energy weapons until you
+     recharge at least part of the gauge.
+  - Oxygen level (OX). When this reaches zero, you rapidly lose HP
+    until you die.
+
+You can pick up items like Energy capsules to refill the EN gauge,
+Oxygen tanks for the OX gauge, and Medpacks for the HP gauge.
+
+* Terrain
+
+At the beginning of each randomly generated mission, the Corporation
+will air-drop you into the area of operations, and you begin fighting.
+
+Mission terrain varies, and will include sand with rocky outcroppings,
+ice canyons, machine highways, deep mazes, and massive droid-infested
+factories.
+
+* Combat
+
+** TODO Ranged combat					  :alpha:
+
+Ranged combat dominates the game. There are two firing modes;
+directional mode, in which you fire in a straight line along one of
+the eight compass directions; and targeted mode, in which a targeting
+cursor can be moved around the screen to fire at particular enemies:
+
+:
+:    	   	$
+:    @.
+:      ......
+:      	    ..:::
+:	   $  :$:
+:	      :::
+:
+:    KEY: @=player $=enemy .=shot :=cursor
+
+** TODO Melee combat					  :alpha:
+
+Melee combat serves two purposes:
+
+  1. The rusty wrench is a ready fall-back weapon in situations where
+     you run out of ammo or energy.
+  2. Balancing powerful weapons. For example an energy blade weapon
+     could be very devastating, but not useful against very fast
+     opponents.
+
+** DONE Wrench						  :alpha:
+** TODO Energy blade					   :beta:
+
+* Enemies
+
+The enemies may be human employees of other corporations, or hostile
+alien/robot forms.
+
+** TODO Perceptors					  :alpha:
+
+"Perceptors" are (floating spheroid eye-bots with shock probes). Red
+perceptors tend to seek the player even when far away, but purple
+perceptors wander around randomly until the player comes near. These
+are very dangerous to the player, and he must have a ranged weapon in
+order to deal with them effectively.
+
+** TODO Rooks						  :beta:
+
+Rooks are large, slow, tank-like turrets-on-wheels. Their roof-mounted
+particle cannons are accurate and extremely deadly, but have two
+disadvantages.  First, they cannot target immediately adjacent
+squares, so the player can survive by getting close and attacking with
+a melee weapon. Second, the particle cannon is slow to recharge,
+allowing a shot only once every few turns.
+
+Being in an open area with several rooks is a bad idea---they'll blow
+you away. Instead you must lure them one by one into corridors and
+fight in close range---or freeze the group with EMP grenades and blast
+away.
+
+** TODO Bases						  :beta:
+
+* TODO Shield						  :alpha:
+
+The shield creates a barrier around you.
+
+:
+:  +-----+
+:  |     |
+:  |  @	 |
+:  |     |
+:  +-----+
+:
+:  KEY: @=player +-|=shield
+
+The shield doesn't move with you.
+
+:
+:  +-----+
+:  |     |
+:  |  	 |
+:  |   @ |
+:  +-----+
+:
+:  KEY: @=player +-|=shield
+
+The shield fades after a few turns. It can also be damaged by shots:
+
+:
+:
+:      	     	    ...$
+:      	      .......
+:  +-- --......
+:  |     |
+:  |  @ ...........$
+:  |     |
+:  +-----+
+:
+:  KEY: @=player .=shot $=enemy
+
+* TODO Environmental Conditions				   :beta:
+
+** TODO Oxygen
+** TODO Pressure
+** TODO Contaminants 
+** TODO Radioactivity
+** TODO Temperature
+
+* TODO Lighting and Radar				   :beta:
+
+** TODO Write this
+
+* TODO Music and SFX 					   :beta:
+
+
+
