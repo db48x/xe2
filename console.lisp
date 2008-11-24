@@ -394,6 +394,7 @@ name MODULE-NAME. Returns the pathname if found, otherwise nil."
 
 (defun directory-is-module-p (dir)
   "Test whether a PAK index file exists in a directory."
+  (and (
   (let ((index-filename (concatenate 'string
 				     (file-namestring dir)
 				     ".pak")))
@@ -404,8 +405,11 @@ name MODULE-NAME. Returns the pathname if found, otherwise nil."
 
 (defun find-modules-in-directory (dir)
   "Search DIR for modules and return a list of their names."
-  (remove-if-not #'directory-is-module-p
-		 (directory (concatenate 'string dir "/*/"))))
+  (let ((dirnames (mapcar #'(lambda (s)
+			      (subseq s 0 (1- (length s))))
+			  (mapcar #'namestring
+				  (directory (concatenate 'string dir "/*/"))))))
+    (remove-if-not #'directory-is-module-p dirnames)))
 				      
 (defun index-pak (module-name pak-file)
   "Add all the resources from the pak PAK-FILE to the resource
