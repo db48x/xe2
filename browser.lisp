@@ -20,15 +20,30 @@
 
 ;;; Commentary:
 
+;; Browsable items should provide the following fields:
+
+;;  :tile  --- String image icon name
+;;  :name  --- String object name
+
+;; You must also define some methods:
+
+;;  [is-disabled item] should return non-nil when the menu item is to
+;;  be grayed out.
+
+;;  [open item] should return either:
+;; 
+;;    - a new array to browse, or
+;;    - a function to invoke after exiting the menu
+
 ;;; Code:
 
 (in-package :rlx)
 
 (define-prototype browser (:parent =formatter=)
   (collection :documentation "The vector of CLON objects being browsed.")
-  (title :documentation "A string, the title of the collection.")
   (cursor :initform 0
-	  :documentation "The array index of the currently selected object."))
+	  :documentation "The array index of the currently selected object.")
+  (history :documentation "Recently browsed collections."))
 
 (define-method cursor-next browser ()
   (when (array-in-bounds-p <collection> (+ 1 <cursor>))
@@ -40,6 +55,15 @@
 
 (define-method cursor-item browser ()
   (aref <collection> <cursor>))
+
+(define-method follow browser ()
+  (let* ((item [cursor-item self]))
+    (push item <history>)
+    (setf <collection> 
+	  [open item])))
+
+(define-method back browser ()
+  (setf <collection> (pop <history>)))
 
 (define-method print-object browser (object &optional selected-p)
   "Print the OBJECT in the browser as a new formatted line.

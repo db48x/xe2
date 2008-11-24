@@ -1,37 +1,41 @@
-* GET RLX RUNNING AGAIN
-
-** DONE Email Luke Crook
-CLOSED: [2008-11-06 Thu 19:59]
-** DONE Install newest lispbuilder
-CLOSED: [2008-11-06 Thu 20:08]
-** DONE SYNC API TO NEWEST LISPBUILDER
-CLOSED: [2008-11-07 Fri 14:53]
-** DONE Debug tiles not being loaded
-CLOSED: [2008-11-07 Fri 14:53]
-** DONE Get RLX running properly again
-CLOSED: [2008-11-08 Sat 09:03]
-
-* FLESH OUT VM0
 * TODO ALPHA RELEASE
-** DONE paint RLX opening screen
-CLOSED: [2008-11-10 Mon 08:13]
-** TODO display splash screen on startup
+** DONE Make TODO list from vm0-design-2
+CLOSED: [2008-11-12 Wed 08:45]
+** TODO Module selection screen
+** TODO fix radio mode
+** TODO identify standard keys and directional controls
+** TODO design general menu widget
+*** DONE define menu item protocol
+CLOSED: [2008-11-24 Mon 07:03]
+*** TODO [#C] menu title?
+*** TODO implement menu
+*** DONE forward/back
+CLOSED: [2008-11-24 Mon 07:53]
+*** TODO faces for highlight, disable, etc
+** DONE roguelike keys (configurable?)
+CLOSED: [2008-11-24 Mon 05:58]
+** TODO directional ranged attacks 
+** TODO firing control system
+** TODO targeted ranged attacks
+** TODO force barrier
 ** TODO death screen
-** TODO treasure to be gained from enemy corpses
-** TODO container browse?
-
-
+** TODO search container browser
+** TODO treasure to be gained from enemy corpses (crystals, energy)
+** TODO aggregate objects
+** TODO [#A] examine current square
+** TODO [#B] monster generators, speed determined by game level
+** TODO [#B] infinite levels, color changes, you can't win!
 * Other
+** TODO death!
+** TODO better maze walls
+** TODO oxygen death
 ** TODO loadout by default?
 ** TODO Review codebase
 ** TODO port pathfinding code
 ** TODO define browser keys (instead of queueing to :browser)
 ** TODO fix lighting artifacts (light all possible destination squares within radius)
 ** TODO Fix monsters jumping on me
-** TODO death!
-** TODO better maze walls
-** TODO oxygen death
-** TODO container sorting / aggregation
+** TODO container sorting
 ** TODO Refactor browser line render strategy for :equipment and :inventory modes
 ** TODO Browser menus
 ** TODO browser item inspection
@@ -39,7 +43,6 @@ CLOSED: [2008-11-10 Mon 08:13]
 ** TODO fix equipment plist weirdness
 ** TODO [#C] improve radio.el
 ** TODO [#C] improve CLON object printing/inspection
-** TODO [#C] Ask Luke about my main loop and cpu usage
 ** TODO [#A] examine current square
 ** TODO [#B] monster generators, speed determined by game level
 ** TODO [#B] infinite levels, color changes, you can't win!

@@ -95,7 +95,7 @@
   render-formatted-paragraph make-formatted-string draw-string-shaded
   render-formatted-string render-formatted-line resource
   write-sexp-to-file with-message-sender *message-sender*
-  read-sexp-from-file write-pak send-event-to-widgets *splash-screen-hook*
+  read-sexp-from-file write-pak send-event-to-widgets draw-resource-image
   *event-handler-function* trace-rectangle trace-octagon trace-line
   midpoint =asterisk= =gray-asterisk= self *module-widgets*
   transform-declaration-field-descriptor no-such-field =narrator=

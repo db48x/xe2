@@ -481,35 +481,4 @@ normally."
 		:stroke-color ".yellow"
 		:destination image))))
 
-;;; The RLX splash screen
-
-(define-prototype splash (:parent =widget=))
-  
-(define-method render splash ()
-  (draw-resource-image ".splash-screen"
-		       (- (/ <width> 2) 160)
-		       (- (/ <height> 2) 100)
-		       :destination <image>))
-
-(define-method show splash ()
-  (setf *active-widgets* (list self)))
-
-(define-method hide splash () 
-  (setf *active-widgets* *module-widgets*))
-
-(define-method install-keybindings splash ()
-  (bind-key-to-method self "SPACE" nil :hide))
-
-(defun show-default-splash-screen ()
-  (let ((splash (clone =splash=)))
-    [resize splash 
-	    :height *screen-height* 
-	    :width *screen-width*]
-    [clear splash]
-    [install-keybindings splash]
-    [move splash :x 0 :y 0]
-    [show splash]))
-
-(add-hook '*splash-screen-hook* #'show-default-splash-screen)
-    
 ;;; widgets.lisp ends here

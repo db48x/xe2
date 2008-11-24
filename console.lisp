@@ -209,14 +209,14 @@ window. Set this in the game startup file.")
 (defvar *screen-height* 480 "The height (in pixels) of the game
 window. Set this in the game startup file.")
 
-(defun run ()
+(defun run-main-loop ()
   (sdl:window *screen-width* *screen-height*
 	      :title-caption "RLX")
   (sdl:clear-display sdl:*black*)
   (show-widgets)
   (sdl:update-display)
   (sdl:with-events ()
-    (:quit-event () t)
+    (:quit-event () (prog1 t (setf *next-module* nil)))
     (:video-expose-event () (sdl:update-display))
     (:key-down-event (:key key :mod mod)
 		     (sdl:clear-display sdl:*black*)
@@ -364,12 +364,11 @@ resources go in this one hash table.")
 
 (defun index-resource (resource)
   "Add the RESOURCE's record to the resource table.
-If a name collision occurs, an error is signaled."
-  (let ((name (resource-name resource)))
-    (if (gethash name *resource-table*)
-	(error "Resource name collision.")
-	(setf (gethash name *resource-table*) resource))
-    (message "Indexed resource ~S." name)))
+If a record with that name already exists, it is replaced."
+  (setf (gethash (resource-name resource)
+		 *resource-table*) 
+	resource)
+  (message "Indexed resource ~S." (resource-name resource)))
 
 (defvar *module-directories* '("/usr/local/games/rlx")
   "List of directories where RLX will search for modules.
@@ -608,27 +607,26 @@ The default destination is the main window."
 		  :stroke-color (find-resource-object stroke-color)
 		  :surface destination))
 
-;;; Splash screen hook
-
-(defvar *splash-screen-hook* nil)
-
-(defun show-splash-screen ()
-  (run-hook '*splash-screen-hook*))
-
 ;;; Playing the game
 
-(defun play (module-name)
-  (sdl:with-init ()
-    ;; :. initialization >
-    (load-user-init-file)
-    (run-hook '*initialization-hook*)
-    (initialize-resource-table)
-    (initialize-colors)
-    (index-module "standard")
-    (index-module module-name)
-    (find-resource *startup*)
-    (show-splash-screen)
-    (run)))
+(defvar *next-module* "standard")
+
+(defun play (&optional module-name)
+  ;; override module to play?
+  (when module-name 
+    (setf *next-module* module-name))
+  ;; now play modules until done
+  (loop while *next-module* do
+       (sdl:with-init ()
+	 ;; :. initialization >
+	 (load-user-init-file)
+	 (run-hook '*initialization-hook*)
+	 (initialize-resource-table)
+	 (initialize-colors)
+	 (index-module "standard") 
+	 (index-module *next-module*)
+	 (find-resource *startup*)
+	 (run-main-loop))))
 
 ;;; Playing sounds
 ;;; Playing background music

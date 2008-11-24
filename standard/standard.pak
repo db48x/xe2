@@ -16,4 +16,5 @@
  (:name ".stat-effect" :type :image :file "stat-effect.png")
  (:name ".take" :type :image :file "take.png")
  (:name ".turn" :type :image :file "turn.png")
- (:name ".use" :type :image :file "use.png"))
+ (:name ".use" :type :image :file "use.png")
+ (:name ".startup" :type :lisp :file "standard.lisp"))

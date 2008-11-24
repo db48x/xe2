@@ -34,7 +34,7 @@ will air-drop you into the area of operations, and you begin fighting.
 
 Mission terrain varies, and will include sand with rocky outcroppings,
 ice canyons, machine highways, deep mazes, and massive droid-infested
-factories.
+factories. 
 
 * Combat
 
