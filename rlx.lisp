@@ -99,6 +99,7 @@
   *event-handler-function* trace-rectangle trace-octagon trace-line
   midpoint =asterisk= =gray-asterisk= self *module-widgets*
   transform-declaration-field-descriptor no-such-field =narrator=
+  find-modules-in-directory directory-is-module-p
   transform-tree operation-symbol message-symbol with-message-queue
   set-field-option-value field-options))
 
