@@ -392,6 +392,21 @@ name MODULE-NAME. Returns the pathname if found, otherwise nil."
   "Make a pathname for FILE within the module MODULE-NAME."
   (merge-pathnames file (find-module-path module-name)))
 
+(defun directory-is-module-p (dir)
+  "Test whether a PAK index file exists in a directory."
+  (let ((index-filename (concatenate 'string
+				     (file-namestring dir)
+				     ".pak")))
+    (probe-file (make-pathname :name index-filename
+			       :directory (if (stringp dir)
+					      dir
+					      (namestring dir))))))
+
+(defun find-modules-in-directory (dir)
+  "Search DIR for modules and return a list of their names."
+  (remove-if-not #'directory-is-module-p
+		 (directory (concatenate 'string dir "/*/"))))
+				      
 (defun index-pak (module-name pak-file)
   "Add all the resources from the pak PAK-FILE to the resource
 table. File names are relative to the module MODULE-NAME."
@@ -422,6 +437,10 @@ table."
   (let ((index-file (find-module-file module-name
 				      (concatenate 'string module-name ".pak"))))
     (index-pak module-name index-file)))
+
+;;; Getting a list of modules
+
+
 
 ;;; Standard resource names
 
