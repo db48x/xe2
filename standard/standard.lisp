@@ -32,17 +32,41 @@
 
 (in-package :rlx-standard)
 
-;;; Menu items
+;;; Choosing modules from a menu
 
 (define-prototype module-launcher ()
-  module-name)
+  name
+  (tile :initform ".gear"))
 
 (define-method initialize module-launcher (&optional module)
-  (setf <module-name> module))
+  (setf <name> module))
 
 (define-method open module-launcher ()
-  (setf *next-module* <module-name>)
-  (sdl:quit-sdl))
+  (prog1 nil
+    (setf rlx:*next-module* <name>)
+    (sdl:push-quit-event)))
+
+(define-prototype standard-prompt (:parent rlx:=prompt=))
+
+(defparameter *standard-keybindings*
+  '(("UP" nil "cursor-previous .")
+    ("DOWN" nil "cursor-next .")
+    ("SPACE" nil "follow .")))
+  
+(define-method install-keybindings standard-prompt ()
+  (dolist (k *standard-keybindings*)
+    (apply #'bind-key-to-prompt-insertion self k)))
+
+;;; Quitting the menu
+
+(define-prototype quit-launcher ()
+  (name :initform "Quit RLX")
+  (tile :initform ".destroy-self"))
+
+(define-method open quit-launcher ()
+  (prog1 nil
+    (setf rlx:*next-module* nil)
+    (sdl:push-quit-event)))
 
 ;;; The splash screen widget
 
@@ -60,14 +84,30 @@
 
 (defun show-default-splash-screen ()
   (let ((splash (clone =splash=))
-	(browser (clone rlx:=browser=)))
+	(browser (clone rlx:=browser=))
+	(modules (rlx:find-all-modules))
+	(prompt (clone =standard-prompt=))
+	(quit (clone =quit-launcher=)))
     [resize splash 
 	    :height *screen-height* 
 	    :width *screen-width*]
     [move splash :x 0 :y 0]
-    [resize browser :height 100 :width 200]
+    ;; set up browser with list of modules
+    [resize browser :height 300 :width 200]
     [move browser :x 0 :y 0]
-    (install-widgets (list splash browser))))
+    [set-collection browser 
+		    (apply #'vector quit
+			   (mapcar #'(lambda (m)
+				       (clone =module-launcher= m))
+				   modules))]
+    ;; set up prompt
+    [install-keybindings prompt]
+    [resize prompt :height 30 :width 400]
+    [move prompt :x 0 :y 0]
+    [hide prompt]
+    [set-receiver prompt browser]
+    ;; go!
+    (install-widgets (list splash prompt browser))))
     
 (defun rlx-standard ()
   (setf rlx:*screen-height* 600)

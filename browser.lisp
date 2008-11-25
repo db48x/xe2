@@ -58,7 +58,7 @@
 
 (define-method follow browser ()
   (let* ((item [cursor-item self]))
-    (push item <history>)
+    (push <collection> <history>)
     (setf <collection> 
 	  [open item])))
 

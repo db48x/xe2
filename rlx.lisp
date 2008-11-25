@@ -95,12 +95,13 @@
   render-formatted-paragraph make-formatted-string draw-string-shaded
   render-formatted-string render-formatted-line resource
   write-sexp-to-file with-message-sender *message-sender*
-  read-sexp-from-file write-pak send-event-to-widgets draw-resource-image
-  *event-handler-function* trace-rectangle trace-octagon trace-line
-  midpoint =asterisk= =gray-asterisk= self *module-widgets*
-  transform-declaration-field-descriptor no-such-field =narrator=
-  find-modules-in-directory directory-is-module-p
-  transform-tree operation-symbol message-symbol with-message-queue
+  read-sexp-from-file write-pak send-event-to-widgets
+  draw-resource-image *event-handler-function* trace-rectangle
+  trace-octagon trace-line midpoint =asterisk= =gray-asterisk= self
+  *module-widgets* transform-declaration-field-descriptor
+  no-such-field =narrator= find-modules-in-directory
+  directory-is-module-p find-all-modules *next-module* transform-tree
+  operation-symbol message-symbol with-message-queue
   set-field-option-value field-options))
 
 (in-package :rlx)

@@ -201,7 +201,9 @@ at the time the cell method is run.")
 ;; :. main >
 
 ;; This is the main loop; all it does is open an SDL window, dispatch
-;; events, and draw widgets until the program quits or crashes.
+;; events, and draw widgets until the module quits.
+
+(defvar *next-module* "standard")
 
 (defvar *screen-width* 640 "The width (in pixels) of the game
 window. Set this in the game startup file.")
@@ -216,7 +218,7 @@ window. Set this in the game startup file.")
   (show-widgets)
   (sdl:update-display)
   (sdl:with-events ()
-    (:quit-event () (prog1 t (setf *next-module* nil)))
+    (:quit-event () t)
     (:video-expose-event () (sdl:update-display))
     (:key-down-event (:key key :mod mod)
 		     (sdl:clear-display sdl:*black*)
@@ -339,7 +341,7 @@ This prepares it for printing as part of a PAK file."
 ;; The "resource table" maps resource names to their corresponding
 ;; records. "Indexing" a resource means that its resource record is
 ;; added to the resource table. "Loading" a resource means that any
-;; associated driver-dependent object (SDL image surface, audio
+;; associated driver-dependent object (SDL image surface, audio buffer
 ;; object, etc) is created. This value is stored into the OBJECT field
 ;; of the resource record upon loading; see `load-resource'.
 
@@ -352,8 +354,12 @@ This prepares it for printing as part of a PAK file."
 ;; A lookup failure results in an error. See `find-resource'.
 
 ;; A "module" is a directory full of resource files. The name of the
-;; module is the name of the directory. Each module must contain an
-;; "index.pak" file. Multiple modules may be loaded at one time.
+;; module is the name of the directory. Each module must contain a
+;; file called "{module-name}.pak", which should contain an index of
+;; all the module's resources. Multiple modules may be loaded at one
+;; time. In addition the special resource ".startup" will be loaded;
+;; if this is type :lisp, the startup code for your game can go in
+;; that external lisp file.
 
 (defvar *resource-table* nil 
   "A hash table mapping resource names to resource records. All loaded
@@ -409,6 +415,10 @@ name MODULE-NAME. Returns the pathname if found, otherwise nil."
 			  (mapcar #'namestring
 				  (directory (concatenate 'string dir "/*/"))))))
     (remove-if-not #'directory-is-module-p dirnames)))
+
+(defun find-all-modules ()
+  (mapcar #'file-namestring
+	  (mapcan #'find-modules-in-directory *module-directories*)))
 				      
 (defun index-pak (module-name pak-file)
   "Add all the resources from the pak PAK-FILE to the resource
@@ -627,12 +637,9 @@ The default destination is the main window."
 
 ;;; Playing the game
 
-(defvar *next-module* "standard")
-
-(defun play (&optional module-name)
+(defun play (&optional (module-name "standard"))
   ;; override module to play?
-  (when module-name 
-    (setf *next-module* module-name))
+  (setf *next-module* module-name)
   ;; now play modules until done
   (loop while *next-module* do
        (sdl:with-init ()
@@ -649,7 +656,6 @@ The default destination is the main window."
 ;;; Playing sounds
 ;;; Playing background music
 ;;; Saving and loading data 
-;;; Choosing a game to play from a menu
 ;;; Taking screenshots
 
 ;;; console.lisp ends here

@@ -1,17 +1,20 @@
 * TODO ALPHA RELEASE
 ** DONE Make TODO list from vm0-design-2
 CLOSED: [2008-11-12 Wed 08:45]
-** TODO Module selection screen
-** TODO fix radio mode
-** TODO identify standard keys and directional controls
+** DONE Module selection screen
+CLOSED: [2008-11-25 Tue 07:22]
 ** TODO design general menu widget
 *** DONE define menu item protocol
 CLOSED: [2008-11-24 Mon 07:03]
+*** TODO identify standard keys and directional controls
 *** TODO [#C] menu title?
 *** TODO implement menu
 *** DONE forward/back
 CLOSED: [2008-11-24 Mon 07:53]
-*** TODO faces for highlight, disable, etc
+*** TODO configurable faces for highlight, disable, etc
+** TODO Better maze
+** TODO enable real quit
+** TODO [#C] fix radio mode
 ** DONE roguelike keys (configurable?)
 CLOSED: [2008-11-24 Mon 05:58]
 ** TODO directional ranged attacks 
