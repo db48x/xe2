@@ -43,8 +43,7 @@
 
 (define-method open module-launcher ()
   (prog1 nil
-    (setf rlx:*next-module* <name>)
-    (sdl:push-quit-event)))
+    (rlx:reset <name>)))
 
 (define-prototype standard-prompt (:parent rlx:=prompt=))
 
@@ -65,8 +64,7 @@
 
 (define-method open quit-launcher ()
   (prog1 nil
-    (setf rlx:*next-module* nil)
-    (sdl:push-quit-event)))
+    (rlx:quit :shutdown)))
 
 ;;; The splash screen widget
 

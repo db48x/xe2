@@ -12,8 +12,8 @@ CLOSED: [2008-11-24 Mon 07:03]
 *** DONE forward/back
 CLOSED: [2008-11-24 Mon 07:53]
 *** TODO configurable faces for highlight, disable, etc
-** TODO Better maze
-** TODO enable real quit
+** TODO Better mazes
+** TODO [#C] enable real quit
 ** TODO [#C] fix radio mode
 ** DONE roguelike keys (configurable?)
 CLOSED: [2008-11-24 Mon 05:58]

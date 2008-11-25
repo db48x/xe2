@@ -102,7 +102,7 @@
   no-such-field =narrator= find-modules-in-directory
   directory-is-module-p find-all-modules *next-module* transform-tree
   operation-symbol message-symbol with-message-queue
-  set-field-option-value field-options))
+  set-field-option-value field-options *quitting* quit reset))
 
 (in-package :rlx)
 

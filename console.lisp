@@ -205,6 +205,8 @@ at the time the cell method is run.")
 
 (defvar *next-module* "standard")
 
+(defvar *quitting* nil)
+
 (defvar *screen-width* 640 "The width (in pixels) of the game
 window. Set this in the game startup file.")
 
@@ -218,7 +220,7 @@ window. Set this in the game startup file.")
   (show-widgets)
   (sdl:update-display)
   (sdl:with-events ()
-    (:quit-event () t)
+    (:quit-event () (prog1 t))
     (:video-expose-event () (sdl:update-display))
     (:key-down-event (:key key :mod mod)
 		     (sdl:clear-display sdl:*black*)
@@ -637,21 +639,36 @@ The default destination is the main window."
 
 ;;; Playing the game
 
+(defun quit (&optional shutdown)
+  (when shutdown 
+    (setf *quitting* t))
+  (setf *next-module* nil)
+  (sdl:push-quit-event))
+
+(defun reset (&optional (module-name "standard"))
+  (setf *quitting* nil)
+  (setf *next-module* module-name)
+  (sdl:push-quit-event))
+
 (defun play (&optional (module-name "standard"))
   ;; override module to play?
   (setf *next-module* module-name)
   ;; now play modules until done
-  (loop while *next-module* do
-       (sdl:with-init ()
-	 ;; :. initialization >
-	 (load-user-init-file)
-	 (run-hook '*initialization-hook*)
-	 (initialize-resource-table)
-	 (initialize-colors)
-	 (index-module "standard") 
-	 (index-module *next-module*)
-	 (find-resource *startup*)
-	 (run-main-loop))))
+  (loop while (and (not *quitting*)
+		   *next-module*)
+     do (sdl:with-init ()
+	  ;; :. initialization >
+	  (load-user-init-file)
+	  (run-hook '*initialization-hook*)
+	  (initialize-resource-table)
+	  (initialize-colors)
+	  (index-module "standard") 
+	  (index-module *next-module*)
+	  (find-resource *startup*)
+	  (run-main-loop)))
+  (reset))
+  
+
 
 ;;; Playing sounds
 ;;; Playing background music
