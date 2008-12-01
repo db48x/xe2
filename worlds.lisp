@@ -119,6 +119,7 @@
   (and (array-in-bounds-p <grid> row column)
        (some #'(lambda (cell)
 		 [in-category cell category])
+
 	     (aref <grid> row column))))
 
 (define-method in-bounds-p world (row column)

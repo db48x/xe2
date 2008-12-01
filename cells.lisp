@@ -51,13 +51,14 @@
   (light-radius :initform 0 :documentation "Strength of light cast by this object.") 
   ;; :. action-points >
   (actions :initform nil :documentation "List of Action Method keywords.") ;; 
-  (speed :initform 10 :documentation "The number of action points alloted each phase.")
+  (speed :initform '(:base 10) :documentation "The number of action points alloted each phase.")
   (phase-number :initform 0
 	       :documentation "An integer giving the last phase this cell has completed.")
   (action-points :initform 0
 		 :documentation "An integer giving the ability of a cell to take turns on a given round.")
   (default-cost :initform '(:base 5 :min nil :max nil :delta nil)
     :documentation "Cost for basic actions.")
+  (stepping :initform nil :documentation "Whether to generate step events where you walk.")
   (movement-cost :initform '(:base 10 :min nil :max nil :delta nil)
 		 :documentation "Base cost of moving one square.")
   ;; :. knowledge >
@@ -264,10 +265,21 @@ action during PHASE."
   (multiple-value-bind (r c) 
       (step-in-direction <row> <column> direction)
     (if [obstacle-at-p *active-world* r c]
-	[queue>>narrateln :narrator "There is an obstacle in the way."]
+	(when [is-player self]
+	  [queue>>narrateln :narrator "You cannot move in that direction."])
 	(progn
 	  [queue>>expend-action-points self [stat-value self :movement-cost]]
-	  [queue>>move-cell :world self r c]))))
+	  [queue>>move-cell :world self r c]
+	  (when <stepping>
+	    (let ((cells [cells-at *active-world* r c])
+		  (x 0))
+	      (loop while (< x (fill-pointer cells))
+		   do (progn 
+			[queue>>step (aref cells x) self]
+			(incf x)))))))))
+
+(define-method step cell (stepper)
+  (declare (ignore stepper)))
 
 ;; :. lighting > 
       

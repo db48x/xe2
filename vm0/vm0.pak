@@ -14,7 +14,10 @@
  (:name "tech-stone-moss" :type :image :file "tech-stone-moss.png")
  (:name "yellow-tech-brick" :type :image :file "yellow-tech-brick.png")
  (:name "green-tech-brick" :type :image :file "green-tech-brick.png")
+ (:name "green-tech-brick-debris" :type :image :file "green-tech-brick-debris.png")
  (:name "rook" :type :image :file "rook.png")
+ (:name "mine" :type :image :file "mine.png")
+ (:name "explosion" :type :image :file "explosion.png")
  (:name ".startup" :type :lisp :file "vm0.lisp"))
 
 
