@@ -26,12 +26,12 @@
 
 5. The development version of LISPBUILDER-SDL might be required if you
    experience any problems with the ASDF-installable versions. If this
-   is the case, use Subversion to check out the source code:
+   is the case, use Subversion to check out the source code:   
 
    mkdir ~/src
    cd ~/src
-   svn co https://lispbuilder.svn.sourceforge.net/svnroot/lispbuilder/trunk lispbuilder
-   
+   svn checkout http://lispbuilder.googlecode.com/svn/trunk/ lispbuilder-read-only	
+
    Then symlink all the .asd files in that tree into ~/.sbcl/systems
    (or wherever your .ASD files go) like this:
 
