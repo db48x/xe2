@@ -40,7 +40,7 @@
 (in-package :rlx)
 
 (define-prototype browser (:parent =formatter=)
-  (collection :documentation "The vector of CLON objects being browsed.")
+  (collection :documentation "The vector of browsable CLON objects being browsed.")
   (cursor :initform 0
 	  :documentation "The array index of the currently selected object.")
   (history :documentation "Recently browsed collections."))

@@ -637,7 +637,7 @@ The default destination is the main window."
 		  :stroke-color (find-resource-object stroke-color)
 		  :surface destination))
 
-;;; Playing the game
+;;; Engine status
 
 (defun quit (&optional shutdown)
   (when shutdown 

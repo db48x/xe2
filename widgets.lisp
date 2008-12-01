@@ -31,7 +31,8 @@
 ;; drawn their images to their respective offscreen buffers, the
 ;; engine copies the buffers to the screen. (see console.lisp)
 
-;; This file contains the basic widget code and some standard widgets.
+;; This file contains the basic widget code and some standard widgets,
+;; including an output formatter and a configurable command prompt. 
 
 ;;; Code:
 
@@ -315,6 +316,8 @@ auto-updated displays."
 (define-prototype prompt
     (:parent rlx:=widget= :documentation "A command prompt.")
   (mode :documentation "Either :direct or :forward." :initform :direct)
+  (default-keybindings :documentation "Default keybindings bound during initialization.
+These are the arguments to `bind-key-to-prompt-insertion', which see.")
   (visible :documentation "When non-nil, the prompt is drawn." :initform t)
   (receiver :documentation "The object to send command messages to when in :forward mode.")
   (point :initform 0 :documentation "Integer index of cursor within prompt line.")
@@ -349,6 +352,10 @@ normally."
 
 (define-method set-mode prompt (mode)
   (setf <mode> mode))
+
+(define-method install-default-keybindings prompt ()
+  (dolist (k <default-keybindings>)
+    (apply #'bind-key-to-prompt-insertion self k)))
 		     
 (define-method install-keybindings prompt ()
   ;; install basic keybindings
@@ -380,6 +387,10 @@ normally."
   (bind-key-to-prompt-insertion self "SPACE" nil " ")
   (bind-key-to-prompt-insertion self "QUOTE" nil "'")
   (bind-key-to-prompt-insertion self "QUOTE" '(:shift) "\""))
+
+(define-method initialize prompt ()
+  [parent>>initialize self]
+  [install-default-keybindings self])
 
 (define-method forward-char prompt ()
   (setf <point> (min (1+ <point>)

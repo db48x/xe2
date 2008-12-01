@@ -43,18 +43,13 @@
 
 (define-method open module-launcher ()
   (prog1 nil
+    (message "HEY")
     (rlx:reset <name>)))
 
-(define-prototype standard-prompt (:parent rlx:=prompt=))
-
-(defparameter *standard-keybindings*
-  '(("UP" nil "cursor-previous .")
-    ("DOWN" nil "cursor-next .")
-    ("SPACE" nil "follow .")))
-  
-(define-method install-keybindings standard-prompt ()
-  (dolist (k *standard-keybindings*)
-    (apply #'bind-key-to-prompt-insertion self k)))
+(define-prototype standard-prompt (:parent rlx:=prompt=)
+  (default-keybindings :initform '(("UP" nil "cursor-previous .")
+				   ("DOWN" nil "cursor-next .")
+				   ("SPACE" nil "follow ."))))
 
 ;;; Quitting the menu
 
@@ -99,7 +94,6 @@
 				       (clone =module-launcher= m))
 				   modules))]
     ;; set up prompt
-    [install-keybindings prompt]
     [resize prompt :height 30 :width 400]
     [move prompt :x 0 :y 0]
     [hide prompt]

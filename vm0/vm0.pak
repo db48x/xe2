@@ -10,6 +10,11 @@
  (:name "rusty-wrench" :type :image :file "rustywrench.png")
  (:name "shock-probe" :type :image :file "shock-probe.png")
  (:name "gray-brick" :type :image :file "graybrick.png")
+ (:name "tech-stone" :type :image :file "tech-stone.png")
+ (:name "tech-stone-moss" :type :image :file "tech-stone-moss.png")
+ (:name "yellow-tech-brick" :type :image :file "yellow-tech-brick.png")
+ (:name "green-tech-brick" :type :image :file "green-tech-brick.png")
+ (:name "rook" :type :image :file "rook.png")
  (:name ".startup" :type :lisp :file "vm0.lisp"))
 
 
