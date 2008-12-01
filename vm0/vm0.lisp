@@ -426,6 +426,8 @@
     [move viewport :x 0 :y 0]
     [set-origin viewport :x 0 :y 0 :height 20 :width 25]
 
+    ;; foo
+
     (install-widgets (list prompt browser player-prompt viewport status narrator))
     ))
     
