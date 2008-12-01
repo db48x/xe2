@@ -151,14 +151,16 @@ inline images that are larger than the text height---see also
 		      (string (find-resource-object image))
 		      (otherwise image))
 		    x y :destination destination)
-	;; draw the text.
-	(if background
-	    (draw-string-shaded string x (+ text-offset y)
-				foreground background
-				:destination destination
-				:font font)
-	    (draw-string-solid string x (+ text-offset y) :font font
-			       :color foreground :destination destination)))))
+	(if (null string)
+	    (message "WARNING! render-formatted-line gets null string")
+	    ;; draw the text.
+	    (if background
+		(draw-string-shaded string x (+ text-offset y)
+				    foreground background
+				    :destination destination
+				    :font font)
+		(draw-string-solid string x (+ text-offset y) :font font
+				   :color foreground :destination destination))))))
 
 (defun render-formatted-line (line x y &key destination (font *default-font*))
   "Render the formatted LINE at position X,Y on the image DESTINATION.
@@ -172,11 +174,12 @@ Return the height of the rendered line."
 			  0))
 	 (current-x x))
     (dolist (string line)
-      (render-formatted-string string current-x y :text-offset text-offset 
-			       :destination destination)
-      (incf current-x (formatted-string-width string)))
-    line-height))
-
+      (when string
+	(render-formatted-string string current-x y :text-offset text-offset 
+				 :destination destination)
+	(incf current-x (formatted-string-width string)))
+      line-height)))
+  
 ;; Next comes the CLON formatter widget that uses the utility
 ;; functions just defined.
 

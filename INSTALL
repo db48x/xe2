@@ -24,8 +24,9 @@
 
    ln -s ~/src/clon/clon.asd ~/.sbcl/systems
 
-5. The development version of LISPBUILDER-SDL might be required. Use
-   Subversion to check out the source code:
+5. The development version of LISPBUILDER-SDL might be required if you
+   experience any problems with the ASDF-installable versions. If this
+   is the case, use Subversion to check out the source code:
 
    mkdir ~/src
    cd ~/src
