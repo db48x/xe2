@@ -1,4 +1,4 @@
-This is the INSTALL file for the RLX roguelike engine.
+	This is the INSTALL file for the RLX roguelike engine.
 
 1. You need a Common Lisp implementation. Only tested on SBCL right
    now.
@@ -24,7 +24,7 @@ This is the INSTALL file for the RLX roguelike engine.
 
    ln -s ~/src/clon/clon.asd ~/.sbcl/systems
 
-5. The development version of LISPBUILDER-SDL is required. Use
+5. The development version of LISPBUILDER-SDL might be required. Use
    Subversion to check out the source code:
 
    mkdir ~/src
@@ -48,6 +48,7 @@ The filename should be wherever you installed the RLX source tree.
   (require :rlx)
   (rlx:play "vm0")
   
-8. ESCAPE toggles the command prompt.  Use the numeric keypad to move
-   around. T to pick up objects.  E to equip slot 0, or enter "equip
-   N" at the command prompt to equip slot N.  Alt-DIRECTION to attack.
+8. ESCAPE toggles the command prompt.  Use the HJKL YUBN (roguelike)
+   keys to move around. T to pick up objects.  E to equip slot 0, or
+   enter "equip N" at the command prompt to equip slot N.
+   Alt-DIRECTION to attack.
