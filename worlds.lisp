@@ -112,15 +112,20 @@
 (define-method obstacle-at-p world (row column)
   (or (not (array-in-bounds-p <grid> row column))
       (some #'(lambda (cell)
-		[in-category cell :obstacle])
+		(when [in-category cell :obstacle]
+		  cell))
 	    (aref <grid> row column))))
 
 (define-method category-at-p world (row column category)
-  (and (array-in-bounds-p <grid> row column)
-       (some #'(lambda (cell)
-		 [in-category cell category])
-
-	     (aref <grid> row column))))
+  (let ((catlist (etypecase category
+		   (keyword (list category))
+		   (list category))))
+    (and (array-in-bounds-p <grid> row column)
+	 (some #'(lambda (cell)
+		   (when (intersection catlist
+				       (field-value :categories cell))
+		     cell))
+	       (aref <grid> row column)))))
 
 (define-method in-bounds-p world (row column)
   (array-in-bounds-p <grid> row column))
@@ -142,6 +147,11 @@
   (multiple-value-bind (nrow ncol)
       (step-in-direction row column direction)
     [obstacle-at-p self nrow ncol]))
+
+(define-method category-in-direction-p world (row column direction category)
+  (multiple-value-bind (nrow ncol)
+      (step-in-direction row column direction)
+    [category-at-p self nrow ncol category]))
 
 (define-method set-player world (player)
   "Set PLAYER as the player object to which the World will forward
@@ -314,7 +324,7 @@ in a roguelike until the user has pressed a key."
   (excluded-actions :documentation 
 "List of action keywords to be excluded from narration.
 Usually it should contain at least :move."
-		    :initform (list :move-cell :expend-action-points :expend-default-action-points
+		    :initform (list :step :move-cell :expend-action-points :expend-default-action-points
 				    :move :narrate :narrateln :print-object-tag :newline :print-separator))
   (passive-voice-actions :documentation
 "List of action words to use passive voice in narrating.

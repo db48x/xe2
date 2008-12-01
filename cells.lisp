@@ -71,7 +71,8 @@
   (equipment-slots :documentation "List of keyword symbols identifying available equipment slots."
 		   :initform '(:head :neck :left-hand :right-hand :hands :feet :legs :torso :arms :pack))
   (using-slot :documentation "Keyword symbol of the currently selected equipment slot.")
-  (attacking-with :documentation "Keyword symbol of the currently selected weapon.")
+  (attacking-with :documentation "Keyword symbol of the currently selected weapon slot.")
+  (firing-with :documentation "Keyword symbol of the currently selected firing weapon slot.")
   (equip-for :documentation "List of keyword symbols showing where this item may be equipped.")
   ;; :. containers >
   (inventory :documentation "The contents (if any) of the cell.")
@@ -277,6 +278,9 @@ action during PHASE."
 		   do (progn 
 			[queue>>step (aref cells x) self]
 			(incf x)))))))))
+
+(define-method drop cell (cell)
+  [drop-cell *active-world* cell <row> <column>])
 
 (define-method step cell (stepper)
   (declare (ignore stepper)))

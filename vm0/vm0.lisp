@@ -75,7 +75,50 @@
   (target :initform nil)
   (hit-points :initform (make-stat :base 10 :min 0 :max 10)))
 
+;;; the gun 
 
+(define-prototype muon-particle (:parent rlx:=cell=)
+  (categories :initform '(:actor))
+  (speed :initform (make-stat :base 10))
+  (default-cost :initform (make-stat :base 10))
+  (tile :initform "muon")
+  (direction :initform :here)
+  (clock :initform 5))
+
+(define-method run muon-particle ()
+  (let ((target [category-in-direction-p *active-world* 
+					 <row> <column> <direction>
+					 '(:obstacle :actor)]))
+    (if target
+	(progn
+	  [queue>>damage target 5]
+	  [queue>>die self])
+	[queue>>move self <direction>])
+    (decf <clock>)
+    [expend-default-action-points self]
+    (when (zerop <clock>)
+      [queue>>die self])))
+
+(define-method impel muon-particle (direction)
+  (assert (member direction *compass-directions*))
+  (setf <direction> direction)
+  ;; don't hit the player
+  [move self direction])
+
+(define-prototype muon-pistol (:parent rlx:=cell=)
+  (name :initform "Xiong Les Fleurs Muon(TM) energy pistol")
+  (tile :initform "muon-pistol")
+  (categories :initform '(:item :weapon :equipment))
+  (equip-for :initform '(:left-hand))
+  (weight :initform 7000)
+  (accuracy :initform (make-stat :base 72))
+  (attack-power :initform (make-stat :base 6))
+  (attack-cost :initform (make-stat :base 4)))
+
+(define-method fire muon-pistol (direction)
+  (let ((muon (clone =muon-particle=)))
+    [queue>>drop :player muon]
+    [queue>>impel muon direction]))
 
 ;; TODO rook cannon
 
@@ -85,7 +128,7 @@
   (name :initform "Shock probe")
   (categories :initform '(:item :weapon :equipment :builtin))
   (tile :initform "shock-probe")
-  (attack-power :initform (make-stat :base 5))
+  (attack-power :initform (make-stat :base 4))
   (attack-cost :initform (make-stat :base 5))
   (accuracy :initform (make-stat :base 80))
   (weight :initform 3000)
@@ -114,7 +157,8 @@
 ;;; electron
 
 (define-prototype electron (:parent rlx:=cell=)
-  (tile :initform "electron"))
+  (tile :initform "electron")
+  (categories :initform '(:item)))
 
 ;;; the mysterious crystal
   
@@ -227,6 +271,7 @@
   (speed :initform (make-stat :base 10 :min 0 :max 21))
   (strength :initform (make-stat :base 16 :min 0 :max 30))
   (attacking-with :initform :right-hand)
+  (firing-with :initform :left-hand)
   (max-weight :initform (make-stat :base 25))
   (max-items :initform (make-stat :base 5))
   (movement-cost :initform (make-stat :base 7))
@@ -241,6 +286,11 @@
 (define-method initialize player ()
   [make-inventory self]
   [make-equipment self])
+
+(define-method fire player (direction)
+  (let ((weapon [equipment-slot self <firing-with>]))
+    (when weapon
+      [fire weapon direction])))
 
 ;;; the game-specific controls
 
@@ -264,6 +314,15 @@
     ("B" (:alt) "attack :southwest .")
     ("J" (:alt) "attack :south .")
     ("N" (:alt) "attack :southeast .")
+
+    ("Y" (:control) "fire :northwest .")
+    ("K" (:control) "fire :north .")
+    ("U" (:control) "fire :northeast .")
+    ("H" (:control) "fire :west .")
+    ("L" (:control) "fire :east .")
+    ("B" (:control) "fire :southwest .")
+    ("J" (:control) "fire :south .")
+    ("N" (:control) "fire :southeast .")
 
     ("T" nil "take .")
     ("E" nil "equip 0 .")))
@@ -352,10 +411,12 @@
   (dotimes (i 12)
     [drop-cell self (clone =electron=) (random 100) (random 100) :loadout])
   (dotimes (i 8)
-    [drop-cell self (clone =shock-probe=) (random 100) (random 100) :loadout])
+    [drop-cell self (clone =shock-probe=) (random 100) (random 100) :loadout]) 
   (dotimes (i 12)
     [drop-cell self (clone =rusty-wrench=) (random 100) (random 100) :loadout])
-  (dotimes (i 2)
+  (dotimes (i 12)
+    [drop-cell self (clone =muon-pistol=) (random 100) (random 100)])
+ (dotimes (i 22)
     [drop-cell self (clone =rook=) (random 100) (random 100) :loadout])
 
   (dotimes (i 40)

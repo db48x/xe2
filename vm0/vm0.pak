@@ -18,6 +18,8 @@
  (:name "rook" :type :image :file "rook.png")
  (:name "mine" :type :image :file "mine.png")
  (:name "explosion" :type :image :file "explosion.png")
+ (:name "muon-pistol" :type :image :file "muon-pistol.png")
+ (:name "muon" :type :image :file "muon.png")
  (:name ".startup" :type :lisp :file "vm0.lisp"))
 
 
