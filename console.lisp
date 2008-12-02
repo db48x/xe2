@@ -241,6 +241,8 @@ window. Set this in the game startup file.")
   (load (merge-pathnames (make-pathname :name *user-init-file-name*)
 			 (user-homedir-pathname))))
 
+(defparameter *user-keyboard-layout* :qwerty)
+
 ;;; PAK resource interchange files
 
 ;; :. pak >

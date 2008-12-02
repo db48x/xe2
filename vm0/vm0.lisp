@@ -80,7 +80,7 @@
 (define-prototype muon-particle (:parent rlx:=cell=)
   (categories :initform '(:actor))
   (speed :initform (make-stat :base 10))
-  (default-cost :initform (make-stat :base 10))
+  (default-cost :initform (make-stat :base 5))
   (tile :initform "muon")
   (direction :initform :here)
   (clock :initform 5))
@@ -296,7 +296,7 @@
 
 (define-prototype vm0-prompt (:parent rlx:=prompt=))
 
-(defparameter *vm0-keybindings*
+(defparameter *qwerty-keybindings*
   '(("Y" nil "move :northwest .")
     ("K" nil "move :north .")
     ("U" nil "move :northeast .")
@@ -305,7 +305,7 @@
     ("B" nil "move :southwest .")
     ("J" nil "move :south .")
     ("N" nil "move :southeast .")
-    
+    ;;
     ("Y" (:alt) "attack :northwest .")
     ("K" (:alt) "attack :north .")
     ("U" (:alt) "attack :northeast .")
@@ -314,7 +314,7 @@
     ("B" (:alt) "attack :southwest .")
     ("J" (:alt) "attack :south .")
     ("N" (:alt) "attack :southeast .")
-
+    ;;
     ("Y" (:control) "fire :northwest .")
     ("K" (:control) "fire :north .")
     ("U" (:control) "fire :northeast .")
@@ -323,13 +323,53 @@
     ("B" (:control) "fire :southwest .")
     ("J" (:control) "fire :south .")
     ("N" (:control) "fire :southeast .")
-
+    ;;
     ("T" nil "take .")
     ("E" nil "equip 0 .")))
-  
+
+;; f t g
+;;  \|/
+;; d-.-n
+;;  /|\ 
+;; x h b
+
+(defparameter *dvorak-keybindings*
+  '(("F" nil "move :northwest .")
+    ("T" nil "move :north .")
+    ("G" nil "move :northeast .")
+    ("D" nil "move :west .")
+    ("N" nil "move :east .")
+    ("X" nil "move :southwest .")
+    ("H" nil "move :south .")
+    ("B" nil "move :southeast .")
+    ;;
+    ("F" (:alt) "attack :northwest .")
+    ("T" (:alt) "attack :north .")
+    ("G" (:alt) "attack :northeast .")
+    ("D" (:alt) "attack :west .")
+    ("N" (:alt) "attack :east .")
+    ("X" (:alt) "attack :southwest .")
+    ("H" (:alt) "attack :south .")
+    ("B" (:alt) "attack :southeast .")
+    ;;
+    ("F" (:control) "fire :northwest .")
+    ("T" (:control) "fire :north .")
+    ("G" (:control) "fire :northeast .")
+    ("D" (:control) "fire :west .")
+    ("N" (:control) "fire :east .")
+    ("X" (:control) "fire :southwest .")
+    ("H" (:control) "fire :south .")
+    ("B" (:control) "fire :southeast .")
+    ;;
+    ("O" nil "take .") ;; obtain
+    ("E" nil "equip 0 .")))
+
 (define-method install-keybindings vm0-prompt ()
-  (dolist (k *vm0-keybindings*)
-    (apply #'bind-key-to-prompt-insertion self k)))
+  (let ((keys (ecase rlx:*user-keyboard-layout* 
+		(:qwerty *qwerty-keybindings*)
+		(:dvorak *dvorak-keybindings*))))
+    (dolist (k keys)
+      (apply #'bind-key-to-prompt-insertion self k))))
 
 ;;; a character status widget
 

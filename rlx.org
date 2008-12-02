@@ -3,9 +3,16 @@
 CLOSED: [2008-11-12 Wed 08:45]
 ** DONE Module selection screen
 CLOSED: [2008-11-25 Tue 07:22]
-** TODO exploding mines
-** TODO mines explode in chains
-** TODO death!x
+** DONE exploding mines
+CLOSED: [2008-12-02 Tue 13:29]
+** DONE mines explode in chains
+CLOSED: [2008-12-02 Tue 13:29]
+** TODO read http://en.wikipedia.org/wiki/Corewars
+** TODO quickie dvorak layout for vm0
+** TODO remappable per-module command input symbols
+** TODO change narration excluded keywords to INcluded
+** TODO per-module post load hook (for remapping keys etc)
+** TODO death! leave a skull, print a message
 ** TODO better maze walls
 ** TODO oxygen death
 ** TODO loadout by default?
@@ -16,7 +23,7 @@ CLOSED: [2008-11-25 Tue 07:22]
 ** TODO Fix monsters jumping on me
 ** TODO container sorting
 ** TODO Refactor browser line render strategy for :equipment and :inventory modes
-** TODO Browser menus
+** TODO Action menu browser
 ** TODO browser item inspection
 ** TODO Browser history
 ** TODO fix equipment plist weirdness
