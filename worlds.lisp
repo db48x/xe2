@@ -42,6 +42,8 @@
   (height :documentation "The height of the world map, measured in tiles.")
   ;; :. cells >
   (grid :documentation "A two-dimensional array of adjustable vectors of cells.")
+  ;; :. environment > 
+  (environment-grid :documentation "A two-dimensional array of environment data cells.")
   ;; :. lighting >
   (light-grid 
    :documentation 
@@ -61,6 +63,16 @@
 (defparameter *default-world-axis-size* 10)
 (defparameter *default-world-z-size* 4)
 
+;; :. environment >
+(define-prototype environment
+    (:documentation "A cell giving general environmental conditions at a world location.")
+  (temperature :initform nil :documentation "Temperature at this location, in degrees Celsius.")
+  (radiation-level :initform nil :documentation "Radiation level at this location, in clicks.")
+  (oxygen :initform nil :documentation "Oxygen level, in percent.")
+  (pressure :initform nil :documentation "Atmospheric pressure, in multiples of Earth's.")
+  (overlay :initform nil 
+	   :documentation "Possibly transparent image overlay to be drawn at this location."))
+  
 (define-method initialize world (&key (width *default-world-axis-size*)
 				      (height *default-world-axis-size*))
   "Initialize an empty world of size WIDTH * HEIGHT."
@@ -76,10 +88,16 @@
    (setf <grid> grid
 	 <height> height
 	 <width> width)
-   ;; we also need a grid of integers for the lighting map.
+   ;; we need a grid of integers for the lighting map.
    (setf <light-grid> (make-array (list width height)
 				  :element-type 'integer
-				  :initial-element 0))))
+				  :initial-element 0))
+   ;;and a grid of special objects for the environment map.
+   (let ((environment (make-array (list width height))))
+     (setf <environment-grid> environment)
+     (dotimes (i width)
+       (dotimes (j height)
+	 (setf (aref environment i j) (clone =environment=)))))))
 
 ;; :. narration >
 

@@ -1,14 +1,8 @@
 * TODO ALPHA RELEASE
-** DONE Make TODO list from vm0-design-2
-CLOSED: [2008-11-12 Wed 08:45]
-** DONE Module selection screen
-CLOSED: [2008-11-25 Tue 07:22]
-** DONE exploding mines
-CLOSED: [2008-12-02 Tue 13:29]
-** DONE mines explode in chains
-CLOSED: [2008-12-02 Tue 13:29]
-** TODO read http://en.wikipedia.org/wiki/Corewars
-** TODO quickie dvorak layout for vm0
+** TODO 2nd grid of objects; transparent overlays and environmental properties
+** TODO bullet trails with directional overlays
+** TODO fix crashes by toning down complexity of test level.
+** TODO fix render-formatted-line warning error null string thing bug 
 ** TODO remappable per-module command input symbols
 ** TODO change narration excluded keywords to INcluded
 ** TODO per-module post load hook (for remapping keys etc)
@@ -34,20 +28,16 @@ CLOSED: [2008-12-02 Tue 13:29]
 ** TODO [#B] infinite levels, color changes, you can't win!
 ** TODO [#C] support colored border around formatters
 ** TODO [#C] support titled formatters
-** TODO micro elisp object system
-* OTHER TASKS
 ** TODO map overlays 
 ** TODO targeting reticle
 ** TODO select a square
 ** TODO pathfinding white graviceptor 
 ** TODO design overview in rlx.lisp
-** DONE [#B] standardized prefix for common resource names like .startup?
-CLOSED: [2008-08-15 Fri 01:34]
 ** TODO [#C] prompt arrow keybindings
 ** TODO check weight on container add
 ** TODO store container-parent link
 ** TODO [#C] add console-style menus to output widget? probably simpler...
 ** TODO [#C]  elisp for auto-updating PAK files to grab new images in dirs
 ** TODO [#C] change index.pak to vm0.pak
-** TODO get rid of eon slot descriptor specs?
+** TODO [#B] get rid of eon slot descriptor specs?
 ** TODO :controller events for dvorak/svorak fun

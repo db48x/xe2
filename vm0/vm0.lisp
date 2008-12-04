@@ -290,6 +290,7 @@
 (define-method fire player (direction)
   (let ((weapon [equipment-slot self <firing-with>]))
     (when weapon
+      [expend-action-points self [stat-value weapon :attack-cost]]
       [fire weapon direction])))
 
 ;;; the game-specific controls
@@ -432,51 +433,52 @@
 
 (define-method generate tech-world ()
   ;; create world
-  (dotimes (i 100)
-    (dotimes (j 100)
-      [drop-cell self (clone (if (> (random 100) 10)
+  (dotimes (i 49)
+    (dotimes (j 49)
+      [drop-cell self (clone (if (> (random 50) 10)
 				  =tech-stone= =tech-stone-moss=))
 		 i j 
 		 :loadout]))
-  (dotimes (n 100)
-    [drop-cell self (clone =tech-brick-yellow=) (random 100) (random 100) :loadout])
-  (dotimes (n 100)
-    [drop-cell self (clone =tech-brick-green=) (random 100) (random 100) :loadout])
-  (dotimes (i 65)
-    [drop-cell self (clone =purple-perceptor=) (random 100) (random 100) :loadout])
+  (dotimes (n 10)
+    [drop-cell self (clone =tech-brick-yellow=) (random 50) (random 50) :loadout])
+  (dotimes (n 10)
+    [drop-cell self (clone =tech-brick-green=) (random 50) (random 50) :loadout])
+  (dotimes (i 20)
+    [drop-cell self (clone =purple-perceptor=) (random 50) (random 50) :loadout])
   (dotimes (i 12)
-    [drop-cell self (clone =red-perceptor=) (random 100) (random 100) :loadout])
-  (dotimes (i 120)
-    [drop-cell self (clone =mine=) (random 100) (random 100) :loadout])
+    [drop-cell self (clone =red-perceptor=) (random 50) (random 50) :loadout])
+  (dotimes (i 14)
+    [drop-cell self (clone =mine=) (1+ (random 44)) (1+ (random 44))  :loadout])
   (dotimes (i 12)
-    [drop-cell self (clone =electron=) (random 100) (random 100) :loadout])
+    [drop-cell self (clone =electron=) (random 50) (random 50) :loadout])
   (dotimes (i 8)
-    [drop-cell self (clone =shock-probe=) (random 100) (random 100) :loadout]) 
+    [drop-cell self (clone =shock-probe=) (random 50) (random 50) :loadout]) 
   (dotimes (i 12)
-    [drop-cell self (clone =rusty-wrench=) (random 100) (random 100) :loadout])
+    [drop-cell self (clone =rusty-wrench=) (random 50) (random 50) :loadout])
   (dotimes (i 12)
-    [drop-cell self (clone =muon-pistol=) (random 100) (random 100)])
+    [drop-cell self (clone =muon-pistol=) (random 50) (random 50)])
  (dotimes (i 22)
-    [drop-cell self (clone =rook=) (random 100) (random 100) :loadout])
+    [drop-cell self (clone =rook=) (random 50) (random 50) :loadout])
 
-  (dotimes (i 40)
+  (dotimes (i 10)
     (labels ((drop-brick (x y)
 	       [drop-cell self (clone =tech-brick-yellow=) y x])
 	     (drop-crystal (x y)
 	       [drop-cell self (clone =tech-brick-green=) y x]))
       (trace-octagon #'drop-brick 
-		     (+ 20 (random 60))
-		     (+ 20 (random 60))
-		     (+ 4 (random 14)))
+		     (+ 10 (random 30))
+		     (+ 10 (random 30))
+		     (+ 4 (random 4)))
       (trace-octagon #'drop-crystal 
-		     (+ 10 (random 60))
-		     (+ 10 (random 60))
-		     (+ 2 (random 6)))))
+		     (+ 10 (random 30))
+		     (+ 10 (random 30))
+		     (+ 2 (random 3)))))
 
 		  
     
   ;; add player 
-  [drop-cell self <player> 10 10])
+
+  [drop-cell self <player> 5 5])
 
 ;;; putting it all together
 
@@ -485,7 +487,7 @@
   (setf rlx:*screen-width* 800)
   (let* ((prompt (clone rlx:=prompt=))
 	 (player-prompt (clone =vm0-prompt=))
-	 (world (clone =tech-world= :height 100 :width 100))
+	 (world (clone =tech-world= :height 50 :width 50))
 	 (player (clone =player=))
 	 (status (clone =status=))
 	 (narrator (clone rlx:=narrator=))
