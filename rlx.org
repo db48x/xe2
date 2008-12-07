@@ -3,9 +3,11 @@
 CLOSED: [2008-12-07 Sun 10:14]
 ** TODO death! leave a skull, print a message
 ** TODO implement 3 gameplay ideas
-*** TODO monsters leave behind energy tanks
+*** TODO monsters leave behind energy tanks or something
 *** TODO oxygen death
-*** TODO improve bullets
+*** DONE improve bullets
+CLOSED: [2008-12-07 Sun 10:44]
+** TODO fix monsters attacking non-targets
 ** TODO <actions> should be a plist of :key -> AP cost
 ** TODO fix crashes by toning down complexity of test level.
 ** TODO fix render-formatted-line warning error null string thing bug 

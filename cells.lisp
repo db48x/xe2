@@ -74,6 +74,7 @@
   (attacking-with :documentation "Keyword symbol of the currently selected weapon slot.")
   (firing-with :documentation "Keyword symbol of the currently selected firing weapon slot.")
   (equip-for :documentation "List of keyword symbols showing where this item may be equipped.")
+  (equipper :documentation "When non-nil, the character currently equipping this item.")
   ;; :. containers >
   (inventory :documentation "The contents (if any) of the cell.")
   (max-weight :documentation "Maximum weight this container can hold.")
@@ -473,6 +474,7 @@ slot."
 	  [queue>>add-category item :equipped]
 	  ;; remove from inventory
 	  [queue>>remove-item self item]
+	  (setf (field-value :equipper item) self)
 	  ;; notify user of success
 	  [queue>>narrate :narrator "You equip "]
 	  [queue>>print-object-tag :narrator item]

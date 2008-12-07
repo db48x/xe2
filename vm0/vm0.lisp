@@ -168,12 +168,15 @@
   (weight :initform 7000)
   (accuracy :initform (make-stat :base 72))
   (attack-power :initform (make-stat :base 6))
-  (attack-cost :initform (make-stat :base 4)))
+  (attack-cost :initform (make-stat :base 4))
+  (energy-cost :initform (make-stat :base 10)))
 
 (define-method fire muon-pistol (direction)
-  (let ((muon (clone =muon-particle=)))
-    [queue>>drop :player muon]
-    [queue>>impel muon direction]))
+  (if [expend-energy <equipper> 10]
+      (let ((muon (clone =muon-particle=)))
+	[queue>>drop <equipper> muon]
+	[queue>>impel muon direction])
+      (message "Not enough energy to fire.")))
 
 ;; TODO rook cannon
 
@@ -259,6 +262,12 @@
 	    (setf direction (random-direction)))
 	  [queue>>move self direction]))))
 
+(define-method die red-perceptor ()
+  (when (> 4 (random 10))
+    [drop self (clone =energy=)])
+  [parent>>die self])
+
+
 ;;; the explosion
 
 (define-prototype explosion (:parent rlx:=cell=)
@@ -320,6 +329,17 @@
   (weight :initform 10000) ;; grams
   (equip-for :initform '(:left-hand :right-hand)))
 
+;;; the energy tank
+
+(define-prototype energy (:parent rlx:=cell=)
+  (tile :initform "energy")
+  (name :initform "Energy Tank"))
+
+(define-method step energy (stepper)
+  (when (has-field :energy stepper)
+    [queue>>stat-effect stepper :energy 100]
+    [queue>>die self]))
+
 ;;; the player
 
 (define-prototype player (:parent rlx:=cell=)
@@ -337,13 +357,18 @@
   (dexterity :initform (make-stat :base 11 :min 0 :max 30))
   (intelligence :initform (make-stat :base 13 :min 0 :max 30))
   (hit-points :initform (make-stat :base 50 :min 0 :max 100))
-  (energy :initform (make-stat :base 1200 :min 0 :max 1800))
+  (energy :initform (make-stat :base 800 :min 0 :max 1000))
   (oxygen :initform (make-stat :base 1000 :min 0 :max 1200))
   (stepping :initform t))
 	  
 (define-method initialize player ()
   [make-inventory self]
   [make-equipment self])
+
+(define-method expend-energy player (amount)
+  (when (< amount [stat-value self :energy])
+    (prog1 t
+      [stat-effect self :energy (- amount)])))
 
 (define-method fire player (direction)
   (let ((weapon [equipment-slot self <firing-with>]))
@@ -507,8 +532,8 @@
     [drop-cell self (clone =red-perceptor=) (random 50) (random 50) :loadout])
   (dotimes (i 14)
     [drop-cell self (clone =mine=) (1+ (random 44)) (1+ (random 44))  :loadout])
-  (dotimes (i 12)
-    [drop-cell self (clone =electron=) (random 50) (random 50) :loadout])
+  ;; (dotimes (i 12)
+  ;;   [drop-cell self (clone =energy=) (random 50) (random 50) :loadout])
   (dotimes (i 8)
     [drop-cell self (clone =shock-probe=) (random 50) (random 50) :loadout]) 
   (dotimes (i 12)
