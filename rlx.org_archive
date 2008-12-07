@@ -457,6 +457,26 @@ CLOSED: [2008-08-15 Fri 01:34]
 :ARCHIVE_CATEGORY: rlx
 :ARCHIVE_TODO: DONE
   :END:
+* DONE 2nd grid of objects; transparent overlays and environmental properties
+CLOSED: [2008-12-04 Thu 19:13]
+  :PROPERTIES:
+:ARCHIVE_TIME: 2008-12-07 Sun 02:38
+:ARCHIVE_FILE: ~/rlx/rlx.org
+:ARCHIVE_OLPATH: ALPHA RELEASE
+:ARCHIVE_CATEGORY: rlx
+:ARCHIVE_TODO: DONE
+  :END:
+* DONE with-fields macro for clon
+CLOSED: [2008-12-07 Sun 02:38]
+  :PROPERTIES:
+:ARCHIVE_TIME: 2008-12-07 Sun 02:38
+:ARCHIVE_FILE: ~/rlx/rlx.org
+:ARCHIVE_OLPATH: ALPHA RELEASE
+:ARCHIVE_CATEGORY: rlx
+:ARCHIVE_TODO: DONE
+  :END:
+
+
 
 
 

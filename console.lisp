@@ -267,6 +267,8 @@ window. Set this in the game startup file.")
 ;; structure with the following elements:
 
 ;;  :NAME    A string; the name of the resource.
+;;           The colon character : is reserved and used to specify 
+;;           resource transformations; see below.
 ;;  :TYPE    A keyword symbol identifying the data type.
 ;;           Corresponding handlers are the responsibility of the client.
 ;;           See also `*resource-handlers*' and `load-resource'.
@@ -493,7 +495,47 @@ object (possibly driver-dependent). When a resource is loaded (with
 the resource record.  The return value is stored in the OBJECT field
 of the record.")
 
-;;; Functions to load and find resources
+;;; Functions to load, find, and transform resources
+
+(defvar *resource-transformation-delimiter* #\:)
+
+(defun is-transformable-resource (name)
+  (or (eq (aref name 0)
+	  *resource-transformation-delimiter*)))
+
+(defun next-transformation (name)
+  (assert (is-transformable-resource name))
+  (let ((delimiter-pos (position *resource-transformation-delimiter* 
+				 (subseq name 1))))
+    (when delimiter-pos 
+      (let* ((*read-eval* nil)
+	     (xform-command (subseq name 1 (1+ delimiter-pos))))
+	(read-from-string (concatenate 'string 
+				       "(" 
+				       xform-command
+				       ")"))))))
+
+(defun next-source (name)
+  (assert (is-transformable-resource name))
+  (let ((delimiter-pos (position *resource-transformation-delimiter*
+				 (subseq name 1))))
+    (if (numberp delimiter-pos)
+	(subseq name (1+ delimiter-pos))
+	(subseq name 1))))
+
+(defun rotate-image (image degrees)
+  (sdl:rotate-surface degrees :surface image))
+
+;; (defun reflect-image (image direction)
+;;   (sdl:reflect-surface 
+
+(defvar *resource-transformations* 
+  (list :rotate #'rotate-image))
+
+;; (next-transformation ":rotate 90:red-perceptor")
+;; (next-source (next-source ":rotate 90:red-perceptor"))
+;; (next-transformation ":rotate 90:red-perceptor")
+;; (next-transformation ":rotate 90:red-perceptor")
 
 (defun load-resource (resource)
   "Load the driver-dependent object of RESOURCE into the OBJECT field
@@ -510,17 +552,37 @@ so that it can be fed to the console."
 		 (resource-object resource)))))
 
 (defun find-resource (name &optional noerror)
-  "Obtain the resource named NAME; unless NOERROR is non-nil, signal
-an error when NAME is not found in the resource table."
+  "Obtain the resource named NAME, performing any necessary loading
+and/or transformations. Unless NOERROR is non-nil, signal an error
+when NAME cannot be found."
+  ;; can we find the resource straight off? 
   (let ((res (gethash name *resource-table*)))
     (if (resource-p res)
+	;; yes, load-on-demand
 	(prog1 res
 	  (when (null (resource-object res))
-	    ;; load on demand
 	    (load-resource res)))
-	(if noerror 
-	    nil
-	    (error "Cannot find resource.")))))
+	;; no. should we try to xform? 
+	(if (is-transformable-resource name)
+	    ;; ok. let's xform
+	    (let ((xform (next-transformation name))
+		  (source-name (next-source name)))
+	      (if (null xform)
+		  (find-resource source-name)
+		  (destructuring-bind (operation . arguments) xform
+		    (message "~A" operation)
+		    (let ((xformer (getf *resource-transformations* (make-keyword operation)))
+			  (source (find-resource source-name))) 
+		      (assert (functionp xformer))
+		      (make-resource :name name :type (resource-type source)
+				     :object (apply xformer 
+						    (resource-object (find-resource source-name))
+						    arguments))))))
+	    (if noerror
+		nil
+		(error "Cannot find resource."))))))
+
+
 
 (defun find-resource-object (name)
   "Obtain the resource object named NAME, or signal an error if not
@@ -531,6 +593,8 @@ found."
   "Read the value of PROPERTY from the resource RESOURCE-NAME."
   (getf (resource-properties (find-resource resource-name))
 	property))
+
+
 
 ;;; Font operations
 

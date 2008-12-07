@@ -422,7 +422,8 @@ normally."
     (decf <point>)))
 
 (define-method execute prompt ()
-  (let* ((sexp (handler-case 
+  (let* ((*read-eval* nil)
+	 (sexp (handler-case 
 		   (read-from-string (concatenate 'string "(" <line> ")"))
 		 ((or end-of-file reader-error) () nil))))
     (when sexp 
