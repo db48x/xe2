@@ -144,8 +144,8 @@
 	  [queue>>damage target 5]
 	  [queue>>die self])
 	(progn 
-	  [queue>>move self <direction>]
-	  [queue>>drop self (clone =muon-trail= <direction>)]))
+	  [queue>>drop self (clone =muon-trail= <direction>)]
+	  [queue>>move self <direction>]))
     (decf <clock>)
     [expend-default-action-points self]
     (when (zerop <clock>)
