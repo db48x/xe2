@@ -607,8 +607,6 @@ found."
   (getf (resource-properties (find-resource resource-name))
 	property))
 
-
-
 ;;; Font operations
 
 ;; A PAK entry for a font looks like this: 

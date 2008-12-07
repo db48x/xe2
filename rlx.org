@@ -1,9 +1,4 @@
 * TODO ALPHA RELEASE
-** DONE basic console-native image rotation/reflection
-CLOSED: [2008-12-07 Sun 04:45]
-** TODO resource aliases
-*** TODO fix lookup procedure
-*** TODO fix pak reader
 ** TODO bullet trails with directional overlays
 ** TODO <actions> should be a plist of :key -> AP cost
 ** TODO fix crashes by toning down complexity of test level.

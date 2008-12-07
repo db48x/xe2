@@ -77,6 +77,55 @@
 
 ;;; the gun 
 
+(defvar *muon-tiles* '(:north "muon-north"
+		       :south "muon-south"
+		       :east "muon-east"
+		       :west "muon-west"
+		       :northeast "muon-northeast"
+		       :southeast "muon-southeast"
+		       :southwest "muon-southwest"
+		       :northwest "muon-northwest"))
+
+(defvar *trail-middle-tiles* '(:north "bullet-trail-middle-north"
+			       :south "bullet-trail-middle-south"
+			       :east "bullet-trail-middle-east"
+			       :west "bullet-trail-middle-west"
+			       :northeast "bullet-trail-middle-northeast"
+			       :southeast "bullet-trail-middle-southeast"
+			       :southwest "bullet-trail-middle-southwest"
+			       :northwest "bullet-trail-middle-northwest"))
+
+(defvar *trail-end-tiles* '(:north "bullet-trail-end-north"
+			       :south "bullet-trail-end-south"
+			       :east "bullet-trail-end-east"
+			       :west "bullet-trail-end-west"
+			       :northeast "bullet-trail-end-northeast"
+			       :southeast "bullet-trail-end-southeast"
+			       :southwest "bullet-trail-end-southwest"
+			       :northwest "bullet-trail-end-northwest"))
+
+(defvar *trail-tile-map* (list *trail-end-tiles* *trail-middle-tiles* *trail-middle-tiles*))
+
+(define-prototype muon-trail (:parent rlx:=cell=)
+  (categories :initform '(:actor))
+  (clock :initform 2)
+  (speed :initform (make-stat :base 10))
+  (default-cost :initform (make-stat :base 10))
+  (tile :initform ".gear")
+  (direction :initform :north))
+
+(define-method initialize muon-trail (direction)
+  (setf <direction> direction)
+  (setf <tile> (getf *trail-middle-tiles* direction)))
+
+(define-method run muon-trail ()
+  (setf <tile> (getf (nth <clock> *trail-tile-map*)
+		     <direction>))
+  [expend-default-action-points self]
+  (decf <clock>)
+  (when (minusp <clock>)
+    [die self]))
+
 (define-prototype muon-particle (:parent rlx:=cell=)
   (categories :initform '(:actor))
   (speed :initform (make-stat :base 10))
@@ -86,6 +135,7 @@
   (clock :initform 5))
 
 (define-method run muon-particle ()
+  (setf <tile> (getf *muon-tiles* <direction>))
   (let ((target [category-in-direction-p *active-world* 
 					 <row> <column> <direction>
 					 '(:obstacle :actor)]))
@@ -93,7 +143,9 @@
 	(progn
 	  [queue>>damage target 5]
 	  [queue>>die self])
-	[queue>>move self <direction>])
+	(progn 
+	  [queue>>move self <direction>]
+	  [queue>>drop self (clone =muon-trail= <direction>)]))
     (decf <clock>)
     [expend-default-action-points self]
     (when (zerop <clock>)
