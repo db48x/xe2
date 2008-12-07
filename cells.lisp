@@ -152,6 +152,7 @@ field named by STAT-NAME. The default is to change the :base value."
 	   ;; user or the CPU. Only actor cells receive `:run'
 	   ;; messages every turn. Other cells are purely "reactive".
 	   ;; Actor cells participate in the Action Points system.
+    :target ;; This cell is susceptible to targeting.
     :proxy ;; This cell is a proxy for another cell.
     :dead  ;; This cell is no longer receiving run messages.
     :player ;; Only one cell (your player avatar) has this category.

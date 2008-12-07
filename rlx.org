@@ -1,12 +1,18 @@
 * TODO ALPHA RELEASE
-** TODO bullet trails with directional overlays
+** DONE bullet trails with directional overlays
+CLOSED: [2008-12-07 Sun 10:14]
+** TODO death! leave a skull, print a message
+** TODO implement 3 gameplay ideas
+*** TODO monsters leave behind energy tanks
+*** TODO oxygen death
+*** TODO improve bullets
 ** TODO <actions> should be a plist of :key -> AP cost
 ** TODO fix crashes by toning down complexity of test level.
 ** TODO fix render-formatted-line warning error null string thing bug 
 ** TODO remappable per-module command input symbols
 ** TODO change narration excluded keywords to INcluded
 ** TODO per-module post load hook (for remapping keys etc)
-** TODO death! leave a skull, print a message
+
 ** TODO better maze walls
 ** TODO oxygen death
 ** TODO loadout by default?

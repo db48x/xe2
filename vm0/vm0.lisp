@@ -134,28 +134,31 @@
   (direction :initform :here)
   (clock :initform 5))
 
-(define-method run muon-particle ()
-  (setf <tile> (getf *muon-tiles* <direction>))
+(define-method find-target muon-particle ()
   (let ((target [category-in-direction-p *active-world* 
 					 <row> <column> <direction>
-					 '(:obstacle :actor)]))
+					 '(:obstacle :target)]))
     (if target
 	(progn
+	  [queue>>expend-default-action-points self]
 	  [queue>>damage target 5]
 	  [queue>>die self])
 	(progn 
 	  [queue>>drop self (clone =muon-trail= <direction>)]
-	  [queue>>move self <direction>]))
-    (decf <clock>)
-    [expend-default-action-points self]
-    (when (zerop <clock>)
-      [queue>>die self])))
+	  [queue>>move self <direction>]))))
+  
+(define-method run muon-particle ()
+  (setf <tile> (getf *muon-tiles* <direction>))
+  [find-target self]
+  (decf <clock>)
+  (when (zerop <clock>)
+    [queue>>die self]))
 
 (define-method impel muon-particle (direction)
   (assert (member direction *compass-directions*))
   (setf <direction> direction)
   ;; don't hit the player
-  [move self direction])
+  [find-target self])
 
 (define-prototype muon-pistol (:parent rlx:=cell=)
   (name :initform "Xiong Les Fleurs Muon(TM) energy pistol")
@@ -192,7 +195,7 @@
 ;; then choose a random direction and try again
 
 (define-prototype purple-perceptor (:parent rlx:=cell=)
-  (categories :initform '(:actor :obstacle :opaque))
+  (categories :initform '(:actor :target :obstacle :opaque))
   (equipment-slots :initform '(:robotic-arm))
   (speed :initform (make-stat :base 7 :min 7))
   (movement-cost :initform (make-stat :base 3))
@@ -227,7 +230,7 @@
   (strength :initform (make-stat :base 16 :min 0 :max 30))
   (dexterity :initform (make-stat :base 11 :min 0 :max 30))
   (intelligence :initform (make-stat :base 13 :min 0 :max 30))
-  (categories :initform '(:actor :obstacle :opaque :equipper))
+  (categories :initform '(:actor :target :obstacle :opaque :equipper))
   (equipment-slots :initform '(:robotic-arm))
   (max-items :initform (make-stat :base 3))
   (stepping :initform t)
@@ -283,8 +286,11 @@
 
 (define-prototype mine (:parent rlx:=cell=)
   (name :initform "Vanguara XR-1 Contact mine")
-  (categories :initform '(:item))
+  (categories :initform '(:item :target))
   (tile :initform "mine"))
+
+(define-method run mine ()
+  nil)
 
 (define-method explode mine ()
   (dolist (dir (list :here :north :south :east :west))
@@ -318,7 +324,7 @@
 
 (define-prototype player (:parent rlx:=cell=)
   (tile :initform "player")
-  (category :initform '(:actor :container :player :obstacle))
+  (category :initform '(:actor :target :container :player :obstacle))
   (actions :initform '(:move :take :equip :cursor-next :cursor-previous :drop :dequip :attack))
   (speed :initform (make-stat :base 10 :min 0 :max 21))
   (strength :initform (make-stat :base 16 :min 0 :max 30))

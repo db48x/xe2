@@ -388,8 +388,7 @@ if the resource is an :alias, just the string is stored; see also
 		 resource)))
     (setf (gethash (resource-name resource)
 		   *resource-table*) 
-	  val)
-    (message "Indexed resource ~S." (resource-name resource))))
+	  val)))
 
 (defvar *module-directories* '("/usr/local/games/rlx")
   "List of directories where RLX will search for modules.
@@ -584,7 +583,6 @@ when NAME cannot be found."
 		 (if (null xform)
 		     (find-resource source-name)
 		     (destructuring-bind (operation . arguments) xform
-		       (message "~A" operation)
 		       (let ((xformer (getf *resource-transformations* (make-keyword operation)))
 			     (source (find-resource source-name))) 
 			 (assert (functionp xformer))

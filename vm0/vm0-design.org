@@ -62,9 +62,10 @@ cursor can be moved around the screen to fire at particular enemies:
 :
 :    KEY: @=player $=enemy .=shot :=cursor
 
-*** TODO Directional ranged combat			  :alpha:
+*** DONE Directional ranged combat			  :alpha:
 *** TODO Targeted ranged combat				   :beta:
-** TODO Melee combat					  :alpha:
+** DONE Melee combat					  :alpha:
+CLOSED: [2008-12-07 Sun 10:32]
 
 Melee combat serves two purposes:
 
