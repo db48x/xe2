@@ -434,12 +434,6 @@ http://en.wikipedia.org/wiki/Passive_voice"
 (define-method render viewport ()
   [adjust self] ;; hehe
   (let* ((world <world>)
-	 (grid (field-value :grid world))
-	 (light-grid (field-value :light-grid world))
-	 (environment-grid (field-value :environment-grid world))
-	 (phase-number (field-value :phase-number world))
-	 (turn-number (field-value :turn-number world))
-	 (ambient-light (field-value :ambient-light world))
 	 (origin-width <origin-width>)
 	 (origin-height <origin-height>)
 	 (origin-x <origin-x>)
@@ -447,27 +441,31 @@ http://en.wikipedia.org/wiki/Passive_voice"
 	 (image <image>)
 	 (tile-size <tile-size>)
 	 objects cell)
-    ;; blank the display
-    [clear self]
-    ;; draw the tiles
-    (dotimes (i origin-height)
-      (dotimes (j origin-width)
-	;; is this square lit? 
-	;; :. lighting >
-	(when (or (eq :total ambient-light)
-		  (= turn-number (aref light-grid (+ i origin-y) (+ j origin-x))))
-	  (progn (setf objects (aref grid 
-				     (+ i origin-y)
-				     (+ j origin-x)))
-		 (dotimes (k (fill-pointer objects))
-		   (setf cell (aref objects k))
-		   (when (object-p cell)
-		     (draw-resource-image (field-value :tile cell)
-					  (* j tile-size) (* i tile-size)
-					  :destination image)))))))
-    ;; update geometry
-    (setf <width> (* tile-size origin-width))
-    (setf <height> (* tile-size origin-height))))
+    (with-field-values (grid light-grid environment-grid phase-number
+			     turn-number ambient-light) world
+      ;; blank the display
+      [clear self]
+      ;; draw the tiles
+      (dotimes (i origin-height)
+	(dotimes (j origin-width)
+	  ;; is this square lit? 
+	  ;; :. lighting >
+	  (when (or (eq :total ambient-light)
+		    (= turn-number (aref light-grid (+ i origin-y) (+ j origin-x))))
+	    (progn (setf objects (aref grid 
+				       (+ i origin-y)
+				       (+ j origin-x)))
+		   (dotimes (k (fill-pointer objects))
+		     (setf cell (aref objects k))
+		     (when (object-p cell)
+		       (draw-resource-image (field-value :tile cell)
+					    (* j tile-size) (* i tile-size)
+					    :destination image)))))))
+      ;; update geometry
+      (setf <width> (* tile-size origin-width))
+      (setf <height> (* tile-size origin-height)))))
+
+
 
 (define-method set-origin viewport (&key x y height width)
   (setf <origin-x> x
