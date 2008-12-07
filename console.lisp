@@ -274,9 +274,13 @@ window. Set this in the game startup file.")
 ;;           See also `*resource-handlers*' and `load-resource'.
 
 ;;           :. pak-inclusion >
-;;           (The special type :pak is used to load the pak file
+;;           The special type :pak is used to load the pak file
 ;;           specified in :FILE, from (optionally) another module
-;;           whose name is given in :DATA.)
+;;           whose name is given in :DATA.
+
+;;           :. aliases > The special type :alias is used to provide
+;;           multiple names for a resource. The :DATA field contains
+;;           the alias name.
 
 ;;  :PROPERTIES  Property list with extra data; for example :copyright,
 ;;               :license, :author. 
@@ -376,11 +380,16 @@ resources go in this one hash table.")
 
 (defun index-resource (resource)
   "Add the RESOURCE's record to the resource table.
-If a record with that name already exists, it is replaced."
-  (setf (gethash (resource-name resource)
-		 *resource-table*) 
-	resource)
-  (message "Indexed resource ~S." (resource-name resource)))
+If a record with that name already exists, it is replaced.  However,
+if the resource is an :alias, just the string is stored; see also
+`find-resource'."
+  (let ((val (if (eq :alias (resource-type resource))
+		 (resource-data resource)
+		 resource)))
+    (setf (gethash (resource-name resource)
+		   *resource-table*) 
+	  val)
+    (message "Indexed resource ~S." (resource-name resource))))
 
 (defvar *module-directories* '("/usr/local/games/rlx")
   "List of directories where RLX will search for modules.
@@ -557,32 +566,36 @@ and/or transformations. Unless NOERROR is non-nil, signal an error
 when NAME cannot be found."
   ;; can we find the resource straight off? 
   (let ((res (gethash name *resource-table*)))
-    (if (resource-p res)
-	;; yes, load-on-demand
-	(prog1 res
-	  (when (null (resource-object res))
-	    (load-resource res)))
-	;; no. should we try to xform? 
-	(if (is-transformable-resource name)
-	    ;; ok. let's xform
-	    (let ((xform (next-transformation name))
-		  (source-name (next-source name)))
-	      (if (null xform)
-		  (find-resource source-name)
-		  (destructuring-bind (operation . arguments) xform
-		    (message "~A" operation)
-		    (let ((xformer (getf *resource-transformations* (make-keyword operation)))
-			  (source (find-resource source-name))) 
-		      (assert (functionp xformer))
-		      (make-resource :name name :type (resource-type source)
-				     :object (apply xformer 
-						    (resource-object (find-resource source-name))
-						    arguments))))))
-	    (if noerror
-		nil
-		(error "Cannot find resource."))))))
-
-
+    (cond ((resource-p res)
+	   ;; yes, load-on-demand
+	   (prog1 res
+	     (when (null (resource-object res))
+	       (load-resource res))))
+	  ;; no, is it an alias?
+	  ((stringp res)
+	   ;; look up the real one.
+	   (find-resource res))
+	  ;; not found and not an alias. try to xform
+	  ((null res)
+	   (if (is-transformable-resource name)
+	       ;; ok. let's xform
+	       (let ((xform (next-transformation name))
+		     (source-name (next-source name)))
+		 (if (null xform)
+		     (find-resource source-name)
+		     (destructuring-bind (operation . arguments) xform
+		       (message "~A" operation)
+		       (let ((xformer (getf *resource-transformations* (make-keyword operation)))
+			     (source (find-resource source-name))) 
+			 (assert (functionp xformer))
+			 (make-resource :name name :type (resource-type source)
+					:object (apply xformer 
+						       (resource-object (find-resource source-name))
+						       arguments))))))
+	       ;; can't xform. 
+	       (if noerror
+		   nil
+		   (error "Cannot find resource.")))))))
 
 (defun find-resource-object (name)
   "Obtain the resource object named NAME, or signal an error if not
