@@ -1,6 +1,8 @@
 * TODO ALPHA RELEASE
-** TODO 2nd grid of objects; transparent overlays and environmental properties
+** DONE 2nd grid of objects; transparent overlays and environmental properties
+CLOSED: [2008-12-04 Thu 19:13]
 ** TODO bullet trails with directional overlays
+** TODO <actions> should be a plist of :key -> AP cost
 ** TODO fix crashes by toning down complexity of test level.
 ** TODO fix render-formatted-line warning error null string thing bug 
 ** TODO remappable per-module command input symbols

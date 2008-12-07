@@ -99,6 +99,17 @@
        (dotimes (j height)
 	 (setf (aref environment i j) (clone =environment=)))))))
 
+(define-method environment-at world (row column)
+  (aref <environment-grid> row column))
+
+(define-method environment-condition-at world (row column condition)
+  (field-value condition (aref <environment-grid> row column)))
+
+(define-method set-environment-condition-at world (row column condition value)
+  (setf (field-value condition 
+		     (aref <environment-grid> row column))
+	value))
+
 ;; :. narration >
 
 (define-method set-narrator world (narrator)
@@ -425,6 +436,7 @@ http://en.wikipedia.org/wiki/Passive_voice"
   (let* ((world <world>)
 	 (grid (field-value :grid world))
 	 (light-grid (field-value :light-grid world))
+	 (environment-grid (field-value :environment-grid world))
 	 (phase-number (field-value :phase-number world))
 	 (turn-number (field-value :turn-number world))
 	 (ambient-light (field-value :ambient-light world))
