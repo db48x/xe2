@@ -79,36 +79,40 @@ DIRECTION."
 
 (defun direction-to (r1 c1 r2 c2)
   "Return general direction of the ray from R1,C1 to R2,C2."
-  (if (< r1 r2) ; definitely to the south
-      (if (< c1 c2)
-	  :southeast
-	  (if (> c1 c2)
-	      :southwest
-	      :south))
-      (if (> r1 r2) ;; definitely to the north
+  (if (or (some #'null (list r1 c1 r2 c2))
+	  (and (= r1 r2) (= c1 c2)))
+      :here
+      (if (< r1 r2) ; definitely to the south
 	  (if (< c1 c2)
-	      :northeast
+	      :southeast
 	      (if (> c1 c2)
-		  :northwest
-		  :north))
-	  ;; rows are equal; it's either east or west
-	  (if (< c1 c2)
-	      :east
-	      :west))))
+		  :southwest
+		  :south))
+	  (if (> r1 r2) ;; definitely to the north
+	      (if (< c1 c2)
+		  :northeast
+		  (if (> c1 c2)
+		      :northwest
+		      :north))
+	      ;; rows are equal; it's either east or west
+	      (if (< c1 c2)
+		  :east
+		  :west)))))
 
 ;;; Functions that trace out shapes
 
-(defun trace-rectangle (trace-function row column height width)
-  "Call TRACE-FUNCTION for each point on the rectangle of HEIGHT
-and WIDTH with top left corner at ROW COLUMN."
+(defun trace-rectangle (trace-function row column height width &optional fill)
+  "Call TRACE-FUNCTION for each point on the rectangle of HEIGHT and
+WIDTH with top left corner at ROW COLUMN. When FILL is non-nil, fill
+the rectangle."
   (block tracing
     (dotimes (r height)
-      ;; Are we painting a horizontal?
-      (if (or (equal r 0) (equal r (- height 1)))
+      ;; Are we painting a full horizontal? (always the case when filling)
+      (if (or fill (equal r 0) (equal r (- height 1)))
 	  (dotimes (c width)
 	    (if (funcall trace-function (+ r row) (+ c column))
 		(return-from tracing)))
-	  ;; no, it's a row with only verticals
+	  ;; no, it's a row with only verticals. just paint the left and right.
 	  (if (or (funcall trace-function (+ r row) column)
 		  (funcall trace-function (+ r row) (+ width column -1)))
 	      (return-from tracing))))))

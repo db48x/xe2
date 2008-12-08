@@ -1,10 +1,22 @@
 * TODO ALPHA RELEASE
 ** DONE bullet trails with directional overlays
 CLOSED: [2008-12-07 Sun 10:14]
-** TODO death! leave a skull, print a message
+** TODO fix crashiness
 ** TODO implement 3 gameplay ideas
-*** TODO monsters leave behind energy tanks or something
+*** DONE monsters leave behind energy tanks or something
+CLOSED: [2008-12-07 Sun 11:39]
+*** TODO rework box tiles and general room layout
+**** TODO research dungeon generation
+**** TODO border wall around world
+**** TODO parameterized levels with colors
+**** TODO metaworld for installation 774
+*** TODO 
+*** TODO implement drop-cell with no-collisions
+*** TODO suit uses energy every turn to resist cold
+*** TODO find equipment in remodeled green crates
 *** TODO oxygen death
+*** TODO shield
+*** TODO dangerous rook!
 *** DONE improve bullets
 CLOSED: [2008-12-07 Sun 10:44]
 ** TODO fix monsters attacking non-targets

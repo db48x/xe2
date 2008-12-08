@@ -50,16 +50,16 @@
 (define-prototype tech-stone-moss (:parent rlx:=cell=)
   (tile :initform "tech-stone-moss"))
 
-(define-prototype tech-brick-green (:parent rlx:=cell=)
-  (tile :initform "green-tech-brick")
+(define-prototype tech-box (:parent rlx:=cell=)
+  (tile :initform "tech-box")
   (categories :initform '(:obstacle :opaque :pushable :destructible))
   (hit-points :initform (make-stat :base 10 :min 0)))
 
-(define-prototype tech-brick-green-debris (:parent rlx:=cell=)
-  (tile :initform "green-tech-brick-debris"))
+(define-prototype tech-box-debris (:parent rlx:=cell=)
+  (tile :initform "tech-box-debris"))
 
-(define-method die tech-brick-green ()
-  [queue>>drop-cell *active-world* (clone =tech-brick-green-debris=) <row> <column>]
+(define-method die tech-box ()
+  [queue>>drop-cell *active-world* (clone =tech-box-debris=) <row> <column>]
   [parent>>die self])
   
 (define-prototype tech-brick-yellow (:parent rlx:=cell=)
@@ -74,6 +74,12 @@
   (tile :initform "rook")
   (target :initform nil)
   (hit-points :initform (make-stat :base 10 :min 0 :max 10)))
+
+;;; tech wall
+
+(define-prototype tech-wall (:parent rlx:=cell=)
+  (tile :initform "gold-tech-wall")
+  (categories :initform '(:opaque :obstacle)))
 
 ;;; the gun 
 
@@ -128,7 +134,7 @@
 
 (define-prototype muon-particle (:parent rlx:=cell=)
   (categories :initform '(:actor))
-  (speed :initform (make-stat :base 10))
+  (speed :initform (make-stat :base 15))
   (default-cost :initform (make-stat :base 5))
   (tile :initform "muon")
   (direction :initform :here)
@@ -141,6 +147,7 @@
     (if target
 	(progn
 	  [queue>>expend-default-action-points self]
+	  [queue>>drop self (clone =flash=)]
 	  [queue>>damage target 5]
 	  [queue>>die self])
 	(progn 
@@ -267,7 +274,6 @@
     [drop self (clone =energy=)])
   [parent>>die self])
 
-
 ;;; the explosion
 
 (define-prototype explosion (:parent rlx:=cell=)
@@ -291,6 +297,21 @@
 		    [queue>>damage (aref cells x) <damage-per-turn>]
 		    (decf x)))))))
 
+;;; the flash
+
+(define-prototype flash (:parent rlx:=cell=)
+  (clock :initform 2)
+  (tile :initform "flash-1")
+  (categories :initform '(:actor))
+  (speed :initform (make-stat :base 10)))
+
+(define-method run flash ()
+  [expend-action-points self 10]
+  (case <clock>
+    (1 (setf <tile> "flash-2"))
+    (0 [queue>>die self]))
+  (decf <clock>))
+  
 ;;; the mine
 
 (define-prototype mine (:parent rlx:=cell=)
@@ -340,11 +361,18 @@
     [queue>>stat-effect stepper :energy 100]
     [queue>>die self]))
 
-;;; the player
+;;; the player and his dead skull
 
+(define-prototype skull (:parent rlx:=cell=)
+  (tile :initform "skull"))
+
+(define-method forward skull (&rest args)
+  (declare (ignore args))
+  [queue>>narrateln :narrator "You are dead. You can't do anything!"])
+  
 (define-prototype player (:parent rlx:=cell=)
   (tile :initform "player")
-  (category :initform '(:actor :target :container :player :obstacle))
+  (categories :initform '(:actor :target :container :player :obstacle))
   (actions :initform '(:move :take :equip :cursor-next :cursor-previous :drop :dequip :attack))
   (speed :initform (make-stat :base 10 :min 0 :max 21))
   (strength :initform (make-stat :base 16 :min 0 :max 30))
@@ -375,6 +403,14 @@
     (when weapon
       [expend-action-points self [stat-value weapon :attack-cost]]
       [fire weapon direction])))
+
+(define-method die player ()
+  (let ((skull (clone =skull=)))
+    [drop-cell *active-world* skull <row> <column>]
+    [queue>>narrateln :narrator "You die."]
+    [set-player *active-world* skull]
+    [parent>>die self]))
+  
 
 ;;; the game-specific controls
 
@@ -511,58 +547,80 @@
   ;; add player 
   [drop-cell self <player> 10 10])
 
-(define-prototype tech-world (:parent rlx:=world=)
-  (ambient-light :initform :total))
 
-(define-method generate tech-world ()
-  ;; create world
-  (dotimes (i 49)
-    (dotimes (j 49)
-      [drop-cell self (clone (if (> (random 50) 10)
-				  =tech-stone= =tech-stone-moss=))
-		 i j 
-		 :loadout]))
-  (dotimes (n 10)
-    [drop-cell self (clone =tech-brick-yellow=) (random 50) (random 50) :loadout])
-  (dotimes (n 10)
-    [drop-cell self (clone =tech-brick-green=) (random 50) (random 50) :loadout])
-  (dotimes (i 20)
-    [drop-cell self (clone =purple-perceptor=) (random 50) (random 50) :loadout])
-  (dotimes (i 12)
-    [drop-cell self (clone =red-perceptor=) (random 50) (random 50) :loadout])
-  (dotimes (i 14)
-    [drop-cell self (clone =mine=) (1+ (random 44)) (1+ (random 44))  :loadout])
-  ;; (dotimes (i 12)
-  ;;   [drop-cell self (clone =energy=) (random 50) (random 50) :loadout])
-  (dotimes (i 8)
-    [drop-cell self (clone =shock-probe=) (random 50) (random 50) :loadout]) 
-  (dotimes (i 12)
-    [drop-cell self (clone =rusty-wrench=) (random 50) (random 50) :loadout])
-  (dotimes (i 12)
-    [drop-cell self (clone =muon-pistol=) (random 50) (random 50)])
- (dotimes (i 22)
-    [drop-cell self (clone =rook=) (random 50) (random 50) :loadout])
 
-  (dotimes (i 10)
-    (labels ((drop-brick (x y)
-	       [drop-cell self (clone =tech-brick-yellow=) y x])
-	     (drop-crystal (x y)
-	       [drop-cell self (clone =tech-brick-green=) y x]))
-      (trace-octagon #'drop-brick 
-		     (+ 10 (random 30))
-		     (+ 10 (random 30))
-		     (+ 4 (random 4)))
-      (trace-octagon #'drop-crystal 
-		     (+ 10 (random 30))
-		     (+ 10 (random 30))
-		     (+ 2 (random 3)))))
+(define-prototype storage-world (:parent rlx:=world=)
+  (ambient-light :initform :total)
+  (width :initform 60)
+  (height :initform 60)
+  (pallet-size :initform 9))
 
-		  
+(define-method generate storage-world ()
+  (clon:with-field-values (height width pallet-size) self
+    ;; create world
+    (dotimes (i height)
+      (dotimes (j width)
+	[drop-cell self (clone (if (> (random 50) 10)
+				   =tech-stone= =tech-stone-moss=))
+		   i j 
+		   :loadout]))
+    ;; (dotimes (n 10)
+    ;;   [drop-cell self (clone =tech-brick-yellow=) (random height) (random height) :loadout])
+    ;; (dotimes (n 10)
+    ;;   [drop-cell self (clone =tech-brick-green=) (random height) (random height) :loadout])
+    (dotimes (i 20)
+      [drop-cell self (clone =purple-perceptor=) (random height) (random width) :loadout])
+    (dotimes (i 12)
+      [drop-cell self (clone =red-perceptor=) (random height) (random width) :loadout])
+    (dotimes (i 14)
+      [drop-cell self (clone =mine=) (random 50) (random 50)  :loadout])
+    ;; (dotimes (i 12)
+    ;;   [drop-cell self (clone =energy=) (random height) (random height) :loadout])
+    (dotimes (i 8)
+      [drop-cell self (clone =shock-probe=) (random height) (random width) :loadout]) 
+    (dotimes (i 12)
+      [drop-cell self (clone =rusty-wrench=) (random height) (random width) :loadout])
+    (dotimes (i 12)
+      [drop-cell self (clone =muon-pistol=) (random height) (random width)])
+    ;; (dotimes (i 22)
+    ;;    [drop-cell self (clone =rook=) (random height) (random height) :loadout])
+    (let ((imax (1- (truncate (/ width pallet-size))))
+	  (jmax (1- (truncate (/ height pallet-size)))))
+      (dotimes (i imax)
+	(dotimes (j jmax)
+	  (labels ((drop-brick (x y)
+		     [drop-cell self (clone =tech-brick-yellow=) y x])
+		   (drop-box (x y)
+		     [drop-cell self (clone =tech-box=) y x])
+		   (drop-wall (x y)
+		     [drop-cell self (clone =tech-wall=) y x]))
+	    (trace-rectangle #'drop-wall
+			     0 0 height width)
+	    (trace-rectangle #'drop-box
+			     (+ (random 3)
+				(* pallet-size i))
+			     (+ (random 4) 
+				(* pallet-size j))
+			     (random pallet-size)
+			     (random pallet-size)
+			     :fill))))
+      ;; add player 
+      [drop-cell self <player> 5 5])))
+  
     
-  ;; add player 
-
-  [drop-cell self <player> 5 5])
-
+    
+    ;; (trace-octagon #'drop-brick 
+    ;; 		     (+ 10 (random 30))
+    ;; 		     (+ 10 (random 30))
+    ;; 		     (+ 4 (random 4)))
+    ;; (trace-octagon #'drop-crystal 
+    ;; 		     (+ 10 (random 30))
+    ;; 		     (+ 10 (random 30))
+    ;; 		     (+ 2 (random 3)))))
+    
+    
+    
+    
 ;;; putting it all together
 
 (defun vm0 ()
@@ -570,7 +628,7 @@
   (setf rlx:*screen-width* 800)
   (let* ((prompt (clone rlx:=prompt=))
 	 (player-prompt (clone =vm0-prompt=))
-	 (world (clone =tech-world= :height 50 :width 50))
+	 (world (clone =storage-world= :height 50 :width 50))
 	 (player (clone =player=))
 	 (status (clone =status=))
 	 (narrator (clone rlx:=narrator=))

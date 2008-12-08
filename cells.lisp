@@ -247,7 +247,8 @@ negative, then you'll come up that much short."
 (define-method can-act cell (phase)
   "Determine whether the cell has enough action points to take some
 action during PHASE."
-  (and (< <phase-number> phase)
+  (and (not [in-category self :dead])
+       (< <phase-number> phase)
        (plusp <action-points>)))
 
 (define-method expend-action-points cell (points)
@@ -537,7 +538,7 @@ slot."
       (progn 
 	[stat-effect self :hit-points (- damage-points)]
 	(when (zerop [stat-value self :hit-points])
-	  [queue>>die self]))
+	  [die self]))
       (when [is-player self]
 	[queue>>narrateln :narrator "Nothing happens."])))
 	
