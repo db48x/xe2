@@ -10,6 +10,7 @@
  (:name "ion-shield-wall" :type :image :file "ion-shield-wall.png")
  (:name "ion-shield" :type :image :file "combelt.png")
  (:name "skull" :type :image :file "skull.png")
+ (:name "med-hypo" :type :image :file "medhypo.png")
  (:name "flash-1" :type :image :file "flash-1.png")
  (:name "flash-2" :type :image :file "flash-2.png")
  (:name "tech-box" :type :image :file "tech-box.png")

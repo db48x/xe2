@@ -189,6 +189,17 @@
 
 ;; TODO rook cannon
 
+;;; the med hypo
+
+(define-prototype med-hypo (:parent rlx:=cell=)
+  (categories :initform '(:item))
+  (tile :initform "med-hypo"))
+
+(define-method step med-hypo (stepper)
+  (when (has-field :hit-points stepper)
+    [queue>>stat-effect stepper :hit-points 12]
+    [queue>>die self]))
+
 ;;; the shock probe
 
 (define-prototype shock-probe (:parent rlx:=cell=)
@@ -342,7 +353,9 @@
 
 (define-method die red-perceptor ()
   (when (> 4 (random 10))
-    [drop self (clone =energy=)])
+    (if (> 5 (random 10))
+	[drop self (clone =energy=)]
+	[drop self (clone =med-hypo=)]))
   [parent>>die self])
 
 ;;; the explosion
@@ -607,8 +620,8 @@
 		   :loadout]))
     ;; (dotimes (n 10)
     ;;   [drop-cell self (clone =tech-brick-yellow=) (random height) (random height) :loadout])
-    ;; (dotimes (n 10)
-    ;;   [drop-cell self (clone =tech-brick-green=) (random height) (random height) :loadout])
+    (dotimes (n 2)
+      [drop-cell self (clone =med-hypo=) (random height) (random height)])
     (dotimes (i 12)
       [drop-cell self (clone =red-perceptor=) (random height) (random width) :loadout])
     (dotimes (i 20)
