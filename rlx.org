@@ -8,7 +8,8 @@ CLOSED: [2008-12-08 Mon 18:37]
 ** TODO fix render-formatted-line warning error null string thing bug 
 ** TODO implement 3 gameplay ideas
 *** TODO oxygen death
-*** TODO shield
+*** DONE shield
+CLOSED: [2008-12-08 Mon 19:30]
 *** TODO suit uses energy every turn to resist cold
 
 *** TODO dangerous firing rook!

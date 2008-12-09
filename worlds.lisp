@@ -132,6 +132,9 @@
 (define-method nth-cell world (n row column)
   (aref (aref <grid> row column) n))
 
+(define-method get-player world ()
+  <player>)
+
 (define-method player-row world ()
   (field-value :row <player>))
 
@@ -181,6 +184,11 @@
   (multiple-value-bind (nrow ncol)
       (step-in-direction row column direction)
     [category-at-p self nrow ncol category]))
+
+(define-method target-in-direction-p world (row column direction)
+  (multiple-value-bind (nrow ncol)
+      (step-in-direction row column direction)
+    [category-at-p self nrow ncol :target]))
 
 (define-method set-player world (player)
   "Set PLAYER as the player object to which the World will forward

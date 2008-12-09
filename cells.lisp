@@ -157,6 +157,7 @@ field named by STAT-NAME. The default is to change the :base value."
     :proxy ;; This cell is a proxy for another cell.
     :dead  ;; This cell is no longer receiving run messages.
     :player ;; Only one cell (your player avatar) has this category.
+    :enemy ;; This cell is playing against you.
     :obstacle ;; Blocks :. movement >
     ;; :. lighting >
     :light-source ;; This object casts light. 

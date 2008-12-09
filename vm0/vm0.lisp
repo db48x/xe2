@@ -67,6 +67,7 @@
   (categories :initform '(:obstacle :opaque)))
 
 (define-prototype rook (:parent rlx:=cell=)
+;;  (categories :initform '(:actor :target :obstacle :opaque :enemy))
   (equipment-slots :initform '(:robotic-arm :shoulder-mount))
   (speed :initform (make-stat :base 12))
   (stepping :initform t)
@@ -81,7 +82,7 @@
   (tile :initform "gold-tech-wall")
   (categories :initform '(:opaque :obstacle)))
 
-;;; the gun 
+;;; the gun and its particles
 
 (defvar *muon-tiles* '(:north "muon-north"
 		       :south "muon-south"
@@ -206,26 +207,52 @@
 ;; then choose a random direction and try again
 
 (define-prototype purple-perceptor (:parent rlx:=cell=)
-  (categories :initform '(:actor :target :obstacle :opaque))
+  (categories :initform '(:actor :target :obstacle :opaque :enemy :equipper))
   (equipment-slots :initform '(:robotic-arm))
   (speed :initform (make-stat :base 7 :min 7))
+  (max-items :initform (make-stat :base 3))
   (movement-cost :initform (make-stat :base 3))
   (tile :initform "purple-perceptor")
   (stepping :initform t)
+  (attacking-with :initform :robotic-arm)
+  (max-weight :initform (make-stat :base 25))
   (direction :initform (rlx:random-direction))
-  (hit-points :initform (make-stat :base 10 :min 0 :max 10)))
+  (strength :initform (make-stat :base 12 :min 0 :max 30))
+  (dexterity :initform (make-stat :base 9 :min 0 :max 30))
+  (intelligence :initform (make-stat :base 11 :min 0 :max 30))
+  (hit-points :initform (make-stat :base 12 :min 0 :max 10)))
+
+(define-method initialize purple-perceptor ()
+  [make-inventory self]
+  [make-equipment self])
 
 (define-method run purple-perceptor ()
-  (if [obstacle-in-direction-p *active-world* <row> <column> <direction>]
-      (setf <direction> (rlx:random-direction))
-      [queue>>move self <direction>]))
+  (clon:with-field-values (row column) self
+    (let ((world *active-world*))
+      (if (< [distance-to-player world row column] 5)
+	  (let ((player-dir [direction-to-player world row column]))
+	    (if [adjacent-to-player world row column]
+		[queue>>attack self player-dir]
+		[queue>>move self player-dir]))
+	  (progn (when [obstacle-in-direction-p world row column <direction>]
+		   (setf <direction> (rlx:random-direction)))
+		 [queue>>move self <direction>])))))
+
+(define-method die purple-perceptor ()
+  (when (> 6 (random 10))
+    [drop self (clone =energy=)])
+  [parent>>die self])
+
+(define-method loadout purple-perceptor ()
+  (let ((probe (clone =shock-probe=)))
+    [equip self [add-item self probe]]))
 
 ;;; the ion shield
 
 (define-prototype ion-shield-wall (:parent rlx:=cell=)
   (tile :initform "ion-shield-wall")
   (categories :initform '(:obstacle :actor :target))
-  (hit-points :initform (make-stat :base 3 :min 0))
+  (hit-points :initform (make-stat :base 7 :min 0))
   (clock :initform (+ 4 (random 1))))
 
 (define-method die ion-shield-wall ()
@@ -249,14 +276,13 @@
 	 (row [player-row world])
 	 (column [player-column world])
 	 (size <size>))
-    (labels ((drop-ion (r c)
-	       [drop-cell world (clone =ion-shield-wall=) r c]))
-      (trace-rectangle #'drop-ion 
-		       (- row (truncate (/ size 2)))
-		       (- column (truncate (/ size 2)))
-		       size size))))
-
-
+    (when [expend-energy [get-player world] 200]
+      (labels ((drop-ion (r c)
+		 [drop-cell world (clone =ion-shield-wall=) r c]))
+	(trace-rectangle #'drop-ion 
+			 (- row (truncate (/ size 2)))
+			 (- column (truncate (/ size 2)))
+			 size size)))))
 
 ;;; electron
 
@@ -279,7 +305,7 @@
   (strength :initform (make-stat :base 16 :min 0 :max 30))
   (dexterity :initform (make-stat :base 11 :min 0 :max 30))
   (intelligence :initform (make-stat :base 13 :min 0 :max 30))
-  (categories :initform '(:actor :target :obstacle :opaque :equipper))
+  (categories :initform '(:actor :target :obstacle :opaque :enemy :equipper))
   (equipment-slots :initform '(:robotic-arm))
   (max-items :initform (make-stat :base 3))
   (stepping :initform t)
@@ -299,14 +325,20 @@
     [equip self [add-item self probe]]))
 
 (define-method run red-perceptor ()
-  (let ((direction [direction-to-player *active-world* <row> <column>]))
-    (if [adjacent-to-player *active-world* <row> <column>]
-	(progn
-	  [queue>>attack self direction])
-	(progn 
-	  (when [obstacle-in-direction-p *active-world* <row> <column> direction]
-	    (setf direction (random-direction)))
-	  [queue>>move self direction]))))
+  (clon:with-field-values (row column) self
+    (let* ((world *active-world*)
+	   (direction [direction-to-player *active-world* row column]))
+      (if [adjacent-to-player world row column]
+	  [queue>>attack self direction]
+	  (if [obstacle-in-direction-p world row column direction]
+	      (let ((target [target-in-direction-p world row column direction]))
+		(if (and target (not [in-category target :enemy]))
+		    [queue>>attack self direction]
+		    (progn (setf <direction> (random-direction))
+			   [queue>>move self direction])))
+	      (progn (when (< 8 (random 10))
+		       (setf <direction> (random-direction)))
+		     [queue>>move self direction]))))))
 
 (define-method die red-perceptor ()
   (when (> 4 (random 10))
@@ -409,6 +441,10 @@
   (declare (ignore args))
   [queue>>narrateln :narrator "You are dead. You can't do anything!"])
   
+(define-method move skull (&rest args)
+  (declare (ignore args))
+  [queue>>narrateln :narrator "You are dead. You can't do anything!"])
+
 (define-prototype player (:parent rlx:=cell=)
   (tile :initform "player")
   (categories :initform '(:actor :target :container :player :obstacle))
@@ -554,45 +590,6 @@
 
 ;;; our world
 
-(define-prototype mars-world (:parent rlx:=world=)
-  (ambient-light :initform :total))
-
-(define-method generate mars-world ()
-  ;; create world
-  (dotimes (i 100)
-    (dotimes (j 100)
-      [drop-cell self (clone (if (> (random 100) 10)
-				  =terrain= =terrain2=))
-		 i j 
-		 :loadout]))
-  (dotimes (n 100)
-    [drop-cell self (clone =gray-brick=) (random 100) (random 100) :loadout])
-  (dotimes (i 65)
-    [drop-cell self (clone =purple-perceptor=) (random 100) (random 100) :loadout])
-  (dotimes (i 12)
-    [drop-cell self (clone =red-perceptor=) (random 100) (random 100) :loadout])
-  (dotimes (i 12)
-    [drop-cell self (clone =purple-perceptor=) (random 100) (random 100) :loadout])
-  (dotimes (i 12)
-    [drop-cell self (clone =crystal=) (random 100) (random 100) :loadout])
-  (dotimes (i 8)
-    [drop-cell self (clone =shock-probe=) (random 100) (random 100) :loadout])
-  (dotimes (i 12)
-    [drop-cell self (clone =rusty-wrench=) (random 100) (random 100) :loadout])
-  (dotimes (i 4)
-    (labels ((drop-brick (x y)
-	       [drop-cell self (clone =gray-brick=) y x])
-	     (drop-crystal (x y)
-	       [drop-cell self (clone =crystal=) y x]))
-      (trace-octagon #'drop-brick 
-		     (+ 20 (random 60))
-		     (+ 20 (random 60))
-		     (+ 3 (random 5)))))
-  ;; add player 
-  [drop-cell self <player> 10 10])
-
-
-
 (define-prototype storage-world (:parent rlx:=world=)
   (ambient-light :initform :total)
   (width :initform 60)
@@ -612,10 +609,10 @@
     ;;   [drop-cell self (clone =tech-brick-yellow=) (random height) (random height) :loadout])
     ;; (dotimes (n 10)
     ;;   [drop-cell self (clone =tech-brick-green=) (random height) (random height) :loadout])
-    (dotimes (i 20)
-      [drop-cell self (clone =purple-perceptor=) (random height) (random width) :loadout])
     (dotimes (i 12)
       [drop-cell self (clone =red-perceptor=) (random height) (random width) :loadout])
+    (dotimes (i 20)
+      [drop-cell self (clone =purple-perceptor=) (random height) (random width) :loadout])
     (dotimes (i 14)
       [drop-cell self (clone =mine=) (random 50) (random 50)  :loadout])
     ;; (dotimes (i 12)
@@ -638,18 +635,19 @@
 		     [drop-cell self (clone =tech-box=) y x])
 		   (drop-wall (x y)
 		     [drop-cell self (clone =tech-wall=) y x]))
-	    (trace-rectangle #'drop-wall
-			     0 0 height width)
-	    (trace-rectangle #'drop-box
-			     (+ (random 3)
-				(* pallet-size i))
-			     (+ (random 4) 
-				(* pallet-size j))
-			     (random pallet-size)
-			     (random pallet-size)
-			     :fill))))
-      ;; add player 
-      [drop-cell self <player> 5 5])))
+	    (when (not (= 0 i j))
+	      (trace-rectangle #'drop-wall
+			       0 0 height width)
+	      (trace-rectangle #'drop-box
+			       (+ (random 3)
+				  (* pallet-size i))
+			       (+ (random 4) 
+				  (* pallet-size j))
+			       (random pallet-size)
+			       (random pallet-size)
+			       :fill))))))
+    ;; add player 
+    [drop-cell self <player> 5 5]))
   
     
     
