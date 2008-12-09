@@ -146,7 +146,8 @@ else.")
 (defun dispatch-event (event)
   "Send EVENT to the handler function."
   (if *event-handler-function*
-      (funcall *event-handler-function* event)
+      (progn (message "~A" event)
+	     (funcall *event-handler-function* event))
       (error "No event handler registered.")))
 
 ;;; Translating SDL key events into RLX event lists
@@ -280,7 +281,7 @@ window. Set this in the game startup file.")
 
 ;;           :. aliases > The special type :alias is used to provide
 ;;           multiple names for a resource. The :DATA field contains
-;;           the alias name.
+;;           the name of the target resource.
 
 ;;  :PROPERTIES  Property list with extra data; for example :copyright,
 ;;               :license, :author. 
@@ -308,6 +309,7 @@ window. Set this in the game startup file.")
 
 (defun resource-to-plist (res)
   "Convert the resource record RES into a property list.
+
 This prepares it for printing as part of a PAK file."
   (list :name (resource-name res)
 	:type (resource-type res)

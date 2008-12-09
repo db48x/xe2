@@ -34,16 +34,11 @@
 
 ;;; Choosing modules from a menu
 
-(define-prototype module-launcher ()
-  name
-  (tile :initform ".gear"))
-
-(define-method initialize module-launcher (&optional module)
-  (setf <name> module))
-
+(define-prototype module-launcher (:parent rlx:=menu-item=)
+  (tile :initform ".asterisk"))
+  
 (define-method open module-launcher ()
   (prog1 nil
-    (message "HEY")
     (rlx:reset <name>)))
 
 (define-prototype standard-prompt (:parent rlx:=prompt=)
@@ -53,7 +48,7 @@
 
 ;;; Quitting the menu
 
-(define-prototype quit-launcher ()
+(define-prototype quit-launcher (:parent =menu-item=)
   (name :initform "Quit RLX")
   (tile :initform ".destroy-self"))
 

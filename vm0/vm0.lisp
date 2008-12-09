@@ -82,7 +82,7 @@
   (tile :initform "gold-tech-wall")
   (categories :initform '(:opaque :obstacle)))
 
-;;; the gun and its particles
+;;; the gun and its particles and their trails
 
 (defvar *muon-tiles* '(:north "muon-north"
 		       :south "muon-south"
@@ -347,7 +347,7 @@
 		    [queue>>attack self direction]
 		    (progn (setf <direction> (random-direction))
 			   [queue>>move self direction])))
-	      (progn (when (< 8 (random 10))
+	      (progn (when (< 7 (random 10))
 		       (setf <direction> (random-direction)))
 		     [queue>>move self direction]))))))
 
@@ -461,7 +461,6 @@
 (define-prototype player (:parent rlx:=cell=)
   (tile :initform "player")
   (categories :initform '(:actor :target :container :player :obstacle))
-  (actions :initform '(:move :take :equip :cursor-next :cursor-previous :drop :dequip :attack))
   (speed :initform (make-stat :base 10 :min 0 :max 21))
   (strength :initform (make-stat :base 16 :min 0 :max 30))
   (attacking-with :initform :right-hand)
@@ -475,7 +474,11 @@
   (hit-points :initform (make-stat :base 50 :min 0 :max 100))
   (energy :initform (make-stat :base 800 :min 0 :max 1000))
   (oxygen :initform (make-stat :base 1000 :min 0 :max 1200))
-  (stepping :initform t))
+  (stepping :initform t)
+  (menu :initform '(("equip 0 ." :name "Equip 0" :key "0" :description "Equip the item in inventory slot 0.")
+		    ("equip 1 ."  :name "Equip 1" :key "1" :description "Equip the item in inventory slot 1.")
+		    ("activate-equipment" :name "Activate Belt" :key "0" :description "Activate belt.")
+		    ("take ." :name "Take item" :key "T" :description "Take item from ground."))))
 	  
 (define-method initialize player ()
   [make-inventory self]
@@ -575,7 +578,6 @@
     ("O" nil "take .") ;; obtain
     ("E" nil "equip 0 .")
     ("1" nil "activate-equipment :belt .")))
-
 
 (define-method install-keybindings vm0-prompt ()
   (let ((keys (ecase rlx:*user-keyboard-layout* 
@@ -688,6 +690,7 @@
 	 (status (clone =status=))
 	 (narrator (clone rlx:=narrator=))
 	 (browser (clone rlx:=browser=))
+	 (menu (clone rlx:=browser=))
 	 (viewport nil))
     (setf *active-world* world)
     ;; status
@@ -698,13 +701,18 @@
     [resize browser :height 500 :width 220]
     [move browser :x 555 :y 60]
     [set-collection browser (field-value :inventory player)]
+    ;; MENU
+    [resize menu :height 500 :width 220]
+    [move menu :x 100 :y 60]
+    [set-collection-from-menu-spec menu (field-value :menu player)]
+    [set-prompt menu player-prompt]
     ;; system prompt
     [install-keybindings prompt]
     [resize prompt :height 30 :width 400]
     [move prompt :x 0 :y 570]
     [set-mode prompt :forward]
     [set-receiver prompt world]
-    ;; vm0 command prompt
+    ;; vm0 player command prompt
     [install-keybindings player-prompt]
     [resize player-prompt :height 30 :width 400]
     [move player-prompt :x 0 :y 0]
@@ -714,7 +722,6 @@
     [resize narrator :height 240 :width 500]
     [move narrator :x 0 :y 330]
     [set-narrator world narrator]
-
     ;; tie it together
     [set-player world player]
     [set-browser world browser]
@@ -727,7 +734,7 @@
 
     ;; foo
 
-    (install-widgets (list prompt browser player-prompt viewport status narrator))
+    (install-widgets (list prompt menu browser player-prompt viewport status))
     ))
     
 (vm0)

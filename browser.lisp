@@ -33,18 +33,61 @@
 ;;  [open item] should return either:
 ;; 
 ;;    - a new array to browse, or
-;;    - a function to invoke after exiting the menu
+;;    - a function to invoke after exiting the menu, or
+;;    - a string command
+;;    - nil, in which case the menu system exits.
 
 ;;; Code:
 
 (in-package :rlx)
 
+(define-prototype menu-item (:parent =widget=)
+  (tile :initform ".asterisk")
+  (name :initform "<blank menu item>")
+  (key :initform nil)
+  (description :initform "<blank menu item description>")
+  (sub-menu :initform nil)
+  (command-string :initform ""))
+
+(define-method initialize menu-item (&optional item-spec)
+  (when item-spec
+    (destructuring-bind (command-string &key key description sub-menu name
+					&allow-other-keys) item-spec
+      (setf <key> key 
+	    <description> description
+	    <name> name
+	    <sub-menu> sub-menu
+	    <command-string> command-string))))
+
+;; (define-method is-disabled item
+
+(define-method open menu-item ()
+  nil)
+
+;;; browser menu
+
 (define-prototype browser (:parent =formatter=)
   (collection :documentation "The vector of browsable CLON objects being browsed.")
   (cursor :initform 0
 	  :documentation "The array index of the currently selected object.")
-  (history :documentation "Recently browsed collections."))
+  (visible :initform t)
+  (history :documentation "Recently browsed collections.")
+  (prompt :documentation "Prompt to receive command messages."))
 
+(define-method hide browser ()
+  (setf <visible> nil))
+
+(define-method show browser ()
+  (setf <visible> t))
+
+(define-method set-prompt browser (prompt)
+  (setf <prompt> prompt))
+
+(define-method toggle-visible browser ()
+  (if <visible>
+      [hide self]
+      [show self]))
+  
 (define-method cursor-next browser ()
   (when (array-in-bounds-p <collection> (+ 1 <cursor>))
     (incf <cursor>)))
@@ -73,15 +116,20 @@ visually distinguished) version of the line."
       [println self " [EMPTY] " :foreground ".gray20"]
       (progn 
 	(let ((tile (field-value :tile object))
-	      (name (field-value :name object)))
+	      (label (or (field-value :name object)
+			 (field-value :description object))))
 	  (if selected-p
 	      [print self ">" :foreground ".yellow" :background ".purple"]
 	      [print self " "])
 	  [print self " "]
 	  [print self nil :image tile]
 	  [print self " "]
-	  [println self name]))))
+	  [println self label]))))
 
+(define-method render browser ()
+  (when <visible>
+    [parent>>render self]))
+  
 (define-method update browser ()
   (let ((collection <collection>)
 	(cursor <cursor>))
@@ -93,37 +141,47 @@ visually distinguished) version of the line."
   (setf <collection> collection)
   (setf <cursor> 0))
 
-;;; A menu item cell.
+(define-method set-collection-from-menu-spec browser (menu-spec)
+  (let ((c nil))
+    (dolist (m menu-spec)
+      (push (clone =menu-item= m) c))
+    [set-collection self (coerce (nreverse c) 'vector)]))
 
-;; TODO menu item cell
+(define-method initialize browser ()
+  [parent>>initialize self]
+  (bind-key-to-method self "UP" nil :cursor-previous)
+  (bind-key-to-method self "DOWN" nil :cursor-next)
+  (bind-key-to-method self "LEFT" nil :back)
+  (bind-key-to-method self "TAB" nil :toggle-visible)
+  (bind-key-to-method self "SPACE" nil :follow))
 
 ;;; An equipment browser
 
-(define-prototype equipment (:parent =browser=))
+;; (define-prototype equipment (:parent =browser=))
 
-(define-method print-object equipment (object &optional selected-p)
-  (declare (ignore selected-p))
-  (let* ((tile (field-value :tile object))
-	 (name (field-value :name object))
-	 (equipment (field-value :equipment object))
-	 (equipment-slots (field-value :equipment-slots object))
-	 (fill-width (apply #'max 5 (mapcar #'(lambda (s) 
-					      (length (symbol-name s)))
-					  equipment-slots)))
-	 item)
-    [print self "Equipment for: "]
-    [print self name]
-    [print self nil :image tile]
-    [space self]
-    [println self name]
-    (dolist (slot equipment-slots)
-      (setf item [equipment-slot object slot])
-      [print self (format nil (format nil "~~~dS " fill-width) slot)]
-      (when item
-	[print self nil :image (field-value :tile item)]
-	[space self]
-	[print self (field-value :name item)])
-      [newline self])
-    [newline self]))
+;; (define-method print-object equipment (object &optional selected-p)
+;;   (declare (ignore selected-p))
+;;   (let* ((tile (field-value :tile object))
+;; 	 (name (field-value :name object))
+;; 	 (equipment (field-value :equipment object))
+;; 	 (equipment-slots (field-value :equipment-slots object))
+;; 	 (fill-width (apply #'max 5 (mapcar #'(lambda (s) 
+;; 					      (length (symbol-name s)))
+;; 					  equipment-slots)))
+;; 	 item)
+;;     [print self "Equipment for: "]
+;;     [print self name]
+;;     [print self nil :image tile]
+;;     [space self]
+;;     [println self name]
+;;     (dolist (slot equipment-slots)
+;;       (setf item [equipment-slot object slot])
+;;       [print self (format nil (format nil "~~~dS " fill-width) slot)]
+;;       (when item
+;; 	[print self nil :image (field-value :tile item)]
+;; 	[space self]
+;; 	[print self (field-value :name item)])
+;;       [newline self])
+;;     [newline self]))
     
 ;;; browser.lisp ends here

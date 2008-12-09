@@ -66,8 +66,8 @@
   =equipment= *default-world-axis-size* *default-world-z-size*
   =browser= install-widgets *initialization-hook* initialize-engine
   message *screen-width* transform-method-body make-stat =formatter=
-  initialize-colors *standard-categories* *default-action-points*
-  =world= roll bind-key-to-method *colors* get-color =prompt=
+  initialize-colors *standard-categories* *default-action-points* 
+  =world= roll bind-key-to-method *colors* get-color =prompt= =menu-item=
   define-method *default-font* *startup* field-value set-field-value
   object-fields dispatch-event run *user-init-file-name* distance
   icon-resource icon-image *compass-directions* *compass-opposites*

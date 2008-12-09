@@ -1,19 +1,20 @@
 * TODO ALPHA RELEASE
-** DONE bullet trails with directional overlays
-CLOSED: [2008-12-07 Sun 10:14]
-** DONE fix crashiness
-CLOSED: [2008-12-08 Mon 18:37]
-** DONE fix crashes by toning down complexity of test level.
-CLOSED: [2008-12-08 Mon 18:37]
+** TODO temporary dialog widget allows numeric input
+** TODO improve equipment/firing controls/menu system
+*** DONE <menu> field
+CLOSED: [2008-12-09 Tue 09:36]
+*** TODO menu item widget
+*** TODO deliver commands to prompt
+*** TODO enter menu with space
+*** TODO select option or menu with space
+*** TODO define faces
 ** TODO fix render-formatted-line warning error null string thing bug 
-** TODO implement 3 gameplay ideas
+** TODO implement 3 new gameplay ideas
 *** TODO oxygen death
-*** DONE shield
-CLOSED: [2008-12-08 Mon 19:30]
-*** TODO suit uses energy every turn to resist cold
-
+*** TODO environment suit uses energy every turn to resist cold
 *** TODO dangerous firing rook!
 
+** TODO RLX dev manual, document the API
 ** TODO parameterized levels with colors
 ** TODO metaworld for installation 774
 ** TODO implement drop-cell with no-collisions

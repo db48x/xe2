@@ -50,7 +50,7 @@
   ;; :. lighting >
   (light-radius :initform 0 :documentation "Strength of light cast by this object.") 
   ;; :. action-points >
-  (actions :initform nil :documentation "List of Action Method keywords.") ;; 
+  (menu :initform nil :documentation "Menu objects.")
   (speed :initform '(:base 10) :documentation "The number of action points alloted each phase.")
   (phase-number :initform 0
 	       :documentation "An integer giving the last phase this cell has completed.")
