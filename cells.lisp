@@ -69,7 +69,7 @@
   ;; :. equipment >
   (equipment :documentation "Property list of :slot -> cell pairs.") 
   (equipment-slots :documentation "List of keyword symbols identifying available equipment slots."
-		   :initform '(:head :neck :left-hand :right-hand :hands :feet :legs :torso :arms :pack))
+		   :initform '(:head :neck :left-hand :right-hand :hands :feet :legs :torso :arms :pack :belt))
   (using-slot :documentation "Keyword symbol of the currently selected equipment slot.")
   (attacking-with :documentation "Keyword symbol of the currently selected weapon slot.")
   (firing-with :documentation "Keyword symbol of the currently selected firing weapon slot.")

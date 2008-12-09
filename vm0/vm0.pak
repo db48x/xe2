@@ -7,6 +7,8 @@
  (:name "electron" :type :image :file "electron.png")
  (:name "energy" :type :image :file "energy.png")
  (:name "gun" :type :image :file "gun.png")
+ (:name "ion-shield-wall" :type :image :file "ion-shield-wall.png")
+ (:name "ion-shield" :type :image :file "combelt.png")
  (:name "skull" :type :image :file "skull.png")
  (:name "flash-1" :type :image :file "flash-1.png")
  (:name "flash-2" :type :image :file "flash-2.png")

@@ -174,6 +174,7 @@
   (equip-for :initform '(:left-hand))
   (weight :initform 7000)
   (accuracy :initform (make-stat :base 72))
+
   (attack-power :initform (make-stat :base 6))
   (attack-cost :initform (make-stat :base 4))
   (energy-cost :initform (make-stat :base 10)))
@@ -193,9 +194,9 @@
   (name :initform "Shock probe")
   (categories :initform '(:item :weapon :equipment :builtin))
   (tile :initform "shock-probe")
-  (attack-power :initform (make-stat :base 4))
-  (attack-cost :initform (make-stat :base 5))
-  (accuracy :initform (make-stat :base 80))
+  (attack-power :initform (make-stat :base 10))
+  (attack-cost :initform (make-stat :base 6))
+  (accuracy :initform (make-stat :base 90))
   (weight :initform 3000)
   (equip-for :initform '(:robotic-arm)))
 
@@ -218,6 +219,44 @@
   (if [obstacle-in-direction-p *active-world* <row> <column> <direction>]
       (setf <direction> (rlx:random-direction))
       [queue>>move self <direction>]))
+
+;;; the ion shield
+
+(define-prototype ion-shield-wall (:parent rlx:=cell=)
+  (tile :initform "ion-shield-wall")
+  (categories :initform '(:obstacle :actor :target))
+  (hit-points :initform (make-stat :base 3 :min 0))
+  (clock :initform (+ 4 (random 1))))
+
+(define-method die ion-shield-wall ()
+  [queue>>drop-cell *active-world* (clone =flash=) <row> <column>]
+  [parent>>die self])
+
+(define-method run ion-shield-wall ()
+  (when (zerop <clock>)
+    [die self])
+  (decf <clock>))
+
+(define-prototype ion-shield (:parent rlx:=cell=)
+  (categories :initform '(:item :equipment))
+  (name :initform "Xiong Les Fleur Ion (TM) shield belt")
+  (tile :initform "ion-shield")
+  (equip-for :initform '(:belt))
+  (size :initform 5))
+
+(define-method activate ion-shield ()
+  (let* ((world *active-world*)
+	 (row [player-row world])
+	 (column [player-column world])
+	 (size <size>))
+    (labels ((drop-ion (r c)
+	       [drop-cell world (clone =ion-shield-wall=) r c]))
+      (trace-rectangle #'drop-ion 
+		       (- row (truncate (/ size 2)))
+		       (- column (truncate (/ size 2)))
+		       size size))))
+
+
 
 ;;; electron
 
@@ -411,6 +450,8 @@
     [set-player *active-world* skull]
     [parent>>die self]))
   
+(define-method activate-equipment player (slot)
+  [activate [equipment-slot self slot]])
 
 ;;; the game-specific controls
 
@@ -445,7 +486,8 @@
     ("N" (:control) "fire :southeast .")
     ;;
     ("T" nil "take .")
-    ("E" nil "equip 0 .")))
+    ("E" nil "equip 0 .")
+    ("1" nil "activate-equipment :belt .")))
 
 ;; f t g
 ;;  \|/
@@ -482,7 +524,9 @@
     ("B" (:control) "fire :southeast .")
     ;;
     ("O" nil "take .") ;; obtain
-    ("E" nil "equip 0 .")))
+    ("E" nil "equip 0 .")
+    ("1" nil "activate-equipment :belt .")))
+
 
 (define-method install-keybindings vm0-prompt ()
   (let ((keys (ecase rlx:*user-keyboard-layout* 
@@ -577,7 +621,7 @@
     ;; (dotimes (i 12)
     ;;   [drop-cell self (clone =energy=) (random height) (random height) :loadout])
     (dotimes (i 8)
-      [drop-cell self (clone =shock-probe=) (random height) (random width) :loadout]) 
+      [drop-cell self (clone =ion-shield=) (random height) (random width) :loadout]) 
     (dotimes (i 12)
       [drop-cell self (clone =rusty-wrench=) (random height) (random width) :loadout])
     (dotimes (i 12)
