@@ -574,24 +574,28 @@ when NAME cannot be found."
 	       (load-resource res))))
 	  ;; no, is it an alias?
 	  ((stringp res)
-	   ;; look up the real one.
-	   (find-resource res))
+	   ;; look up the real one and make the alias map to the real resource
+	   (setf (gethash name *resource-table*) 
+		 (find-resource res)))
 	  ;; not found and not an alias. try to xform
 	  ((null res)
 	   (if (is-transformable-resource name)
-	       ;; ok. let's xform
+	       ;; ok. let's xform and cache the result
 	       (let ((xform (next-transformation name))
 		     (source-name (next-source name)))
-		 (if (null xform)
-		     (find-resource source-name)
-		     (destructuring-bind (operation . arguments) xform
-		       (let ((xformer (getf *resource-transformations* (make-keyword operation)))
-			     (source (find-resource source-name))) 
-			 (assert (functionp xformer))
-			 (make-resource :name name :type (resource-type source)
-					:object (apply xformer 
-						       (resource-object (find-resource source-name))
-						       arguments))))))
+		 (setf (gethash name *resource-table*) 
+		       (if (null xform)
+			   (find-resource source-name)
+			   (destructuring-bind (operation . arguments) xform
+			     (let* ((xformer (getf *resource-transformations* 
+						   (make-keyword operation)))
+				    (source (find-resource source-name))
+				    (xformed-resource (apply xformer (resource-object 
+								      (find-resource source-name))
+							     arguments)))
+			       (make-resource :name name 
+					      :type (resource-type source)
+					      :object xformed-resource))))))
 	       ;; can't xform. 
 	       (if noerror
 		   nil
