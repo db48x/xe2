@@ -589,12 +589,13 @@ when NAME cannot be found."
 			   (destructuring-bind (operation . arguments) xform
 			     (let* ((xformer (getf *resource-transformations* 
 						   (make-keyword operation)))
-				    (source (find-resource source-name))
-				    (xformed-resource (apply xformer (resource-object 
-								      (find-resource source-name))
+				    (source-res (find-resource source-name))
+				    (source-type (resource-type source-res))
+				    (source (resource-object source-res))
+				    (xformed-resource (apply xformer source
 							     arguments)))
 			       (make-resource :name name 
-					      :type (resource-type source)
+					      :type source-type
 					      :object xformed-resource))))))
 	       ;; can't xform. 
 	       (if noerror
