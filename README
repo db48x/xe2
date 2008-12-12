@@ -30,6 +30,7 @@ rlx.asd         System definition.
 rlx.lisp        Package definition. 
 standard/       Standard resources common to all RLX games. 
 vm0/            Example game module entitled "Void Mission Zero"
+vm0/MEDIA-COPYING Licensing information for the images and sounds for the game
 widgets.lisp    Common GUI code and basic widgets (prompt, formatter)
 
 rlx.org           Org-mode TODO list.   
