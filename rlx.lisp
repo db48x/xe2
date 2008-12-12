@@ -66,16 +66,17 @@
   =equipment= *default-world-axis-size* *default-world-z-size*
   =browser= install-widgets *initialization-hook* initialize-engine
   message *screen-width* transform-method-body make-stat =formatter=
-  initialize-colors *standard-categories* *default-action-points* 
-  =world= roll bind-key-to-method *colors* get-color =prompt= =menu-item=
-  define-method *default-font* *startup* field-value set-field-value
-  object-fields dispatch-event run *user-init-file-name* distance
-  icon-resource icon-image *compass-directions* *compass-opposites*
-  find-resource-property compose-blank-fields font-width font-height
-  *browser* browser set-browser transform-field-reference
-  *screen-height* =inventory= formatted-string-height
-  formatted-string-width get-color create-image draw-image play
-  define-prototype has-field set-field-options field-option-value
+  initialize-colors *standard-categories* *default-action-points*
+  =world= roll bind-key-to-method *colors* get-color =prompt=
+  =menu-item= =direction-chooser= define-method *default-font*
+  *startup* field-value set-field-value object-fields dispatch-event
+  run *user-init-file-name* distance icon-resource icon-image
+  *compass-directions* *compass-opposites* find-resource-property
+  compose-blank-fields font-width font-height *browser* browser
+  set-browser transform-field-reference *screen-height* =inventory=
+  formatted-string-height formatted-string-width get-color
+  create-image draw-image play define-prototype has-field
+  *choose-direction-menu* set-field-options field-option-value
   index-resource find-module-path index-module load-image-resource
   load-lisp-resource *resource-handlers* load-resource find-resource
   find-resource-object *colors* *active-world* load-user-init-file

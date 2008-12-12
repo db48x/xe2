@@ -477,8 +477,9 @@
   (stepping :initform t)
   (menu :initform '(("equip 0 ." :name "Equip 0" :key "0" :description "Equip the item in inventory slot 0.")
 		    ("equip 1 ."  :name "Equip 1" :key "1" :description "Equip the item in inventory slot 1.")
-		    ("activate-equipment" :name "Activate Belt" :key "0" :description "Activate belt.")
-		    ("take ." :name "Take item" :key "T" :description "Take item from ground."))))
+		    ("activate-equipment :belt ." :name "Activate Belt" :key "0" :description "Activate belt.")
+		    ("take ." :name "Take item" :key "T" :description "Take item from ground.")
+		    ("move " :name "Move..." :description "Move in a chosen direction." :sub-menu *choose-direction-menu*))))
 	  
 (define-method initialize player ()
   [make-inventory self]

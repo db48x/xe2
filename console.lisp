@@ -510,8 +510,8 @@ of the record.")
 (defvar *resource-transformation-delimiter* #\:)
 
 (defun is-transformable-resource (name)
-  (or (eq (aref name 0)
-	  *resource-transformation-delimiter*)))
+  (eq (aref name 0)
+      *resource-transformation-delimiter*))
 
 (defun next-transformation (name)
   (assert (is-transformable-resource name))

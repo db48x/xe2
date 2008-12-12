@@ -41,7 +41,7 @@
 
 (define-prototype cell
     (:documentation "An RLX game-world object.")
-  (weight :documentation "Weight of the cell.")
+  (weight :documentation "Weight of the cell, in kilograms.")
   (tile :initform ".asterisk" :documentation "Resource name of image.")
   (row :documentation "When non-nil, the current row location of the cell.")
   (column :documentation "When non-nil, the current column of the cell.")

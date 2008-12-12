@@ -30,12 +30,9 @@
 ;;  [is-disabled item] should return non-nil when the menu item is to
 ;;  be grayed out.
 
-;;  [open item] should return either:
+;;  [open item] should return:
 ;; 
-;;    - a new array to browse, or
-;;    - a function to invoke after exiting the menu, or
-;;    - a string command
-;;    - nil, in which case the menu system exits.
+;;  (values COMMAND-STRING MENU-SPEC)
 
 ;;; Code:
 
@@ -62,7 +59,8 @@
 ;; (define-method is-disabled item
 
 (define-method open menu-item ()
-  nil)
+  (values <command-string> 
+	  <sub-menu>))
 
 ;;; browser menu
 
@@ -102,9 +100,18 @@
 (define-method follow browser ()
   (let* ((item [cursor-item self]))
     (push <collection> <history>)
-    (setf <collection> 
-	  [open item])))
-
+    (multiple-value-bind (result sub-menu) [open item]
+      (cond ((and (vectorp result) (every #'clon:object-p result))
+	     [set-collection self result])
+	    ((stringp result)
+	     (assert <prompt>)
+	     [insert <prompt> result]))
+      ;; ((null result)
+      ;;  [hide self]))
+      (when (and (not (null sub-menu)) (boundp sub-menu))
+	(message "HGEY!")
+	[set-collection-from-menu-spec self (symbol-value sub-menu)]))))
+	    	     
 (define-method back browser ()
   (setf <collection> (pop <history>)))
 
@@ -127,8 +134,9 @@ visually distinguished) version of the line."
 	  [println self label]))))
 
 (define-method render browser ()
-  (when <visible>
-    [parent>>render self]))
+  (if <visible>
+      [parent>>render self]
+      [clear self]))
   
 (define-method update browser ()
   (let ((collection <collection>)
@@ -154,6 +162,20 @@ visually distinguished) version of the line."
   (bind-key-to-method self "LEFT" nil :back)
   (bind-key-to-method self "TAB" nil :toggle-visible)
   (bind-key-to-method self "SPACE" nil :follow))
+
+;;; Directional browser
+
+(defparameter *choose-direction-menu* 
+  '((":east ." :name "East")
+    (":northeast ." :name "Northeast")
+    (":southeast ." :name "Southeast")
+    (":west ." :name "West")
+    (":northwest ." :name "Northwest")
+    (":southwest ." :name "Southwest")
+    (":north ." :name "North")
+    (":south ." :name "South")))
+
+;;; A container browser with numbered slots
 
 ;;; An equipment browser
 
