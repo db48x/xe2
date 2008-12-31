@@ -16,6 +16,7 @@
  (:name "tech-box" :type :image :file "tech-box.png")
  (:name "tech-box-debris" :type :image :file "tech-box-debris.png")
  (:name "red-perceptor" :type :image :file "redperceptor.png")
+ (:name "oxygen-tank" :type :image :file "oxygen-tank.png")
  (:name "player" :type :image :file "voyager-normal.png")
  (:name "rusty-wrench" :type :image :file "rustywrench.png")
  (:name "shock-probe" :type :image :file "shock-probe.png")

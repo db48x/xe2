@@ -240,25 +240,24 @@
 
 (define-prototype lepton-particle (:parent rlx:=cell=)
   (categories :initform '(:actor))
-  (speed :initform (make-stat :base 15))
-  (default-cost :initform (make-stat :base 5))
+  (speed :initform (make-stat :base 20))
+  (default-cost :initform (make-stat :base 2))
+  (movement-cost :initform (make-stat :base 2))
   (tile :initform "lepton")
   (direction :initform :here)
-  (clock :initform 8))
+  (clock :initform 10))
 
 (define-method find-target lepton-particle ()
   (let ((target [category-in-direction-p *active-world* 
 					 <row> <column> <direction>
 					 '(:obstacle :target)]))
     (if target
-	(progn
-	  [queue>>expend-default-action-points self]
-	  [queue>>drop self (clone =flash=)]
+	(progn	
+	  [queue>>drop target (clone =flash=)]
 	  [queue>>damage target 5]
 	  [queue>>die self])
 	(progn 
 	  [queue>>drop self (clone =lepton-trail= <direction>)]
-	  [queue>>expend-default-action-points self]
 	  [queue>>move self <direction>]))))
   
 (define-method run lepton-particle ()
@@ -363,8 +362,8 @@
   [parent>>die self])
 
 (define-method loadout purple-perceptor ()
-  (let ((probe (clone =shock-probe=))
-    [equip self [add-item self probe]])))
+  (let ((probe (clone =shock-probe=)))
+    [equip self [add-item self probe]]))
 
 ;;; the ion shield
 
@@ -706,6 +705,80 @@
     [println self (format nil "HP: ~S" [stat-value char :hit-points])]
     [println self (format nil "OX: ~S" [stat-value char :oxygen])]
     [println self (format nil "EN: ~S" [stat-value char :energy])]))
+   
+;;; the storage container
+
+(define-prototype storage-world (:parent rlx:=world=)
+  (ambient-light :initform :total)
+  (width :initform 60)
+  (height :initform 60)
+  (pallet-size :initform 9))
+
+(define-method generate storage-world ()
+  (clon:with-field-values (height width pallet-size) self
+    ;; create world
+    (dotimes (i height)
+      (dotimes (j width)
+	[drop-cell self (clone (if (> (random 50) 10)
+				   =tech-stone= =tech-stone-moss=))
+		   i j 
+		   :loadout]))
+    ;; (dotimes (n 10)
+    ;;   [drop-cell self (clone =tech-brick-yellow=) (random height) (random height) :loadout])
+    (dotimes (n 2)
+      [drop-cell self (clone =med-hypo=) (random height) (random height)])
+    (dotimes (i 12)
+      [drop-cell self (clone =red-perceptor=) (random height) (random width) :loadout])
+    (dotimes (i 20)
+      [drop-cell self (clone =purple-perceptor=) (random height) (random width) :loadout])
+    (dotimes (i 14)
+      [drop-cell self (clone =mine=) (random 50) (random 50)  :loadout])
+    ;; (dotimes (i 12)
+    ;;   [drop-cell self (clone =energy=) (random height) (random height) :loadout])
+    (dotimes (i 8)
+      [drop-cell self (clone =ion-shield=) (random height) (random width) :loadout]) 
+    (dotimes (i 12)
+      [drop-cell self (clone =rusty-wrench=) (random height) (random width) :loadout])
+    (dotimes (i 12)
+      [drop-cell self (clone =muon-pistol=) (random height) (random width)])
+    ;; (dotimes (i 22)
+    ;;    [drop-cell self (clone =rook=) (random height) (random height) :loadout])
+    (let ((imax (1- (truncate (/ width pallet-size))))
+	  (jmax (1- (truncate (/ height pallet-size)))))
+      (dotimes (i imax)
+	(dotimes (j jmax)
+	  (labels ((drop-brick (x y)
+		     [drop-cell self (clone =tech-brick-yellow=) y x])
+		   (drop-box (x y)
+		     [drop-cell self (clone =tech-box=) y x])
+		   (drop-wall (x y)
+		     [drop-cell self (clone =tech-wall=) y x]))
+	    (when (not (= 0 i j))
+	      (trace-rectangle #'drop-wall
+			       0 0 height width)
+	      (trace-rectangle #'drop-box
+			       (+ (random 3)
+				  (* pallet-size i))
+			       (+ (random 4) 
+				  (* pallet-size j))
+			       (random pallet-size)
+			       (random pallet-size)
+			       :fill))))))
+    ;; add player 
+    [drop-cell self <player> 5 5]))
+  
+    
+    
+    ;; (trace-octagon #'drop-brick 
+    ;; 		     (+ 10 (random 30))
+    ;; 		     (+ 10 (random 30))
+    ;; 		     (+ 4 (random 4)))
+    ;; (trace-octagon #'drop-crystal 
+    ;; 		     (+ 10 (random 30))
+    ;; 		     (+ 10 (random 30))
+    ;; 		     (+ 2 (random 3)))))
+    
+    
 
 ;;; our space station's exterior 
 
@@ -717,7 +790,8 @@
   (tile :initform "starfield"))
 
 (define-method step space (stepper)
-  [queue>>stat-effect stepper :oxygen -1])
+  (when (has-field :oxygen stepper)
+    [queue>>stat-effect stepper :oxygen -1]))
 
 (define-prototype star (:parent rlx:=cell=)
   (tile :initform "star"))
@@ -796,82 +870,18 @@
 			 [drop-cell self (clone =void=) r c])
 		     0 0 height width)
     ;; paint station pieces
-    (dotimes (i 25)
-      [paint-station-piece self (random height) (random width) (+ 3 (random 5))])))
-   
-;;; the storage container
-
-(define-prototype storage-world (:parent rlx:=world=)
-  (ambient-light :initform :total)
-  (width :initform 60)
-  (height :initform 60)
-  (pallet-size :initform 9))
-
-(define-method generate storage-world ()
-  (clon:with-field-values (height width pallet-size) self
-    ;; create world
-    (dotimes (i height)
-      (dotimes (j width)
-	[drop-cell self (clone (if (> (random 50) 10)
-				   =tech-stone= =tech-stone-moss=))
-		   i j 
-		   :loadout]))
-    ;; (dotimes (n 10)
-    ;;   [drop-cell self (clone =tech-brick-yellow=) (random height) (random height) :loadout])
-    (dotimes (n 2)
+    (dotimes (i 25) 
+      [paint-station-piece self (random height) (random width) (+ 3 (random 5))])
+    ;;
+    ;; paint other
+        (dotimes (n 2)
       [drop-cell self (clone =med-hypo=) (random height) (random height)])
     (dotimes (i 12)
       [drop-cell self (clone =red-perceptor=) (random height) (random width) :loadout])
     (dotimes (i 20)
       [drop-cell self (clone =purple-perceptor=) (random height) (random width) :loadout])
     (dotimes (i 14)
-      [drop-cell self (clone =mine=) (random 50) (random 50)  :loadout])
-    ;; (dotimes (i 12)
-    ;;   [drop-cell self (clone =energy=) (random height) (random height) :loadout])
-    (dotimes (i 8)
-      [drop-cell self (clone =ion-shield=) (random height) (random width) :loadout]) 
-    (dotimes (i 12)
-      [drop-cell self (clone =rusty-wrench=) (random height) (random width) :loadout])
-    (dotimes (i 12)
-      [drop-cell self (clone =muon-pistol=) (random height) (random width)])
-    ;; (dotimes (i 22)
-    ;;    [drop-cell self (clone =rook=) (random height) (random height) :loadout])
-    (let ((imax (1- (truncate (/ width pallet-size))))
-	  (jmax (1- (truncate (/ height pallet-size)))))
-      (dotimes (i imax)
-	(dotimes (j jmax)
-	  (labels ((drop-brick (x y)
-		     [drop-cell self (clone =tech-brick-yellow=) y x])
-		   (drop-box (x y)
-		     [drop-cell self (clone =tech-box=) y x])
-		   (drop-wall (x y)
-		     [drop-cell self (clone =tech-wall=) y x]))
-	    (when (not (= 0 i j))
-	      (trace-rectangle #'drop-wall
-			       0 0 height width)
-	      (trace-rectangle #'drop-box
-			       (+ (random 3)
-				  (* pallet-size i))
-			       (+ (random 4) 
-				  (* pallet-size j))
-			       (random pallet-size)
-			       (random pallet-size)
-			       :fill))))))
-    ;; add player 
-    [drop-cell self <player> 5 5]))
-  
-    
-    
-    ;; (trace-octagon #'drop-brick 
-    ;; 		     (+ 10 (random 30))
-    ;; 		     (+ 10 (random 30))
-    ;; 		     (+ 4 (random 4)))
-    ;; (trace-octagon #'drop-crystal 
-    ;; 		     (+ 10 (random 30))
-    ;; 		     (+ 10 (random 30))
-    ;; 		     (+ 2 (random 3)))))
-    
-    
+      [drop-cell self (clone =mine=) (random 50) (random 50)  :loadout])))
     
     
 ;;; putting it all together
