@@ -228,7 +228,7 @@
 
 (define-method initialize lepton-trail (direction)
   (setf <direction> direction)
-  (setf <tile> (getf *trail-middle-tiles* direction)))
+  (setf <tile> (getf *lepton-trail-middle-tiles* direction)))
 
 (define-method run lepton-trail ()
   (setf <tile> (getf (nth <clock> *lepton-trail-tile-map*)
@@ -258,6 +258,7 @@
 	  [queue>>die self])
 	(progn 
 	  [queue>>drop self (clone =lepton-trail= <direction>)]
+	  [queue>>expend-default-action-points self]
 	  [queue>>move self <direction>]))))
   
 (define-method run lepton-particle ()
@@ -268,9 +269,10 @@
       (setf <direction> direction)
       [find-target self])
     (decf <clock>)
-    (when (zerop <clock>)
+    (when (and (zerop <clock>) 
+	       (not [in-category self :dead]))
       [queue>>die self])))
-
+      
 (define-method impel lepton-particle (direction)
   (assert (member direction *compass-directions*))
   (setf <direction> direction)

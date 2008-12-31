@@ -551,8 +551,11 @@ slot."
 	[queue>>narrateln :narrator "Nothing happens."])))
 	
 (define-method die cell ()
-  [add-category self :dead]
-  [queue>>delete-from-world self])
+  (if [in-category self :dead]
+      (message "Warning: called die on dead cell!")
+      (progn
+	[add-category self :dead]
+	[queue>>delete-from-world self])))
 
 (define-method expend-energy cell (amount)
   (when (< amount [stat-value self :energy])
