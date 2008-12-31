@@ -485,6 +485,10 @@
   [make-inventory self]
   [make-equipment self])
 
+(define-method loadout player ()
+  (let ((gun (clone =muon-pistol=)))
+    [equip self [add-item self gun]]))
+    
 (define-method expend-energy player (amount)
   (when (< amount [stat-value self :energy])
     (prog1 t
@@ -619,21 +623,26 @@
 (define-prototype star (:parent rlx:=cell=)
   (tile :initform "star"))
 
+(define-prototype small-star (:parent rlx:=cell=)
+  (tile :initform "small-star"))
+
 (define-prototype station-world (:parent rlx:=world=)
   (ambient-light :initform :total)
-  (width :initform 40)
+  (width :initform 22)
   (height :initform 130))
 
 (define-method generate station-world ()
   (clon:with-field-values (height width) self
-    (dotimes (i width)
-      (dotimes (j height)
+    (dotimes (i height)
+      (dotimes (j width)
 	[drop-cell self (clone =space=) i j]))
     (dotimes (i 400)
-      [drop-cell self (clone =star=) (random width) (random height)])
+      [drop-cell self (clone =small-star=) (random height) (random width)])
+    (dotimes (i 140)
+      [drop-cell self (clone =star=) (random height) (random width)])
     (trace-rectangle #'(lambda (r c)
 			 [drop-cell self (clone =void=) r c])
-		     0 0 width height)))
+		     0 0 height width)))
   
 ;;; the storage container
 
@@ -764,8 +773,8 @@
     [set-world viewport world]
     [resize viewport :height 320 :width 400]
     [move viewport :x 0 :y 0]
-    [drop-cell world player 1 1]
-    [set-origin viewport :x 0 :y 0 :height 20 :width 25]
+    [drop-cell world player 125 10 :loadout]
+    [set-origin viewport :x 0 :y 110 :height 20 :width 25]
     [adjust viewport]
     ;; foo
 

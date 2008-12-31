@@ -74,28 +74,29 @@
 	   :documentation "Possibly transparent image overlay to be drawn at this location."))
   
 (define-method create-grid world (&key width height)
-  (let ((grid (make-array (list width height)
-			  :element-type 'vector :adjustable t)))
-    ;; now put a vector in each square to represent the z-axis
-    (dotimes (i width)
-      (dotimes (j height)
-	(setf (aref grid i j)
-	      (make-array *default-world-z-size* 
-			  :adjustable t
-			  :fill-pointer 0))))
-    (setf <grid> grid
-	  <height> height
-	  <width> width)
-    ;; we need a grid of integers for the lighting map.
-    (setf <light-grid> (make-array (list width height)
-				   :element-type 'integer
-				   :initial-element 0))
-    ;;and a grid of special objects for the environment map.
-    (let ((environment (make-array (list width height))))
-      (setf <environment-grid> environment)
-      (dotimes (i width)
-	(dotimes (j height)
-	  (setf (aref environment i j) (clone =environment=)))))))
+  (let ((dims (list height width)))
+    (let ((grid (make-array dims 
+		 :element-type 'vector :adjustable t)))
+      ;; now put a vector in each square to represent the z-axis
+      (dotimes (i height)
+	(dotimes (j width)
+	  (setf (aref grid i j)
+		(make-array *default-world-z-size* 
+			    :adjustable t
+			    :fill-pointer 0))))
+      (setf <grid> grid
+	    <height> height
+	    <width> width)
+      ;; we need a grid of integers for the lighting map.
+      (setf <light-grid> (make-array dims
+				     :element-type 'integer
+				     :initial-element 0))
+      ;;and a grid of special objects for the environment map.
+      (let ((environment (make-array dims)))
+	(setf <environment-grid> environment)
+	(dotimes (i height)
+	  (dotimes (j width)
+	    (setf (aref environment i j) (clone =environment=))))))))
 
 (define-method create-default-grid world ()
   [create-grid self :width <width> :height <height>])
@@ -261,8 +262,8 @@ in a roguelike until the user has pressed a key."
 	  (phase-number <phase-number>)
 	  (player <player>)
 	  (grid <grid>))
-      (dotimes (i <width>)
-	(dotimes (j <height>)
+      (dotimes (i <height>)
+	(dotimes (j <width>)
 	  (setf cells (aref grid i j))
 	  (dotimes (z (fill-pointer cells))
 	    (setf cell (aref cells z))

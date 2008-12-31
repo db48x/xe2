@@ -62,6 +62,7 @@
  (:name "bullet-trail-end-northwest" :type :alias :data ":rotate 270:bullet-trail-end-northeast")
 
  (:name	"star" :type :image :file "star.png")
+ (:name	"small-star" :type :image :file "small-star.png")
  (:name	"void" :type :image :file "starfield.png")
  (:name	"starfield" :type :image :file "starfield.png")
 

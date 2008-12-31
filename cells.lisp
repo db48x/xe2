@@ -338,8 +338,8 @@ Return the new position if successful, nil otherwise."
     (when (and (numberp pos) [in-category item :item])
       (prog1 pos
 	(setf (aref <inventory> pos) item)
-	[queue>>add-category item :contained]
-	[queue>>set-container item self]))))
+	[add-category item :contained]
+	[set-container item self]))))
       
 (define-method remove-item cell (item)
   "Remove ITEM from the <inventory>.
@@ -348,8 +348,8 @@ Return ITEM if successful, nil otherwise."
     (when pos
       (prog1 item
 	(setf (aref <inventory> pos) nil)
-	[queue>>delete-category item :contained]
-	[queue>>set-container item nil]))))
+	[delete-category item :contained]
+	[set-container item nil]))))
 
 (define-method item-at cell (pos)
   (aref <inventory> pos))
@@ -398,17 +398,17 @@ Return ITEM if successful, nil otherwise."
   (setf <row> nil <column> nil))
 
 (define-method delete-from-world cell ()
-  [queue>>delete-cell *active-world* self <row> <column>]
-  [queue>>clear-location self])
+  [delete-cell *active-world* self <row> <column>]
+  [clear-location self])
       
 (define-method take cell (&key (direction :here) (index :top))
   (multiple-value-bind (cell row column)
       [find self :direction direction :index index]
     (when (and [in-category cell :item]
 	       [first-open-slot self])
-      [queue>>expend-default-action-points self]
-      [queue>>add-item self cell]
-      [queue>>delete-from-world cell])))
+      [expend-default-action-points self]
+      [add-item self cell]
+      [delete-from-world cell])))
 
 (define-method resolve cell (reference)
   "Accept a REFERENCE to a cell, and try to get the real cell.
@@ -471,29 +471,30 @@ slot."
 		 (null [equipment-slot self slot2]))))
     (if (and valid match open)
 	(progn 
-	  [queue>>expend-default-action-points self]
-	  [queue>>add-equipment self item]
-	  [queue>>add-category item :equipped]
+	  [expend-default-action-points self]
+	  [add-equipment self item]
+	  [add-category item :equipped]
 	  ;; remove from inventory
-	  [queue>>remove-item self item]
-	  (setf (field-value :equipper item) self)
-	  ;; notify user of success
-	  [queue>>narrate :narrator "You equip "]
-	  [queue>>print-object-tag :narrator item]
-	  [queue>>newline :narrator])
-	(progn
-	  ;; explain failure
-	  [queue>>narrate :narrator "You cannot equip "]
-	  [queue>>print-object-tag :narrator item]
-	  [queue>>newline :narrator]
-	  (cond
-	    ((not valid) 
-	     [queue>>narrateln :narrator "This item is not a piece of equipment."])
-	    ((and match (not open))
-	     [queue>>narrateln :narrator "You must un-equip the ~A first." slot2])
-	    ((not match)
-	     [queue>>narrateln :narrator "This can only be equipped in one of: ~A"
-			       (field-value :equip-for item)]))))))
+	  [remove-item self item]
+	  (setf (field-value :equipper item) self)))))
+;; 	  ;; notify user of success
+;; 	  [narrate :narrator "You equip "]
+;; 	  [print-object-tag :narrator item]
+;; 	  [newline :narrator]
+;; )
+;; 	(progn
+;; 	  ;; explain failure
+;; 	  [narrate :narrator "You cannot equip "]
+;; 	  [print-object-tag :narrator item]
+;; 	  [newline :narrator]
+;; 	  (cond
+;; 	    ((not valid) 
+;; 	     [narrateln :narrator "This item is not a piece of equipment."])
+;; 	    ((and match (not open))
+;; 	     [narrateln :narrator "You must un-equip the ~A first." slot2])
+;; 	    ((not match)
+;; 	     [narrateln :narrator "This can only be equipped in one of: ~A"
+;; 			       (field-value :equip-for item)]))))))
 
 (define-method dequip cell (slot)
   ;; TODO document
