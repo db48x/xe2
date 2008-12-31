@@ -535,6 +535,12 @@ slot."
 	      (when [is-player self]
 		[queue>>narrateln :narrator "You missed."])))))))
       
+(define-method fire cell (direction)
+  (let ((weapon [equipment-slot self <firing-with>]))
+    (when weapon
+      [expend-action-points self [stat-value weapon :attack-cost]]
+      [fire weapon direction])))
+
 (define-method damage cell (damage-points)
   (if (has-field :hit-points self)
       (progn 
@@ -547,6 +553,11 @@ slot."
 (define-method die cell ()
   [add-category self :dead]
   [queue>>delete-from-world self])
+
+(define-method expend-energy cell (amount)
+  (when (< amount [stat-value self :energy])
+    (prog1 t
+      [stat-effect self :energy (- amount)])))
 
 ;;; The asterisk cell is a wildcard
 

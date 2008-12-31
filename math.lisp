@@ -217,9 +217,19 @@ It's an ugly hack, but it helps reduce artifacts."
 
 ;; See also http://en.wikipedia.org/wiki/Bresenham's\_line\_algorithm
 
-(defun trace-vertical-line (trace-function x y0 y1)
-  (dotimes (n (abs (- y1 y0)))
-    (funcall trace-function x (+ y0 n))))
+(defun trace-column (trace-function column y0 y1)
+  (let* ((diff (- y1 y0))
+	 (fact (if (minusp diff) 1 -1)))
+    (dotimes (n (abs diff))
+      (funcall trace-function (+ y1 (* n fact)) column))))
+  ;; (dotimes (n (abs (- y1 y0)))
+  ;;   (funcall trace-function x (+ y0 n))))
+
+(defun trace-row (trace-function row x0 x1)
+  (let* ((diff (- x1 x0))
+	 (fact (if (minusp diff) 1 -1)))
+    (dotimes (n (abs diff))
+      (funcall trace-function row (+ x1 (* n fact))))))
 
 (defun trace-line (trace-function x0 y0 x1 y1)
   "Trace a line between X0,Y0 and X1,Y1.
@@ -242,8 +252,8 @@ Returns non-nil if tracing was successful, and nil if failed."
       (if (= x1 x0)
 	  ;; just trace a vertical line.
 	  (if flipped
-	      (trace-vertical-line trace-function x1 y0 y1)
-	      (trace-vertical-line trace-function x1 y1 y0))
+	      (trace-column trace-function x1 y0 y1)
+	      (trace-column trace-function x1 y1 y0))
 	  ;; ok, use bresenham's
 	  (let* ((delta-x (- x1 x0))
 		 (delta-y (abs (- y1 y0)))

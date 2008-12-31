@@ -31,6 +31,8 @@
  (:name "muon-pistol" :type :image :file "muon-pistol.png")
  (:name "muon" :type :image :file "muon.png")
 
+ (:name "lepton-cannon" :type :image :file "gun.png")
+
  (:name "muon-north" :type :image :file "muon-north.png")
  (:name "muon-east" :type :alias :data ":rotate 90:muon-north")
  (:name "muon-south" :type :alias :data ":rotate 180:muon-north")
@@ -61,10 +63,46 @@
  (:name "bullet-trail-end-southwest" :type :alias :data ":rotate 180:bullet-trail-end-northeast")
  (:name "bullet-trail-end-northwest" :type :alias :data ":rotate 270:bullet-trail-end-northeast")
 
+ (:name "lepton" :type :image :file "lepton.png")
+
+ (:name "lepton-north" :type :image :file "lepton-north.png")
+ (:name "lepton-east" :type :alias :data ":rotate 90:lepton-north")
+ (:name "lepton-south" :type :alias :data ":rotate 180:lepton-north")
+ (:name "lepton-west" :type :alias :data ":rotate 270:lepton-north")
+
+ (:name "lepton-northeast" :type :image :file "lepton-northeast.png")
+ (:name "lepton-southeast" :type :alias :data ":rotate 90:lepton-northeast")
+ (:name "lepton-southwest" :type :alias :data ":rotate 180:lepton-northeast")
+ (:name "lepton-northwest" :type :alias :data ":rotate 270:lepton-northeast")
+
+ (:name "bullet-trail-middle-thin-north" :type :image :file "bullet-trail-middle-thin-north.png")
+ (:name "bullet-trail-middle-thin-east" :type :alias :data ":rotate 90:bullet-trail-middle-thin-north")
+ (:name "bullet-trail-middle-thin-south" :type :alias :data ":rotate 180:bullet-trail-middle-thin-north")
+ (:name "bullet-trail-middle-thin-west" :type :alias :data ":rotate 270:bullet-trail-middle-thin-north")
+
+ (:name "bullet-trail-middle-thin-northeast" :type :image :file "bullet-trail-middle-thin-northeast.png")
+ (:name "bullet-trail-middle-thin-southeast" :type :alias :data ":rotate 90:bullet-trail-middle-thin-northeast")
+ (:name "bullet-trail-middle-thin-southwest" :type :alias :data ":rotate 180:bullet-trail-middle-thin-northeast")
+ (:name "bullet-trail-middle-thin-northwest" :type :alias :data ":rotate 270:bullet-trail-middle-thin-northeast")
+
+ (:name "bullet-trail-end-thin-north" :type :image :file "bullet-trail-end-thin-north.png")
+ (:name "bullet-trail-end-thin-east" :type :alias :data ":rotate 90:bullet-trail-end-thin-north")
+ (:name "bullet-trail-end-thin-south" :type :alias :data ":rotate 180:bullet-trail-end-thin-north")
+ (:name "bullet-trail-end-thin-west" :type :alias :data ":rotate 270:bullet-trail-end-thin-north")
+
+ (:name "bullet-trail-end-thin-northeast" :type :image :file "bullet-trail-thin-end-northeast.png")
+ (:name "bullet-trail-end-thin-southeast" :type :alias :data ":rotate 90:bullet-trail-end-thin-northeast")
+ (:name "bullet-trail-end-thin-southwest" :type :alias :data ":rotate 180:bullet-trail-end-thin-northeast")
+ (:name "bullet-trail-end-thin-northwest" :type :alias :data ":rotate 270:bullet-trail-end-thin-northeast")
+
  (:name	"star" :type :image :file "star.png")
  (:name	"small-star" :type :image :file "small-star.png")
  (:name	"void" :type :image :file "starfield.png")
  (:name	"starfield" :type :image :file "starfield.png")
+
+ (:name	"station-arm-horz" :type :image :file "station-arm-horz.png")
+ (:name "station-arm-vert" :type :alias :data ":rotate 90:station-arm-horz")
+ (:name "station-base" :type :image :file "station-base.png")
 
  (:name ".startup" :type :lisp :file "vm0.lisp")
 )

@@ -152,7 +152,7 @@ inline images that are larger than the text height---see also
 		      (otherwise image))
 		    x y :destination destination)
 	(if (null string)
-	    (message "WARNING! render-formatted-line gets null string")
+	    nil ;; WARNING
 	    ;; draw the text.
 	    (if background
 		(draw-string-shaded string x (+ text-offset y)

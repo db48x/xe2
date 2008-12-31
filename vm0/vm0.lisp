@@ -187,7 +187,113 @@
 	[queue>>impel muon direction])
       (message "Not enough energy to fire.")))
 
-;; TODO rook cannon
+;;; Seeker Cannon
+
+(defvar *lepton-tiles* '(:north "lepton-north"
+		       :south "lepton-south"
+		       :east "lepton-east"
+		       :west "lepton-west"
+		       :northeast "lepton-northeast"
+		       :southeast "lepton-southeast"
+		       :southwest "lepton-southwest"
+		       :northwest "lepton-northwest"))
+
+(defvar *lepton-trail-middle-tiles* '(:north "bullet-trail-middle-thin-north"
+			       :south "bullet-trail-middle-thin-south"
+			       :east "bullet-trail-middle-thin-east"
+			       :west "bullet-trail-middle-thin-west"
+			       :northeast "bullet-trail-middle-thin-northeast"
+			       :southeast "bullet-trail-middle-thin-southeast"
+			       :southwest "bullet-trail-middle-thin-southwest"
+			       :northwest "bullet-trail-middle-thin-northwest"))
+
+(defvar *lepton-trail-end-tiles* '(:north "bullet-trail-end-thin-north"
+			       :south "bullet-trail-end-thin-south"
+			       :east "bullet-trail-end-thin-east"
+			       :west "bullet-trail-end-thin-west"
+			       :northeast "bullet-trail-end-thin-northeast"
+			       :southeast "bullet-trail-end-thin-southeast"
+			       :southwest "bullet-trail-end-thin-southwest"
+			       :northwest "bullet-trail-end-thin-northwest"))
+
+(defvar *lepton-trail-tile-map* (list *lepton-trail-end-tiles* *lepton-trail-middle-tiles* *lepton-trail-middle-tiles*))
+
+(define-prototype lepton-trail (:parent rlx:=cell=)
+  (categories :initform '(:actor))
+  (clock :initform 2)
+  (speed :initform (make-stat :base 10))
+  (default-cost :initform (make-stat :base 10))
+  (tile :initform ".gear")
+  (direction :initform :north))
+
+(define-method initialize lepton-trail (direction)
+  (setf <direction> direction)
+  (setf <tile> (getf *trail-middle-tiles* direction)))
+
+(define-method run lepton-trail ()
+  (setf <tile> (getf (nth <clock> *lepton-trail-tile-map*)
+		     <direction>))
+  [expend-default-action-points self]
+  (decf <clock>)
+  (when (minusp <clock>)
+    [die self]))
+
+(define-prototype lepton-particle (:parent rlx:=cell=)
+  (categories :initform '(:actor))
+  (speed :initform (make-stat :base 15))
+  (default-cost :initform (make-stat :base 5))
+  (tile :initform "lepton")
+  (direction :initform :here)
+  (clock :initform 8))
+
+(define-method find-target lepton-particle ()
+  (let ((target [category-in-direction-p *active-world* 
+					 <row> <column> <direction>
+					 '(:obstacle :target)]))
+    (if target
+	(progn
+	  [queue>>expend-default-action-points self]
+	  [queue>>drop self (clone =flash=)]
+	  [queue>>damage target 5]
+	  [queue>>die self])
+	(progn 
+	  [queue>>drop self (clone =lepton-trail= <direction>)]
+	  [queue>>move self <direction>]))))
+  
+(define-method run lepton-particle ()
+  (setf <tile> (getf *lepton-tiles* <direction>))
+  (clon:with-field-values (row column) self
+    (let* ((world *active-world*)
+	   (direction [direction-to-player *active-world* row column]))
+      (setf <direction> direction)
+      [find-target self])
+    (decf <clock>)
+    (when (zerop <clock>)
+      [queue>>die self])))
+
+(define-method impel lepton-particle (direction)
+  (assert (member direction *compass-directions*))
+  (setf <direction> direction)
+  ;; don't hit the player
+  [find-target self])
+
+(define-prototype lepton-cannon (:parent rlx:=cell=)
+  (name :initform "Xiong Les Fleurs Lepton(TM) energy cannon")
+  (tile :initform "lepton-cannon")
+  (categories :initform '(:item :weapon :equipment))
+  (equip-for :initform '(:robotic-arm))
+  (weight :initform 14000)
+  (accuracy :initform (make-stat :base 60))
+  (attack-power :initform (make-stat :base 8))
+  (attack-cost :initform (make-stat :base 10))
+  (energy-cost :initform (make-stat :base 20)))
+
+(define-method fire lepton-cannon (direction)
+  (if [expend-energy <equipper> 10]
+      (let ((lepton (clone =lepton-particle=)))
+	[queue>>drop <equipper> lepton]
+	[queue>>impel lepton direction])
+      (message "Not enough energy to fire.")))
 
 ;;; the med hypo
 
@@ -255,8 +361,8 @@
   [parent>>die self])
 
 (define-method loadout purple-perceptor ()
-  (let ((probe (clone =shock-probe=)))
-    [equip self [add-item self probe]]))
+  (let ((probe (clone =shock-probe=))
+    [equip self [add-item self probe]])))
 
 ;;; the ion shield
 
@@ -395,8 +501,8 @@
     (1 (setf <tile> "flash-2"))
     (0 [queue>>die self]))
   (decf <clock>))
-  
-;;; the mine
+
+;;; the exploding mine
 
 (define-prototype mine (:parent rlx:=cell=)
   (name :initform "Vanguara XR-1 Contact mine")
@@ -486,20 +592,11 @@
   [make-equipment self])
 
 (define-method loadout player ()
-  (let ((gun (clone =muon-pistol=)))
-    [equip self [add-item self gun]]))
+  (let ((gun (clone =muon-pistol=))
+	(belt (clone =ion-shield=)))
+    [equip self [add-item self gun]]
+    [equip self [add-item self belt]]))
     
-(define-method expend-energy player (amount)
-  (when (< amount [stat-value self :energy])
-    (prog1 t
-      [stat-effect self :energy (- amount)])))
-
-(define-method fire player (direction)
-  (let ((weapon [equipment-slot self <firing-with>]))
-    (when weapon
-      [expend-action-points self [stat-value weapon :attack-cost]]
-      [fire weapon direction])))
-
 (define-method die player ()
   (let ((skull (clone =skull=)))
     [drop-cell *active-world* skull <row> <column>]
@@ -626,10 +723,63 @@
 (define-prototype small-star (:parent rlx:=cell=)
   (tile :initform "small-star"))
 
+(define-prototype station-arm-horz (:parent rlx:=cell=)
+  (tile :initform "station-arm-horz")
+  (categories :initform '(:obstacle :opaque :destructible))
+  (hit-points :initform (make-stat :base 10 :min 0)))
+
+(define-prototype station-arm-vert (:parent rlx:=cell=)
+  (tile :initform "station-arm-vert")
+  (categories :initform '(:obstacle :opaque :destructible))
+  (hit-points :initform (make-stat :base 10 :min 0)))
+
+(define-prototype station-base (:parent rlx:=cell=)
+  (tile :initform "station-base")
+  (categories :initform '(:obstacle :actor :equipper :opaque))
+  (speed :initform (make-stat :base 10))
+  (hit-points :initform (make-stat :base 40 :min 0))
+  (equipment-slots :initform '(:robotic-arm))
+  (max-items :initform (make-stat :base 3))
+  (stepping :initform t)
+  (attacking-with :initform :robotic-arm)
+  (energy :initform (make-stat :base 800 :min 0 :max 1000))
+  (firing-with :initform :robotic-arm)
+  (strength :initform (make-stat :base 13))
+  (dexterity :initform (make-stat :base 9)))
+
+(define-method loadout station-base ()
+  (let ((cannon (clone =lepton-cannon=)))
+    [equip self [add-item self cannon]]))
+
+(define-method initialize station-base ()
+  [make-inventory self]
+  [make-equipment self])
+
+(define-method run station-base ()
+  (clon:with-field-values (row column) self
+    (let ((world *active-world*))
+      (if (< [distance-to-player world row column] 10)
+	  (let ((player-dir [direction-to-player world row column]))
+	    [expend-default-action-points self]
+	    [queue>>fire self player-dir])))))
+
 (define-prototype station-world (:parent rlx:=world=)
   (ambient-light :initform :total)
   (width :initform 22)
   (height :initform 130))
+
+(define-method paint-station-piece station-world (row column maxsize)
+  (labels ((drop-horz (r c)
+	     [drop-cell self (clone =station-arm-horz=) r c])
+	   (drop-vert (r c)
+	     [drop-cell self (clone =station-arm-vert=) r c])
+	   (drop-base (r c)
+	     [drop-cell self (clone =station-base=) r c :loadout]))
+    (trace-row #'drop-horz row column (max 0 (- column (random maxsize))))
+    (trace-row #'drop-horz row column (+ column (random maxsize)))
+    (trace-column #'drop-vert column row (max 0 (- row (random maxsize))))
+    (trace-column #'drop-vert column row (+ row (random maxsize)))
+    (drop-base row column)))
 
 (define-method generate station-world ()
   (clon:with-field-values (height width) self
@@ -642,8 +792,11 @@
       [drop-cell self (clone =star=) (random height) (random width)])
     (trace-rectangle #'(lambda (r c)
 			 [drop-cell self (clone =void=) r c])
-		     0 0 height width)))
-  
+		     0 0 height width)
+    ;; paint station pieces
+    (dotimes (i 25)
+      [paint-station-piece self (random height) (random width) (+ 3 (random 5))])))
+   
 ;;; the storage container
 
 (define-prototype storage-world (:parent rlx:=world=)
@@ -778,7 +931,7 @@
     [adjust viewport]
     ;; foo
 
-    (install-widgets (list prompt menu browser player-prompt viewport status))
+    (install-widgets (list narrator prompt browser player-prompt viewport status))
     ))
     
 (vm0)
