@@ -339,7 +339,15 @@ in a roguelike until the user has pressed a key."
 		     (light-line row column)))))
 	(light-octagon source-row source-column total)))))
 
-(define-method generate world ()
+(define-method generate world (parameters)
+  "Generate a world, reading generation parameters from the plist
+  PARAMETERS."  
+  (declare (ignore parameters))
+  nil)
+
+(define-method deserialize world (sexp)
+  "Load a saved world from Lisp data."
+  (declare (ignore sexp))
   nil)
 
 (define-method start world ()
@@ -530,5 +538,10 @@ http://en.wikipedia.org/wiki/Passive_voice"
 		 (min (- world-height origin-height)
 		      (- player-y 
 			 (truncate (/ origin-height 2)))))))))
+
+;;; Metaworlds: implementing larger maps as grids of worlds
+
+;; (define-prototype metaworld 
+    
 
 ;;; worlds.lisp ends here

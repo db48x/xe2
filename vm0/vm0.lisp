@@ -76,13 +76,13 @@
   (target :initform nil)
   (hit-points :initform (make-stat :base 10 :min 0 :max 10)))
 
-;;; tech wall
+;;; Nondescript tech wall
 
 (define-prototype tech-wall (:parent rlx:=cell=)
   (tile :initform "gold-tech-wall")
   (categories :initform '(:opaque :obstacle)))
 
-;;; the gun and its particles and their trails
+;;; Muon particles, trails, and pistols
 
 (defvar *muon-tiles* '(:north "muon-north"
 		       :south "muon-south"
@@ -187,7 +187,7 @@
 	[queue>>impel muon direction])
       (message "Not enough energy to fire.")))
 
-;;; Seeker Cannon
+;;; Lepton Seeker Cannon
 
 (defvar *lepton-tiles* '(:north "lepton-north"
 		       :south "lepton-south"
@@ -307,7 +307,7 @@
     [queue>>stat-effect stepper :hit-points 12]
     [queue>>die self]))
 
-;;; the shock probe
+;;; Melee shock probe for the Perceptors
 
 (define-prototype shock-probe (:parent rlx:=cell=)
   (name :initform "Shock probe")
@@ -319,10 +319,10 @@
   (weight :initform 3000)
   (equip-for :initform '(:robotic-arm)))
 
-;;; the purple-perceptor
+;;; The Purple Perceptor
 
-;; move in a straight line until hitting an obstacle.
-;; then choose a random direction and try again
+;; Move in a straight line until hitting an obstacle.
+;; Then choose a random direction and try again
 
 (define-prototype purple-perceptor (:parent rlx:=cell=)
   (categories :initform '(:actor :target :obstacle :opaque :enemy :equipper))
@@ -365,7 +365,7 @@
   (let ((probe (clone =shock-probe=)))
     [equip self [add-item self probe]]))
 
-;;; the ion shield
+;;; The ion shield
 
 (define-prototype ion-shield-wall (:parent rlx:=cell=)
   (tile :initform "ion-shield-wall")
@@ -402,22 +402,22 @@
 			 (- column (truncate (/ size 2)))
 			 size size)))))
 
-;;; electron
+;;; Electron
 
 (define-prototype electron (:parent rlx:=cell=)
   (tile :initform "electron")
   (categories :initform '(:item)))
 
-;;; the mysterious crystal
+;;; The mysterious crystal
   
 (define-prototype crystal (:parent rlx:=cell=)
   (name :initform "Turquoise crystal")
   (categories :initform '(:item))
   (tile :initform "turquoise-crystal"))
 
-;;; the red-perceptor
+;;; The Red Perceptor
 
-;; seek player
+;; Seek player, attack any obstacles in the way.
 
 (define-prototype red-perceptor (:parent rlx:=cell=)
   (strength :initform (make-stat :base 16 :min 0 :max 30))
@@ -465,7 +465,7 @@
 	[drop self (clone =med-hypo=)]))
   [parent>>die self])
 
-;;; the explosion
+;;; An explosion
 
 (define-prototype explosion (:parent rlx:=cell=)
   (name :initform "Explosion")
@@ -488,7 +488,7 @@
 		    [queue>>damage (aref cells x) <damage-per-turn>]
 		    (decf x)))))))
 
-;;; the flash
+;;; Glittering flash gives clues on locations of explosions/damage
 
 (define-prototype flash (:parent rlx:=cell=)
   (clock :initform 2)
@@ -503,7 +503,7 @@
     (0 [queue>>die self]))
   (decf <clock>))
 
-;;; the exploding mine
+;;; The exploding mine
 
 (define-prototype mine (:parent rlx:=cell=)
   (name :initform "Vanguara XR-1 Contact mine")
@@ -529,7 +529,7 @@
   (declare (ignore damage-points))
   [explode self])
 
-;;; the rusty wrench
+;;; The rusty wrench
 
 (define-prototype rusty-wrench (:parent rlx:=cell=)
   (name :initform "Rusty wrench")
@@ -541,7 +541,7 @@
   (weight :initform 10000) ;; grams
   (equip-for :initform '(:left-hand :right-hand)))
 
-;;; the energy tank
+;;; The energy tank
 
 (define-prototype energy (:parent rlx:=cell=)
   (tile :initform "energy")
@@ -552,7 +552,18 @@
     [queue>>stat-effect stepper :energy 100]
     [queue>>die self]))
 
-;;; the player and his dead skull
+;;; The oxygen tank
+
+(define-prototype oxygen-tank (:parent rlx:=cell=)
+  (tile :initform "oxygen-tank")
+  (name :initform "Oxygen Tank"))
+
+(define-method step oxygen-tank (stepper)
+  (when (has-field :oxygen stepper)
+    [queue>>stat-effect stepper :oxygen 200]
+    [queue>>die self]))
+
+;;; The player and his remains
 
 (define-prototype skull (:parent rlx:=cell=)
   (tile :initform "skull"))
@@ -763,24 +774,9 @@
 				  (* pallet-size j))
 			       (random pallet-size)
 			       (random pallet-size)
-			       :fill))))))
-    ;; add player 
-    [drop-cell self <player> 5 5]))
-  
-    
-    
-    ;; (trace-octagon #'drop-brick 
-    ;; 		     (+ 10 (random 30))
-    ;; 		     (+ 10 (random 30))
-    ;; 		     (+ 4 (random 4)))
-    ;; (trace-octagon #'drop-crystal 
-    ;; 		     (+ 10 (random 30))
-    ;; 		     (+ 10 (random 30))
-    ;; 		     (+ 2 (random 3)))))
-    
-    
+			       :fill))))))))
 
-;;; our space station's exterior 
+;;; The exterior of the space station
 
 (define-prototype void (:parent rlx:=cell=)
   (categories :initform '(:obstacle))
@@ -857,7 +853,8 @@
     (trace-column #'drop-vert column row (+ row (random maxsize)))
     (drop-base row column)))
 
-(define-method generate station-world ()
+(define-method generate station-world (parameters)
+  (declare (ignore parameters))
   (clon:with-field-values (height width) self
     (dotimes (i height)
       (dotimes (j width)
@@ -873,17 +870,22 @@
     (dotimes (i 25) 
       [paint-station-piece self (random height) (random width) (+ 3 (random 5))])
     ;;
-    ;; paint other
-        (dotimes (n 2)
+    ;; paint other stuff
+    (dotimes (n 2)
       [drop-cell self (clone =med-hypo=) (random height) (random height)])
     (dotimes (i 12)
       [drop-cell self (clone =red-perceptor=) (random height) (random width) :loadout])
     (dotimes (i 20)
       [drop-cell self (clone =purple-perceptor=) (random height) (random width) :loadout])
     (dotimes (i 14)
-      [drop-cell self (clone =mine=) (random 50) (random 50)  :loadout])))
-    
-    
+      [drop-cell self (clone =mine=) (random height) (random width) :loadout])
+    (dotimes (i 12)
+      [drop-cell self (clone =oxygen-tank=) (random height) (random width) :loadout])
+    ;;
+    ;; place portals TODO and player??
+    ))
+
+
 ;;; putting it all together
 
 (defun vm0 ()
@@ -930,7 +932,7 @@
     [set-narrator world narrator]
     ;; tie it together
     [create-default-grid world]
-    [generate world]
+    [generate world nil]
     [set-player world player]
     [set-browser world browser]
     [start world]
