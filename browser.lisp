@@ -175,7 +175,7 @@ visually distinguished) version of the line."
     (":north ." :name "North")
     (":south ." :name "South")))
 
-;;; A container browser with numbered slots
+;;; A container browser with numbered slots 
 
 ;;; An equipment browser
 

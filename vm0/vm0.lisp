@@ -604,7 +604,38 @@
     [println self (format nil "OX: ~S" [stat-value char :oxygen])]
     [println self (format nil "EN: ~S" [stat-value char :energy])]))
 
-;;; our world
+;;; our space station's exterior 
+
+(define-prototype void (:parent rlx:=cell=)
+  (categories :initform '(:obstacle))
+  (tile :initform "void"))
+
+(define-prototype space (:parent rlx:=cell=)
+  (tile :initform "starfield"))
+
+(define-method step space (stepper)
+  [queue>>stat-effect stepper :oxygen -1])
+
+(define-prototype star (:parent rlx:=cell=)
+  (tile :initform "star"))
+
+(define-prototype station-world (:parent rlx:=world=)
+  (ambient-light :initform :total)
+  (width :initform 40)
+  (height :initform 130))
+
+(define-method generate station-world ()
+  (clon:with-field-values (height width) self
+    (dotimes (i width)
+      (dotimes (j height)
+	[drop-cell self (clone =space=) i j]))
+    (dotimes (i 400)
+      [drop-cell self (clone =star=) (random width) (random height)])
+    (trace-rectangle #'(lambda (r c)
+			 [drop-cell self (clone =void=) r c])
+		     0 0 width height)))
+  
+;;; the storage container
 
 (define-prototype storage-world (:parent rlx:=world=)
   (ambient-light :initform :total)
@@ -686,7 +717,7 @@
   (setf rlx:*screen-width* 800)
   (let* ((prompt (clone rlx:=prompt=))
 	 (player-prompt (clone =vm0-prompt=))
-	 (world (clone =storage-world= :height 50 :width 50))
+	 (world (clone =station-world=))
 	 (player (clone =player=))
 	 (status (clone =status=))
 	 (narrator (clone rlx:=narrator=))
@@ -724,6 +755,8 @@
     [move narrator :x 0 :y 330]
     [set-narrator world narrator]
     ;; tie it together
+    [create-default-grid world]
+    [generate world]
     [set-player world player]
     [set-browser world browser]
     [start world]
@@ -731,8 +764,9 @@
     [set-world viewport world]
     [resize viewport :height 320 :width 400]
     [move viewport :x 0 :y 0]
+    [drop-cell world player 1 1]
     [set-origin viewport :x 0 :y 0 :height 20 :width 25]
-
+    [adjust viewport]
     ;; foo
 
     (install-widgets (list prompt menu browser player-prompt viewport status))

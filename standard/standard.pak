@@ -5,6 +5,7 @@
  (:name ".gray-asterisk" :type :image :file "gray-asterisk.png")
  (:name ".gear" :type :image :file "gear.png")
  (:name ".attack" :type :image :file "attack.png")
+ (:name ".blackness" :type :image :file "blackness.png")
  (:name ".damage" :type :image :file "damage.png")
  (:name ".move-cell" :type :image :file "move-cell.png")
  (:name ".defend" :type :image :file "defend.png")

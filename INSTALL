@@ -48,6 +48,9 @@ The filename should be wherever you installed the RLX source tree.
 
   (require :rlx)
   (rlx:play "vm0")
+
+  If you get an error about TRIVIAL-FEATURES-TESTS, try this:
+  (require :trivial-features-tests)
   
 8. ESCAPE toggles the command prompt.  
 

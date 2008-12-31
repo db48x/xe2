@@ -380,11 +380,13 @@ resources go in this one hash table.")
 (defun initialize-resource-table ()
    (setf *resource-table* (make-hash-table :test 'equal)))
 
+;; :. aliases >
+
 (defun index-resource (resource)
   "Add the RESOURCE's record to the resource table.
 If a record with that name already exists, it is replaced.  However,
-if the resource is an :alias, just the string is stored; see also
-`find-resource'."
+if the resource is an :alias, just the string name of the target
+resource is stored; see also `find-resource'."
   (let ((val (if (eq :alias (resource-type resource))
 		 (resource-data resource)
 		 resource)))

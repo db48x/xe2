@@ -1,0 +1,179 @@
+#+TITLE: A game developer's guide to the RLX roguelike engine
+
+* Preface
+
+This document explains the [[file:rlx.org][RLX roguelike engine's]] general design and
+programming interface from the game developer's perspective, and is
+meant to assist in writing RLX game modules. It is not an exhaustive
+API reference, and those looking for more detailed information should
+look into the docstrings and block comments in the [[http://github.com/dto/rlx][RLX source code
+repository.]] The README file gives an overview of the repository; then
+read =console.lisp= and =cells.lisp= if you wish to dig deeper.
+
+* Introducing the CLON object system
+
+RLX uses a custom object system called [[http://github.com/dto/clon][CLON]] for both in-game entities
+and the components of the engine itself, so an understanding of CLON
+is necessary before proceeding. This section gives a brief
+introduction to CLON's basic constructs and then provides pointers to
+further documentation.
+
+CLON stands for Common Lisp Object Network. It is different from CLOS
+in several important ways:
+
+ - CLON is prototype-based, not class-based. A prototype is a template
+   object from which other objects are "cloned".
+ - Method invocation happens via message-passing, not generic
+   functions; messages are conceptually different from synchronous
+   function calls and may be freely queued, forwarded, and filtered.
+ - Built-in support for serialization.
+ - Simple and small: as of December 2008, =clon.lisp= contains about 750 lines
+   of code and commentary.
+ - Special syntax support for message sending:
+ 
+:   [method-name object arg1 arg2 ...]
+
+   and for accessing fields (i.e. "slots" in CLOS terminology):
+
+:   (setf <slot-name> value)
+
+** Brief CLON code example
+
+First we must define a prototype and its fields:
+
+: (define-prototype rectangle ()
+:   x y width height)
+
+We could also have provided initialization forms and documentation strings:
+
+: (define-prototype rectangle ()
+:   (x :initform 0 
+:      :documentation "The x-coordinate of the rectangle's top-left corner.")
+:   (y :initform 0 
+:      :documentation "The y-coordinate of the rectangle's top-left corner.")
+:   (width :documentation "The width of the rectangle.")
+:   (height :documentation "The height of the rectangle."))
+
+And if there was a "shape" prototype, from which we would like
+"rectangle" to inherit data and methods, we might have written:
+
+: (define-prototype rectangle (:parent =shape=)
+:   (x :initform 0 
+:      :documentation "The x-coordinate of the rectangle's top-left corner.")
+:   (y :initform 0 
+:      :documentation "The y-coordinate of the rectangle's top-left corner.")
+:   (width :documentation "The width of the rectangle.")
+:   (height :documentation "The height of the rectangle."))
+
+Notice the equals signs surrounding the parent object's name; all
+objects made with define-prototype are accessible via special
+variables with such names.
+
+The function =CLON:CLONE= is used to create new objects from these
+prototypes. Now we write an initializer, which is passed any creation
+arguments at the time of cloning:
+
+: (define-method initialize rectangle (&key width height)
+:   (setf <width> width)
+:   (setf <height> height))
+
+Notice how field accesses can be written with the angle brackets; this
+works both for reading and for writing, so long as you use =setf= for
+the latter. 
+
+Now when you say:
+
+: (clone =rectangle= :width 5 :height 12)
+
+The rectangle's initializer method is invoked with those arguments,
+and a rectangle of the correct height and width is created.
+
+Now we define a few methods:
+
+: (define-method area rectangle ()
+:   (* <width> <height>))
+:
+: (define-method print rectangle (&optional (stream t))
+:   (format stream "height: ~A width: ~A area: ~A"
+: 	  <height> <width> 
+: 	  [area self]))
+
+And invoke them with the aforementioned square bracket notation:
+
+: (defvar rect (clone =rectangle= :width 10 :height 8))
+:
+: [print rect]
+
+The result: 
+
+: "height: 8 width: 10 area: 80"
+
+** Further reading
+
+CLON includes several other features that are important for
+programming RLX games. Before proceeding, you should browse CLON's
+[[http://github.com/dto/clon][source code]] and read at least the documentation strings and expository
+block comments---especially those about message queueing and
+forwarding.
+
+* The Console
+
+RLX is structured as a "virtual game console" with pluggable game
+modules akin to old-fashioned cartridges.
+
+** Basic input and output functions
+
+*** Starting up and shutting down
+*** Drawing to the screen
+*** Responding to key press events
+
+** Resources and Modules
+*** The PAK file format
+*** The different resource types
+*** Standard resources (colors, icons)
+*** Resource aliases
+*** Resource transformations
+** Events and Widgets
+** The active World
+** Serialization
+
+* Mathematics
+
+** Geometry calculations
+** Shape tracing
+** Line of sight
+** Lighting
+** Plasma 
+** Pathfinding with A*
+
+* Widgets
+
+** Widget basics
+** Keymaps
+** Formatted text display
+** Command prompts
+
+* Cells: the atoms of the game world
+
+** Overview
+** Categories
+** The Action Points System
+** Action Menus
+** Cell movement
+** Containers
+** Manipulating and picking up objects
+** Modeling player knowledge
+** Equipment
+** Combat
+
+* Worlds composed of cells
+
+** The grid
+** How the z-axis affects play
+** Environmental conditions
+** Lighting
+** Handling messages, movement, and cell interactions
+** Narrating events and providing messages to the player
+** Viewports
+
+* An example game module

@@ -73,31 +73,32 @@
   (overlay :initform nil 
 	   :documentation "Possibly transparent image overlay to be drawn at this location."))
   
-(define-method initialize world (&key (width *default-world-axis-size*)
-				      (height *default-world-axis-size*))
-  "Initialize an empty world of size WIDTH * HEIGHT."
- (let ((grid (make-array (list width height)
-			 :element-type 'vector :adjustable t)))
-   ;; now put a vector in each square to represent the z-axis
-   (dotimes (i width)
-     (dotimes (j height)
-       (setf (aref grid i j)
-	     (make-array *default-world-z-size* 
-			 :adjustable t
-			 :fill-pointer 0))))
-   (setf <grid> grid
-	 <height> height
-	 <width> width)
-   ;; we need a grid of integers for the lighting map.
-   (setf <light-grid> (make-array (list width height)
-				  :element-type 'integer
-				  :initial-element 0))
-   ;;and a grid of special objects for the environment map.
-   (let ((environment (make-array (list width height))))
-     (setf <environment-grid> environment)
-     (dotimes (i width)
-       (dotimes (j height)
-	 (setf (aref environment i j) (clone =environment=)))))))
+(define-method create-grid world (&key width height)
+  (let ((grid (make-array (list width height)
+			  :element-type 'vector :adjustable t)))
+    ;; now put a vector in each square to represent the z-axis
+    (dotimes (i width)
+      (dotimes (j height)
+	(setf (aref grid i j)
+	      (make-array *default-world-z-size* 
+			  :adjustable t
+			  :fill-pointer 0))))
+    (setf <grid> grid
+	  <height> height
+	  <width> width)
+    ;; we need a grid of integers for the lighting map.
+    (setf <light-grid> (make-array (list width height)
+				   :element-type 'integer
+				   :initial-element 0))
+    ;;and a grid of special objects for the environment map.
+    (let ((environment (make-array (list width height))))
+      (setf <environment-grid> environment)
+      (dotimes (i width)
+	(dotimes (j height)
+	  (setf (aref environment i j) (clone =environment=)))))))
+
+(define-method create-default-grid world ()
+  [create-grid self :width <width> :height <height>])
 
 (define-method environment-at world (row column)
   (aref <environment-grid> row column))
@@ -123,11 +124,14 @@
 
 (define-method drop-cell world (cell row column &optional loadout-p)
   "Put CELL on top of the stack of cells at ROW, COLUMN."
-  (vector-push-extend cell (aref <grid> row column))
-  (setf (field-value :row cell) row)
-  (setf (field-value :column cell) column)
-  (when loadout-p
-    [loadout cell]))
+  (if (not (array-in-bounds-p <grid> row column))
+      (message "Warning: dropping cell off world at (~S, ~S)." row column)
+      (progn
+	(vector-push-extend cell (aref <grid> row column))
+	(setf (field-value :row cell) row)
+	(setf (field-value :column cell) column)
+	(when loadout-p
+	  [loadout cell]))))
 
 (define-method nth-cell world (n row column)
   (aref (aref <grid> row column) n))
@@ -339,7 +343,6 @@ in a roguelike until the user has pressed a key."
 
 (define-method start world ()
   (with-message-queue <message-queue>
-    [generate self]
     [begin-phase <player>]))
 
 (define-method delete-cell world (cell row column)
@@ -458,17 +461,21 @@ http://en.wikipedia.org/wiki/Passive_voice"
 	(dotimes (j origin-width)
 	  ;; is this square lit? 
 	  ;; :. lighting >
-	  (when (or (eq :total ambient-light)
-		    (= turn-number (aref light-grid (+ i origin-y) (+ j origin-x))))
-	    (progn (setf objects (aref grid 
-				       (+ i origin-y)
-				       (+ j origin-x)))
-		   (dotimes (k (fill-pointer objects))
-		     (setf cell (aref objects k))
-		     (when (object-p cell)
-		       (draw-resource-image (field-value :tile cell)
-					    (* j tile-size) (* i tile-size)
-					    :destination image)))))))
+	    (if (array-in-bounds-p grid (+ i origin-y) (+ j origin-x))
+		(when (or (eq :total ambient-light)
+			  (= turn-number (aref light-grid (+ i origin-y) (+ j origin-x))))
+		  (progn (setf objects (aref grid 
+					     (+ i origin-y)
+					     (+ j origin-x)))
+			 (dotimes (k (fill-pointer objects))
+			   (setf cell (aref objects k))
+			   (when (object-p cell)
+			     (draw-resource-image (field-value :tile cell)
+						  (* j tile-size) (* i tile-size)
+						  :destination image)))))
+		;; not in bounds; draw blackness
+		(draw-resource-image ".blackness" (* j tile-size) (* i tile-size)
+				     :destination image))))
       ;; update geometry
       (setf <width> (* tile-size origin-width))
       (setf <height> (* tile-size origin-height)))))
