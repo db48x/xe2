@@ -33,37 +33,37 @@
 
 (in-package :rlx)
 
-;; :. worlds >
+;; <: worlds :>
 
 (define-prototype world
     (:documentation "An RLX game world filled with cells.")
   (player :documentation "The player cell.")
   (width :documentation "The width of the world map, measured in tiles.")
   (height :documentation "The height of the world map, measured in tiles.")
-  ;; :. cells >
+  ;; <: cells :>
   (grid :documentation "A two-dimensional array of adjustable vectors of cells.")
-  ;; :. environment > 
+  ;; <: environment :>
   (environment-grid :documentation "A two-dimensional array of environment data cells.")
-  ;; :. lighting >
+  ;; <: lighting :>
   (light-grid 
    :documentation 
    "A 2d array of integers giving the light level at that point in <grid>.")
   (ambient-light :initform :total :documentation 
 		 "Radius of ambient visibility. :total means that lighting is turned off.")
-  ;; :. action-points >
+  ;; <: action-points :>
   (phase-number :initform 1 :documentation "Integer number of current phase.")
   (turn-number :initform 1 :documentation "Integer number of elapsed user turns (actions).")
-  ;; :. queueing >
+  ;; <: queueing :>
   (message-queue :initform (make-queue))
-  ;; :. narration >
+  ;; <: narration :>
   (narrator :documentation "The narration widget object.")
-  ;; :. browsing >
+  ;; <: browsing :>
   (browser :documentation "The browser object."))
 
 (defparameter *default-world-axis-size* 10)
 (defparameter *default-world-z-size* 4)
 
-;; :. environment >
+;; <: environment :>
 (define-prototype environment
     (:documentation "A cell giving general environmental conditions at a world location.")
   (temperature :initform nil :documentation "Temperature at this location, in degrees Celsius.")
@@ -112,7 +112,7 @@
 		     (aref <environment-grid> row column))
 	value))
 
-;; :. narration >
+;; <: narration :>
 
 (define-method set-narrator world (narrator)
   (setf <narrator> narrator))
@@ -222,8 +222,8 @@ so on, until no more messages are generated."
 	     [narrate-message <narrator> sender method-key rec args]
 	     (apply #'send sender method-key rec args))))))
 
-;; :. events >
-;; :. main >
+;; <: events :>
+;; <: main :>
 
 (define-method forward world (method-key &rest args)
   "Send unhandled messages to the player object.
@@ -240,7 +240,7 @@ in a roguelike until the user has pressed a key."
 	[process-messages self]
 	;; if this is the player's last turn, begin the cpu phase
 	;; otherwise, stay in player phase and exit
-	;; :. action-points > 
+	;; <: action-points :>
 	(unless [can-act player phase-number]
 	  [end-phase player]
 	  (incf <turn-number>)
@@ -267,20 +267,20 @@ in a roguelike until the user has pressed a key."
 	  (setf cells (aref grid i j))
 	  (dotimes (z (fill-pointer cells))
 	    (setf cell (aref cells z))
-	    ;; :. lighting >
+	    ;; <: lighting :>
 	    (when (or (eq player cell)
 		      [is-light-source cell])
 	      [render-lighting self cell])
 	    (when (and (not (eq player cell))
 		       [in-category cell :actor])
 	      [begin-phase cell]
-	      ;; :. action-points >
+	      ;; <: action-points :>
 	      (loop while [can-act cell phase-number] do
 		   [run cell]
 		   [process-messages self]
 		   [end-phase cell]))))))))
 
-;; :. lighting > 
+;; <: lighting :>
 
 (define-method render-lighting world (cell)
   (let* ((light-radius (field-value :light-radius cell))
@@ -339,7 +339,7 @@ in a roguelike until the user has pressed a key."
 		     (light-line row column)))))
 	(light-octagon source-row source-column total)))))
 
-(define-method generate world (parameters)
+(define-method generate world (&optional parameters)
   "Generate a world, reading generation parameters from the plist
   PARAMETERS."  
   (declare (ignore parameters))
@@ -469,7 +469,7 @@ http://en.wikipedia.org/wiki/Passive_voice"
       (dotimes (i origin-height)
 	(dotimes (j origin-width)
 	  ;; is this square lit? 
-	  ;; :. lighting >
+	  ;; <: lighting :>
 	    (if (array-in-bounds-p grid (+ i origin-y) (+ j origin-x))
 		(when (or (eq :total ambient-light)
 			  (= turn-number (aref light-grid (+ i origin-y) (+ j origin-x))))

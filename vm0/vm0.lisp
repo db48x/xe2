@@ -52,7 +52,7 @@
 
 (define-prototype tech-box (:parent rlx:=cell=)
   (tile :initform "tech-box")
-  (categories :initform '(:obstacle :opaque :pushable :destructible))
+n  (categories :initform '(:obstacle :opaque :pushable :destructible))
   (hit-points :initform (make-stat :base 10 :min 0)))
 
 (define-prototype tech-box-debris (:parent rlx:=cell=)
@@ -65,6 +65,8 @@
 (define-prototype tech-brick-yellow (:parent rlx:=cell=)
   (tile :initform "yellow-tech-brick")
   (categories :initform '(:obstacle :opaque)))
+
+;;; The deadly Rook bot
 
 (define-prototype rook (:parent rlx:=cell=)
 ;;  (categories :initform '(:actor :target :obstacle :opaque :enemy))
@@ -409,7 +411,7 @@
   (categories :initform '(:item)))
 
 ;;; The mysterious crystal
-  
+
 (define-prototype crystal (:parent rlx:=cell=)
   (name :initform "Turquoise crystal")
   (categories :initform '(:item))
@@ -619,105 +621,7 @@
 (define-method activate-equipment player (slot)
   [activate [equipment-slot self slot]])
 
-;;; the game-specific controls
-
-(define-prototype vm0-prompt (:parent rlx:=prompt=))
-
-(defparameter *qwerty-keybindings*
-  '(("Y" nil "move :northwest .")
-    ("K" nil "move :north .")
-    ("U" nil "move :northeast .")
-    ("H" nil "move :west .")
-    ("L" nil "move :east .")
-    ("B" nil "move :southwest .")
-    ("J" nil "move :south .")
-    ("N" nil "move :southeast .")
-    ;;
-    ("Y" (:alt) "attack :northwest .")
-    ("K" (:alt) "attack :north .")
-    ("U" (:alt) "attack :northeast .")
-    ("H" (:alt) "attack :west .")
-    ("L" (:alt) "attack :east .")
-    ("B" (:alt) "attack :southwest .")
-    ("J" (:alt) "attack :south .")
-    ("N" (:alt) "attack :southeast .")
-    ;;
-    ("Y" (:control) "fire :northwest .")
-    ("K" (:control) "fire :north .")
-    ("U" (:control) "fire :northeast .")
-    ("H" (:control) "fire :west .")
-    ("L" (:control) "fire :east .")
-    ("B" (:control) "fire :southwest .")
-    ("J" (:control) "fire :south .")
-    ("N" (:control) "fire :southeast .")
-    ;;
-    ("T" nil "take .")
-    ("E" nil "equip 0 .")
-    ("1" nil "activate-equipment :belt .")))
-
-;; f t g
-;;  \|/
-;; d-.-n
-;;  /|\ 
-;; x h b
-
-(defparameter *dvorak-keybindings*
-  '(("F" nil "move :northwest .")
-    ("T" nil "move :north .")
-    ("G" nil "move :northeast .")
-    ("D" nil "move :west .")
-    ("N" nil "move :east .")
-    ("X" nil "move :southwest .")
-    ("H" nil "move :south .")
-    ("B" nil "move :southeast .")
-    ;;
-    ("F" (:alt) "attack :northwest .")
-    ("T" (:alt) "attack :north .")
-    ("G" (:alt) "attack :northeast .")
-    ("D" (:alt) "attack :west .")
-    ("N" (:alt) "attack :east .")
-    ("X" (:alt) "attack :southwest .")
-    ("H" (:alt) "attack :south .")
-    ("B" (:alt) "attack :southeast .")
-    ;;
-    ("F" (:control) "fire :northwest .")
-    ("T" (:control) "fire :north .")
-    ("G" (:control) "fire :northeast .")
-    ("D" (:control) "fire :west .")
-    ("N" (:control) "fire :east .")
-    ("X" (:control) "fire :southwest .")
-    ("H" (:control) "fire :south .")
-    ("B" (:control) "fire :southeast .")
-    ;;
-    ("O" nil "take .") ;; obtain
-    ("E" nil "equip 0 .")
-    ("1" nil "activate-equipment :belt .")))
-
-(define-method install-keybindings vm0-prompt ()
-  (let ((keys (ecase rlx:*user-keyboard-layout* 
-		(:qwerty *qwerty-keybindings*)
-		(:dvorak *dvorak-keybindings*))))
-    (dolist (k keys)
-      (apply #'bind-key-to-prompt-insertion self k))))
-
-;;; a character status widget
-
-(define-prototype status (:parent rlx:=formatter=)
-  (character :documentation "The character cell."))
-
-(define-method set-character status (character)
-  (setf <character> character))
-
-(define-method update status ()
-  [delete-all-lines self]
-  (let ((char <character>))
-    [println self (field-value :name char)]
-    [println self (format nil "AP: ~S" (field-value :action-points char))]
-    [println self (format nil "HP: ~S" [stat-value char :hit-points])]
-    [println self (format nil "OX: ~S" [stat-value char :oxygen])]
-    [println self (format nil "EN: ~S" [stat-value char :energy])]))
-   
-;;; the storage container
+;;; The storage container you break into
 
 (define-prototype storage-world (:parent rlx:=world=)
   (ambient-light :initform :total)
@@ -725,7 +629,8 @@
   (height :initform 60)
   (pallet-size :initform 9))
 
-(define-method generate storage-world ()
+(define-method generate storage-world (&optional parameters)
+  (declare (ignore parameters))
   (clon:with-field-values (height width pallet-size) self
     ;; create world
     (dotimes (i height)
@@ -853,7 +758,7 @@
     (trace-column #'drop-vert column row (+ row (random maxsize)))
     (drop-base row column)))
 
-(define-method generate station-world (parameters)
+(define-method generate station-world (&optional parameters)
   (declare (ignore parameters))
   (clon:with-field-values (height width) self
     (dotimes (i height)
@@ -871,13 +776,13 @@
       [paint-station-piece self (random height) (random width) (+ 3 (random 5))])
     ;;
     ;; paint other stuff
-    (dotimes (n 2)
+    (dotimes (n 4)
       [drop-cell self (clone =med-hypo=) (random height) (random height)])
-    (dotimes (i 12)
+    (dotimes (i 18)
       [drop-cell self (clone =red-perceptor=) (random height) (random width) :loadout])
     (dotimes (i 20)
       [drop-cell self (clone =purple-perceptor=) (random height) (random width) :loadout])
-    (dotimes (i 14)
+    (dotimes (i 100)
       [drop-cell self (clone =mine=) (random height) (random width) :loadout])
     (dotimes (i 12)
       [drop-cell self (clone =oxygen-tank=) (random height) (random width) :loadout])
@@ -885,6 +790,103 @@
     ;; place portals TODO and player??
     ))
 
+;;; The game-specific controls
+
+(define-prototype vm0-prompt (:parent rlx:=prompt=))
+
+(defparameter *qwerty-keybindings*
+  '(("Y" nil "move :northwest .")
+    ("K" nil "move :north .")
+    ("U" nil "move :northeast .")
+    ("H" nil "move :west .")
+    ("L" nil "move :east .")
+    ("B" nil "move :southwest .")
+    ("J" nil "move :south .")
+    ("N" nil "move :southeast .")
+    ;;
+    ("Y" (:alt) "attack :northwest .")
+    ("K" (:alt) "attack :north .")
+    ("U" (:alt) "attack :northeast .")
+    ("H" (:alt) "attack :west .")
+    ("L" (:alt) "attack :east .")
+    ("B" (:alt) "attack :southwest .")
+    ("J" (:alt) "attack :south .")
+    ("N" (:alt) "attack :southeast .")
+    ;;
+    ("Y" (:control) "fire :northwest .")
+    ("K" (:control) "fire :north .")
+    ("U" (:control) "fire :northeast .")
+    ("H" (:control) "fire :west .")
+    ("L" (:control) "fire :east .")
+    ("B" (:control) "fire :southwest .")
+    ("J" (:control) "fire :south .")
+    ("N" (:control) "fire :southeast .")
+    ;;
+    ("T" nil "take .")
+    ("E" nil "equip 0 .")
+    ("1" nil "activate-equipment :belt .")))
+
+;; f t g
+;;  \|/
+;; d-.-n
+;;  /|\ 
+;; x h b
+
+(defparameter *dvorak-keybindings*
+  '(("F" nil "move :northwest .")
+    ("T" nil "move :north .")
+    ("G" nil "move :northeast .")
+    ("D" nil "move :west .")
+    ("N" nil "move :east .")
+    ("X" nil "move :southwest .")
+    ("H" nil "move :south .")
+    ("B" nil "move :southeast .")
+    ;;
+    ("F" (:alt) "attack :northwest .")
+    ("T" (:alt) "attack :north .")
+    ("G" (:alt) "attack :northeast .")
+    ("D" (:alt) "attack :west .")
+    ("N" (:alt) "attack :east .")
+    ("X" (:alt) "attack :southwest .")
+    ("H" (:alt) "attack :south .")
+    ("B" (:alt) "attack :southeast .")
+    ;;
+    ("F" (:control) "fire :northwest .")
+    ("T" (:control) "fire :north .")
+    ("G" (:control) "fire :northeast .")
+    ("D" (:control) "fire :west .")
+    ("N" (:control) "fire :east .")
+    ("X" (:control) "fire :southwest .")
+    ("H" (:control) "fire :south .")
+    ("B" (:control) "fire :southeast .")
+    ;;
+    ("O" nil "take .") ;; obtain
+    ("E" nil "equip 0 .")
+    ("1" nil "activate-equipment :belt .")))
+
+(define-method install-keybindings vm0-prompt ()
+  (let ((keys (ecase rlx:*user-keyboard-layout* 
+		(:qwerty *qwerty-keybindings*)
+		(:dvorak *dvorak-keybindings*))))
+    (dolist (k keys)
+      (apply #'bind-key-to-prompt-insertion self k))))
+
+;;; A character status widget
+
+(define-prototype status (:parent rlx:=formatter=)
+  (character :documentation "The character cell."))
+
+(define-method set-character status (character)
+  (setf <character> character))
+
+(define-method update status ()
+  [delete-all-lines self]
+  (let ((char <character>))
+    [println self (field-value :name char)]
+    [println self (format nil "AP: ~S" (field-value :action-points char))]
+    [println self (format nil "HP: ~S" [stat-value char :hit-points])]
+    [println self (format nil "OX: ~S" [stat-value char :oxygen])]
+    [println self (format nil "EN: ~S" [stat-value char :energy])]))
 
 ;;; putting it all together
 
@@ -932,7 +934,7 @@
     [set-narrator world narrator]
     ;; tie it together
     [create-default-grid world]
-    [generate world nil]
+    [generate world]
     [set-player world player]
     [set-browser world browser]
     [start world]

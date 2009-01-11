@@ -45,11 +45,11 @@
   (tile :initform ".asterisk" :documentation "Resource name of image.")
   (row :documentation "When non-nil, the current row location of the cell.")
   (column :documentation "When non-nil, the current column of the cell.")
-  ;; :. categories >
+  ;; <: categories :>
   (categories :documentation "List of category keyword symbols") 
-  ;; :. lighting >
+  ;; <: lighting :>
   (light-radius :initform 0 :documentation "Strength of light cast by this object.") 
-  ;; :. action-points >
+  ;; <: action-points :>
   (menu :initform nil :documentation "Menu objects.")
   (speed :initform '(:base 10) :documentation "The number of action points alloted each phase.")
   (phase-number :initform 0
@@ -61,12 +61,12 @@
   (stepping :initform nil :documentation "Whether to generate step events where you walk.")
   (movement-cost :initform '(:base 10 :min nil :max nil :delta nil)
 		 :documentation "Base cost of moving one square.")
-  ;; :. knowledge >
+  ;; <: knowledge :>
   (name :documentation "The name of this cell.")
   (description :documentation "A description of the cell.") 
   (unknown-name :documentation "The name of this cell, when it is unknown.")
   (unknown-description :documentation "A description of the cell, when it is unknown.")
-  ;; :. equipment >
+  ;; <: equipment :>
   (equipment :documentation "Property list of :slot -> cell pairs.") 
   (equipment-slots :documentation "List of keyword symbols identifying available equipment slots."
 		   :initform '(:head :neck :left-hand :right-hand :hands :feet :legs :torso :arms :pack :belt))
@@ -75,7 +75,7 @@
   (firing-with :documentation "Keyword symbol of the currently selected firing weapon slot.")
   (equip-for :documentation "List of keyword symbols showing where this item may be equipped.")
   (equipper :documentation "When non-nil, the character currently equipping this item.")
-  ;; :. containers >
+  ;; <: containers :>
   (inventory :documentation "The contents (if any) of the cell.")
   (max-weight :documentation "Maximum weight this container can hold.")
   (max-items :documentation "Maximum number of items this container can hold.")
@@ -83,7 +83,7 @@
 
 ;;; Statistics 
 
-;; :. stats >
+;; <: stats :>
 
 ;; Characters and objects may have numeric-valued attributes like
 ;; Strength and Dexterity that have a minimum and maximum value
@@ -136,7 +136,7 @@ field named by STAT-NAME. The default is to change the :base value."
 
 ;;; Cell categories
 
-;; :. categories >
+;; <: categories :>
 
 ;; Cells may be placed into categories that influence their processing
 ;; by the engine. The field `<categories>' is a set of keyword
@@ -148,7 +148,7 @@ field named by STAT-NAME. The default is to change the :base value."
 ;; interpretation:
 
 (defparameter *standard-categories*
-  '(;; :. action-points > 
+  '(;; <: action-points :> 
     :actor ;; This cell is active and may be controlled by either the
 	   ;; user or the CPU. Only actor cells receive `:run'
 	   ;; messages every turn. Other cells are purely "reactive".
@@ -158,15 +158,15 @@ field named by STAT-NAME. The default is to change the :base value."
     :dead  ;; This cell is no longer receiving run messages.
     :player ;; Only one cell (your player avatar) has this category.
     :enemy ;; This cell is playing against you.
-    :obstacle ;; Blocks :. movement >
-    ;; :. lighting >
+    :obstacle ;; Blocks <: movement :>
+    ;; <: lighting :>
     :light-source ;; This object casts light. 
     :opaque ;; Blocks line-of-sight, casts shadows. 
-    ;; :. containers >
+    ;; <: containers :>
     :container ;; This cell contains other cells, and has an <inventory> field
     :contained ;; This cell is contained in another cell (i.e. not in open space on the map)
     :item ;; A potential inventory item. 
-    ;; :. equipment >
+    ;; <: equipment :>
     :equipper ;; Uses equipment. 
     :equipped ;; This item is currently equipped
     :equipment ;; This item can be equipped. 
@@ -186,7 +186,7 @@ field named by STAT-NAME. The default is to change the :base value."
 
 ;;; Action Points
 
-;; :. action-points >
+;; <: action-points :>
 
 ;; The Action Points system is RLX's model of roguelike time; Time is
 ;; divided into discrete episodes called phases.  Each phase consists
@@ -218,7 +218,7 @@ field named by STAT-NAME. The default is to change the :base value."
 
 ;;    1. Do something meaningful when invoked without arguments, 
 ;;       whatever other arguments may be accepted.
-;;    2. Queue appropriate narration messages. :. queueing >
+;;    2. Queue appropriate narration messages. <: queueing :>
 ;;    3. Have a short docstring (under 40 characters or so) that can be 
 ;;       displayed on a single line in a menu system. (See browser.lisp)
 
@@ -264,7 +264,7 @@ action during PHASE."
 
 ;;; Cell movement
 
-;; :. movement > 
+;; <: movement :> 
 
 (define-method move cell (direction)
   (multiple-value-bind (r c) 
@@ -289,14 +289,14 @@ action during PHASE."
 (define-method step cell (stepper)
   (declare (ignore stepper)))
 
-;; :. lighting > 
+;; <: lighting :> 
       
 (define-method is-light-source cell ()
   [in-category self :light-source])
 
 ;;; Containers
 
-;; :. containers >
+;; <: containers :>
 
 ;; An object's <inventory> field is a vector. Each position of the
 ;; vector holds either a cell object or nil. The number of available
@@ -374,7 +374,7 @@ Return ITEM if successful, nil otherwise."
 
 ;;; Finding and manipulating objects
 
-;; :. finding > 
+;; <: finding :> 
 
 ;; TODO split into find-direction, find-z, find & key :dir :z
 (define-method find cell (&key (direction :here) (index :top))
@@ -424,7 +424,7 @@ slot."
 
 ;;; Knowledge of objects
 
-;; :. knowledge >
+;; <: knowledge :>
 ;; TODO port and document this
 
 (define-method name-of cell ()
@@ -438,7 +438,7 @@ slot."
 
 ;;; Equipment
 
-;; :. equipment >
+;; <: equipment :>
 
 (define-method is-equipment cell ()
   [in-category self :equipment])

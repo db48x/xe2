@@ -66,7 +66,7 @@
 
 ;;; The active widgets list 
 
-;; :. widgets >
+;; <: widgets :>
 
 (defvar *active-widgets* nil "List of active widget objects. 
 These widgets receive input events and are rendered to the screen by
@@ -94,7 +94,7 @@ and the like."
 
 ;;; Event handling and widgets
 
-;; :. events >
+;; <: events :>
 
 ;; Keyboard, mouse, and timer events are represented as event lists of
 ;; the form:
@@ -152,7 +152,7 @@ else.")
 
 ;;; Translating SDL key events into RLX event lists
 
-;; :. events >
+;; <: events :>
 
 (defun make-key-modifier-symbol (sdl-mod)
   "Translate from the SDL key modifier symbol SDL-MOD to our own
@@ -189,7 +189,7 @@ key event symbols."
 
 ;;; The active world
 
-;; :. worlds >
+;; <: worlds :>
 
 (defvar *active-world* nil 
 "The current world object. Only one may be active at a time. See also
@@ -199,7 +199,7 @@ at the time the cell method is run.")
 
 ;;; The main loop
 
-;; :. main >
+;; <: main :>
 
 ;; This is the main loop; all it does is open an SDL window, dispatch
 ;; events, and draw widgets until the module quits.
@@ -232,7 +232,7 @@ window. Set this in the game startup file.")
 
 ;;; The .rlxrc user init file
 
-;; :. initialization >
+;; <: initialization :>
 
 (defparameter *user-init-file-name* ".rlxrc")
 
@@ -246,7 +246,7 @@ window. Set this in the game startup file.")
 
 ;;; PAK resource interchange files
 
-;; :. pak >
+;; <: pak :>
 
 ;; PAK is a simple Lisp data interchange file format readable and
 ;; writable by both Emacs Lisp and Common Lisp. A PAK file can contain
@@ -262,7 +262,7 @@ window. Set this in the game startup file.")
 ;; small decimal integers and floating-point numbers, strings, lists,
 ;; and symbols).
 
-;; :. resources >
+;; <: resources :>
 
 ;; A "resource record" defines a resource. A resource record is a
 ;; structure with the following elements:
@@ -274,12 +274,12 @@ window. Set this in the game startup file.")
 ;;           Corresponding handlers are the responsibility of the client.
 ;;           See also `*resource-handlers*' and `load-resource'.
 
-;;           :. pak-inclusion >
+;;           <: pak-inclusion :>
 ;;           The special type :pak is used to load the pak file
 ;;           specified in :FILE, from (optionally) another module
 ;;           whose name is given in :DATA.
 
-;;           :. aliases > The special type :alias is used to provide
+;;           <: aliases :> The special type :alias is used to provide
 ;;           multiple names for a resource. The :DATA field contains
 ;;           the name of the target resource.
 
@@ -321,7 +321,7 @@ This prepares it for printing as part of a PAK file."
 ;; First we need routines to read and write raw s-expressions to and
 ;; from text files.
 
-;; :. serialization > 
+;; <: serialization :>
 
 (defun write-sexp-to-file (filename sexp)
   (with-open-file (file filename :direction :output 
@@ -348,7 +348,7 @@ This prepares it for printing as part of a PAK file."
 
 ;;; Resources and modules
 
-;; :. resources >
+;; <: resources :>
 
 ;; The "resource table" maps resource names to their corresponding
 ;; records. "Indexing" a resource means that its resource record is
@@ -380,7 +380,7 @@ resources go in this one hash table.")
 (defun initialize-resource-table ()
    (setf *resource-table* (make-hash-table :test 'equal)))
 
-;; :. aliases >
+;; <: aliases :>
 
 (defun index-resource (resource)
   "Add the RESOURCE's record to the resource table.
@@ -444,7 +444,7 @@ table. File names are relative to the module MODULE-NAME."
   (let ((resources (read-pak pak-file)))
     (dolist (res resources)
       (if (eq :pak (resource-type res))
-	  ;; :. pak-inclusion >
+	  ;; <: pak-inclusion :>
 	  ;; we're including another pak file. if :data is specified,
 	  ;; take this as the name of the module where to look for
 	  ;; that pak file and its resources.
@@ -648,7 +648,7 @@ found."
 ;; The X11 standard colors are loaded by default into the resource
 ;; table from the raw data in `*x11-color-data*'. See also rgb.lisp.
 
-;; :. colors > 
+;; <: colors :>
 
 (defun initialize-colors ()
   "Load the X11 color data into the resource table."
@@ -741,7 +741,7 @@ The default destination is the main window."
   (loop while (and (not *quitting*)
 		   *next-module*)
      do (sdl:with-init ()
-	  ;; :. initialization >
+	  ;; <: initialization :>
 	  (load-user-init-file)
 	  (run-hook '*initialization-hook*)
 	  (initialize-resource-table)
