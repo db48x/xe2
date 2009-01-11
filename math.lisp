@@ -210,7 +210,7 @@ It's an ugly hack, but it helps reduce artifacts."
 
 ;;; Line of sight and lighting
 
-;; :. lighting >
+;; <: lighting :>
 
 ;; We use Bresenham's line algorithm to trace out the player's field
 ;; of vision and determine which squares are lit.
@@ -278,6 +278,31 @@ Returns non-nil if tracing was successful, and nil if failed."
 		     (decf err 1.0))
 		 ;; for next iteration
 		   (incf x))))))))
+
+;;; Tracing macros
+
+(defmacro with-trace-line ((row-sym col-sym) x0 y0 x1 y1 &rest body)
+  (let ((tracer-sym (gensym)))
+    `(labels ((,tracer-sym ,(list row-sym col-sym)
+		,@body))
+       (trace-line #',tracer-sym ,x0 ,y0 ,x1 ,y1))))
+
+;; Try macroexpanding: 
+;; (with-trace-line (r c) x0 y0 x1 y1 (plot r c))
+
+(defmacro with-trace-rectangle ((row-sym col-sym)
+				row column height width &rest body)
+  (let ((tracer-sym (gensym)))
+    `(labels ((,tracer-sym ,(list row-sym col-sym)
+		,@body))
+       (trace-rectangle #',tracer-sym ,row ,column ,height ,width))))
+
+(defmacro with-trace-octagon ((row-sym col-sym) center-row center-column 
+			      radius thicken-p &rest body)
+  (let ((tracer-sym (gensym)))
+    `(labels ((,tracer-sym ,(list row-sym col-sym)
+		,@body))
+       (trace-octagon #',tracer-sym ,center-row ,center-column ,radius ,thicken-p))))
 
 ;;; Random midpoint displacement fractals
 
@@ -381,7 +406,7 @@ rectangles, or NIL if they would be smaller than one pixel."
     grid))
 
 ;;; Pathfinding
-;; :. pathfinding >
+;; <: pathfinding :>
 
 ;; ;;
 ;; ;; What follows is an implementation of the well-known A* pathfinding
