@@ -21,15 +21,15 @@
 ;;; Commentary:
 
 ;; Several parts of RLX frequently re-use structures and other
-;; data---such as that for pathfinding nodes and geometric
-;; points. This file defines a "pool" data structure with the
-;; following features:
+;; data---such as pathfinding nodes and geometric points. This file
+;; defines a "pool" for reusable structures with the following
+;; features:
 
 ;;  - Array-based with integer indices and lazy allocation of elements
 ;;  - Removal of an element does not delete the structure stored at 
 ;;    that array location. Instead we just mark the array location as
-;;    "inactive" (see `pool-active-at-p'). 
-;;  - Subsequent newly allocated nodes 
+;;    "inactive" (see `pool-active-at-p')
+;;  - Subsequent newly activated nodes re-use the data structure as-is
 
 ;;; Code:
 
@@ -125,6 +125,4 @@ in the pool."
 (defsetf pref-data set-pref-data)
 
 ;; (defun pool-resize 
-
-(provide 'pool)
 ;;; pool.lisp ends here

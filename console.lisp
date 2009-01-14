@@ -740,7 +740,7 @@ The default destination is the main window."
   ;; now play modules until done
   (loop while (and (not *quitting*)
 		   *next-module*)
-     do (sdl:with-init ()
+     do (sdl:with-init (sdl:SDL-INIT-VIDEO)
 	  ;; <: initialization :>
 	  (load-user-init-file)
 	  (run-hook '*initialization-hook*)
