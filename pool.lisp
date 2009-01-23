@@ -3,7 +3,7 @@
 ;; Copyright (C) 2009  David O'Toole
 
 ;; Author: David O'Toole <dto@gnu.org>
-;; Keywords: lisp, data, tools
+;; Keywords: lisp, data, tools, etc
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
