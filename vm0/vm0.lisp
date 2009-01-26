@@ -895,6 +895,7 @@ n  (categories :initform '(:obstacle :opaque :pushable :destructible))
   (setf rlx:*screen-width* 800)
   (let* ((prompt (clone rlx:=prompt=))
 	 (player-prompt (clone =vm0-prompt=))
+	 ;; TODO
 	 (world (clone =station-world=))
 	 (player (clone =player=))
 	 (status (clone =status=))
@@ -942,7 +943,8 @@ n  (categories :initform '(:obstacle :opaque :pushable :destructible))
     [set-world viewport world]
     [resize viewport :height 320 :width 400]
     [move viewport :x 0 :y 0]
-    [drop-cell world player 125 10 :loadout]
+    ;; TODO 
+    [drop-cell world player 10 10 :loadout]
     [set-origin viewport :x 0 :y 110 :height 20 :width 25]
     [adjust viewport]
     ;; foo
