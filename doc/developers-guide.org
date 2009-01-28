@@ -6,20 +6,51 @@ This document explains the [[file:rlx.org][RLX roguelike engine's]] general desi
 programming interface from the game developer's perspective, and is
 meant to assist in writing RLX game modules. It is not an exhaustive
 API reference, and those looking for more detailed information should
-look into the docstrings and block comments in the [[http://github.com/dto/rlx][RLX source code
-repository.]] The README file gives an overview of the repository; then
-read =console.lisp= and =cells.lisp= if you wish to dig deeper.
+look into the docstrings and block comments in the [[http://github.com/dto/rlx][RLX repository.]] The
+README file gives an overview of the repository; then read
+[[file:~/rlx/console.lisp][console.lisp]] and [[file:~/rlx/cells.lisp][cells.lisp]] if you wish to dig deeper.
 
-* Introducing the CLON object system
+* Introducing RLX
 
-RLX uses a custom object system called [[http://github.com/dto/clon][CLON]] for both in-game entities
-and the components of the engine itself, so an understanding of CLON
-is necessary before proceeding. This section gives a brief
-introduction to CLON's basic constructs and then provides pointers to
-further documentation.
+RLX is a portable [[http://en.wikipedia.org/wiki/Free_software][free-software]] graphical [[http://en.wikipedia.org/wiki/Roguelike][roguelike]] engine written in
+[[http://en.wikipedia.org/wiki/Common_lisp][Common Lisp]]. The system provides a number of tools to build graphical
+roguelikes:
 
-CLON stands for Common Lisp Object Network. It is different from CLOS
-in several important ways:
+ - Graphical tile map display engine with transparent PNG overlays 
+ - Turn-based action
+ - In-game objects' properties and behaviors can be defined in Common Lisp
+ - Basic combat AI support and pathfinding 
+ - Line-of-sight and dynamic lighting
+ - Point light sources on any object 
+ - Heads-up-display (HUD)
+ - Terrain/dungeon generation and pattern-based map synthesis
+ - Integrated menu browser system
+
+RLX uses a custom object system designed especially for games, and
+defines a reasonable set of default behaviors and functionalities for
+in-game objects:
+
+ - Object weight, containers, inventory, and weight calculation.
+ - Category keyword system for classifying cells.
+ - The "Action Points" system measures actor speed and event
+   durations, and thereby determines who gets the next turn.
+ - Configurable equipment and weapon system not restricted to humanoid
+   actors.
+ - Basic combat mechanics.
+ - "Stats" are numeric character attributes able to maintain specified
+   minimum and maximum values, as well as track both temporary and
+   permanent effects on the stat, such as stat-draining
+   monsters. Hit-points are also implemented as a stat.
+ - Ability for actor cells to move, search, and manipulate their
+   environment.
+
+* CLON: Common Lisp Object Network
+
+** Overview
+
+CLON stands for Common Lisp Object Network. CLON is a prototype-based
+object system for Common Lisp. It is different from CLOS in several
+important ways:
 
  - CLON is prototype-based, not class-based. A prototype is a template
    object from which other objects are "cloned".
@@ -37,14 +68,37 @@ in several important ways:
 
 :   (setf <slot-name> value)
 
-** Brief CLON code example
+    - http://en.wikipedia.org/wiki/Prototype-based_programming
+    - http://en.wikipedia.org/wiki/Message_passing
+    - http://www.cliki.net/Garnet
+    - http://iolanguage.com/about/
 
-First we must define a prototype and its fields:
+** Download
+
+ - [[file:../packages/clon-1.0.tar.gz][Release tarball: clon-1.0.tar.gz]]
+ - see also [[http://github.com/dto/clon/tree/master][CLON at github.com]]
+
+** Code examples
+
+*** What is an object in CLON?
+
+[[file:~/clon/clon.lisp::defstruct%20object][file:~/clon/clon.lisp::defstruct object]]
+
+**** Why property lists and not hash tables? 
+
+[[info:elisp:Hash%20Tables][info:elisp:Hash Tables]]
+
+*** Defclass-like prototype definitions
+
+First we must define a prototype and name its fields:
 
 : (define-prototype rectangle ()
 :   x y width height)
 
-We could also have provided initialization forms and documentation strings:
+[[file:~/clon/clon.lisp::defmacro%20define%20prototype%20name][file:~/clon/clon.lisp::defmacro define prototype name]]
+
+We could also have provided initialization forms for the slots, and
+documentation strings:
 
 : (define-prototype rectangle ()
 :   (x :initform 0 
@@ -53,6 +107,8 @@ We could also have provided initialization forms and documentation strings:
 :      :documentation "The y-coordinate of the rectangle's top-left corner.")
 :   (width :documentation "The width of the rectangle.")
 :   (height :documentation "The height of the rectangle."))
+
+*** Single inheritance
 
 And if there was a "shape" prototype, from which we would like
 "rectangle" to inherit data and methods, we might have written:
@@ -67,11 +123,25 @@ And if there was a "shape" prototype, from which we would like
 
 Notice the equals signs surrounding the parent object's name; all
 objects made with define-prototype are accessible via special
-variables with such names.
+variables with such names. 
 
-The function =CLON:CLONE= is used to create new objects from these
+The reason for this is that usually you want to call a widget a
+widget, but if that name is taken for a special variable "widget"
+whose value was the prototype for all widgets, then you will have to
+use some other probably less effective name for the binding, like "w"
+or "wt" or "wydget", everywhere you want to just talk about a "widget"
+in your code. So instead we only reserve the equals-sign-delimited
+name:
+
+:  =WIDGET=
+
+*** Cloning objects
+
+The function CLON:CLONE is used to create new objects from these
 prototypes. Now we write an initializer, which is passed any creation
 arguments at the time of cloning:
+
+[[file:~/clon/clon.lisp::defun%20clone%20prototype%20rest%20initargs][file:~/clon/clon.lisp::defun clone prototype rest initargs]]
 
 : (define-method initialize rectangle (&key width height)
 :   (setf <width> width)
@@ -81,24 +151,37 @@ Notice how field accesses can be written with the angle brackets; this
 works both for reading and for writing, so long as you use =setf= for
 the latter. 
 
+[[file:~/clon/clon.lisp::defun%20transform%20tree%20tester%20transformer%20tree][file:~/clon/clon.lisp::defun transform tree tester transformer tree]]
+
 Now when you say:
 
-: (clone =rectangle= :width 5 :height 12)
+: (setf rectangle (clone =rectangle= :width 5 :height 12))
 
 The rectangle's initializer method is invoked with those arguments,
 and a rectangle of the correct height and width is created.
+
+*** Basic field access
+
+: (field-value :width rectangle)
+: (setf (field-value :height rectangle) 7)
+
+[[file:~/clon/clon.lisp::defun%20field%20value%20field%20object%20optional%20noerror][file:~/clon/clon.lisp::defun field value field object optional noerror]]
+
+*** Methods
 
 Now we define a few methods:
 
 : (define-method area rectangle ()
 :   (* <width> <height>))
-:
+: 
 : (define-method print rectangle (&optional (stream t))
 :   (format stream "height: ~A width: ~A area: ~A"
 : 	  <height> <width> 
 : 	  [area self]))
 
-And invoke them with the aforementioned square bracket notation:
+[[file:~/clon/clon.lisp::defmacro%20define%20method][file:~/clon/clon.lisp::defmacro define method]]
+
+And invoke them with the aforementioned square bracket notation.
 
 : (defvar rect (clone =rectangle= :width 10 :height 8))
 :
@@ -108,72 +191,229 @@ The result:
 
 : "height: 8 width: 10 area: 80"
 
-** Further reading
+The bracket syntax is done with a reader macro:
+[[file:~/clon/clon.lisp::defun%20message%20reader%20stream%20char][file:~/clon/clon.lisp::defun message reader stream char]]
 
-CLON includes several other features that are important for
-programming RLX games. Before proceeding, you should browse CLON's
-[[http://github.com/dto/clon][source code]] and read at least the documentation strings and expository
-block comments---especially those about message queueing and
-forwarding.
+*** Message queueing
 
-* The Console
+CLON also supports a concept called message queueing. When there is an
+active message queue, messages may be entered into the queue instead
+of directly invoking a method:
 
-RLX is structured as a "virtual game console" with pluggable game
-modules akin to old-fashioned cartridges.
+: [queue>>render widget]
+: [queue>>attack self :north]
 
-** Basic input and output functions
+The sender, receiver, method name, and arguments are all recorded in
+the queue. The developer can then filter or process them before
+sending.
 
-*** Starting up and shutting down
-*** Drawing to the screen
-*** Responding to key press events
+[[file:~/clon/clon.lisp::Message%20queueing][file:~/clon/clon.lisp::Message queueing]]
 
-** Resources and Modules
-*** The PAK file format
-*** The different resource types
-*** Standard resources (colors, icons)
-*** Resource aliases
-*** Resource transformations
-** Events and Widgets
-** The active World
-** Serialization
+*** Message forwarding
 
-* Mathematics
+And finally, I will mention message forwarding, which handles the case
+that an object has no handler for a particular method. This is akin to
+[[http://en.wikipedia.org/wiki/Smalltalk][Smalltalk's]] "doesNotUnderstand" concept.
 
-** Geometry calculations
-** Shape tracing
-** Line of sight
-** Lighting
-** Plasma 
-** Pathfinding with A*
+[[file:~/clon/clon.lisp::Message%20forwarding][file:~/clon/clon.lisp::Message forwarding]]
 
-* Widgets
+* RLX: A Reusable Common Lisp Roguelike Engine
 
-** Widget basics
-** Keymaps
-** Formatted text display
-** Command prompts
+** The "console" is a pretend home computer in 80's style
+*** Basic input and output functions
+**** LISPBUILDER-SDL
 
-* Cells: the atoms of the game world
+http://lispbuilder.sourceforge.net/lispbuilder-sdl.html
 
-** Overview
-** Categories
-** The Action Points System
-** Action Menus
-** Cell movement
-** Containers
-** Manipulating and picking up objects
-** Modeling player knowledge
-** Equipment
-** Combat
+**** Drawing to the screen (list of active widgets)
+**** Responding to key press events
 
-* Worlds composed of cells
+*** Resources and Modules
 
-** The grid
-** How the z-axis affects play
-** Environmental conditions
-** Lighting
-** Handling messages, movement, and cell interactions
-** Narrating events and providing messages to the player
-** Viewports
+**** From "driver-dependent objects" to string handles
+**** The PAK file format
 
-* An example game module
+[[file:~/rlx/console.lisp::PAK%20resource%20interchange%20files][file:~/rlx/console.lisp::PAK resource interchange files]]
+[[file:~/rlx/vm0/vm0.pak::0]]
+
+**** Load-on-demand
+
+[[file:~/rlx/console.lisp::defun%20index%20pak%20module%20name%20pak%20file][file:~/rlx/console.lisp::defun index pak module name pak file]]
+
+**** The different resource types and their loading handlers
+
+[[file:~/rlx/console.lisp::Driver%20dependent%20resource%20object%20loading%20handlers][file:~/rlx/console.lisp::Driver dependent resource object loading handlers]]
+
+**** Not just links to other files: the "data" field
+
+Not yet ported: the map editor
+
+[[file:~/images/RogueLike-5.png]]
+[[file:~/images/RogueLike-11.png]]
+file:~/images/RogueLike-10.png
+[[file:~/images/RogueLike-11.png]]
+[[file:~/images/RogueLike-8.png]]
+[[file:~/images/RogueLike-9.png]]
+
+**** Standard resources (colors, icons)
+
+[[elisp:(image-dired "~/rlx/standard")]]
+file:~/rlx/rgb.lisp
+
+**** Resource aliases and transformations
+
+[[file:~/rlx/console.lisp::Functions%20to%20load%20find%20and%20transform%20resources][file:~/rlx/console.lisp::Functions to load find and transform resources]]
+
+** Mathematics
+ 
+[[file:~/rlx/math.lisp::math%20lisp%20math%20and%20geometry%20routines][file:~/rlx/math.lisp::math lisp math and geometry routines]]
+
+*** Geometry calculations
+*** Shape tracing
+*** Line of sight
+
+[[file:~/rlx/math.lisp::defun%20trace%20line%20trace%20function%20x0%20y0%20x1%20y1][file:~/rlx/math.lisp::defun trace line trace function x0 y0 x1 y1]]
+
+*** Lighting
+
+[[file:~/images/RogueLike-4.png]]
+
+*** Plasma 
+
+[[file:~/images/RogueLike-10.png]]
+[[file:~/images/RogueLike-7.png]]
+
+*** Pathfinding with A*
+
+http://en.wikipedia.org/wiki/A-star_search_algorithm
+[[file:~/rlx/path.lisp::path%20lisp%20A%20pathfinding%20for%20RLX][file:~/rlx/path.lisp::path lisp A pathfinding for RLX]]
+
+** Widgets: interactive graphical elements with offscreen drawing
+
+*** Widget basics
+
+[[file:~/rlx/widgets.lisp::define%20prototype%20widget][file:~/rlx/widgets.lisp::define prototype widget]]
+
+*** Keymaps
+*** Formatted text display
+
+[[file:~/rlx/widgets.lisp::Formatted%20display%20widget][file:~/rlx/widgets.lisp::Formatted display widget]]
+
+*** Command prompts
+
+[[file:~/rlx/widgets.lisp::Command%20prompt%20widget][file:~/rlx/widgets.lisp::Command prompt widget]]
+
+** Cells: the atoms of the game world
+
+*** Overview
+
+[[file:~/rlx/cells.lisp::define%20prototype%20cell][file:~/rlx/cells.lisp::define prototype cell]]
+
+*** Statistics
+
+[[file:~/rlx/cells.lisp::Statistics]]
+
+*** Categories
+
+[[file:~/rlx/cells.lisp::Cell%20categories][file:~/rlx/cells.lisp::Cell categories]]
+
+*** Managing turns with the "Action Points System"
+
+[[file:~/rlx/cells.lisp::Action%20Points][file:~/rlx/cells.lisp::Action Points]]
+
+*** Cell movement
+
+[[file:~/rlx/cells.lisp::Cell%20movement][file:~/rlx/cells.lisp::Cell movement]]
+
+*** Containers
+
+[[file:~/rlx/cells.lisp::Containers]]
+
+*** Manipulating and picking up objects
+
+[[file:~/rlx/cells.lisp::Finding%20and%20manipulating%20objects][file:~/rlx/cells.lisp::Finding and manipulating objects]]
+
+*** Modeling player knowledge (not yet ported)
+*** Equipment
+
+[[file:~/rlx/cells.lisp::Equipment]]
+
+*** Simple combat
+
+[[file:~/rlx/cells.lisp::Combat]]
+
+*** Proxying (not yet ported)
+
+** Worlds composed of cells
+
+*** The center of the action: space, time, events
+
+[[file:~/rlx/worlds.lisp::define%20prototype%20world][file:~/rlx/worlds.lisp::define prototype world]]
+
+*** Space: the grid
+
+*** Time: action points and turns
+
+[[file:~/rlx/worlds.lisp::unless%20can%20act%20player%20phase%20number][file:~/rlx/worlds.lisp::unless can act player phase number]]
+[[file:~/rlx/worlds.lisp::loop%20while%20can%20act%20cell%20phase%20number%20do][file:~/rlx/worlds.lisp::loop while can act cell phase number do]]
+
+*** Events and narration
+
+[[file:~/rlx/worlds.lisp::Narration%20widget][file:~/rlx/worlds.lisp::Narration widget]]
+
+*** Environmental conditions
+
+[[file:~/rlx/worlds.lisp::define%20prototype%20environment][file:~/rlx/worlds.lisp::define prototype environment]]
+
+*** Lighting
+
+[[file:~/rlx/worlds.lisp::define%20method%20render%20lighting%20world%20cell][file:~/rlx/worlds.lisp::define method render lighting world cell]]
+
+*** Schemes for automatic world generation
+
+[[file:~/rlx/worlds.lisp::define%20method%20generate%20world%20optional%20parameters][file:~/rlx/worlds.lisp::define method generate world optional parameters]]
+
+*** Viewports
+
+[[file:~/rlx/worlds.lisp::Standard%20tile%20display%20viewport%20widget][file:~/rlx/worlds.lisp::Standard tile display viewport widget]]
+
+** Void Mission Zero: An example game module
+
+*** Particles and pistols
+
+[[file:~/rlx/vm0/vm0.lisp::Muon%20particles%20trails%20and%20pistols][file:~/rlx/vm0/vm0.lisp::Muon particles trails and pistols]]
+
+*** A health pick-up
+
+[[file:~/rlx/vm0/vm0.lisp::the%20med%20hypo][file:~/rlx/vm0/vm0.lisp::the med hypo]]
+
+*** A simple AI bot
+
+[[file:~/rlx/vm0/vm0.lisp::The%20Purple%20Perceptor][file:~/rlx/vm0/vm0.lisp::The Purple Perceptor]]
+
+*** Slightly more complex AI bot
+
+[[file:~/rlx/vm0/vm0.lisp::The%20Red%20Perceptor][file:~/rlx/vm0/vm0.lisp::The Red Perceptor]]
+
+*** Ion shield
+
+[[file:~/rlx/vm0/vm0.lisp::The%20ion%20shield][file:~/rlx/vm0/vm0.lisp::The ion shield]]
+
+*** Explosions and mines
+
+[[file:~/rlx/vm0/vm0.lisp::An%20explosion][file:~/rlx/vm0/vm0.lisp::An explosion]]
+
+*** The Player
+
+[[file:~/rlx/vm0/vm0.lisp::The%20player%20and%20his%20remains][file:~/rlx/vm0/vm0.lisp::The player and his remains]]
+
+* Future work
+** Now comes the hard part: game design!
+** Finish porting Emacs Lisp parts of engine
+** Finish rewriting cell-mode and the RLX resource/ymap editor
+** Mini-map radar view
+** Sound effects
+** Context-dependent music with .xm and .ogg files
+** More stuff! Weapons, enemies, stories
+** Redefining roguelike development 
+
