@@ -23,6 +23,8 @@ pak.el            GNU Emacs support for editing PAK files.
 console.lisp      Fundamental operations and SDL details.
 cells.lisp        Core roguelike game objects and rules.
 
+doc/ 		  Documentation files
+
 worlds.lisp       Active playable 2.5-D maps full of objects.
 browser.lisp      General purpose object interactor widget.
 math.lisp         Math support for geometry, terrain, lighting, etc. 
