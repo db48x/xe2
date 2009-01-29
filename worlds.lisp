@@ -234,7 +234,8 @@ in a roguelike until the user has pressed a key."
     (let ((player <player>)
 	  (phase-number <phase-number>))
       (with-message-queue <message-queue> 
-	[narrate-message <narrator> nil method-key player args]
+	(when <narrator>
+	  [narrate-message <narrator> nil method-key player args])
 	;; send the message to the player, possibly generating queued messages
 	(apply #'send self method-key player args)
 	;; process any messages that were generated
