@@ -1,4 +1,12 @@
 #+TITLE: A game developer's guide to the RLX roguelike engine
+#+AUTHOR: David O'Toole <dto@gnu.org>
+
+* About this file
+
+This developer's guide is written in [[http://orgmode.org/][Emacs Org-mode]] syntax, with
+active links to functions in relevant source files. When this file is
+opened in Emacs Org-mode, the links will be clickable (or can be
+opened with C-x C-o while point is on a link.)
 
 * Preface
 

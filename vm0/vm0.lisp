@@ -52,7 +52,7 @@
 
 (define-prototype tech-box (:parent rlx:=cell=)
   (tile :initform "tech-box")
-n  (categories :initform '(:obstacle :opaque :pushable :destructible))
+  (categories :initform '(:obstacle :opaque :pushable :destructible))
   (hit-points :initform (make-stat :base 10 :min 0)))
 
 (define-prototype tech-box-debris (:parent rlx:=cell=)
@@ -324,7 +324,7 @@ n  (categories :initform '(:obstacle :opaque :pushable :destructible))
 ;;; The Purple Perceptor
 
 ;; Move in a straight line until hitting an obstacle.
-;; Then choose a random direction and try again
+;; Then choose a random direction and try again.
 
 (define-prototype purple-perceptor (:parent rlx:=cell=)
   (categories :initform '(:actor :target :obstacle :opaque :enemy :equipper))
@@ -896,7 +896,7 @@ n  (categories :initform '(:obstacle :opaque :pushable :destructible))
   (let* ((prompt (clone rlx:=prompt=))
 	 (player-prompt (clone =vm0-prompt=))
 	 ;; TODO
-	 (world (clone =station-world=))
+	 (world (clone =storage-world=))
 	 (player (clone =player=))
 	 (status (clone =status=))
 	 (narrator (clone rlx:=narrator=))

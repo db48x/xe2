@@ -193,7 +193,8 @@ field named by STAT-NAME. The default is to change the :base value."
 ;; of one or more actions, each of which lasts a certain number of
 ;; action points' worth of time. During an action, the cell may modify
 ;; its own fields, invoke methods on itself, or send queued messages
-;; to other cells in the environment.
+;; to other cells in the environment. When a cell runs out of action
+;; points, its phase ends and another cell's phase begins.
 
 ;; "Action points" (or "AP") control an actor cell's ability to take
 ;; actions during a phase. The AP score for a cell's phase starts at

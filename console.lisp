@@ -105,7 +105,7 @@ and the like."
 ;; :timer, :system, :mouse, and so on.
 ;;
 ;; The default event handler attempts to deliver a keypress to one of
-;; the widgets in `*widgets*'. See widgets.lisp and the docstrings
+;; the widgets in `*active-widgets*'. See widgets.lisp and the docstrings
 ;; below for more information.
 
 (defun send-event-to-widgets (event)
@@ -228,7 +228,6 @@ window. Set this in the game startup file.")
 		     (dispatch-event (make-event key mod))
 		     (show-widgets)
 		     (sdl:update-display))))
-
 
 ;;; The .rlxrc user init file
 

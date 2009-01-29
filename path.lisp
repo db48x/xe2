@@ -44,12 +44,6 @@
   open ; equal to world's path-turn-number when on open list
   )
 
-(defun rlx-print-heap (heap heap-end)
-  (let ((output "HEAP: "))
-    (dotimes (i heap-end)
-      (setf output (concat output (format " %S" (rlx-node-F (aref heap (+ 1 i)))))))
-    output))
-
 ;; The following routines maintain the open and closed sets. We
 ;; use a minheap to store the open set.
 

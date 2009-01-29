@@ -304,7 +304,7 @@ Returns non-nil if tracing was successful, and nil if failed."
 		,@body))
        (trace-octagon #',tracer-sym ,center-row ,center-column ,radius ,thicken-p))))
 
-;;; Random midpoint displacement fractals
+;;; Random midpoint displacement fractals, a.k.a. plasma
 
 ;; The following routines create random midpoint displacement fractals
 ;; on a grid. This is useful for natural-looking world generation.
