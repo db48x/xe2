@@ -219,7 +219,8 @@ so on, until no more messages are generated."
 	     (unqueue-message)
 	   (let ((rec (or [resolve-receiver self receiver] 
 			  receiver)))
-	     [narrate-message <narrator> sender method-key rec args]
+	     (when <narrator>
+	       [narrate-message <narrator> sender method-key rec args])
 	     (apply #'send sender method-key rec args))))))
 
 ;; <: events :>
