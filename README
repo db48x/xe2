@@ -1,7 +1,7 @@
 This README is a quick overview of the project and the repository.
 
-Description: RLX is a next-generation roguelike game engine written in
-             Common Lisp.
+Description: RLX is a reusable cross-platform roguelike game engine
+             written in Common Lisp.
 
 Requirements: Common Lisp (SBCL recommended) http://www.sbcl.org
 	      LISPBUILDER-SDL http://lispbuilder.sourceforge.net/
@@ -9,7 +9,7 @@ Requirements: Common Lisp (SBCL recommended) http://www.sbcl.org
 	          for game development only:
 	          GNU Emacs http://www.gnu.org/software/emacs
 
-Status: Pre-alpha. 
+Status: Pre-alpha, about 85% ported to CL.
 
 Files overview: 
 
@@ -18,20 +18,21 @@ COPYING     GNU General Public License text.
 CREDITS     People I would like to thank.
 INSTALL     Installation instructions.
 
-pak.el      GNU Emacs support for editing PAK files.
+pak.el            GNU Emacs support for editing PAK files.
 
-console.lisp    Fundamental operations and SDL details.
-cells.lisp      Core roguelike game objects and rules.
-worlds.lisp     Active playable 2.5-D maps full of objects.
-browser.lisp    General purpose object interactor widget.
-math.lisp       Math support for geometry, terrain, lighting, etc. 
-rgb.lisp	Standard X11 color data. 
-rlx.asd         System definition. 
-rlx.lisp        Package definition. 
-standard/       Standard resources common to all RLX games. 
-vm0/            Example game module entitled "Void Mission Zero"
+console.lisp      Fundamental operations and SDL details.
+cells.lisp        Core roguelike game objects and rules.
+
+worlds.lisp       Active playable 2.5-D maps full of objects.
+browser.lisp      General purpose object interactor widget.
+math.lisp         Math support for geometry, terrain, lighting, etc. 
+path.lisp         A-star pathfinding support.
+rgb.lisp    	  Standard X11 color data. 
+rlx.asd           System definition. 
+rlx.lisp          Package definition. 
+standard/         Standard resources common to all RLX games. 
+vm0/              Example game module entitled "Void Mission Zero"
 vm0/MEDIA-COPYING Licensing information for the images and sounds for the game
 widgets.lisp    Common GUI code and basic widgets (prompt, formatter)
 
-rlx.org           Org-mode TODO list.   
-rlx.org_archive   Archived TODOs and notes.
+todo.org          Org-mode TODO list
