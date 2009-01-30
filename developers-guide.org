@@ -19,7 +19,9 @@ code files. When this file is opened in Emacs Org-mode, the links will
 be clickable (or can be opened with C-x C-o while point is on a link.)
 These links help us avoid duplicating documentation.
 
-** TODO Fix links so that relative filenames work
+The links are relative to the location of this file; for cross-file
+references to work, you should have CLON and RLX installed in the same
+directory, and open this file in Emacs.
 
 * Introducing RLX
 
@@ -69,7 +71,7 @@ important ways:
    functions; messages are conceptually different from synchronous
    function calls and may be freely queued, forwarded, and filtered.
  - Built-in support for serialization.
- - Simple and small: as of December 2008, =clon.lisp= contains about 750 lines
+ - Simple and small: as of December 2008, clon.lisp contains about 750 lines
    of code and commentary.
  - Special syntax support for message sending:
  
@@ -93,7 +95,7 @@ important ways:
 
 *** What is an object in CLON?
 
-[[file:~/clon/clon.lisp::defstruct%20object][file:~/clon/clon.lisp::defstruct object]]
+[[file:../clon/clon.lisp::defstruct%20object][file:../clon/clon.lisp::defstruct object]]
 
 **** Why property lists and not hash tables? 
 
@@ -106,7 +108,7 @@ First we must define a prototype and name its fields:
 : (define-prototype rectangle ()
 :   x y width height)
 
-[[file:~/clon/clon.lisp::defmacro%20define%20prototype%20name][file:~/clon/clon.lisp::defmacro define prototype name]]
+[[file:../clon/clon.lisp::defmacro%20define%20prototype%20name][file:../clon/clon.lisp::defmacro define prototype name]]
 
 We could also have provided initialization forms for the slots, and
 documentation strings:
@@ -152,17 +154,17 @@ The function CLON:CLONE is used to create new objects from these
 prototypes. Now we write an initializer, which is passed any creation
 arguments at the time of cloning:
 
-[[file:~/clon/clon.lisp::defun%20clone%20prototype%20rest%20initargs][file:~/clon/clon.lisp::defun clone prototype rest initargs]]
+[[file:../clon/clon.lisp::defun%20clone%20prototype%20rest%20initargs][file:../clon/clon.lisp::defun clone prototype rest initargs]]
 
 : (define-method initialize rectangle (&key width height)
 :   (setf <width> width)
 :   (setf <height> height))
 
 Notice how field accesses can be written with the angle brackets; this
-works both for reading and for writing, so long as you use =setf= for
+works both for reading and for writing, so long as you use "setf" for
 the latter. 
 
-[[file:~/clon/clon.lisp::defun%20transform%20tree%20tester%20transformer%20tree][file:~/clon/clon.lisp::defun transform tree tester transformer tree]]
+[[file:../clon/clon.lisp::defun%20transform%20tree%20tester%20transformer%20tree][file:../clon/clon.lisp::defun transform tree tester transformer tree]]
 
 Now when you say:
 
@@ -176,7 +178,7 @@ and a rectangle of the correct height and width is created.
 : (field-value :width rectangle)
 : (setf (field-value :height rectangle) 7)
 
-[[file:~/clon/clon.lisp::defun%20field%20value%20field%20object%20optional%20noerror][file:~/clon/clon.lisp::defun field value field object optional noerror]]
+[[file:../clon/clon.lisp::defun%20field%20value%20field%20object%20optional%20noerror][file:../clon/clon.lisp::defun field value field object optional noerror]]
 
 *** Methods
 
@@ -190,7 +192,7 @@ Now we define a few methods:
 : 	  <height> <width> 
 : 	  [area self]))
 
-[[file:~/clon/clon.lisp::defmacro%20define%20method][file:~/clon/clon.lisp::defmacro define method]]
+[[file:../clon/clon.lisp::defmacro%20define%20method][file:../clon/clon.lisp::defmacro define method]]
 
 And invoke them with the aforementioned square bracket notation.
 
@@ -203,7 +205,7 @@ The result:
 : "height: 8 width: 10 area: 80"
 
 The bracket syntax is done with a reader macro:
-[[file:~/clon/clon.lisp::defun%20message%20reader%20stream%20char][file:~/clon/clon.lisp::defun message reader stream char]]
+[[file:../clon/clon.lisp::defun%20message%20reader%20stream%20char][file:../clon/clon.lisp::defun message reader stream char]]
 
 *** Message queueing
 
@@ -218,7 +220,7 @@ The sender, receiver, method name, and arguments are all recorded in
 the queue. The developer can then filter or process them before
 sending.
 
-[[file:~/clon/clon.lisp::Message%20queueing][file:~/clon/clon.lisp::Message queueing]]
+[[file:../clon/clon.lisp::Message%20queueing][file:../clon/clon.lisp::Message queueing]]
 
 *** Message forwarding
 
@@ -226,7 +228,7 @@ And finally, I will mention message forwarding, which handles the case
 that an object has no handler for a particular method. This is akin to
 [[http://en.wikipedia.org/wiki/Smalltalk][Smalltalk's]] "doesNotUnderstand" concept.
 
-[[file:~/clon/clon.lisp::Message%20forwarding][file:~/clon/clon.lisp::Message forwarding]]
+[[file:../clon/clon.lisp::Message%20forwarding][file:../clon/clon.lisp::Message forwarding]]
 
 * RLX: A Reusable Common Lisp Roguelike Engine
 
@@ -244,16 +246,16 @@ http://lispbuilder.sourceforge.net/lispbuilder-sdl.html
 **** From "driver-dependent objects" to string handles
 **** The PAK file format
 
-[[file:~/rlx/console.lisp::PAK%20resource%20interchange%20files][file:~/rlx/console.lisp::PAK resource interchange files]]
-[[file:~/rlx/vm0/vm0.pak::0]]
+[[file:console.lisp::PAK%20resource%20interchange%20files][file:console.lisp::PAK resource interchange files]]
+[[file:vm0/vm0.pak::0]]
 
 **** Load-on-demand
 
-[[file:~/rlx/console.lisp::defun%20index%20pak%20module%20name%20pak%20file][file:~/rlx/console.lisp::defun index pak module name pak file]]
+[[file:console.lisp::defun%20index%20pak%20module%20name%20pak%20file][file:console.lisp::defun index pak module name pak file]]
 
 **** The different resource types and their loading handlers
 
-[[file:~/rlx/console.lisp::Driver%20dependent%20resource%20object%20loading%20handlers][file:~/rlx/console.lisp::Driver dependent resource object loading handlers]]
+[[file:console.lisp::Driver%20dependent%20resource%20object%20loading%20handlers][file:console.lisp::Driver dependent resource object loading handlers]]
 
 **** Not just links to other files: the "data" field
 
@@ -269,65 +271,65 @@ file:~/images/RogueLike-10.png
 **** Standard resources (colors, icons)
 
 [[elisp:(image-dired "~/rlx/standard")]]
-file:~/rlx/rgb.lisp
+file:rgb.lisp
 
 **** Resource aliases and transformations
 
-[[file:~/rlx/console.lisp::Functions%20to%20load%20find%20and%20transform%20resources][file:~/rlx/console.lisp::Functions to load find and transform resources]]
+[[file:console.lisp::Functions%20to%20load%20find%20and%20transform%20resources][file:console.lisp::Functions to load find and transform resources]]
 
 ** Widgets: interactive graphical elements with offscreen drawing
 
 *** Widget basics
 
-[[file:~/rlx/widgets.lisp::define%20prototype%20widget][file:~/rlx/widgets.lisp::define prototype widget]]
+[[file:widgets.lisp::define%20prototype%20widget][file:widgets.lisp::define prototype widget]]
 
 *** Keymaps
 *** Formatted text display
 
-[[file:~/rlx/widgets.lisp::Formatted%20display%20widget][file:~/rlx/widgets.lisp::Formatted display widget]]
+[[file:widgets.lisp::Formatted%20display%20widget][file:widgets.lisp::Formatted display widget]]
 
 *** Command prompts
 
-[[file:~/rlx/widgets.lisp::Command%20prompt%20widget][file:~/rlx/widgets.lisp::Command prompt widget]]
+[[file:widgets.lisp::Command%20prompt%20widget][file:widgets.lisp::Command prompt widget]]
 
 ** Cells: the atoms of the game world
 
 *** Overview
 
-[[file:~/rlx/cells.lisp::define%20prototype%20cell][file:~/rlx/cells.lisp::define prototype cell]]
+[[file:cells.lisp::define%20prototype%20cell][file:cells.lisp::define prototype cell]]
 
 *** Statistics
 
-[[file:~/rlx/cells.lisp::Statistics]]
+[[file:cells.lisp::Statistics]]
 
 *** Categories
 
-[[file:~/rlx/cells.lisp::Cell%20categories][file:~/rlx/cells.lisp::Cell categories]]
+[[file:cells.lisp::Cell%20categories][file:cells.lisp::Cell categories]]
 
 *** Managing turns with the "Action Points System"
 
-[[file:~/rlx/cells.lisp::Action%20Points][file:~/rlx/cells.lisp::Action Points]]
+[[file:cells.lisp::Action%20Points][file:cells.lisp::Action Points]]
 
 *** Cell movement
 
-[[file:~/rlx/cells.lisp::Cell%20movement][file:~/rlx/cells.lisp::Cell movement]]
+[[file:cells.lisp::Cell%20movement][file:cells.lisp::Cell movement]]
 
 *** Containers
 
-[[file:~/rlx/cells.lisp::Containers]]
+[[file:cells.lisp::Containers]]
 
 *** Manipulating and picking up objects
 
-[[file:~/rlx/cells.lisp::Finding%20and%20manipulating%20objects][file:~/rlx/cells.lisp::Finding and manipulating objects]]
+[[file:cells.lisp::Finding%20and%20manipulating%20objects][file:cells.lisp::Finding and manipulating objects]]
 
 *** Modeling player knowledge (not yet ported)
 *** Equipment
 
-[[file:~/rlx/cells.lisp::Equipment]]
+[[file:cells.lisp::Equipment]]
 
 *** Simple combat
 
-[[file:~/rlx/cells.lisp::Combat]]
+[[file:cells.lisp::Combat]]
 
 *** Proxying (not yet ported)
 
@@ -335,44 +337,44 @@ file:~/rlx/rgb.lisp
 
 *** The center of the action: space, time, events
 
-[[file:~/rlx/worlds.lisp::define%20prototype%20world][file:~/rlx/worlds.lisp::define prototype world]]
+[[file:worlds.lisp::define%20prototype%20world][file:worlds.lisp::define prototype world]]
 
 *** Space: the grid
 
 *** Time: action points and turns
 
-[[file:~/rlx/worlds.lisp::unless%20can%20act%20player%20phase%20number][file:~/rlx/worlds.lisp::unless can act player phase number]]
-[[file:~/rlx/worlds.lisp::loop%20while%20can%20act%20cell%20phase%20number%20do][file:~/rlx/worlds.lisp::loop while can act cell phase number do]]
+[[file:worlds.lisp::unless%20can%20act%20player%20phase%20number][file:worlds.lisp::unless can act player phase number]]
+[[file:worlds.lisp::loop%20while%20can%20act%20cell%20phase%20number%20do][file:worlds.lisp::loop while can act cell phase number do]]
 
 *** Events and narration
 
-[[file:~/rlx/worlds.lisp::Narration%20widget][file:~/rlx/worlds.lisp::Narration widget]]
+[[file:worlds.lisp::Narration%20widget][file:worlds.lisp::Narration widget]]
 
 *** Environmental conditions
 
-[[file:~/rlx/worlds.lisp::define%20prototype%20environment][file:~/rlx/worlds.lisp::define prototype environment]]
+[[file:worlds.lisp::define%20prototype%20environment][file:worlds.lisp::define prototype environment]]
 
 *** Lighting
 
-[[file:~/rlx/worlds.lisp::define%20method%20render%20lighting%20world%20cell][file:~/rlx/worlds.lisp::define method render lighting world cell]]
+[[file:worlds.lisp::define%20method%20render%20lighting%20world%20cell][file:worlds.lisp::define method render lighting world cell]]
 
 *** Schemes for automatic world generation
 
-[[file:~/rlx/worlds.lisp::define%20method%20generate%20world%20optional%20parameters][file:~/rlx/worlds.lisp::define method generate world optional parameters]]
+[[file:worlds.lisp::define%20method%20generate%20world%20optional%20parameters][file:worlds.lisp::define method generate world optional parameters]]
 
 *** Viewports
 
-[[file:~/rlx/worlds.lisp::Standard%20tile%20display%20viewport%20widget][file:~/rlx/worlds.lisp::Standard tile display viewport widget]]
+[[file:worlds.lisp::Standard%20tile%20display%20viewport%20widget][file:worlds.lisp::Standard tile display viewport widget]]
 
 ** Mathematics
  
-[[file:~/rlx/math.lisp::math%20lisp%20math%20and%20geometry%20routines][file:~/rlx/math.lisp::math lisp math and geometry routines]]
+[[file:math.lisp::math%20lisp%20math%20and%20geometry%20routines][file:math.lisp::math lisp math and geometry routines]]
 
 *** Geometry calculations
 *** Shape tracing
 *** Line of sight
 
-[[file:~/rlx/math.lisp::defun%20trace%20line%20trace%20function%20x0%20y0%20x1%20y1][file:~/rlx/math.lisp::defun trace line trace function x0 y0 x1 y1]]
+[[file:math.lisp::defun%20trace%20line%20trace%20function%20x0%20y0%20x1%20y1][file:math.lisp::defun trace line trace function x0 y0 x1 y1]]
 
 *** Lighting
 
@@ -386,37 +388,37 @@ file:~/rlx/rgb.lisp
 *** Pathfinding with A*
 
 http://en.wikipedia.org/wiki/A-star_search_algorithm
-[[file:~/rlx/path.lisp::path%20lisp%20A%20pathfinding%20for%20RLX][file:~/rlx/path.lisp::path lisp A pathfinding for RLX]]
+[[file:path.lisp::path%20lisp%20A%20pathfinding%20for%20RLX][file:path.lisp::path lisp A pathfinding for RLX]]
 
 ** Void Mission Zero: An example game module
 
 *** Particles and pistols
 
-[[file:~/rlx/vm0/vm0.lisp::Muon%20particles%20trails%20and%20pistols][file:~/rlx/vm0/vm0.lisp::Muon particles trails and pistols]]
+[[file:vm0/vm0.lisp::Muon%20particles%20trails%20and%20pistols][file:vm0/vm0.lisp::Muon particles trails and pistols]]
 
 *** A health pick-up
 
-[[file:~/rlx/vm0/vm0.lisp::the%20med%20hypo][file:~/rlx/vm0/vm0.lisp::the med hypo]]
+[[file:vm0/vm0.lisp::the%20med%20hypo][file:vm0/vm0.lisp::the med hypo]]
 
 *** A simple AI bot
 
-[[file:~/rlx/vm0/vm0.lisp::The%20Purple%20Perceptor][file:~/rlx/vm0/vm0.lisp::The Purple Perceptor]]
+[[file:vm0/vm0.lisp::The%20Purple%20Perceptor][file:vm0/vm0.lisp::The Purple Perceptor]]
 
 *** Slightly more complex AI bot
 
-[[file:~/rlx/vm0/vm0.lisp::The%20Red%20Perceptor][file:~/rlx/vm0/vm0.lisp::The Red Perceptor]]
+[[file:vm0/vm0.lisp::The%20Red%20Perceptor][file:vm0/vm0.lisp::The Red Perceptor]]
 
 *** Ion shield
 
-[[file:~/rlx/vm0/vm0.lisp::The%20ion%20shield][file:~/rlx/vm0/vm0.lisp::The ion shield]]
+[[file:vm0/vm0.lisp::The%20ion%20shield][file:vm0/vm0.lisp::The ion shield]]
 
 *** Explosions and mines
 
-[[file:~/rlx/vm0/vm0.lisp::An%20explosion][file:~/rlx/vm0/vm0.lisp::An explosion]]
+[[file:vm0/vm0.lisp::An%20explosion][file:vm0/vm0.lisp::An explosion]]
 
 *** The Player
 
-[[file:~/rlx/vm0/vm0.lisp::The%20player%20and%20his%20remains][file:~/rlx/vm0/vm0.lisp::The player and his remains]]
+[[file:vm0/vm0.lisp::The%20player%20and%20his%20remains][file:vm0/vm0.lisp::The player and his remains]]
 
 * Future work
 ** Now comes the hard part: game design!
