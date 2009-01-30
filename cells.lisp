@@ -81,6 +81,12 @@
   (max-items :documentation "Maximum number of items this container can hold.")
   (parent-container :documentation "Link to containing cell, if any."))
 
+;; Convenience macro for defining cells:
+
+(defmacro defcell (name &rest args)
+  `(define-prototype ,name (:parent =cell=)
+     ,@args))
+
 ;;; Statistics 
 
 ;; <: stats :>
