@@ -1,13 +1,6 @@
 #+TITLE: A game developer's guide to the RLX roguelike engine
 #+AUTHOR: David O'Toole <dto@gnu.org>
 
-* About this file
-
-This developer's guide is written in [[http://orgmode.org/][Emacs Org-mode]] syntax, with
-active links to functions in relevant source files. When this file is
-opened in Emacs Org-mode, the links will be clickable (or can be
-opened with C-x C-o while point is on a link.)
-
 * Preface
 
 This document explains the [[file:rlx.org][RLX roguelike engine's]] general design and
@@ -18,18 +11,28 @@ look into the docstrings and block comments in the [[http://github.com/dto/rlx][
 README file gives an overview of the repository; then read
 [[file:~/rlx/console.lisp][console.lisp]] and [[file:~/rlx/cells.lisp][cells.lisp]] if you wish to dig deeper.
 
+* How to use this file
+
+This developer's guide is written in [[http://orgmode.org/][Emacs Org-mode]] syntax, with
+active links to functions and documentation in relevant RLX source
+code files. When this file is opened in Emacs Org-mode, the links will
+be clickable (or can be opened with C-x C-o while point is on a link.)
+These links help us avoid duplicating documentation.
+
+** TODO Fix links so that relative filenames work
+
 * Introducing RLX
 
 RLX is a portable [[http://en.wikipedia.org/wiki/Free_software][free-software]] graphical [[http://en.wikipedia.org/wiki/Roguelike][roguelike]] engine written in
 [[http://en.wikipedia.org/wiki/Common_lisp][Common Lisp]]. The system provides a number of tools to build graphical
 roguelikes:
 
- - Graphical tile map display engine with transparent PNG overlays 
+ - Graphical tile map display engine with transparency
  - Turn-based action
  - In-game objects' properties and behaviors can be defined in Common Lisp
  - Basic combat AI support and pathfinding 
  - Line-of-sight and dynamic lighting
- - Point light sources on any object 
+ - Point light sources on any object
  - Heads-up-display (HUD)
  - Terrain/dungeon generation and pattern-based map synthesis
  - Integrated menu browser system
@@ -272,30 +275,6 @@ file:~/rlx/rgb.lisp
 
 [[file:~/rlx/console.lisp::Functions%20to%20load%20find%20and%20transform%20resources][file:~/rlx/console.lisp::Functions to load find and transform resources]]
 
-** Mathematics
- 
-[[file:~/rlx/math.lisp::math%20lisp%20math%20and%20geometry%20routines][file:~/rlx/math.lisp::math lisp math and geometry routines]]
-
-*** Geometry calculations
-*** Shape tracing
-*** Line of sight
-
-[[file:~/rlx/math.lisp::defun%20trace%20line%20trace%20function%20x0%20y0%20x1%20y1][file:~/rlx/math.lisp::defun trace line trace function x0 y0 x1 y1]]
-
-*** Lighting
-
-[[file:~/images/RogueLike-4.png]]
-
-*** Plasma 
-
-[[file:~/images/RogueLike-10.png]]
-[[file:~/images/RogueLike-7.png]]
-
-*** Pathfinding with A*
-
-http://en.wikipedia.org/wiki/A-star_search_algorithm
-[[file:~/rlx/path.lisp::path%20lisp%20A%20pathfinding%20for%20RLX][file:~/rlx/path.lisp::path lisp A pathfinding for RLX]]
-
 ** Widgets: interactive graphical elements with offscreen drawing
 
 *** Widget basics
@@ -384,6 +363,30 @@ http://en.wikipedia.org/wiki/A-star_search_algorithm
 *** Viewports
 
 [[file:~/rlx/worlds.lisp::Standard%20tile%20display%20viewport%20widget][file:~/rlx/worlds.lisp::Standard tile display viewport widget]]
+
+** Mathematics
+ 
+[[file:~/rlx/math.lisp::math%20lisp%20math%20and%20geometry%20routines][file:~/rlx/math.lisp::math lisp math and geometry routines]]
+
+*** Geometry calculations
+*** Shape tracing
+*** Line of sight
+
+[[file:~/rlx/math.lisp::defun%20trace%20line%20trace%20function%20x0%20y0%20x1%20y1][file:~/rlx/math.lisp::defun trace line trace function x0 y0 x1 y1]]
+
+*** Lighting
+
+[[file:~/images/RogueLike-4.png]]
+
+*** Plasma 
+
+[[file:~/images/RogueLike-10.png]]
+[[file:~/images/RogueLike-7.png]]
+
+*** Pathfinding with A*
+
+http://en.wikipedia.org/wiki/A-star_search_algorithm
+[[file:~/rlx/path.lisp::path%20lisp%20A%20pathfinding%20for%20RLX][file:~/rlx/path.lisp::path lisp A pathfinding for RLX]]
 
 ** Void Mission Zero: An example game module
 
