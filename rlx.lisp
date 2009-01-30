@@ -75,7 +75,7 @@
   compose-blank-fields font-width font-height *browser* browser
   set-browser transform-field-reference *screen-height* =inventory=
   formatted-string-height formatted-string-width get-color
-  create-image draw-image play define-prototype has-field
+  create-image draw-image play define-prototype has-field defcell
   *choose-direction-menu* set-field-options field-option-value
   index-resource find-module-path index-module load-image-resource
   load-lisp-resource *resource-handlers* load-resource find-resource
