@@ -1,0 +1,12 @@
+(
+ (:name "biclops" :type :image :file "biclops.png")
+ (:name "black" :type :image :file "black.png")
+ (:name "electron" :type :image :file "electron.png")
+ (:name "energy" :type :image :file "energy.png")
+ (:name "gun" :type :image :file "gun.png")
+ (:name "humanoid" :type :image :file "humanoid.png")
+ (:name "oxygen-tank" :type :image :file "oxygen-tank.png")
+ (:name "player" :type :image :file "player.png")
+ (:name "skull" :type :image :file "skull.png")
+ (:name "wall" :type :image :file "wall.png")
+)

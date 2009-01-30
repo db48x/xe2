@@ -1,27 +1,30 @@
 #+TITLE: A game developer's guide to the RLX roguelike engine
 #+AUTHOR: David O'Toole <dto@gnu.org>
 
-* Preface
-
-This document explains the [[file:rlx.org][RLX roguelike engine's]] general design and
-programming interface from the game developer's perspective, and is
-meant to assist in writing RLX game modules. It is not an exhaustive
-API reference, and those looking for more detailed information should
-look into the docstrings and block comments in the [[http://github.com/dto/rlx][RLX repository.]] The
-README file gives an overview of the repository; then read
-[[file:~/rlx/console.lisp][console.lisp]] and [[file:~/rlx/cells.lisp][cells.lisp]] if you wish to dig deeper.
-
 * How to use this file
 
 This developer's guide is written in [[http://orgmode.org/][Emacs Org-mode]] syntax, with
 active links to functions and documentation in relevant RLX source
 code files. When this file is opened in Emacs Org-mode, the links will
 be clickable (or can be opened with C-x C-o while point is on a link.)
-These links help us avoid duplicating documentation.
 
-The links are relative to the location of this file; for cross-file
-references to work, you should have CLON and RLX installed in the same
-directory, and open this file in Emacs.
+These links help us avoid duplicating documentation from the codebase;
+some sections of this Guide explain an area of functionality at length
+before diving into implementation code; other sections consist of just
+a link to the relevant documentation.
+
+The final part of the developer's guide links to an example game
+module, "Invader", which demonstrates all the basics.
+
+NOTE: The links are relative to the location of this file; for
+cross-file references to work, you should have CLON and RLX installed
+in the same directory, and open this file in Emacs.
+
+* Preface
+
+This document explains the [[file:rlx.org][RLX roguelike engine's]] general design and
+programming interface from the game developer's perspective, and is
+meant to assist in writing RLX game modules. 
 
 * Introducing RLX
 
