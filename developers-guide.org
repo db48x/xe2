@@ -20,6 +20,10 @@ NOTE: The links are relative to the location of this file; for
 cross-file references to work, you should have CLON and RLX installed
 in the same directory, and open this file in Emacs.
 
+* Note
+
+This document is unfinished.
+
 * Preface
 
 This document explains the [[file:rlx.org][RLX roguelike engine's]] general design and
