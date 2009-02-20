@@ -183,9 +183,14 @@ key event symbols."
   (normalize-event
    (cons (make-key-string sdl-key)
 	 (mapcar #'make-key-modifier-symbol
-		 (if (keywordp sdl-mods)
-		     (list sdl-mods)
-		     sdl-mods)))))
+		 (cond ((keywordp sdl-mods)
+			(list sdl-mods))
+		       ((listp sdl-mods)
+			sdl-mods)
+		       ;; catch apparent lispbuilder-sdl bug?
+		       ((eql 0 sdl-mods)
+			nil))))))
+
 
 ;;; The active world
 
