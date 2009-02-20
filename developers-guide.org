@@ -8,17 +8,17 @@ active links to functions and documentation in relevant RLX source
 code files. When this file is opened in Emacs Org-mode, the links will
 be clickable (or can be opened with C-x C-o while point is on a link.)
 
-These links help us avoid duplicating documentation from the codebase;
+These links help us avoid duplicating documentation from the codebase:
 some sections of this Guide explain an area of functionality at length
-before diving into implementation code; other sections consist of just
-a link to the relevant documentation.
+before diving into implementation code, while other sections consist
+of just a link to the relevant Lisp code and documentation.
 
 The final part of the developer's guide links to an example game
 module, "Invader", which demonstrates all the basics.
 
-NOTE: The links are relative to the location of this file; for
-cross-file references to work, you should have CLON and RLX installed
-in the same directory, and open this file in Emacs.
+NOTE: The links below are specified as relative to the location of the
+present file; for cross-file references to work, you should have CLON
+and RLX installed in the same directory, and open this file in Emacs.
 
 * Note
 
@@ -67,6 +67,8 @@ in-game objects:
 * CLON: Common Lisp Object Network
 
 ** Overview
+
+** TODO clon.el
 
 CLON stands for Common Lisp Object Network. CLON is a prototype-based
 object system for Common Lisp. It is different from CLOS in several

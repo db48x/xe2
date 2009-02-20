@@ -16,7 +16,6 @@
   :serial t
   :depends-on (:trivial-features :trivial-features-tests :lispbuilder-sdl :lispbuilder-sdl-image :clon)
   :components ((:file "rlx")
-	       (:file "pool")
 	       (:file "math")
 	       (:file "rgb")
 	       (:file "console")

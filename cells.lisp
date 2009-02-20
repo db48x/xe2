@@ -83,7 +83,7 @@
 
 ;; Convenience macro for defining cells:
 
-(defmacro defcell (name &rest args)
+(defmacro defcell (name &body args)
   `(define-prototype ,name (:parent =cell=)
      ,@args))
 
