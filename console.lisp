@@ -1,4 +1,4 @@
-;;; console.lisp --- basic operations
+;;; console.lisp --- basic operations for RLX
 
 ;; Copyright (C) 2006, 2007, 2008  David O'Toole
 
@@ -180,6 +180,7 @@ key event symbols."
 
 (defun make-event (sdl-key sdl-mods)
   "Create a normalized event out of the SDL data SDL-KEY and SDL-MODS."
+  (message "~A" (list sdl-key sdl-mods))
   (normalize-event
    (cons (make-key-string sdl-key)
 	 (mapcar #'make-key-modifier-symbol
