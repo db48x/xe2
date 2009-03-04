@@ -373,7 +373,7 @@
   (tile :initform "ion-shield-wall")
   (categories :initform '(:obstacle :actor :target))
   (hit-points :initform (make-stat :base 7 :min 0))
-  (clock :initform (+ 4 (random 1))))
+  (clock :initform (+ 5 (random 2))))
 
 (define-method die ion-shield-wall ()
   [queue>>drop-cell *active-world* (clone =flash=) <row> <column>]
@@ -896,7 +896,7 @@
   (let* ((prompt (clone rlx:=prompt=))
 	 (player-prompt (clone =vm0-prompt=))
 	 ;; TODO
-	 (world (clone =storage-world=))
+	 (world (clone =station-world=))
 	 (player (clone =player=))
 	 (status (clone =status=))
 	 (narrator (clone rlx:=narrator=))

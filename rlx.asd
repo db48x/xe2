@@ -22,4 +22,6 @@
 	       (:file "cells")
 	       (:file "widgets")
 	       (:file "browser")
-	       (:file "worlds")))
+	       (:file "worlds")
+	       (:file "narration")))
+	       

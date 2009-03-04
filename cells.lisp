@@ -561,6 +561,7 @@ slot."
   (if [in-category self :dead]
       (message "Warning: called die on dead cell!")
       (progn
+	(setf <action-points> 0)
 	[add-category self :dead]
 	[queue>>delete-from-world self])))
 

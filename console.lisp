@@ -192,7 +192,6 @@ key event symbols."
 		       ((eql 0 sdl-mods)
 			nil))))))
 
-
 ;;; The active world
 
 ;; <: worlds :>
