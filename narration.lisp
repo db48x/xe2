@@ -48,10 +48,10 @@
 (defvar *message-verbosities* *default-message-verbosities*
   "Property list mapping message keywords to the integers from 1-3.
 A message outputs if its verbosity level is less than or equal to the
-narration window's verbosity level. Level 1 is normal gameplay
-output, while levels 2 and 3 offer increading debug
-information. Values of nil and t mean to never (and always,
-respectively) output, regardless of verbosity level.")
+narration window's verbosity level. Level 1 is normal gameplay output,
+while levels 2 and 3 offer increading debug information. Values of nil
+and t mean to never (and always, respectively) output, regardless of
+verbosity level.")
 
 (defun set-message-verbosities (plist &optional (include-default t))
   (setf *message-verbosities* (append plist 

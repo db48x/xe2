@@ -210,7 +210,8 @@
   (let* ((prompt (clone =invader-prompt=))
 	 (world (clone =factory-world=))
 	 (player (clone =player=))
-	 (viewport (clone =viewport=)))
+	 (viewport (clone =viewport=))
+	 (narrator (clone =narrator=)))
     (setf *active-world* world)
     ;;
     [resize prompt :height 20 :width 100]
@@ -225,21 +226,20 @@
     [drop-cell world player 1 1]
     ;;
     [set-world viewport world]
-    [resize viewport :height 600 :width 800]
+    [resize viewport :height 500 :width 800]
     [move viewport :x 0 :y 0]
-    [set-origin viewport :x 0 :y 0 :height 35 :width 50]
+    [set-origin viewport :x 0 :y 0 :height 30 :width 50]
     [adjust viewport]
+    ;;
+    [resize narrator :height 100 :width 800]
+    [move narrator :x 0 :y 500]
+    [set-narrator world narrator]
     ;;
     [start world]
     ;;
-    (install-widgets (list prompt viewport))))
+    (install-widgets (list prompt viewport narrator))))
 
 (invader)
-
-    
-    
-
-
 
 
 ;;; invader.lisp ends here
