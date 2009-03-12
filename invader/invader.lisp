@@ -227,7 +227,7 @@
     [set-world viewport world]
     [resize viewport :height 600 :width 800]
     [move viewport :x 0 :y 0]
-    [set-origin viewport :x 0 :y 0 :height 20 :width 25]
+    [set-origin viewport :x 0 :y 0 :height 35 :width 50]
     [adjust viewport]
     ;;
     [start world]

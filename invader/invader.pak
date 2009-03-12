@@ -9,4 +9,5 @@
  (:name "player" :type :image :file "player.png")
  (:name "skull" :type :image :file "skull.png")
  (:name "wall" :type :image :file "wall.png")
+ (:name ".startup" :type :lisp :file "invader.lisp")
 )

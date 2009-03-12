@@ -568,7 +568,8 @@
 ;;; The player and his remains
 
 (define-prototype skull (:parent rlx:=cell=)
-  (tile :initform "skull"))
+  (tile :initform "skull")
+  (action-points :initform 0))
 
 (define-method forward skull (&rest args)
   (declare (ignore args))
@@ -896,7 +897,7 @@
   (let* ((prompt (clone rlx:=prompt=))
 	 (player-prompt (clone =vm0-prompt=))
 	 ;; TODO
-	 (world (clone =station-world=))
+	 (world (clone =storage-world=))
 	 (player (clone =player=))
 	 (status (clone =status=))
 	 (narrator (clone rlx:=narrator=))

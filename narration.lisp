@@ -26,8 +26,15 @@
 
 (defvar *default-message-verbosities*
   '(:move 3
-    :move-cell 5
-    :step 2
+    :move-cell 3
+    :fire 2
+    :drop 3
+    :drop-cell 3
+    :impel 3
+    :step 3
+    :die 2
+    :delete-from-world 3
+    :damage 2
     :expend-action-points 3
     :expend-default-action-points 3
     :stat-effect 2
@@ -37,23 +44,29 @@
     :print-object-tag nil
     :newline nil
     :print-separator nil))
-    
-(defvar *message-verbosities* *default-message-verbosities*)
+
+(defvar *message-verbosities* *default-message-verbosities*
+  "Property list mapping message keywords to the integers from 1-3.
+A message outputs if its verbosity level is less than or equal to the
+narration window's verbosity level. Level 1 is normal gameplay
+output, while levels 2 and 3 offer increading debug
+information. Values of nil and t mean to never (and always,
+respectively) output, regardless of verbosity level.")
 
 (defun set-message-verbosities (plist &optional (include-default t))
   (setf *message-verbosities* (append plist 
-				      (if include-default 
-					  *default-message-verbosities*
-					  nil))))
+				      (when include-default 
+					*default-message-verbosities*))))
+
+(defun add-message-verbosities (plist)
+  (setf *message-verbosities*
+	(append plist *message-verbosities*)))
+
+;;; The narration widget
 
 (define-prototype narrator (:parent =formatter=)
   (verbosity :initform 1 
 	     :documentation "Integer between 1 and 3 (inclusive).")
-  (excluded-actions :documentation 
-"List of action keywords to be excluded from narration.
-Usually it should contain at least :move."
-		    :initform (list :step :move-cell :expend-action-points :expend-default-action-points
-				    :move :narrate :narrateln :print-object-tag :newline :print-separator))
   (passive-voice-actions :documentation
 "List of action words to use passive voice in narrating.
 http://en.wikipedia.org/wiki/Passive_voice"
@@ -102,7 +115,9 @@ http://en.wikipedia.org/wiki/Passive_voice"
       [print self (symbol-name action)
 	     :foreground ".white" :background ".gray30"]
       [print-separator self]
-      [print-object-tag self B]
+      (if (eq A B)
+	  [print self "SELF" :foreground ".white" :background ".blue"]
+	  [print-object-tag self B])
       [print-separator self]
       ;; print args
       (dolist (arg args)
