@@ -122,20 +122,21 @@ instead of computing the value."
 					   &optional (component :base) (clamping t))
   "Add VAL, which may be negative, to the COMPONENT part of the stat
 field named by STAT-NAME. The default is to change the :base value."
-  (let* ((stat (field-value stat-name self))
-	 (x (getf stat component)))
-    (destructuring-bind (&key base min max &allow-other-keys) stat
-      (incf x val)
-      ;; ensure base stays within bounds.
-      (when (and clamping (eq :base component))
-	(when (numberp min)
-	  (setf x (max min x)))
-	(when (numberp max)
-	  (setf x (min max x))))
-      ;; update the stat
-      (setf (getf stat component) x)
-      (setf (field-value stat-name self) stat))))
-
+  (when (has-field stat-name self)
+    (let* ((stat (field-value stat-name self))
+	   (x (getf stat component)))
+      (destructuring-bind (&key base min max &allow-other-keys) stat
+	(incf x val)
+	;; ensure base stays within bounds.
+	(when (and clamping (eq :base component))
+	  (when (numberp min)
+	    (setf x (max min x)))
+	  (when (numberp max)
+	    (setf x (min max x))))
+	;; update the stat
+	(setf (getf stat component) x)
+	(setf (field-value stat-name self) stat)))))
+  
 (defun make-stat (&key base min max delta)
   (assert (numberp base))
   (list :base base :min min :max max :delta delta))
