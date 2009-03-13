@@ -53,7 +53,7 @@
   (categories :initform '(:obstacle)))
 
 (defcell corridor
-  (tile :initform "black"))
+  (tile :initform "corridor"))
 
 ;;; Moving in a corridor uses up oxygen.
 
