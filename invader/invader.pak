@@ -1,4 +1,6 @@
 (
+ (:name "med-hypo" :type :image :file "medhypo.png")
+ (:name "shock-probe" :type :image :file "shock-probe.png")
  (:name "biclops" :type :image :file "biclops.png")
  (:name "black" :type :image :file "black.png")
  (:name "electron" :type :image :file "electron.png")

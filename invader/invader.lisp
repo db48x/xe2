@@ -18,7 +18,7 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;;; Commentary:
+;;; Commentary
 
 ;; Invader is a mini roguelike intended as an example game module for
 ;; RLX, which will (hopefully) also be fun to play. 
@@ -27,16 +27,17 @@
 
 ;;   - Oldschool Atari 5200-style graphics.
 ;;   - Infiltrate an airless enemy installation and destroy all the robots.
+;;   - Wreak total destruction on fully destructible environments
 ;;   - Level gen params: color scheme, size, complexity, enemy/object density...
 ;;   - Melee combat with wrench.
-;;   - Ranged combat with energy-using particle gun.
+;;   - Ranged combat with energy-using particle gun. Limited ammo.
 ;;   - Some enemies have particle shields and require melee hits to kill.
 ;;   - Rooks require ranged hits, their armor is too strong for wrenches.
 ;;   - Oxygen is constantly depleting, refills are required.
 ;;   - Minimal inventory management, one slot, all pickups are "activate-on-step"
 ;;   - You can't win; it just gets harder until you die, and your score is tallied. 
 
-;;; Code:
+;;; Packaging
 
 (defpackage :invader
   (:documentation "A sci-fi roguelike for Common Lisp.")
@@ -89,6 +90,75 @@
   ;; default is do not generate step events; this turns it on
   (stepping :initform t))
 
+;;; Medical healing hypo
+
+(defcell med-hypo 
+  (categories :initform '(:item))
+  (tile :initform "med-hypo"))
+
+(define-method step med-hypo (stepper)
+  [queue>>stat-effect stepper :hit-points 12]
+  [queue>>die self])
+
+;;; A melee weapon for enemy robots: the Shock Probe
+
+(defcell shock-probe 
+  (name :initform "Shock probe")
+  (categories :initform '(:item :weapon :equipment :builtin))
+  (tile :initform "shock-probe")
+  (attack-power :initform (make-stat :base 10))
+  (attack-cost :initform (make-stat :base 6))
+  (accuracy :initform (make-stat :base 90))
+  (weight :initform 3000)
+  (equip-for :initform '(:robotic-arm)))
+
+;;; The Berserker is a relatively simple AI enemy.
+
+;; Run in a straight line until hitting an obstacle.
+;; Then choose a random direction and try again.
+;; If the player gets close, try and attack him.
+
+(defcell berserker 
+  (categories :initform '(:actor :target :obstacle :opaque :enemy :equipper))
+  (equipment-slots :initform '(:robotic-arm))
+  (speed :initform (make-stat :base 7 :min 7))
+  (max-items :initform (make-stat :base 3))
+  (movement-cost :initform (make-stat :base 3))
+  (tile :initform "humanoid")
+  (stepping :initform t)
+  (attacking-with :initform :robotic-arm)
+  (max-weight :initform (make-stat :base 25))
+  (direction :initform (rlx:random-direction))
+  (strength :initform (make-stat :base 12 :min 0 :max 30))
+  (dexterity :initform (make-stat :base 9 :min 0 :max 30))
+  (intelligence :initform (make-stat :base 11 :min 0 :max 30))
+  (hit-points :initform (make-stat :base 12 :min 0 :max 10)))
+
+(define-method initialize berserker ()
+  [make-inventory self]
+  [make-equipment self])
+
+(define-method run berserker ()
+  (clon:with-field-values (row column) self
+    (let ((world *active-world*))
+      (if (< [distance-to-player world row column] 5)
+	  (let ((player-dir [direction-to-player world row column]))
+	    (if [adjacent-to-player world row column]
+		[>>attack self player-dir]
+		[>>move self player-dir]))
+	  (progn (when [obstacle-in-direction-p world row column <direction>]
+		   (setf <direction> (rlx:random-direction)))
+		 [>>move self <direction>])))))
+
+(define-method die berserker ()
+  (when (> 6 (random 10))
+    [drop self (clone =energy=)])
+  [parent>>die self])
+
+(define-method loadout berserker ()
+  (let ((probe (clone =shock-probe=)))
+    [equip self [add-item self probe]]))
+
 ;;; The sinister robot factory is defined here. 
 
 (define-prototype factory-world (:parent rlx:=world=)
@@ -119,7 +189,13 @@
 				  (* pallet-size j))
 			       (random pallet-size)
 			       (random pallet-size)
-			       :fill))))))))
+			       :fill))))))
+    ;; drop enemies
+    (dotimes (i 10)
+      (let ((row (random 50))
+	    (column (random 50)))
+	(when (not [obstacle-at-p self row column])
+	  [drop-cell self (clone =berserker=) row column :loadout])))))
 
 ;;; Controlling the game.
 
@@ -202,7 +278,7 @@
     (dolist (k keys)
       (apply #'bind-key-to-prompt-insertion self k))))
 
-;;; Main program
+;;; Main program.
 
 (defun invader ()
   (setf rlx:*screen-height* 600)
