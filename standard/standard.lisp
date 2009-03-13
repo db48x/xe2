@@ -86,7 +86,7 @@
     [set-collection browser 
 		    (apply #'vector quit
 			   (mapcar #'(lambda (m)
-				       (clone =module-launcher= m))
+				       (clone =module-launcher= m)))
 				   modules))]
     ;; set up prompt
     [resize prompt :height 30 :width 400]

@@ -77,8 +77,8 @@
 
 (define-method step energy (stepper)
   (when (has-field :energy stepper)
-    [queue>>stat-effect stepper :energy 100]
-    [queue>>die self]))
+    [>>stat-effect stepper :energy 100]
+    [>>die self]))
 
 ;;; The player is depicted as a red diamond.
 
@@ -101,15 +101,15 @@
   ;; default is do not generate step events; this turns it on
   (stepping :initform t))
 
-;;; Medical healing hypo
+;;; The medical healing hypo restores hit points.
 
 (defcell med-hypo 
   (categories :initform '(:item))
   (tile :initform "med-hypo"))
 
 (define-method step med-hypo (stepper)
-  [queue>>stat-effect stepper :hit-points 12]
-  [queue>>die self])
+  [>>stat-effect stepper :hit-points 12]
+  [>>die self])
 
 ;;; A melee weapon for enemy robots: the Shock Probe
 
@@ -122,6 +122,41 @@
   (accuracy :initform (make-stat :base 90))
   (weight :initform 3000)
   (equip-for :initform '(:robotic-arm :left-hand :right-hand)))
+
+;;; The rusty wrench; basic melee weapon
+
+(define-prototype rusty-wrench (:parent rlx:=cell=)
+  (name :initform "Rusty wrench")
+  (categories :initform '(:item :weapon :equipment))
+  (tile :initform "rusty-wrench")
+  (attack-power :initform (make-stat :base 4)) ;; points of raw damage
+  (attack-cost :initform (make-stat :base 5))
+  (accuracy :initform (make-stat :base 60)) ;; percent
+  (weight :initform 10000) ;; grams
+  (equip-for :initform '(:left-hand :right-hand)))
+
+;;; An explosion
+
+(define-prototype explosion (:parent rlx:=cell=)
+  (name :initform "Explosion")
+  (categories :initform '(:actor))
+  (tile :initform "explosion")
+  (speed :initform (make-stat :base 10))
+  (damage-per-turn :initform 7)
+  (clock :initform 2))
+
+(define-method run explosion ()
+  (if (zerop <clock>)
+      [die self]
+      (progn
+	(decf <clock>)
+	[expend-action-points self 10]
+	(let* ((cells [cells-at *active-world* <row> <column>])
+	       (x (1- (fill-pointer cells))))
+	  (loop while (not (minusp x))
+	       do (progn 
+		    [>>damage (aref cells x) <damage-per-turn>]
+		    (decf x)))))))
 
 ;;; The Berserker is a relatively simple AI enemy.
 
@@ -170,11 +205,102 @@
   (let ((probe (clone =shock-probe=)))
     [equip self [add-item self probe]]))
 
+;;; The Biclops enemy is more dangerous.  
+
+(define-prototype biclops (:parent rlx:=cell=)
+  (strength :initform (make-stat :base 16 :min 0 :max 30))
+  (dexterity :initform (make-stat :base 11 :min 0 :max 30))
+  (intelligence :initform (make-stat :base 13 :min 0 :max 30))
+  (categories :initform '(:actor :target :obstacle :opaque :enemy :equipper))
+  (equipment-slots :initform '(:robotic-arm))
+  (max-items :initform (make-stat :base 3))
+  (stepping :initform t)
+  (speed :initform (make-stat :base 5))
+  (movement-cost :initform (make-stat :base 5))
+  (attacking-with :initform :robotic-arm)
+  (max-weight :initform (make-stat :base 25))
+  (hit-points :initform (make-stat :base 7 :min 0 :max 10))
+  (tile :initform "biclops"))
+
+(define-method initialize biclops ()
+  [make-inventory self]
+  [make-equipment self])
+
+(define-method loadout biclops ()
+  (let ((probe (clone =shock-probe=)))
+    [equip self [add-item self probe]]))
+
+(define-method run biclops ()
+  (clon:with-field-values (row column) self
+    (let* ((world *active-world*)
+	   (direction [direction-to-player *active-world* row column]))
+      (if [adjacent-to-player world row column]
+	  [>>attack self direction]
+	  (if [obstacle-in-direction-p world row column direction]
+	      (let ((target [target-in-direction-p world row column direction]))
+		(if (and target (not [in-category target :enemy]))
+		    [>>attack self direction]
+		    (progn (setf <direction> (random-direction))
+			   [>>move self direction])))
+	      (progn (when (< 7 (random 10))
+		       (setf <direction> (random-direction)))
+		     [>>move self direction]))))))
+
+(define-method die biclops ()
+  (when (> 4 (random 10))
+    (if (> 5 (random 10))
+	[drop self (clone =energy=)]
+	[drop self (clone =med-hypo=)]))
+  (if (> 5 (random 10))
+      [drop self (clone =explosion=)])
+  [parent>>die self])
+ 
+;;; Glittering flash gives clues on locations of explosions/damage
+
+(define-prototype flash (:parent rlx:=cell=)
+  (clock :initform 2)
+  (tile :initform "flash-1")
+  (categories :initform '(:actor))
+  (speed :initform (make-stat :base 10)))
+
+(define-method run flash ()
+  [expend-action-points self 10]
+  (case <clock>
+    (1 (setf <tile> "flash-2"))
+    (0 [>>die self]))
+  (decf <clock>))
+
+;;; The exploding mine
+
+(define-prototype mine (:parent rlx:=cell=)
+  (name :initform "Vanguara XR-1 Contact mine")
+  (categories :initform '(:item :target))
+  (tile :initform "mine"))
+
+(define-method run mine ()
+  nil)
+
+(define-method explode mine ()
+  (dolist (dir (list :here :north :south :east :west))
+    (multiple-value-bind (r c)
+      (step-in-direction <row> <column> dir)
+      (when [in-bounds-p *active-world* r c]
+  	[drop-cell *active-world* (clone =explosion=) r c])))
+  [die self])
+
+(define-method step mine (stepper)
+  (declare (ignore stepper))
+  [explode self])
+
+(define-method damage mine (damage-points)
+  (declare (ignore damage-points))
+  [explode self])
+
 ;;; The sinister robot factory is defined here. 
 
 (define-prototype factory-world (:parent rlx:=world=)
-  (width :initform 60)
-  (height :initform 60)
+  (width :initform 120)
+  (height :initform 120)
   (pallet-size :initform 9))
 
 (define-method generate factory-world (&optional parameters)
@@ -187,8 +313,10 @@
     ;; create walls
     (labels ((drop-wall (x y)
 	       (prog1 nil
-		 [drop-cell self (clone =wall=) y x 
-			    :loadout nil :no-collisions nil])))
+		 [drop-cell self (clone =wall=) y x]))
+	     (drop-box (x y)
+	       (prog1 nil 
+		 [drop-cell self (clone =tech-box=) y x])))
       ;; create border around world
       (trace-rectangle #'drop-wall
 		       0 0 height width)
@@ -204,7 +332,11 @@
 				(* pallet-size j))
 			     (random pallet-size)
 			     (random pallet-size)
-			     :fill)))))
+			     :fill))))
+      ;; drop columns
+      (dotimes (i 13)
+	(trace-octagon #'drop-wall (random height) (random width)
+		       (+ 3 (random 8)) :thicken)))
     ;; drop enemies
     (dotimes (i 10)
       (let ((row (random 50))
@@ -214,8 +346,15 @@
     ;; drop other stuff
     (dotimes (n 4)
       [drop-cell self (clone =med-hypo=) (random height) (random height)])
-    (dotimes (i 12)
-      [drop-cell self (clone =oxygen-tank=) (random height) (random width)])))
+    (dotimes (i 7)
+      [drop-cell self (clone =oxygen-tank=) (random height) (random width)])
+    (dotimes (i 7)
+      [drop-cell self (clone =energy=) (random height) (random width)])
+    (dotimes (i 5) 
+      [drop-cell self (clone =biclops=) (random height) (random width)])
+    (dotimes (i 28) 
+      [drop-cell self (clone =mine=) (random height) (random width)])))
+      
 
 ;;; Controlling the game.
 
