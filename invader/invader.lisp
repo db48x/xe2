@@ -301,7 +301,7 @@
 (define-prototype factory-world (:parent rlx:=world=)
   (width :initform 120)
   (height :initform 120)
-  (pallet-size :initform 9))
+  (pallet-size :initform 12))
 
 (define-method generate factory-world (&optional parameters)
   (declare (ignore parameters))
@@ -338,11 +338,13 @@
 	(trace-octagon #'drop-wall (random height) (random width)
 		       (+ 3 (random 8)) :thicken)))
     ;; drop enemies
-    (dotimes (i 10)
+    (dotimes (i 30)
       (let ((row (random 50))
 	    (column (random 50)))
 	(when (not [obstacle-at-p self row column])
 	  [drop-cell self (clone =berserker=) row column :loadout t :no-collisions t])))
+    (dotimes (i 13) 
+      [drop-cell self (clone =biclops=) (random height) (random width) :loadout t])
     ;; drop other stuff
     (dotimes (n 4)
       [drop-cell self (clone =med-hypo=) (random height) (random height)])
@@ -350,8 +352,6 @@
       [drop-cell self (clone =oxygen-tank=) (random height) (random width)])
     (dotimes (i 7)
       [drop-cell self (clone =energy=) (random height) (random width)])
-    (dotimes (i 5) 
-      [drop-cell self (clone =biclops=) (random height) (random width)])
     (dotimes (i 28) 
       [drop-cell self (clone =mine=) (random height) (random width)])))
       
