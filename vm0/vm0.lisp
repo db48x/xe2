@@ -543,17 +543,6 @@
   (weight :initform 10000) ;; grams
   (equip-for :initform '(:left-hand :right-hand)))
 
-;;; The energy tank
-
-(define-prototype energy (:parent rlx:=cell=)
-  (tile :initform "energy")
-  (name :initform "Energy Tank"))
-
-(define-method step energy (stepper)
-  (when (has-field :energy stepper)
-    [queue>>stat-effect stepper :energy 100]
-    [queue>>die self]))
-
 ;;; The oxygen tank
 
 (define-prototype oxygen-tank (:parent rlx:=cell=)
@@ -639,27 +628,27 @@
 	[drop-cell self (clone (if (> (random 50) 10)
 				   =tech-stone= =tech-stone-moss=))
 		   i j 
-		   :loadout]))
+		   :loadout t]))
     ;; (dotimes (n 10)
-    ;;   [drop-cell self (clone =tech-brick-yellow=) (random height) (random height) :loadout])
+    ;;   [drop-cell self (clone =tech-brick-yellow=) (random height) (random height) :loadout t])
     (dotimes (n 2)
       [drop-cell self (clone =med-hypo=) (random height) (random height)])
     (dotimes (i 12)
-      [drop-cell self (clone =red-perceptor=) (random height) (random width) :loadout])
+      [drop-cell self (clone =red-perceptor=) (random height) (random width) :loadout t])
     (dotimes (i 20)
-      [drop-cell self (clone =purple-perceptor=) (random height) (random width) :loadout])
+      [drop-cell self (clone =purple-perceptor=) (random height) (random width) :loadout t])
     (dotimes (i 14)
-      [drop-cell self (clone =mine=) (random 50) (random 50)  :loadout])
+      [drop-cell self (clone =mine=) (random 50) (random 50)  :loadout t])
     ;; (dotimes (i 12)
-    ;;   [drop-cell self (clone =energy=) (random height) (random height) :loadout])
+    ;;   [drop-cell self (clone =energy=) (random height) (random height) :loadout t])
     (dotimes (i 8)
-      [drop-cell self (clone =ion-shield=) (random height) (random width) :loadout]) 
+      [drop-cell self (clone =ion-shield=) (random height) (random width) :loadout t]) 
     (dotimes (i 12)
-      [drop-cell self (clone =rusty-wrench=) (random height) (random width) :loadout])
+      [drop-cell self (clone =rusty-wrench=) (random height) (random width) :loadout t])
     (dotimes (i 12)
       [drop-cell self (clone =muon-pistol=) (random height) (random width)])
     ;; (dotimes (i 22)
-    ;;    [drop-cell self (clone =rook=) (random height) (random height) :loadout])
+    ;;    [drop-cell self (clone =rook=) (random height) (random height) :loadout t])
     (let ((imax (1- (truncate (/ width pallet-size))))
 	  (jmax (1- (truncate (/ height pallet-size)))))
       (dotimes (i imax)
@@ -752,7 +741,7 @@
 	   (drop-vert (r c)
 	     [drop-cell self (clone =station-arm-vert=) r c])
 	   (drop-base (r c)
-	     [drop-cell self (clone =station-base=) r c :loadout]))
+	     [drop-cell self (clone =station-base=) r c :loadout t]))
     (trace-row #'drop-horz row column (max 0 (- column (random maxsize))))
     (trace-row #'drop-horz row column (+ column (random maxsize)))
     (trace-column #'drop-vert column row (max 0 (- row (random maxsize))))
@@ -780,13 +769,13 @@
     (dotimes (n 4)
       [drop-cell self (clone =med-hypo=) (random height) (random height)])
     (dotimes (i 18)
-      [drop-cell self (clone =red-perceptor=) (random height) (random width) :loadout])
+      [drop-cell self (clone =red-perceptor=) (random height) (random width) :loadout t])
     (dotimes (i 20)
-      [drop-cell self (clone =purple-perceptor=) (random height) (random width) :loadout])
+      [drop-cell self (clone =purple-perceptor=) (random height) (random width) :loadout t])
     (dotimes (i 100)
-      [drop-cell self (clone =mine=) (random height) (random width) :loadout])
+      [drop-cell self (clone =mine=) (random height) (random width) :loadout t])
     (dotimes (i 12)
-      [drop-cell self (clone =oxygen-tank=) (random height) (random width) :loadout])
+      [drop-cell self (clone =oxygen-tank=) (random height) (random width) :loadout t])
     ;;
     ;; place portals TODO and player??
     ))
@@ -945,7 +934,7 @@
     [resize viewport :height 320 :width 400]
     [move viewport :x 0 :y 0]
     ;; TODO 
-    [drop-cell world player 10 10 :loadout]
+    [drop-cell world player 10 10 :loadout t]
     [set-origin viewport :x 0 :y 110 :height 20 :width 25]
     [adjust viewport]
     ;; foo
