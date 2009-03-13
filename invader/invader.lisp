@@ -69,6 +69,17 @@
   [>>stat-effect stepper :oxygen 200]
   [>>die self])
 
+;;; There are also energy tanks.
+
+(define-prototype energy (:parent rlx:=cell=)
+  (tile :initform "energy")
+  (name :initform "Energy Tank"))
+
+(define-method step energy (stepper)
+  (when (has-field :energy stepper)
+    [queue>>stat-effect stepper :energy 100]
+    [queue>>die self]))
+
 ;;; The player is depicted as a red diamond.
 
 (defcell player 
@@ -104,13 +115,13 @@
 
 (defcell shock-probe 
   (name :initform "Shock probe")
-  (categories :initform '(:item :weapon :equipment :builtin))
+  (categories :initform '(:item :weapon :equipment))
   (tile :initform "shock-probe")
   (attack-power :initform (make-stat :base 10))
   (attack-cost :initform (make-stat :base 6))
   (accuracy :initform (make-stat :base 90))
   (weight :initform 3000)
-  (equip-for :initform '(:robotic-arm)))
+  (equip-for :initform '(:robotic-arm :left-hand :right-hand)))
 
 ;;; The Berserker is a relatively simple AI enemy.
 
@@ -164,38 +175,47 @@
 (define-prototype factory-world (:parent rlx:=world=)
   (width :initform 60)
   (height :initform 60)
-  (pallet-size :initform 12))
+  (pallet-size :initform 9))
 
 (define-method generate factory-world (&optional parameters)
+  (declare (ignore parameters))
   (clon:with-field-values (height width pallet-size) self
     ;; create airless corridor space
     (dotimes (i height)
       (dotimes (j width)
 	[drop-cell self (clone =corridor=) i j]))
     ;; create walls
-    (let ((imax (1- (truncate (/ width pallet-size))))
-	  (jmax (1- (truncate (/ height pallet-size)))))
-      (dotimes (i imax)
-	(dotimes (j jmax)
-	  (labels ((drop-wall (x y)
-		     [drop-cell self (clone =wall=) y x]))
-	    (when (not (= 0 i j))
-	      (trace-rectangle #'drop-wall
-			       0 0 height width)
-	      (trace-rectangle #'drop-wall
-			       (+ (random 3)
-				  (* pallet-size i))
-			       (+ (random 4) 
-				  (* pallet-size j))
-			       (random pallet-size)
-			       (random pallet-size)
-			       :fill))))))
+    (labels ((drop-wall (x y)
+	       (prog1 nil
+		 [drop-cell self (clone =wall=) y x 
+			    :loadout nil :no-collisions nil])))
+      ;; create border around world
+      (trace-rectangle #'drop-wall
+		       0 0 height width)
+      ;; drop pallets
+      (let ((imax (1- (truncate (/ width pallet-size))))
+	    (jmax (1- (truncate (/ height pallet-size)))))
+	(dotimes (i imax)
+	  (dotimes (j jmax)
+	    (trace-rectangle #'drop-wall
+			     (+ (random 3)
+				(* pallet-size i))
+			     (+ (random 4) 
+				(* pallet-size j))
+			     (random pallet-size)
+			     (random pallet-size)
+			     :fill)))))
     ;; drop enemies
     (dotimes (i 10)
       (let ((row (random 50))
 	    (column (random 50)))
 	(when (not [obstacle-at-p self row column])
-	  [drop-cell self (clone =berserker=) row column :loadout])))))
+	  [drop-cell self (clone =berserker=) row column :loadout t :no-collisions t])))
+    ;; drop other stuff
+    (dotimes (n 4)
+      [drop-cell self (clone =med-hypo=) (random height) (random height)])
+    (dotimes (i 12)
+      [drop-cell self (clone =oxygen-tank=) (random height) (random width)])))
 
 ;;; Controlling the game.
 
