@@ -49,16 +49,19 @@
 ;;; Every space is either a wall or a corridor. 
 
 (defcell wall
+  (name :initform "Wall")
   (tile :initform "wall")
   (categories :initform '(:obstacle)))
 
 (defcell corridor
+  (name :initform "Airless Corridor")
   (tile :initform "corridor"))
 
 ;;; Moving in a corridor uses up oxygen.
 
 (define-method step corridor (stepper)
-  [>>stat-effect stepper :oxygen -1])
+  (when (has-field :oxygen stepper)
+    [>>stat-effect stepper :oxygen -1]))
 
 ;;; You can refill your oxygen stores with these tanks.
 
@@ -84,6 +87,7 @@
 
 (defcell player 
   (tile :initform "player")
+  (name :initform "Player")
   (categories :initform '(:actor :player :obstacle :target :container))
   ;; action points and movement
   (speed :initform (make-stat :base 10 :min 1 :max 20))
@@ -105,7 +109,8 @@
 
 (defcell med-hypo 
   (categories :initform '(:item))
-  (tile :initform "med-hypo"))
+  (tile :initform "med-hypo")
+  (name :initform "Medical Hypo"))
 
 (define-method step med-hypo (stepper)
   [>>stat-effect stepper :hit-points 12]
@@ -165,6 +170,7 @@
 ;; If the player gets close, try and attack him.
 
 (defcell berserker 
+  (name :initform "Berserker")
   (categories :initform '(:actor :target :obstacle :opaque :enemy :equipper))
   (equipment-slots :initform '(:robotic-arm))
   (speed :initform (make-stat :base 7 :min 7))
@@ -208,6 +214,7 @@
 ;;; The Biclops enemy is more dangerous.  
 
 (define-prototype biclops (:parent rlx:=cell=)
+  (name :initform "Biclops")
   (strength :initform (make-stat :base 16 :min 0 :max 30))
   (dexterity :initform (make-stat :base 11 :min 0 :max 30))
   (intelligence :initform (make-stat :base 13 :min 0 :max 30))
@@ -273,7 +280,7 @@
 ;;; The exploding mine
 
 (define-prototype mine (:parent rlx:=cell=)
-  (name :initform "Vanguara XR-1 Contact mine")
+  (name :initform "Contact mine")
   (categories :initform '(:item :target))
   (tile :initform "mine"))
 
@@ -354,7 +361,6 @@
       [drop-cell self (clone =energy=) (random height) (random width)])
     (dotimes (i 28) 
       [drop-cell self (clone =mine=) (random height) (random width)])))
-      
 
 ;;; Controlling the game.
 
@@ -469,6 +475,7 @@
     [resize narrator :height 100 :width 800]
     [move narrator :x 0 :y 500]
     [set-narrator world narrator]
+    [set-verbosity narrator 1]
     ;;
     [start world]
     ;;

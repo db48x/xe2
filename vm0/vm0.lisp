@@ -763,7 +763,7 @@
   (let* ((prompt (clone rlx:=prompt=))
 	 (player-prompt (clone =vm0-prompt=))
 	 ;; TODO
-	 (world (clone =storage-world=))
+	 (world (clone =station-world=))
 	 (player (clone =player=))
 	 (status (clone =status=))
 	 (narrator (clone rlx:=narrator=))
