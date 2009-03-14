@@ -22,27 +22,29 @@
 
 (in-package :rlx)
 
-;;; Narration widget
+;;; Verbosity determines when a message is important enough to output.
 
 (defvar *default-message-verbosities*
   '(:move 3
     :move-cell 3
     :fire 2
-    :drop 3
+    :drop 2
     :drop-cell 3
     :impel 3
     :step 3
-    :die 2
+    :die 1
     :delete-from-world 3
-    :damage 2
+    :damage 1
     :expend-action-points 3
     :expend-default-action-points 3
-    :stat-effect 2
+    :stat-effect 1
     :damage 1
     :narrate nil 
     :narrateln nil
+    :explode 1
     :print-object-tag nil
     :newline nil
+    :take 1
     :print-separator nil))
 
 (defvar *message-verbosities* *default-message-verbosities*
@@ -62,6 +64,37 @@ verbosity level.")
   (setf *message-verbosities*
 	(append plist *message-verbosities*)))
 
+;;; Translating actions into natural language.
+
+(defvar *default-action-translations*
+  '(:move "Moves"
+    :move-cell "Moves (via World)"
+    :fire "Fires"
+    :drop "Drops"
+    :drop-cell "Drops Cell"
+    :impel "Impels"
+    :step "Steps"
+    :die "Dies"
+    :delete-from-world "Deletes"
+    :damage "Damages"
+    :expend-action-points "Expends Action Points"
+    :expend-default-action-points  "Expends Default Action Points"
+    :stat-effect "Effects Statistic"
+    :attack "Attacks"
+    :explode "Explodes"
+    :narrate nil 
+    :narrateln nil
+    :print-object-tag nil
+    :newline nil
+    :take "Picks up"
+    :print-separator nil))
+
+(defvar *action-translations* *default-action-translations*)
+
+(defun action-translation (action)
+  (or (getf *action-translations* action)
+      (symbol-name action)))
+  
 ;;; The narration widget
 
 (define-prototype narrator (:parent =formatter=)
@@ -86,8 +119,10 @@ http://en.wikipedia.org/wiki/Passive_voice"
 (define-method print-object-tag narrator (ob)
   [print-image self (field-value :tile ob)]
   [space self]
-  [print self (let ((str (symbol-name (object-name (object-parent ob)))))
-		(subseq str 1 (search "=" str :from-end t)))]
+  [print self (if (stringp (field-value :name ob))
+		  (field-value :name ob)
+		  (let ((str (symbol-name (object-name (object-parent ob)))))
+		    (subseq str 1 (search "=" str :from-end t))))]
   [space self]
   (when (= 5 <verbosity>)
     [print self (object-address-string ob) :foreground ".gray50"]))
@@ -112,7 +147,7 @@ http://en.wikipedia.org/wiki/Passive_voice"
       [print-separator self]
       [print-image self (icon-image action)]
       [space self]
-      [print self (symbol-name action)
+      [print self (action-translation action)
 	     :foreground ".white" :background ".gray30"]
       [print-separator self]
       (if (eq A B)
