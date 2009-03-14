@@ -103,7 +103,8 @@ verbosity level.")
   (passive-voice-actions :documentation
 "List of action words to use passive voice in narrating.
 http://en.wikipedia.org/wiki/Passive_voice"
-                         :initform nil))
+                         :initform nil)
+  (line-number :initform 0))
 
 (define-method set-verbosity narrator (&optional (value 1))
   (setf <verbosity> value))
@@ -143,6 +144,9 @@ http://en.wikipedia.org/wiki/Passive_voice"
 		   (or (eq t action-verbosity)
 		       (and (numberp action-verbosity)
 			    (>= <verbosity> action-verbosity)))))
+      [print self (prin1-to-string <line-number>)]
+      (incf <line-number>)
+      [print-separator self]
       [print-object-tag self A]
       [print-separator self]
       [print-image self (icon-image action)]
