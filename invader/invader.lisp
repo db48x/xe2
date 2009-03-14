@@ -94,7 +94,10 @@
   (movement-cost :initform (make-stat :base 7))
   ;; vital stats
   (hit-points :initform (make-stat :base 50 :min 0 :max 100)) 
- ;; inventory-related data
+  (dexterity :initform (make-stat :base 11 :min 0 :max 30))
+  (intelligence :initform (make-stat :base 13 :min 0 :max 30))
+  (strength :initform (make-stat :base 16 :min 0 :max 30))
+ ;; INVENTORY-related data
   (max-items :initform (make-stat :base 1))
   ;; equipment-related slots
   (attacking-with :initform :right-hand)
@@ -104,6 +107,10 @@
   (oxygen :initform (make-stat :base 1000 :min 0 :max 1200))
   ;; default is do not generate step events; this turns it on
   (stepping :initform t))
+
+(define-method loadout player ()
+  [make-inventory self]
+  [make-equipment self])
 
 ;;; The medical healing hypo restores hit points.
 
@@ -139,6 +146,10 @@
   (accuracy :initform (make-stat :base 60)) ;; percent
   (weight :initform 10000) ;; grams
   (equip-for :initform '(:left-hand :right-hand)))
+
+(define-method step rusty-wrench (stepper)
+  [>>take stepper :direction :here :category :item]
+  [>>equip stepper 0])
 
 ;;; An explosion
 
@@ -332,14 +343,15 @@
 	    (jmax (1- (truncate (/ height pallet-size)))))
 	(dotimes (i imax)
 	  (dotimes (j jmax)
-	    (trace-rectangle #'drop-wall
-			     (+ (random 3)
-				(* pallet-size i))
-			     (+ (random 4) 
-				(* pallet-size j))
-			     (random pallet-size)
-			     (random pallet-size)
-			     :fill))))
+	    (when (not (= 0 i j))
+	      (trace-rectangle #'drop-wall
+			       (+ (random 3)
+				  (* pallet-size i))
+			       (+ (random 4) 
+				  (* pallet-size j))
+			       (random pallet-size)
+			       (random pallet-size)
+			       :fill)))))
       ;; drop columns
       (dotimes (i 13)
 	(trace-octagon #'drop-wall (random height) (random width)
@@ -359,6 +371,9 @@
       [drop-cell self (clone =oxygen-tank=) (random height) (random width)])
     (dotimes (i 7)
       [drop-cell self (clone =energy=) (random height) (random width)])
+    (dotimes (i 4)
+      [drop-cell self (clone =rusty-wrench=) (random height) (random width)])
+    [drop-cell self (clone =rusty-wrench=) 2 3]
     (dotimes (i 28) 
       [drop-cell self (clone =mine=) (random height) (random width)])))
 
@@ -443,6 +458,23 @@
     (dolist (k keys)
       (apply #'bind-key-to-prompt-insertion self k))))
 
+;;; A character status widget.
+
+(define-prototype status (:parent rlx:=formatter=)
+  (character :documentation "The character cell."))
+
+(define-method set-character status (character)
+  (setf <character> character))
+
+(define-method update status ()
+  [delete-all-lines self]
+  (let ((char <character>))
+    [print self (field-value :name char)]
+    [print self (format nil "  AP: ~S" (field-value :action-points char))]
+    [print self (format nil "  HP: ~S" [stat-value char :hit-points])]
+    [print self (format nil "  OX: ~S" [stat-value char :oxygen])]
+    [println self (format nil "  EN: ~S" [stat-value char :energy])]))
+
 ;;; Main program.
 
 (defun invader ()
@@ -452,7 +484,8 @@
 	 (world (clone =factory-world=))
 	 (player (clone =player=))
 	 (viewport (clone =viewport=))
-	 (narrator (clone =narrator=)))
+	 (narrator (clone =narrator=))
+	 (status (clone =status=)))
     (setf *active-world* world)
     ;;
     [resize prompt :height 20 :width 100]
@@ -464,12 +497,16 @@
     [create-default-grid world]
     [generate world]
     [set-player world player]
-    [drop-cell world player 1 1]
+    [drop-cell world player 1 1 :loadout t]
+    ;;
+    [resize status :height 20 :width 800]
+    [move status :x 0 :y 0]
+    [set-character status player]
     ;;
     [set-world viewport world]
-    [resize viewport :height 500 :width 800]
-    [move viewport :x 0 :y 0]
-    [set-origin viewport :x 0 :y 0 :height 30 :width 50]
+    [resize viewport :height 480 :width 800]
+    [move viewport :x 0 :y 20]
+    [set-origin viewport :x 0 :y 0 :height 27 :width 50]
     [adjust viewport]
     ;;
     [resize narrator :height 100 :width 800]
@@ -479,7 +516,7 @@
     ;;
     [start world]
     ;;
-    (install-widgets (list prompt viewport narrator))))
+    (install-widgets (list prompt status viewport narrator))))
 
 (invader)
 

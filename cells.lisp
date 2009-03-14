@@ -385,22 +385,26 @@ Return ITEM if successful, nil otherwise."
 ;; <: finding :> 
 
 ;; TODO split into find-direction, find-z, find & key :dir :z
-(define-method find cell (&key (direction :here) (index :top))
+(define-method find cell (&key (direction :here) (index :top) category)
   (let ((world *active-world*))
     (multiple-value-bind (nrow ncol)
 	(step-in-direction <row> <column> direction)
       (if [in-bounds-p world nrow ncol]
-	  (let* ((cells [cells-at world nrow ncol])
-		 (index2 (cond ((and (eq :top index) (eq :here direction))
-				;; skip yourself and instead get the item you're standing on
-				(- (fill-pointer cells) 2))
-			       ((eq :top index)
-				(- (fill-pointer cells) 1))
-			       ((numberp index) 
-				(when (array-in-bounds-p cells index)
-				  index))))
-		 (cell (aref cells index2)))
-	    (values cell nrow ncol index2))))))
+	  (let (cell)
+	    (let* ((cells [cells-at world nrow ncol])
+		   (index2 (cond 
+			     ((not (null category))
+			      (setf cell [category-at-p world nrow ncol category]))
+			     ((and (eq :top index) (eq :here direction))
+			      ;; skip yourself and instead get the item you're standing on
+			      (- (fill-pointer cells) 2))
+			     ((eq :top index)
+			      (- (fill-pointer cells) 1))
+			     ((numberp index) 
+			      (when (array-in-bounds-p cells index)
+				index)))))
+	      (setf cell (or cell (aref cells index2)))
+	      (values cell nrow ncol index2)))))))
 
 (define-method clear-location cell ()
   (setf <row> nil <column> nil))
@@ -409,9 +413,9 @@ Return ITEM if successful, nil otherwise."
   [delete-cell *active-world* self <row> <column>]
   [clear-location self])
       
-(define-method take cell (&key (direction :here) (index :top))
+(define-method take cell (&key (direction :here) index category)
   (multiple-value-bind (cell row column)
-      [find self :direction direction :index index]
+      [find self :direction direction :index index :category category]
     (when (and [in-category cell :item]
 	       [first-open-slot self])
       [expend-default-action-points self]
@@ -580,5 +584,5 @@ slot."
 (define-prototype gray-asterisk (:parent =cell=)
   (tile :initform ".gray-asterisk")
   (name :initform "System"))
-
+n
 ;;; cells.lisp ends here

@@ -219,16 +219,21 @@ The processing step allows the sender to specify the receiver
 indirectly as a keyword symbol (like `:world', `:player', or
 `:output'.) Any resulting queued messages are processed and sent, and
 so on, until no more messages are generated."
-  (with-message-queue <message-queue> 
-    (loop while (queued-messages-p) do
-	 (destructuring-bind (sender method-key receiver args)
-	     (unqueue-message)
-	   (let ((rec (or [resolve-receiver self receiver] 
-			  receiver)))
-	     (when <narrator>
-	       [narrate-message <narrator> sender method-key rec args])
-	     (apply #'send sender method-key rec args))))))
-
+  (let ((player <player>))
+    (with-message-queue <message-queue> 
+      (loop while (queued-messages-p) do
+	   (destructuring-bind (sender method-key receiver args)
+	       (unqueue-message)
+	     (let ((rec (or [resolve-receiver self receiver] 
+			    receiver)))
+	       (when (and <narrator> 
+			  ;; only narrate player-related messages
+			  (or (eq player sender)
+			      (eq player rec)))
+		 ;; now print message
+		 [narrate-message <narrator> sender method-key rec args])
+	       (apply #'send sender method-key rec args)))))))
+  
 ;; <: events :>
 ;; <: main :>
 
@@ -240,7 +245,7 @@ in a roguelike until the user has pressed a key."
     (let ((player <player>)
 	  (phase-number <phase-number>))
       (with-message-queue <message-queue> 
-	(when <narrator>
+	(when <narrator> 
 	  [narrate-message <narrator> nil method-key player args])
 	;; send the message to the player, possibly generating queued messages
 	(apply #'send self method-key player args)
