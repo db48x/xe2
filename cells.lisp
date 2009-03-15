@@ -279,16 +279,16 @@ action during PHASE."
       (step-in-direction <row> <column> direction)
     (if [obstacle-at-p *active-world* r c]
 	(when [is-player self]
-	  [queue>>narrateln :narrator "You cannot move in that direction."])
+	  [>>narrateln :narrator "You cannot move in that direction."])
 	(progn
-	  [queue>>expend-action-points self [stat-value self :movement-cost]]
-	  [queue>>move-cell :world self r c]
+	  [>>expend-action-points self [stat-value self :movement-cost]]
+	  [>>move-cell :world self r c]
 	  (when <stepping>
 	    (let ((cells [cells-at *active-world* r c])
 		  (x 0))
 	      (loop while (< x (fill-pointer cells))
 		   do (progn 
-			[queue>>step (aref cells x) self]
+			[>>step (aref cells x) self]
 			(incf x)))))))))
 
 (define-method drop cell (cell)
@@ -513,9 +513,9 @@ slot."
   ;; TODO narration
   (let ((item (getf <equipment> slot)))
     (when item
-      [queue>>expend-default-action-points]
-      [queue>>delete-equipment self slot]
-      [queue>>add-item self item])))
+      [>>expend-default-action-points]
+      [>>delete-equipment self slot]
+      [>>add-item self item])))
 
 ;;; Loadout
 
@@ -530,7 +530,7 @@ slot."
 (define-method attack cell (target)
   (let ((weapon [equipment-slot self <attacking-with>]))
     (if (null weapon)
-	[queue>>narrateln :narrator "Cannot attack without a weapon in ~A." 
+	[>>narrateln :narrator "Cannot attack without a weapon in ~A." 
 			  <attacking-with>]
       (let* ((attack-cost [stat-value weapon :attack-cost])
 	     (accuracy [stat-value weapon :accuracy])
@@ -540,12 +540,12 @@ slot."
 	(if to-hit
 	    ;; calculate and send damage
 	    (let ((damage [stat-value weapon :attack-power]))
-	      [queue>>expend-action-points self attack-cost]
-	      [queue>>damage [resolve self target] damage])
+	      [>>expend-action-points self attack-cost]
+	      [>>damage [resolve self target] damage])
 	    (progn 
-	      [queue>>expend-default-action-points self]
+	      [>>expend-default-action-points self]
 	      (when [is-player self]
-		[queue>>narrateln :narrator "You missed."])))))))
+		[>>narrateln :narrator "You missed."])))))))
       
 (define-method fire cell (direction)
   (let ((weapon [equipment-slot self <firing-with>]))
@@ -560,7 +560,7 @@ slot."
 	(when (zerop [stat-value self :hit-points])
 	  [die self]))
       (when [is-player self]
-	[queue>>narrateln :narrator "Nothing happens."])))
+	[>>narrateln :narrator "Nothing happens."])))
 	
 (define-method die cell ()
   (if [in-category self :dead]
@@ -568,7 +568,7 @@ slot."
       (progn
 	(setf <action-points> 0)
 	[add-category self :dead]
-	[queue>>delete-from-world self])))
+	[>>delete-from-world self])))
 
 (define-method expend-energy cell (amount)
   (when (< amount [stat-value self :energy])

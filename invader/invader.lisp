@@ -69,19 +69,21 @@
   (tile :initform "oxygen-tank"))
 
 (define-method step oxygen-tank (stepper)
-  [>>stat-effect stepper :oxygen 200]
-  [>>die self])
+  (when [is-player stepper]
+    [>>stat-effect stepper :oxygen 200]
+    [>>die self]))
 
-;;; There are also energy tanks.
+;;; There are also energy tanks for replenishing ammo.
 
 (define-prototype energy (:parent rlx:=cell=)
   (tile :initform "energy")
   (name :initform "Energy Tank"))
 
 (define-method step energy (stepper)
-  (when (has-field :energy stepper)
-    [>>stat-effect stepper :energy 100]
-    [>>die self]))
+  (when [is-player stepper]
+    (when (has-field :energy stepper)
+      [>>stat-effect stepper :energy 100]
+      [>>die self])))
 
 ;;; The player is depicted as a red diamond.
 
@@ -90,7 +92,7 @@
   (name :initform "Player")
   (categories :initform '(:actor :player :obstacle :target :container))
   ;; action points and movement
-  (speed :initform (make-stat :base 10 :min 1 :max 20))
+  (speed :initform (make-stat :base 7 :min 1 :max 20))
   (movement-cost :initform (make-stat :base 7))
   ;; vital stats
   (hit-points :initform (make-stat :base 50 :min 0 :max 100)) 
@@ -112,6 +114,28 @@
   [make-inventory self]
   [make-equipment self])
 
+;;; The player's remains are a skull and crossbones. 
+
+(define-prototype skull (:parent rlx:=cell=)
+  (tile :initform "skull")
+  (categories :initform '(:dead :player))
+  (action-points :initform 0))
+
+(define-method forward skull (&rest args)
+  (declare (ignore args))
+  [queue>>narrateln :narrator "You are dead. You can't do anything!"])
+  
+(define-method move skull (&rest args)
+  (declare (ignore args))
+ [queue>>narrateln :narrator "You are dead. You can't do anything!"])
+
+(define-method die player ()
+  (let ((skull (clone =skull=)))
+    [drop-cell *active-world* skull <row> <column>]
+    [queue>>narrateln :narrator "You die."]
+    [set-player *active-world* skull]
+    [parent>>die self]))
+
 ;;; The medical healing hypo restores hit points.
 
 (defcell med-hypo 
@@ -120,8 +144,9 @@
   (name :initform "Medical Hypo"))
 
 (define-method step med-hypo (stepper)
-  [>>stat-effect stepper :hit-points 12]
-  [>>die self])
+  (when [is-player stepper]
+    [>>stat-effect stepper :hit-points 20]
+    [>>die self]))
 
 ;;; A melee weapon for enemy robots: the Shock Probe
 
@@ -148,8 +173,9 @@
   (equip-for :initform '(:left-hand :right-hand)))
 
 (define-method step rusty-wrench (stepper)
-  [>>take stepper :direction :here :category :item]
-  [>>equip stepper 0])
+  (when [is-player stepper]
+    [>>take stepper :direction :here :category :item]
+    [>>equip stepper 0]))
 
 ;;; An explosion
 
@@ -159,7 +185,7 @@
   (tile :initform "explosion")
   (speed :initform (make-stat :base 10))
   (damage-per-turn :initform 7)
-  (clock :initform 2))
+  (clock :initform 3))
 
 (define-method run explosion ()
   (if (zerop <clock>)
@@ -303,7 +329,7 @@
     (multiple-value-bind (r c)
       (step-in-direction <row> <column> dir)
       (when [in-bounds-p *active-world* r c]
-  	[drop-cell *active-world* (clone =explosion=) r c])))
+  	[drop-cell *active-world* (clone =explosion=) r c :no-collisions nil])))
   [die self])
 
 (define-method step mine (stepper)
@@ -313,6 +339,20 @@
 (define-method damage mine (damage-points)
   (declare (ignore damage-points))
   [explode self])
+
+;;; Some destructible blocks
+
+(defcell tech-box
+  (tile :initform "tech-box")
+  (categories :initform '(:obstacle :opaque :pushable :destructible))
+  (hit-points :initform (make-stat :base 10 :min 0)))
+
+(defcell tech-box-debris
+  (tile :initform "tech-box-debris"))
+
+(define-method die tech-box ()
+  [queue>>drop-cell *active-world* (clone =tech-box-debris=) <row> <column>]
+  [parent>>die self])
 
 ;;; The sinister robot factory is defined here. 
 
@@ -354,8 +394,8 @@
 			       :fill)))))
       ;; drop columns
       (dotimes (i 13)
-	(trace-octagon #'drop-wall (random height) (random width)
-		       (+ 3 (random 8)) :thicken)))
+	(trace-octagon #'drop-box (random height) (random width)
+		       (+ 3 (random 8)))))
     ;; drop enemies
     (dotimes (i 30)
       (let ((row (random 50))
@@ -365,15 +405,15 @@
     (dotimes (i 13) 
       [drop-cell self (clone =biclops=) (random height) (random width) :loadout t])
     ;; drop other stuff
-    (dotimes (n 4)
+    (dotimes (n 20)
       [drop-cell self (clone =med-hypo=) (random height) (random height)])
-    (dotimes (i 7)
+    (dotimes (i 8)
       [drop-cell self (clone =oxygen-tank=) (random height) (random width)])
     (dotimes (i 7)
       [drop-cell self (clone =energy=) (random height) (random width)])
     (dotimes (i 4)
       [drop-cell self (clone =rusty-wrench=) (random height) (random width)])
-    [drop-cell self (clone =rusty-wrench=) 2 3]
+    [drop-cell self (clone =rusty-wrench=) (random 10) (random 10)]
     (dotimes (i 28) 
       [drop-cell self (clone =mine=) (random height) (random width)])))
 
@@ -470,7 +510,6 @@
   [delete-all-lines self]
   (let ((char <character>))
     [print self (field-value :name char)]
-    [print self (format nil "  AP: ~S" (field-value :action-points char))]
     [print self (format nil "  HP: ~S" [stat-value char :hit-points])]
     [print self (format nil "  OX: ~S" [stat-value char :oxygen])]
     [println self (format nil "  EN: ~S" [stat-value char :energy])]))
@@ -500,7 +539,7 @@
     [drop-cell world player 1 1 :loadout t]
     ;;
     [resize status :height 20 :width 800]
-    [move status :x 0 :y 0]
+    [move status :x 5 :y 0]
     [set-character status player]
     ;;
     [set-world viewport world]
