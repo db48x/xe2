@@ -85,7 +85,7 @@ Do not set this variable directly from a module; instead, call
 
 (defvar *module-widgets* nil "List of widget objects in the current module.")
 
-(defun install-widgets (widgets)
+(defun install-widgets (&rest widgets)
   "User-level function for setting the active widget set. Note that
 RLX may override the current widget set at any time for system menus
 and the like."

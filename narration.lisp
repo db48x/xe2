@@ -98,8 +98,8 @@ verbosity level.")
 ;;; The narration widget
 
 (define-prototype narrator (:parent =formatter=)
-  (verbosity :initform 1 
-	     :documentation "Integer between 1 and 3 (inclusive).")
+  (verbosity :initform 0
+	     :documentation "Integer between 0 and 3 (inclusive).")
   (passive-voice-actions :documentation
 "List of action words to use passive voice in narrating.
 http://en.wikipedia.org/wiki/Passive_voice"
@@ -132,39 +132,40 @@ http://en.wikipedia.org/wiki/Passive_voice"
   [print self "  :  " :foreground ".gray20"])
 
 (define-method narrate-message narrator (sender action receiver args &optional force)
-  (let ((A (or sender rlx:=asterisk=))
-	(B (if (has-field :tile receiver) 
-	       receiver 
-	       rlx:=gray-asterisk=))
-	(action-verbosity (getf *message-verbosities* action t)))
-    (when (member action <passive-voice-actions>)
-      (rotatef A B))
-    (when (or force
-	      (and (not (null action-verbosity))
-		   (or (eq t action-verbosity)
-		       (and (numberp action-verbosity)
-			    (>= <verbosity> action-verbosity)))))
-      [print self (prin1-to-string <line-number>)]
-      (incf <line-number>)
-      [print-separator self]
-      [print-object-tag self A]
-      [print-separator self]
-      [print-image self (icon-image action)]
-      [space self]
-      [print self (action-translation action)
-	     :foreground ".white" :background ".gray30"]
-      [print-separator self]
-      (if (eq A B)
-	  [print self "SELF" :foreground ".white" :background ".blue"]
-	  [print-object-tag self B])
-      [print-separator self]
-      ;; print args
-      (dolist (arg args)
+  (when (> <verbosity> 0)
+    (let ((A (or sender rlx:=asterisk=))
+	  (B (if (has-field :tile receiver) 
+		 receiver 
+		 rlx:=gray-asterisk=))
+	  (action-verbosity (getf *message-verbosities* action t)))
+      (when (member action <passive-voice-actions>)
+	(rotatef A B))
+      (when (or force
+		(and (not (null action-verbosity))
+		     (or (eq t action-verbosity)
+			 (and (numberp action-verbosity)
+			      (>= <verbosity> action-verbosity)))))
+	[print self (prin1-to-string <line-number>)]
+	(incf <line-number>)
+	[print-separator self]
+	[print-object-tag self A]
+	[print-separator self]
+	[print-image self (icon-image action)]
 	[space self]
-	(if (object-p arg)
-	    [print-object-tag self arg]
-	    [print self (format nil "~A" arg)]))
-      [newline self])))
+	[print self (action-translation action)
+	       :foreground ".white" :background ".gray30"]
+	[print-separator self]
+	(if (eq A B)
+	    [print self "SELF" :foreground ".white" :background ".blue"]
+	    [print-object-tag self B])
+	[print-separator self]
+	;; print args
+	(dolist (arg args)
+	  [space self]
+	  (if (object-p arg)
+	      [print-object-tag self arg]
+	      [print self (format nil "~A" arg)]))
+	[newline self]))))
 
 
 

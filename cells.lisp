@@ -535,11 +535,13 @@ slot."
       (let* ((attack-cost [stat-value weapon :attack-cost])
 	     (accuracy [stat-value weapon :accuracy])
 	     (dexterity [stat-value self :dexterity])
+	     (strength [stat-value self :strength])
 	     (to-hit (< (random 100)
-			(+ accuracy (/ dexterity 2)))))
+			(+ accuracy (* (random 10) (/ dexterity 2))))))
 	(if to-hit
 	    ;; calculate and send damage
-	    (let ((damage [stat-value weapon :attack-power]))
+	    (let ((damage (+ (truncate (/ strength 3))
+			     [stat-value weapon :attack-power])))
 	      [>>expend-action-points self attack-cost]
 	      [>>damage [resolve self target] damage])
 	    (progn 
@@ -584,5 +586,5 @@ slot."
 (define-prototype gray-asterisk (:parent =cell=)
   (tile :initform ".gray-asterisk")
   (name :initform "System"))
-n
+
 ;;; cells.lisp ends here

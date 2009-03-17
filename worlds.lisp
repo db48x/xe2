@@ -124,11 +124,11 @@
   (aref <grid> row column))
 
 (define-method drop-cell world (cell row column 
-				     &optional &key loadout (no-collisions t))
+				     &optional &key loadout no-collisions)
   "Put CELL on top of the stack of cells at ROW, COLUMN. If LOADOUT is
 non-nil, then the `loadout' method of the dropped cell is invoked
-after dropping. If NO-COLLISIONS is non-nil (the default) then an
-object is not dropped on top of an obstacle."
+after dropping. If NO-COLLISIONS is non-nil, then an object is not
+dropped on top of an obstacle."
   (if (not (array-in-bounds-p <grid> row column))
       (message "Warning: dropping cell off world at (~S, ~S)." row column)
       (when (or (null no-collisions)

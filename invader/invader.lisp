@@ -70,7 +70,7 @@
 
 (define-method step oxygen-tank (stepper)
   (when [is-player stepper]
-    [>>stat-effect stepper :oxygen 200]
+    [>>stat-effect stepper :oxygen 40]
     [>>die self]))
 
 ;;; There are also energy tanks for replenishing ammo.
@@ -95,24 +95,28 @@
   (speed :initform (make-stat :base 7 :min 1 :max 20))
   (movement-cost :initform (make-stat :base 7))
   ;; vital stats
-  (hit-points :initform (make-stat :base 50 :min 0 :max 100)) 
+  (hit-points :initform (make-stat :base 100 :min 0 :max 100)) 
   (dexterity :initform (make-stat :base 11 :min 0 :max 30))
   (intelligence :initform (make-stat :base 13 :min 0 :max 30))
   (strength :initform (make-stat :base 16 :min 0 :max 30))
- ;; INVENTORY-related data
+  ;; inventory-related data
   (max-items :initform (make-stat :base 1))
   ;; equipment-related slots
   (attacking-with :initform :right-hand)
   (firing-with :initform :left-hand)
   ;; other stats
   (energy :initform (make-stat :base 800 :min 0 :max 1000))
-  (oxygen :initform (make-stat :base 1000 :min 0 :max 1200))
+  (oxygen :initform (make-stat :base 100 :min 0 :max 100))
   ;; default is do not generate step events; this turns it on
   (stepping :initform t))
 
 (define-method loadout player ()
   [make-inventory self]
   [make-equipment self])
+
+(define-method run player ()
+  (when (<= <oxygen> 0)
+    [die self]))
 
 ;;; The player's remains are a skull and crossbones. 
 
@@ -126,6 +130,14 @@
   [queue>>narrateln :narrator "You are dead. You can't do anything!"])
   
 (define-method move skull (&rest args)
+  (declare (ignore args))
+ [queue>>narrateln :narrator "You are dead. You can't do anything!"])
+
+(define-method attack skull (&rest args)
+  (declare (ignore args))
+ [queue>>narrateln :narrator "You are dead. You can't do anything!"])
+
+(define-method fire skull (&rest args)
   (declare (ignore args))
  [queue>>narrateln :narrator "You are dead. You can't do anything!"])
 
@@ -145,7 +157,7 @@
 
 (define-method step med-hypo (stepper)
   (when [is-player stepper]
-    [>>stat-effect stepper :hit-points 20]
+    [>>stat-effect stepper :hit-points 30]
     [>>die self]))
 
 ;;; A melee weapon for enemy robots: the Shock Probe
@@ -240,20 +252,23 @@
 		 [>>move self <direction>])))))
 
 (define-method die berserker ()
-  (when (> 6 (random 10))
-    [drop self (clone =energy=)])
+  (when (> 3 (random 10))
+    [drop self (clone (case (random 3)
+			(0 =energy=)
+			(1 =oxygen-tank=)
+			(2 =med-hypo=)))])
   [parent>>die self])
 
 (define-method loadout berserker ()
   (let ((probe (clone =shock-probe=)))
     [equip self [add-item self probe]]))
 
-;;; The Biclops enemy is more dangerous.  
+;;; The radar-equipped Biclops is more dangerous.  
 
 (define-prototype biclops (:parent rlx:=cell=)
   (name :initform "Biclops")
-  (strength :initform (make-stat :base 16 :min 0 :max 30))
-  (dexterity :initform (make-stat :base 11 :min 0 :max 30))
+  (strength :initform (make-stat :base 28 :min 0 :max 30))
+  (dexterity :initform (make-stat :base 15 :min 0 :max 30))
   (intelligence :initform (make-stat :base 13 :min 0 :max 30))
   (categories :initform '(:actor :target :obstacle :opaque :enemy :equipper))
   (equipment-slots :initform '(:robotic-arm))
@@ -263,7 +278,7 @@
   (movement-cost :initform (make-stat :base 5))
   (attacking-with :initform :robotic-arm)
   (max-weight :initform (make-stat :base 25))
-  (hit-points :initform (make-stat :base 7 :min 0 :max 10))
+  (hit-points :initform (make-stat :base 11 :min 0 :max 10))
   (tile :initform "biclops"))
 
 (define-method initialize biclops ()
@@ -351,7 +366,13 @@
   (tile :initform "tech-box-debris"))
 
 (define-method die tech-box ()
-  [queue>>drop-cell *active-world* (clone =tech-box-debris=) <row> <column>]
+  [>>drop self (clone =tech-box-debris=)]
+  (when (<= (random 10) 2)
+    [>>drop self 
+	    (case (random 3)
+	      (0 =oxygen-tk=)
+	      (1 =energy=)
+	      (2 =med-hypo=))])
   [parent>>die self])
 
 ;;; The sinister robot factory is defined here. 
@@ -397,25 +418,24 @@
 	(trace-octagon #'drop-box (random height) (random width)
 		       (+ 3 (random 8)))))
     ;; drop enemies
-    (dotimes (i 30)
+    (dotimes (i 15)
       (let ((row (random 50))
 	    (column (random 50)))
-	(when (not [obstacle-at-p self row column])
-	  [drop-cell self (clone =berserker=) row column :loadout t :no-collisions t])))
-    (dotimes (i 13) 
-      [drop-cell self (clone =biclops=) (random height) (random width) :loadout t])
+	[drop-cell self (clone =berserker=) row column :loadout t :no-collisions t]))
+    (dotimes (i 7) 
+      [drop-cell self (clone =biclops=) (random height) (random width) :loadout t :no-collisions t])
     ;; drop other stuff
     (dotimes (n 20)
-      [drop-cell self (clone =med-hypo=) (random height) (random height)])
+      [drop-cell self (clone =med-hypo=) (random height) (random height) :no-collisions t])
     (dotimes (i 8)
-      [drop-cell self (clone =oxygen-tank=) (random height) (random width)])
+      [drop-cell self (clone =oxygen-tank=) (random height) (random width) :no-collisions t])
     (dotimes (i 7)
-      [drop-cell self (clone =energy=) (random height) (random width)])
-    (dotimes (i 4)
-      [drop-cell self (clone =rusty-wrench=) (random height) (random width)])
-    [drop-cell self (clone =rusty-wrench=) (random 10) (random 10)]
-    (dotimes (i 28) 
-      [drop-cell self (clone =mine=) (random height) (random width)])))
+      [drop-cell self (clone =energy=) (random height) (random width) :no-collisions t])
+    (dotimes (i 6)
+      [drop-cell self (clone =rusty-wrench=) (random height) (random width) :no-collisions nil])
+    [drop-cell self (clone =rusty-wrench=) (random 10) (random 10) :no-collisions t]
+    (dotimes (i 50) 
+      [drop-cell self (clone =mine=) (random height) (random width) :no-collisions t])))
 
 ;;; Controlling the game.
 
@@ -551,11 +571,11 @@
     [resize narrator :height 100 :width 800]
     [move narrator :x 0 :y 500]
     [set-narrator world narrator]
-    [set-verbosity narrator 1]
+    [set-verbosity narrator 2]
     ;;
     [start world]
     ;;
-    (install-widgets (list prompt status viewport narrator))))
+    (install-widgets prompt status viewport narrator)))
 
 (invader)
 
