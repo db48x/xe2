@@ -115,7 +115,7 @@
   [make-equipment self])
 
 (define-method run player ()
-  (when (<= <oxygen> 0)
+  (when (<= [stat-value self :oxygen] 0)
     [die self]))
 
 ;;; The player's remains are a skull and crossbones. 
@@ -375,6 +375,115 @@
 	      (2 =med-hypo=))])
   [parent>>die self])
 
+;;; Muon particles, trails, and pistols
+
+(defvar *muon-tiles* '(:north "muon-north"
+		       :south "muon-south"
+		       :east "muon-east"
+		       :west "muon-west"
+		       :northeast "muon-northeast"
+		       :southeast "muon-southeast"
+		       :southwest "muon-southwest"
+		       :northwest "muon-northwest"))
+
+(defvar *trail-middle-tiles* '(:north "bullet-trail-middle-north"
+			       :south "bullet-trail-middle-south"
+			       :east "bullet-trail-middle-east"
+			       :west "bullet-trail-middle-west"
+			       :northeast "bullet-trail-middle-northeast"
+			       :southeast "bullet-trail-middle-southeast"
+			       :southwest "bullet-trail-middle-southwest"
+			       :northwest "bullet-trail-middle-northwest"))
+
+(defvar *trail-end-tiles* '(:north "bullet-trail-end-north"
+			       :south "bullet-trail-end-south"
+			       :east "bullet-trail-end-east"
+			       :west "bullet-trail-end-west"
+			       :northeast "bullet-trail-end-northeast"
+			       :southeast "bullet-trail-end-southeast"
+			       :southwest "bullet-trail-end-southwest"
+			       :northwest "bullet-trail-end-northwest"))
+
+(defvar *trail-tile-map* (list *trail-end-tiles* *trail-middle-tiles* *trail-middle-tiles*))
+
+(define-prototype muon-trail (:parent rlx:=cell=)
+  (categories :initform '(:actor))
+  (clock :initform 2)
+  (speed :initform (make-stat :base 10))
+  (default-cost :initform (make-stat :base 10))
+  (tile :initform ".gear")
+  (direction :initform :north))
+
+(define-method initialize muon-trail (direction)
+  (setf <direction> direction)
+  (setf <tile> (getf *trail-middle-tiles* direction)))
+
+(define-method run muon-trail ()
+  (setf <tile> (getf (nth <clock> *trail-tile-map*)
+		     <direction>))
+  [expend-default-action-points self]
+  (decf <clock>)
+  (when (minusp <clock>)
+    [die self]))
+
+(define-prototype muon-particle (:parent rlx:=cell=)
+  (categories :initform '(:actor))
+  (speed :initform (make-stat :base 15))
+  (default-cost :initform (make-stat :base 5))
+  (tile :initform "muon")
+  (direction :initform :here)
+  (clock :initform 5))
+
+(define-method find-target muon-particle ()
+  (let ((target [category-in-direction-p *active-world* 
+					 <row> <column> <direction>
+					 '(:obstacle :target)]))
+    (if target
+	(progn
+	  [queue>>expend-default-action-points self]
+	  [queue>>drop self (clone =flash=)]
+	  [queue>>damage target 5]
+	  [queue>>die self])
+	(progn 
+	  [queue>>drop self (clone =muon-trail= <direction>)]
+	  [queue>>move self <direction>]))))
+  
+(define-method run muon-particle ()
+  (setf <tile> (getf *muon-tiles* <direction>))
+  [find-target self]
+  (decf <clock>)
+  (when (zerop <clock>)
+    [queue>>die self]))
+
+(define-method impel muon-particle (direction)
+  (assert (member direction *compass-directions*))
+  (setf <direction> direction)
+  ;; don't hit the player
+  [find-target self])
+
+(define-prototype muon-pistol (:parent rlx:=cell=)
+  (name :initform "Muon energy pistol")
+  (tile :initform "gun")
+  (categories :initform '(:item :weapon :equipment))
+  (equip-for :initform '(:left-hand))
+  (weight :initform 7000)
+  (accuracy :initform (make-stat :base 90))
+  (attack-power :initform (make-stat :base 18))
+  (attack-cost :initform (make-stat :base 4))
+  (energy-cost :initform (make-stat :base 10)))
+
+(define-method fire muon-pistol (direction)
+  (if [expend-energy <equipper> 10]
+      (let ((muon (clone =muon-particle=)))
+	[queue>>drop <equipper> muon]
+	[queue>>impel muon direction])
+      (message "Not enough energy to fire.")))
+
+(define-method step muon-pistol (stepper)
+  (when [is-player stepper]
+    [>>take stepper :direction :here :category :item]
+    [>>equip stepper 0]))
+
 ;;; The sinister robot factory is defined here. 
 
 (define-prototype factory-world (:parent rlx:=world=)
@@ -427,12 +536,14 @@
     ;; drop other stuff
     (dotimes (n 20)
       [drop-cell self (clone =med-hypo=) (random height) (random height) :no-collisions t])
-    (dotimes (i 8)
+    (dotimes (i 28)
       [drop-cell self (clone =oxygen-tank=) (random height) (random width) :no-collisions t])
     (dotimes (i 7)
       [drop-cell self (clone =energy=) (random height) (random width) :no-collisions t])
     (dotimes (i 6)
       [drop-cell self (clone =rusty-wrench=) (random height) (random width) :no-collisions nil])
+    (dotimes (i 5)
+      [drop-cell self (clone =muon-pistol=) (random height) (random width) :no-collisions nil])
     [drop-cell self (clone =rusty-wrench=) (random 10) (random 10) :no-collisions t]
     (dotimes (i 50) 
       [drop-cell self (clone =mine=) (random height) (random width) :no-collisions t])))
@@ -571,7 +682,7 @@
     [resize narrator :height 100 :width 800]
     [move narrator :x 0 :y 500]
     [set-narrator world narrator]
-    [set-verbosity narrator 2]
+    [set-verbosity narrator 1]
     ;;
     [start world]
     ;;
