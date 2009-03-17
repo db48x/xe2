@@ -118,7 +118,7 @@
 
 (define-prototype skull (:parent rlx:=cell=)
   (tile :initform "skull")
-  (categories :initform '(:dead :player))
+  (categories :initform '(:dead :player :actor))
   (action-points :initform 0))
 
 (define-method forward skull (&rest args)
@@ -131,10 +131,10 @@
 
 (define-method die player ()
   (let ((skull (clone =skull=)))
-    [drop-cell *active-world* skull <row> <column>]
-    [queue>>narrateln :narrator "You die."]
-    [set-player *active-world* skull]
-    [parent>>die self]))
+    [drop-cell *active-world* skull <row> <column> :loadout t :no-collisions nil]
+    [parent>>die self]
+    [>>narrateln :narrator "You die."]
+    [set-player *active-world* skull]))
 
 ;;; The medical healing hypo restores hit points.
 

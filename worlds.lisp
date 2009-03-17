@@ -232,7 +232,9 @@ so on, until no more messages are generated."
 			      (eq player rec)))
 		 ;; now print message
 		 [narrate-message <narrator> sender method-key rec args])
-	       (apply #'send sender method-key rec args)))))))
+	       ;; stop everything if player dies
+	       (when (not [in-category player :dead])
+		 (apply #'send sender method-key rec args))))))))
   
 ;; <: events :>
 ;; <: main :>
@@ -257,12 +259,13 @@ in a roguelike until the user has pressed a key."
 	(unless [can-act player phase-number]
 	  [end-phase player]
 	  (incf <turn-number>)
-	  [run-cpu-phase self]
+	  (when (not [in-category <player> :dead])
+	    [run-cpu-phase self])
 	  (incf <phase-number>)
 	  [begin-phase player])
-	
+	;; TODO fix this
 	[render-lighting self player]))))
-	;; TODO handle dead player
+
       
 (define-method get-phase-number world ()
   <phase-number>)
@@ -285,7 +288,8 @@ in a roguelike until the user has pressed a key."
 		      [is-light-source cell])
 	      [render-lighting self cell])
 	    (when (and (not (eq player cell))
-		       [in-category cell :actor])
+		       [in-category cell :actor]
+		       (not [in-category player :dead]))
 	      [begin-phase cell]
 	      ;; <: action-points :>
 	      (loop while [can-act cell phase-number] do
