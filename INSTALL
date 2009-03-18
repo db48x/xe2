@@ -1,4 +1,5 @@
-	This is the INSTALL file for the RLX roguelike engine.
+This is the INSTALL file for the RLX roguelike engine.
+Installation and basic playing instructions are provided. 
 
 1. You need a Common Lisp implementation. Only tested on SBCL right
    now.
@@ -47,12 +48,12 @@ The filename should be wherever you installed the RLX source tree.
 7. Then at the SBCL REPL:
 
   (require :rlx)
-  (rlx:play "vm0")
+  (rlx:play "invader")
 
   If you get an error about TRIVIAL-FEATURES-TESTS, try this:
   (require :trivial-features-tests)
   
-8. ESCAPE toggles the command prompt.  
+8. CONTROLS
 
    QWERTY USERS:
 
@@ -64,9 +65,8 @@ The filename should be wherever you installed the RLX source tree.
 
    for the directionals. Other keys:
 
-   T ("take") to pick up objects. E to equip slot 0, or enter "equip
-   N" at the command prompt to equip slot N.  Alt-DIRECTION for melee
-   attack, Control-DIRECTION to fire with an equipped gun.
+   Alt-DIRECTION for melee attack with wrench, Control-DIRECTION to
+   fire with an equipped gun.
 
    DVORAK USERS: 
 
@@ -84,6 +84,20 @@ The filename should be wherever you installed the RLX source tree.
    
    for the directionals. Other keys:
 
-   O ("obtain") to pick up objects. E to equip slot 0, or enter "equip
-   N" at the command prompt to equip slot N.  Alt-DIRECTION for melee
-   attack, Control-DIRECTION to fire with an equipped gun.
+   Alt-DIRECTION for melee attack with wrench, Control-DIRECTION to
+   fire with an equipped gun.
+
+9. GAMEPLAY
+
+ Explore the airless environment and destroy robots. You must find a
+ weapon (either a wrench or a muon pistol) before you can attack
+ enemies, so avoid them until then. Wrench attack is Alt-DIRECTION,
+ pistol attack is Control-DIRECTION. The blue Berserkers run around
+ looking for the player and will chase you if they get within sight
+ distance. The purple Biclops are more dangerous, and chase the player
+ from anywhere. The medpacks restore your hitpoints. The oxygen tanks
+ keep you alive; keep looking for them! Some of the blue boxes contain
+ items. Smash them! Find the gun and attack your enemies from a
+ distance.
+
+
