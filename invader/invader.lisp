@@ -114,9 +114,17 @@
   [make-inventory self]
   [make-equipment self])
 
+;;; When you run out of oxygen, you die. 
+
 (define-method run player ()
   (when (<= [stat-value self :oxygen] 0)
     [die self]))
+
+;;; When you fight a monster close-up, you use more oxygen.
+
+(define-method attack player (target)
+  [>>stat-effect self :oxygen -3]
+  [parent>>attack self target])
 
 ;;; The player's remains are a skull and crossbones. 
 
@@ -370,7 +378,7 @@
   (when (<= (random 10) 2)
     [>>drop self 
 	    (case (random 3)
-	      (0 =oxygen-tk=)
+	      (0 =oxygen-tank=)
 	      (1 =energy=)
 	      (2 =med-hypo=))])
   [parent>>die self])
@@ -536,13 +544,13 @@
     ;; drop other stuff
     (dotimes (n 20)
       [drop-cell self (clone =med-hypo=) (random height) (random height) :no-collisions t])
-    (dotimes (i 28)
+    (dotimes (i 45)
       [drop-cell self (clone =oxygen-tank=) (random height) (random width) :no-collisions t])
     (dotimes (i 7)
       [drop-cell self (clone =energy=) (random height) (random width) :no-collisions t])
     (dotimes (i 6)
       [drop-cell self (clone =rusty-wrench=) (random height) (random width) :no-collisions nil])
-    (dotimes (i 5)
+    (dotimes (i 10)
       [drop-cell self (clone =muon-pistol=) (random height) (random width) :no-collisions nil])
     [drop-cell self (clone =rusty-wrench=) (random 10) (random 10) :no-collisions t]
     (dotimes (i 50) 
