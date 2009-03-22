@@ -560,7 +560,7 @@
     (if target
 	(progn	
 	  [queue>>drop target (clone =flash=)]
-	  [queue>>damage target 10]
+	  [queue>>damage target 6]
 	  [queue>>die self])
 	(progn 
 	  [queue>>drop self (clone =lepton-trail= <direction>)]
@@ -593,7 +593,7 @@
   (accuracy :initform (make-stat :base 60))
   (attack-power :initform (make-stat :base 8))
   (attack-cost :initform (make-stat :base 20))
-  (energy-cost :initform (make-stat :base 20)))
+  (energy-cost :initform (make-stat :base 32)))
 
 (define-method fire lepton-cannon (direction)
   (if [expend-energy <equipper> 10]
@@ -671,7 +671,7 @@
 		 [drop-cell self (clone =wall=) y x]))
 	     (drop-box (x y)
 	       (prog1 nil 
-		 [drop-cell self (clone =tech-box=) y x])))
+		 [drop-cell self (clone =tech-box=) y x :no-collisions t])))
       ;; create border around world
       (trace-rectangle #'drop-wall
 		       0 0 height width)
