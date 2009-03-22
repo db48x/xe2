@@ -251,23 +251,22 @@ in a roguelike until the user has pressed a key."
 	  [narrate-message <narrator> nil method-key player args])
 	;; run the player
 	[run player]
-	(when (not [in-category <player> :dead])
-	  ;; send the message to the player, possibly generating queued messages
-	  (apply #'send self method-key player args)
-	  ;; process any messages that were generated
-	  [process-messages self]
-	  ;; if this is the player's last turn, begin the cpu phase
-	  ;; otherwise, stay in player phase and exit
-	  ;; <: action-points :>
-	  (unless [can-act player phase-number]
-	    [end-phase player]
-	    (incf <turn-number>)
-	    (when (not [in-category <player> :dead])
-	      [run-cpu-phase self])
-	    (incf <phase-number>)
-	    [begin-phase player])
-	  ;; TODO fix this
-	  [render-lighting self player])))))
+	;; send the message to the player, possibly generating queued messages
+	(apply #'send self method-key player args)
+	;; process any messages that were generated
+	[process-messages self]
+	;; if this is the player's last turn, begin the cpu phase
+	;; otherwise, stay in player phase and exit
+	;; <: action-points :>
+	(unless [can-act player phase-number]
+	  [end-phase player]
+	  (incf <turn-number>)
+	  (when (not [in-category <player> :dead])
+	    [run-cpu-phase self])
+	  (incf <phase-number>)
+	  [begin-phase player])
+	;; TODO fix this
+	[render-lighting self player]))))
   
       
 (define-method get-phase-number world ()
