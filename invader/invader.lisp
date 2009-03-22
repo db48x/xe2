@@ -625,7 +625,7 @@
 	(if (= 0 (random 20))
 	    ;; occasionally choose a random dir
 	    (nth (random 3)
-		 (delete <direction> '(:north :south :east :west)))
+		 '(:north :south :east :west))
 	    ;; otherwise turn left
 	    (getf '(:north :west :west :south :south :east :east :north)
 		  (or <direction> :north)))))
