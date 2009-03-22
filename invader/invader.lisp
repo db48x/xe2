@@ -70,7 +70,7 @@
 
 (define-method step oxygen-tank (stepper)
   (when [is-player stepper]
-    [>>stat-effect stepper :oxygen 40]
+    [>>stat-effect stepper :oxygen 50]
     [>>die self]))
 
 ;;; There are also energy tanks for replenishing ammo.
@@ -105,8 +105,8 @@
   (attacking-with :initform :right-hand)
   (firing-with :initform :left-hand)
   ;; other stats
-  (energy :initform (make-stat :base 800 :min 0 :max 1000))
-  (oxygen :initform (make-stat :base 100 :min 0 :max 100))
+  (energy :initform (make-stat :base 300 :min 0 :max 1000))
+  (oxygen :initform (make-stat :base 120 :min 0 :max 100))
   ;; default is do not generate step events; this turns it on
   (stepping :initform t))
 
@@ -275,7 +275,7 @@
 
 (define-prototype biclops (:parent rlx:=cell=)
   (name :initform "Biclops")
-  (strength :initform (make-stat :base 40 :min 0 :max 40))
+  (strength :initform (make-stat :base 40 :min 0 :max 33))
   (dexterity :initform (make-stat :base 15 :min 0 :max 30))
   (intelligence :initform (make-stat :base 13 :min 0 :max 30))
   (categories :initform '(:actor :target :obstacle :opaque :enemy :equipper))
@@ -318,7 +318,7 @@
     (if (> 5 (random 10))
 	[drop self (clone =energy=)]
 	[drop self (clone =med-hypo=)]))
-  (if (> 5 (random 10))
+  (if (> 2 (random 10))
       [drop self (clone =explosion=)])
   [parent>>die self])
  
@@ -477,7 +477,7 @@
   (equip-for :initform '(:left-hand))
   (weight :initform 7000)
   (accuracy :initform (make-stat :base 90))
-  (attack-power :initform (make-stat :base 18))
+  (attack-power :initform (make-stat :base 12))
   (attack-cost :initform (make-stat :base 5))
   (energy-cost :initform (make-stat :base 10)))
 
@@ -591,12 +591,12 @@
   (equip-for :initform '(:robotic-arm))
   (weight :initform 14000)
   (accuracy :initform (make-stat :base 60))
-  (attack-power :initform (make-stat :base 8))
+  (attack-power :initform (make-stat :base 9))
   (attack-cost :initform (make-stat :base 20))
   (energy-cost :initform (make-stat :base 32)))
 
 (define-method fire lepton-cannon (direction)
-  (if [expend-energy <equipper> 10]
+  (if [expend-energy <equipper> [stat-value self :energy-cost]]
       (let ((lepton (clone =lepton-particle=)))
 	[queue>>drop <equipper> lepton]
 	[queue>>impel lepton direction]
