@@ -123,7 +123,7 @@
 ;;; When you fight a monster close-up, you use more oxygen.
 
 (define-method attack player (target)
-  [>>stat-effect self :oxygen -3]
+  [>>stat-effect self :oxygen -2]
   [parent>>attack self target])
 
 ;;; The player's remains are a skull and crossbones. 
@@ -275,7 +275,7 @@
 
 (define-prototype biclops (:parent rlx:=cell=)
   (name :initform "Biclops")
-  (strength :initform (make-stat :base 28 :min 0 :max 30))
+  (strength :initform (make-stat :base 40 :min 0 :max 40))
   (dexterity :initform (make-stat :base 15 :min 0 :max 30))
   (intelligence :initform (make-stat :base 13 :min 0 :max 30))
   (categories :initform '(:actor :target :obstacle :opaque :enemy :equipper))
@@ -560,7 +560,7 @@
     (if target
 	(progn	
 	  [queue>>drop target (clone =flash=)]
-	  [queue>>damage target 5]
+	  [queue>>damage target 10]
 	  [queue>>die self])
 	(progn 
 	  [queue>>drop self (clone =lepton-trail= <direction>)]
@@ -698,7 +698,7 @@
       (let ((row (random 50))
 	    (column (random 50)))
 	[drop-cell self (clone =berserker=) row column :loadout t :no-collisions t]))
-    (dotimes (i 7) 
+    (dotimes (i 30) 
       [drop-cell self (clone =biclops=) (random height) (random width) :loadout t :no-collisions t])
     ;; drop other stuff
     (dotimes (n 20)
@@ -706,7 +706,7 @@
     (dotimes (i 45)
       [drop-cell self (clone =oxygen-tank=) (random height) (random width) :no-collisions t])
     
-    (dotimes (i 45)
+    (dotimes (i 20)
       [drop-cell self (clone =scanner=) (random height) (random width) :loadout t :no-collisions t])
 
     (dotimes (i 7)
