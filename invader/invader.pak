@@ -48,6 +48,8 @@
  (:name "bullet-trail-end-northwest" :type :alias :data ":rotate 270:bullet-trail-end-northeast")
 
  (:name "electron" :type :image :file "electron.png")
+ (:name "scanner" :type :image :file "scanner.png")
+
  (:name "energy" :type :image :file "energy.png")
  (:name "gun" :type :image :file "gun.png")
  (:name "ion-shield-wall" :type :image :file "ion-shield-wall.png")
@@ -59,6 +61,39 @@
  (:name "flash-2" :type :image :file "flash-2.png")
  (:name "tech-box" :type :image :file "tech-box.png")
  (:name "tech-box-debris" :type :image :file "tech-box-debris.png")
+
+ (:name "lepton" :type :image :file "lepton.png")
+ (:name "lepton-cannon" :type :image :file "gun.png")
+
+ (:name "lepton-north" :type :image :file "lepton-north.png")
+ (:name "lepton-east" :type :alias :data ":rotate 90:lepton-north")
+ (:name "lepton-south" :type :alias :data ":rotate 180:lepton-north")
+ (:name "lepton-west" :type :alias :data ":rotate 270:lepton-north")
+
+ (:name "lepton-northeast" :type :image :file "lepton-northeast.png")
+ (:name "lepton-southeast" :type :alias :data ":rotate 90:lepton-northeast")
+ (:name "lepton-southwest" :type :alias :data ":rotate 180:lepton-northeast")
+ (:name "lepton-northwest" :type :alias :data ":rotate 270:lepton-northeast")
+
+ (:name "bullet-trail-middle-thin-north" :type :image :file "bullet-trail-middle-thin-north.png")
+ (:name "bullet-trail-middle-thin-east" :type :alias :data ":rotate 90:bullet-trail-middle-thin-north")
+ (:name "bullet-trail-middle-thin-south" :type :alias :data ":rotate 180:bullet-trail-middle-thin-north")
+ (:name "bullet-trail-middle-thin-west" :type :alias :data ":rotate 270:bullet-trail-middle-thin-north")
+
+ (:name "bullet-trail-middle-thin-northeast" :type :image :file "bullet-trail-middle-thin-northeast.png")
+ (:name "bullet-trail-middle-thin-southeast" :type :alias :data ":rotate 90:bullet-trail-middle-thin-northeast")
+ (:name "bullet-trail-middle-thin-southwest" :type :alias :data ":rotate 180:bullet-trail-middle-thin-northeast")
+ (:name "bullet-trail-middle-thin-northwest" :type :alias :data ":rotate 270:bullet-trail-middle-thin-northeast")
+
+ (:name "bullet-trail-end-thin-north" :type :image :file "bullet-trail-end-thin-north.png")
+ (:name "bullet-trail-end-thin-east" :type :alias :data ":rotate 90:bullet-trail-end-thin-north")
+ (:name "bullet-trail-end-thin-south" :type :alias :data ":rotate 180:bullet-trail-end-thin-north")
+ (:name "bullet-trail-end-thin-west" :type :alias :data ":rotate 270:bullet-trail-end-thin-north")
+
+ (:name "bullet-trail-end-thin-northeast" :type :image :file "bullet-trail-thin-end-northeast.png")
+ (:name "bullet-trail-end-thin-southeast" :type :alias :data ":rotate 90:bullet-trail-end-thin-northeast")
+ (:name "bullet-trail-end-thin-southwest" :type :alias :data ":rotate 180:bullet-trail-end-thin-northeast")
+ (:name "bullet-trail-end-thin-northwest" :type :alias :data ":rotate 270:bullet-trail-end-thin-northeast")
 
  (:name ".startup" :type :lisp :file "invader.lisp")
 )

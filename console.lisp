@@ -488,6 +488,18 @@ table."
 (defun load-lisp-resource (resource)
   (load (resource-file resource)))
 
+(defun load-canvas-resource (resource)
+  (destructuring-bind (&key width height background)
+      (resource-properties resource)
+    (let ((canvas (create-canvas width height))
+	  (background (resource-data resource)))
+      (prog1 canvas
+	(when background
+	  (draw-box 0 0 width height 
+		    ;; TODO support arbitrary rgb and other drawing commands
+		    :color (concatenate 'string "." background)
+		    :destination canvas))))))
+
 (defun load-color-resource (resource)
   (destructuring-bind (red green blue)
       (resource-data resource)
@@ -503,6 +515,7 @@ table."
 (defvar *resource-handlers* (list :image #'load-image-resource
 				  :lisp #'load-lisp-resource
 				  :color #'load-color-resource
+				  :canvas #'load-canvas-resource
 				  :font #'load-font-resource)
   "A property list mapping resource type keywords to handler functions.
 Each function should accept one resource record, and return an

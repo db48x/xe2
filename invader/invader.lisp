@@ -448,6 +448,7 @@
 					 '(:obstacle :target)]))
     (if target
 	(progn
+	  [queue>>move self <direction>]
 	  [queue>>expend-default-action-points self]
 	  [queue>>drop self (clone =flash=)]
 	  [queue>>damage target 5]
@@ -477,7 +478,7 @@
   (weight :initform 7000)
   (accuracy :initform (make-stat :base 90))
   (attack-power :initform (make-stat :base 18))
-  (attack-cost :initform (make-stat :base 4))
+  (attack-cost :initform (make-stat :base 5))
   (energy-cost :initform (make-stat :base 10)))
 
 (define-method fire muon-pistol (direction)
@@ -491,6 +492,164 @@
   (when [is-player stepper]
     [>>take stepper :direction :here :category :item]
     [>>equip stepper 0]))
+
+;;; Lepton Seeker Cannon
+
+(defvar *lepton-tiles* '(:north "lepton-north"
+		       :south "lepton-south"
+		       :east "lepton-east"
+		       :west "lepton-west"
+		       :northeast "lepton-northeast"
+		       :southeast "lepton-southeast"
+		       :southwest "lepton-southwest"
+		       :northwest "lepton-northwest"))
+
+(defvar *lepton-trail-middle-tiles* '(:north "bullet-trail-middle-thin-north"
+			       :south "bullet-trail-middle-thin-south"
+			       :east "bullet-trail-middle-thin-east"
+			       :west "bullet-trail-middle-thin-west"
+			       :northeast "bullet-trail-middle-thin-northeast"
+			       :southeast "bullet-trail-middle-thin-southeast"
+			       :southwest "bullet-trail-middle-thin-southwest"
+			       :northwest "bullet-trail-middle-thin-northwest"))
+
+(defvar *lepton-trail-end-tiles* '(:north "bullet-trail-end-thin-north"
+			       :south "bullet-trail-end-thin-south"
+			       :east "bullet-trail-end-thin-east"
+			       :west "bullet-trail-end-thin-west"
+			       :northeast "bullet-trail-end-thin-northeast"
+			       :southeast "bullet-trail-end-thin-southeast"
+			       :southwest "bullet-trail-end-thin-southwest"
+			       :northwest "bullet-trail-end-thin-northwest"))
+
+(defvar *lepton-trail-tile-map* (list *lepton-trail-end-tiles* *lepton-trail-middle-tiles* *lepton-trail-middle-tiles*))
+
+(define-prototype lepton-trail (:parent rlx:=cell=)
+  (categories :initform '(:actor))
+  (clock :initform 2)
+  (speed :initform (make-stat :base 10))
+  (default-cost :initform (make-stat :base 10))
+  (tile :initform ".gear")
+  (direction :initform :north))
+
+(define-method initialize lepton-trail (direction)
+  (setf <direction> direction)
+  (setf <tile> (getf *lepton-trail-middle-tiles* direction)))
+
+(define-method run lepton-trail ()
+  (setf <tile> (getf (nth <clock> *lepton-trail-tile-map*)
+		     <direction>))
+  [expend-default-action-points self]
+  (decf <clock>)
+  (when (minusp <clock>)
+    [die self]))
+
+(define-prototype lepton-particle (:parent rlx:=cell=)
+  (categories :initform '(:actor))
+  (speed :initform (make-stat :base 14))
+  (default-cost :initform (make-stat :base 2))
+  (movement-cost :initform (make-stat :base 4))
+  (tile :initform "lepton")
+  (direction :initform :here)
+  (clock :initform 10))
+
+(define-method find-target lepton-particle ()
+  (let ((target [category-in-direction-p *active-world* 
+					 <row> <column> <direction>
+					 '(:obstacle :target)]))
+    (if target
+	(progn	
+	  [queue>>drop target (clone =flash=)]
+	  [queue>>damage target 5]
+	  [queue>>die self])
+	(progn 
+	  [queue>>drop self (clone =lepton-trail= <direction>)]
+	  [queue>>move self <direction>]))))
+  
+(define-method run lepton-particle ()
+  (setf <tile> (getf *lepton-tiles* <direction>))
+  (clon:with-field-values (row column) self
+    (let* ((world *active-world*)
+	   (direction [direction-to-player *active-world* row column]))
+      (setf <direction> direction)
+      [find-target self])
+    (decf <clock>)
+    (when (and (zerop <clock>) 
+	       (not [in-category self :dead]))
+      [queue>>die self])))
+      
+(define-method impel lepton-particle (direction)
+  (assert (member direction *compass-directions*))
+  (setf <direction> direction)
+  ;; don't hit the player
+  [find-target self])
+
+(define-prototype lepton-cannon (:parent rlx:=cell=)
+  (name :initform "Xiong Les Fleurs Lepton(TM) energy cannon")
+  (tile :initform "lepton-cannon")
+  (categories :initform '(:item :weapon :equipment))
+  (equip-for :initform '(:robotic-arm))
+  (weight :initform 14000)
+  (accuracy :initform (make-stat :base 60))
+  (attack-power :initform (make-stat :base 8))
+  (attack-cost :initform (make-stat :base 20))
+  (energy-cost :initform (make-stat :base 20)))
+
+(define-method fire lepton-cannon (direction)
+  (if [expend-energy <equipper> 10]
+      (let ((lepton (clone =lepton-particle=)))
+	[queue>>drop <equipper> lepton]
+	[queue>>impel lepton direction]
+	[expend-action-points <equipper> [stat-value self :attack-cost]]
+      (message "Not enough energy to fire."))))
+
+;;; The deadly Scanner can be avoided because it moves (mostly) predictably
+
+(defcell scanner 
+  (tile :initform "scanner")
+  (categories :initform '(:obstacle :actor :equipper :opaque))
+  (direction :initform nil)
+  (speed :initform (make-stat :base 6))
+  (hit-points :initform (make-stat :base 40 :min 0))
+  (equipment-slots :initform '(:robotic-arm))
+  (max-items :initform (make-stat :base 3))
+  (stepping :initform t)
+  (attacking-with :initform :robotic-arm)
+  (energy :initform (make-stat :base 800 :min 0 :max 1000))
+  (firing-with :initform :robotic-arm)
+  (strength :initform (make-stat :base 13))
+  (dexterity :initform (make-stat :base 9)))
+
+(define-method choose-new-direction scanner ()
+  (setf <direction>
+	(if (= 0 (random 20))
+	    ;; occasionally choose a random dir
+	    (nth (random 3)
+		 (delete <direction> '(:north :south :east :west)))
+	    ;; otherwise turn left
+	    (getf '(:north :west :west :south :south :east :east :north)
+		  (or <direction> :north)))))
+  
+(define-method loadout scanner ()
+  (let ((cannon (clone =lepton-cannon=)))
+    [equip self [add-item self cannon]]
+    [choose-new-direction self]))
+  
+(define-method initialize scanner ()
+  [make-inventory self]
+  [make-equipment self])
+
+(define-method run scanner ()
+  (clon:with-field-values (row column) self
+    (let ((world *active-world*))
+      (if (< [distance-to-player world row column] 8)
+	  (let ((player-dir [direction-to-player world row column]))
+	    [queue>>fire self player-dir])
+	  (multiple-value-bind (r c)
+	      (step-in-direction <row> <column> <direction>)
+	    (when [obstacle-at-p world r c]
+	      [choose-new-direction self])
+	    [queue>>move self <direction>])))))
 
 ;;; The sinister robot factory is defined here. 
 
@@ -546,6 +705,10 @@
       [drop-cell self (clone =med-hypo=) (random height) (random height) :no-collisions t])
     (dotimes (i 45)
       [drop-cell self (clone =oxygen-tank=) (random height) (random width) :no-collisions t])
+    
+    (dotimes (i 45)
+      [drop-cell self (clone =scanner=) (random height) (random width) :loadout t :no-collisions t])
+
     (dotimes (i 7)
       [drop-cell self (clone =energy=) (random height) (random width) :no-collisions t])
     (dotimes (i 6)
@@ -690,7 +853,7 @@
     [resize narrator :height 100 :width 800]
     [move narrator :x 0 :y 500]
     [set-narrator world narrator]
-    [set-verbosity narrator 1]
+    [set-verbosity narrator 3]
     ;;
     [start world]
     ;;
