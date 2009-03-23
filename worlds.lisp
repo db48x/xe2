@@ -267,8 +267,7 @@ in a roguelike until the user has pressed a key."
 	  [begin-phase player])
 	;; TODO fix this
 	[render-lighting self player]))))
-  
-      
+        
 (define-method get-phase-number world ()
   <phase-number>)
 

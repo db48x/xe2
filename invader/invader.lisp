@@ -156,6 +156,14 @@
     [>>narrateln :narrator "You die."]
     [set-player *active-world* skull]))
 
+;;; About quitting the game
+
+(define-method quit player ()
+  (rlx:quit :shutdown))
+
+(define-method quit skull ()
+  (rlx:quit :shutdown))
+
 ;;; The medical healing hypo restores hit points.
 
 (defcell med-hypo 
@@ -275,7 +283,7 @@
 
 (define-prototype biclops (:parent rlx:=cell=)
   (name :initform "Biclops")
-  (strength :initform (make-stat :base 40 :min 0 :max 33))
+  (strength :initform (make-stat :base 40 :min 0 :max 28))
   (dexterity :initform (make-stat :base 15 :min 0 :max 30))
   (intelligence :initform (make-stat :base 13 :min 0 :max 30))
   (categories :initform '(:actor :target :obstacle :opaque :enemy :equipper))
@@ -654,8 +662,8 @@
 ;;; The sinister robot factory is defined here. 
 
 (define-prototype factory-world (:parent rlx:=world=)
-  (width :initform 120)
-  (height :initform 120)
+  (width :initform 220)
+  (height :initform 60)
   (pallet-size :initform 12))
 
 (define-method generate factory-world (&optional parameters)
@@ -709,14 +717,14 @@
     (dotimes (i 20)
       [drop-cell self (clone =scanner=) (random height) (random width) :loadout t :no-collisions t])
 
-    (dotimes (i 7)
+    (dotimes (i 20)
       [drop-cell self (clone =energy=) (random height) (random width) :no-collisions t])
     (dotimes (i 6)
       [drop-cell self (clone =rusty-wrench=) (random height) (random width) :no-collisions nil])
     (dotimes (i 10)
       [drop-cell self (clone =muon-pistol=) (random height) (random width) :no-collisions nil])
     [drop-cell self (clone =rusty-wrench=) (random 10) (random 10) :no-collisions t]
-    (dotimes (i 50) 
+    (dotimes (i 70) 
       [drop-cell self (clone =mine=) (random height) (random width) :no-collisions t])))
 
 ;;; Controlling the game.
@@ -751,9 +759,8 @@
     ("J" (:control) "fire :south .")
     ("N" (:control) "fire :southeast .")
     ;;
-    ("T" nil "take .")
-    ("E" nil "equip 0 .")
-    ("1" nil "activate-equipment :belt .")))
+    ("Q" (:control) "quit .")))
+    ;;
 
 ;; f t g
 ;;  \|/
@@ -789,9 +796,8 @@
     ("H" (:control) "fire :south .")
     ("B" (:control) "fire :southeast .")
     ;;
-    ("O" nil "take .") ;; obtain
-    ("E" nil "equip 0 .")
-    ("1" nil "activate-equipment :belt .")))
+    ("Q" (:control) "quit .")))
+    ;;
 
 (define-method install-keybindings invader-prompt ()
   (let ((keys (ecase rlx:*user-keyboard-layout* 
