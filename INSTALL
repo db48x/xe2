@@ -39,21 +39,29 @@ Installation and basic playing instructions are provided.
    cd ~/.sbcl/systems
    for i in `find ~/src/lispbuilder -name "*.asd"`; do ln -s $i .; done
 
-6. Add something like this to a new file called ~/.rlxrc:
+6. OPTIONAL: configure module directories
+
+   Add something like this to a new file called ~/.rlxrc:
 
   (setf rlx:*module-directories* '("/home/dto/src/rlx"))
 
-The filename should be wherever you installed the RLX source tree.
+The filename should be wherever you installed the RLX source
+tree. This is auto-detected as the current directory if you don't set
+it.
 
-7. Then at the SBCL REPL:
+7. At the shell, cd to the install directory for RLX, run SBCL, and
+   then at the REPL:
 
-  (require :rlx)
-  (rlx:play "invader")
+    (require :rlx)
+    (rlx:play "invader")
 
   If you get an error about TRIVIAL-FEATURES-TESTS, try this:
   (require :trivial-features-tests)
   
 8. CONTROLS
+
+   Press control Q to wquit at any time. For directional control you
+   can choose between QWERTY and DVORAK layouts as follows: 
 
    QWERTY USERS:
 
@@ -98,6 +106,6 @@ The filename should be wherever you installed the RLX source tree.
  from anywhere. The medpacks restore your hitpoints. The oxygen tanks
  keep you alive; keep looking for them! Some of the blue boxes contain
  items. Smash them! Find the gun and attack your enemies from a
- distance.
-
+ distance to keep them from destroying you. The green security
+ scanners can fire heat-seeking bullets at you once you are detected.
 

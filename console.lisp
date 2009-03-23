@@ -398,7 +398,8 @@ resource is stored; see also `find-resource'."
 		   *resource-table*) 
 	  val)))
 
-(defvar *module-directories* '("/usr/local/games/rlx")
+(defvar *module-directories* (list (namestring *default-pathname-defaults*)
+				   "/usr/local/games/rlx")
   "List of directories where RLX will search for modules.
 Directories are searched in list order.")
 
@@ -769,8 +770,6 @@ The default destination is the main window."
 	  (run-main-loop)))
   (setf *quitting* nil))
   
-
-
 ;;; Playing sounds
 ;;; Playing background music
 ;;; Saving and loading data 

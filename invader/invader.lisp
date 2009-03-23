@@ -112,7 +112,9 @@
 
 (define-method loadout player ()
   [make-inventory self]
-  [make-equipment self])
+  [make-equipment self]
+  (let ((wrench (clone =rusty-wrench=)))
+    [equip self [add-item self wrench]]))
 
 ;;; When you run out of oxygen, you die. 
 
@@ -662,9 +664,9 @@
 ;;; The sinister robot factory is defined here. 
 
 (define-prototype factory-world (:parent rlx:=world=)
-  (width :initform 220)
-  (height :initform 60)
-  (pallet-size :initform 12))
+  (width :initform 60)
+  (height :initform 300)
+  (pallet-size :initform 10))
 
 (define-method generate factory-world (&optional parameters)
   (declare (ignore parameters))
@@ -688,6 +690,7 @@
 	    (jmax (1- (truncate (/ height pallet-size)))))
 	(dotimes (i imax)
 	  (dotimes (j jmax)
+	    ;; don't wall in the player
 	    (when (not (= 0 i j))
 	      (trace-rectangle #'drop-wall
 			       (+ (random 3)
@@ -719,11 +722,9 @@
 
     (dotimes (i 20)
       [drop-cell self (clone =energy=) (random height) (random width) :no-collisions t])
-    (dotimes (i 6)
-      [drop-cell self (clone =rusty-wrench=) (random height) (random width) :no-collisions nil])
     (dotimes (i 10)
       [drop-cell self (clone =muon-pistol=) (random height) (random width) :no-collisions nil])
-    [drop-cell self (clone =rusty-wrench=) (random 10) (random 10) :no-collisions t]
+;;    [drop-cell self (clone =rusty-wrench=) 3 2 :no-collisions nil]
     (dotimes (i 70) 
       [drop-cell self (clone =mine=) (random height) (random width) :no-collisions t])))
 
