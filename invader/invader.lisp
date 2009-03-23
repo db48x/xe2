@@ -106,7 +106,7 @@
   (firing-with :initform :left-hand)
   ;; other stats
   (energy :initform (make-stat :base 300 :min 0 :max 1000))
-  (oxygen :initform (make-stat :base 120 :min 0 :max 100))
+  (oxygen :initform (make-stat :base 140 :min 0 :max 180))
   ;; default is do not generate step events; this turns it on
   (stepping :initform t))
 
@@ -115,6 +115,9 @@
   [make-equipment self]
   (let ((wrench (clone =rusty-wrench=)))
     [equip self [add-item self wrench]]))
+
+(define-method activate-equipment player (slot)
+  [activate [equipment-slot self slot]])
 
 ;;; When you run out of oxygen, you die. 
 
@@ -613,6 +616,49 @@
 	[expend-action-points <equipper> [stat-value self :attack-cost]]
       (message "Not enough energy to fire."))))
 
+;;; The ion shield
+
+(defcell ion-shield-wall 
+  (tile :initform "ion-shield-wall")
+  (categories :initform '(:obstacle :actor :target))
+  (hit-points :initform (make-stat :base 7 :min 0))
+  (clock :initform (+ 7 (random 3))))
+
+(define-method die ion-shield-wall ()
+  [queue>>drop-cell *active-world* (clone =flash=) <row> <column>]
+  [parent>>die self])
+
+(define-method run ion-shield-wall ()
+  (when (zerop <clock>)
+    [die self])
+  (decf <clock>))
+
+(defcell ion-shield 
+  (categories :initform '(:item :equipment))
+  (name :initform "Ion shield belt")
+  (tile :initform "ion-shield")
+  (equip-for :initform '(:belt))
+  (size :initform 5))
+
+(define-method activate ion-shield ()
+  (let* ((world *active-world*)
+	 (row [player-row world])
+	 (column [player-column world])
+	 (size <size>))
+    (when [expend-energy [get-player world] 100]
+      (labels ((drop-ion (r c)
+		 (prog1 nil
+		   [drop-cell world (clone =ion-shield-wall=) r c :no-collisions nil])))
+	(trace-rectangle #'drop-ion 
+			 (- row (truncate (/ size 2)))
+			 (- column (truncate (/ size 2)))
+			 size size)))))
+
+(define-method step ion-shield (stepper)
+  (when [is-player stepper]
+    [>>take stepper :direction :here :category :item]
+    [>>equip stepper 0]))
+
 ;;; The deadly Scanner can be avoided because it moves (mostly) predictably
 
 (defcell scanner 
@@ -684,7 +730,7 @@
 		 [drop-cell self (clone =tech-box=) y x :no-collisions t])))
       ;; create border around world
       (trace-rectangle #'drop-wall
-		       0 0 height width)
+		       0 0 width height)
       ;; drop pallets
       (let ((imax (1- (truncate (/ width pallet-size))))
 	    (jmax (1- (truncate (/ height pallet-size)))))
@@ -723,7 +769,9 @@
     (dotimes (i 20)
       [drop-cell self (clone =energy=) (random height) (random width) :no-collisions t])
     (dotimes (i 10)
-      [drop-cell self (clone =muon-pistol=) (random height) (random width) :no-collisions nil])
+      [drop-cell self (clone =muon-pistol=) (random height) (random width) :no-collisions t])
+    (dotimes (i 10)
+      [drop-cell self (clone =ion-shield=) (random height) (random width) :no-collisions t])
 ;;    [drop-cell self (clone =rusty-wrench=) 3 2 :no-collisions nil]
     (dotimes (i 70) 
       [drop-cell self (clone =mine=) (random height) (random width) :no-collisions t])))
@@ -760,6 +808,7 @@
     ("J" (:control) "fire :south .")
     ("N" (:control) "fire :southeast .")
     ;;
+    ("1" nil "activate-equipment :belt .")
     ("Q" (:control) "quit .")))
     ;;
 
@@ -797,6 +846,7 @@
     ("H" (:control) "fire :south .")
     ("B" (:control) "fire :southeast .")
     ;;
+    ("1" nil "activate-equipment :belt .")
     ("Q" (:control) "quit .")))
     ;;
 
@@ -860,7 +910,7 @@
     [resize narrator :height 100 :width 800]
     [move narrator :x 0 :y 500]
     [set-narrator world narrator]
-    [set-verbosity narrator 3]
+    [set-verbosity narrator 2]
     ;;
     [start world]
     ;;

@@ -230,6 +230,18 @@ line."
 auto-updated displays."  
   nil)
 
+(define-method print-object-tag formatter (ob)
+  [print-image self (field-value :tile ob)]
+  [space self]
+  [print self (if (stringp (field-value :name ob))
+		  (field-value :name ob)
+		  (let ((str (symbol-name (object-name (object-parent ob)))))
+		    (subseq str 1 (search "=" str :from-end t))))]
+  [space self])
+
+(define-method print-separator formatter ()
+  [print self "  :  " :foreground ".gray20"])
+
 (define-method render formatter ()
   [clear self]
   [update self]

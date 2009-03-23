@@ -394,7 +394,9 @@ Return ITEM if successful, nil otherwise."
 	    (let* ((cells [cells-at world nrow ncol])
 		   (index2 (cond 
 			     ((not (null category))
-			      (setf cell [category-at-p world nrow ncol category]))
+			      (progn
+				(setf cell [category-at-p world nrow ncol category])
+				(position cell cells)))
 			     ((and (eq :top index) (eq :here direction))
 			      ;; skip yourself and instead get the item you're standing on
 			      (- (fill-pointer cells) 2))

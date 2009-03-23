@@ -117,20 +117,6 @@ http://en.wikipedia.org/wiki/Passive_voice"
   [println self 
 	   (apply #'format nil control-string args)])
 
-(define-method print-object-tag narrator (ob)
-  [print-image self (field-value :tile ob)]
-  [space self]
-  [print self (if (stringp (field-value :name ob))
-		  (field-value :name ob)
-		  (let ((str (symbol-name (object-name (object-parent ob)))))
-		    (subseq str 1 (search "=" str :from-end t))))]
-  [space self]
-  (when (= 5 <verbosity>)
-    [print self (object-address-string ob) :foreground ".gray50"]))
-
-(define-method print-separator narrator ()
-  [print self "  :  " :foreground ".gray20"])
-
 (define-method narrate-message narrator (sender action receiver args &optional force)
   (when (> <verbosity> 0)
     (let ((A (or sender rlx:=asterisk=))
