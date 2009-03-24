@@ -279,16 +279,16 @@ action during PHASE."
       (step-in-direction <row> <column> direction)
     (if [obstacle-at-p *active-world* r c]
 	(when [is-player self]
-	  [>>narrateln :narrator "You cannot move in that direction."])
+	  [queue>>narrateln :narrator "You cannot move in that direction."])
 	(progn
-	  [>>expend-action-points self [stat-value self :movement-cost]]
-	  [>>move-cell :world self r c]
+	  [queue>>expend-action-points self [stat-value self :movement-cost]]
+	  [queue>>move-cell :world self r c]
 	  (when <stepping>
 	    (let ((cells [cells-at *active-world* r c])
 		  (x 0))
 	      (loop while (< x (fill-pointer cells))
 		   do (progn 
-			[>>step (aref cells x) self]
+			[queue>>step (aref cells x) self]
 			(incf x)))))))))
 
 (define-method drop cell (cell)
