@@ -69,8 +69,8 @@ always down---try to reach the bottom and eliminate all the robots!
 
 ** STARTING CONDITIONS
 
-  You have 100 hit points, a supply of oxygen and energy, and a rusty
-  wrench. Wrench attack is Alt-DIRECTION.
+You have 100 hit points, a supply of oxygen and energy, and a rusty
+wrench. Wrench attack is Alt-DIRECTION.
 
 ** DEATH
 
