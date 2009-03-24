@@ -1,0 +1,115 @@
+#+TITLE: Invader, the Roguelike!
+
+* INSTALLATION
+
+The separate file INSTALL has information on installing Invader and
+its prerequisites.
+
+* STARTING THE GAME
+
+For now, start SBCL and then at the REPL: 
+
+: (require :rlx)
+: (rlx:play "invader")
+
+* THE DISPLAY
+
+Hit points (HP), Oxygen level (OX), and energy (EN) are displayed at
+the top of the screen. Next comes the map window showing the
+environment. You are the red diamond in the top left corner. 
+
+* CONTROLS
+
+For directional control during movement and combat, you can choose
+between QWERTY and DVORAK layouts as follows:
+
+** QWERTY LAYOUT
+
+This is the default and adheres to the classic roguelike movement
+keymap.
+
+: y k u
+:  \|/
+: h-.-l
+:  /|\ 
+: b j n
+
+
+Alt-DIRECTION for melee attack with wrench, Control-DIRECTION to
+fire with an equipped gun.
+
+** DVORAK LAYOUT
+
+To change to DVORAK, add the following to your ~/.rlxrc:
+
+: (setf rlx:*user-keyboard-layout* :dvorak)
+
+Then use:
+ 
+: f t g
+:  \|/
+: d-.-n
+:  /|\ 
+: x h b
+   
+for directional control. 
+
+** OTHER COMMANDS
+
+Alt-DIRECTION for melee attack with wrench, Control-DIRECTION to fire
+with an equipped gun (if any). Press 1 (the digit one) to activate
+any equipped shield. Press Control-Q to quit at any time. 
+
+* GAMEPLAY
+
+You are a human infiltrating an enemy installation populated by
+psychotic robots. Use both melee attacks, ranged particle weapons, ion
+shields, and oxygen tanks in a hostile airless environment. The way is
+always down---try to reach the bottom and eliminate all the robots!
+
+** STARTING CONDITIONS
+
+  You have 100 hit points, a supply of oxygen and energy, and a rusty
+  wrench. Wrench attack is Alt-DIRECTION.
+
+** DEATH
+
+If your oxygen or hit-points reach zero, you die. 
+
+** ITEMS
+
+*** Med hypo 
+
+The medical hypo restores some hit points. 
+
+*** Oxygen tank
+*** Energy tank
+*** Ion shield
+*** TODO Electron bomb
+
+** WHERE TO FIND ITEMS
+
+*** The floor
+*** Crates
+*** TODO Dead crewmembers
+*** TODO Wall cabinets
+
+** ENEMIES   
+
+*** Berserkers
+
+The blue Berserkers run around looking for the player and will chase
+you if they get within sight distance. 
+
+*** Biclops 
+
+The purple Biclops are more dangerous, and chase the player from longer distances.
+Until then they hide around corners waiting for you.
+
+*** Scanners
+
+These yellow-eyed security drones explore the environment searching
+for you. Once you are detected, they stop and fire heat-seeking
+particles. Move in close and bash them with the wrench.
+
+

@@ -61,5 +61,6 @@ it.
   If you get an error about TRIVIAL-FEATURES-TESTS, try this:
   (require :trivial-features-tests)
   
-See the separate file $INSTALLDIR/invader/MANUAL for playing instructions.
+See the separate file $INSTALLDIR/invader/manual.org for playing
+instructions.
 
