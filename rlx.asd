@@ -21,7 +21,8 @@
 	       (:file "console")
 	       (:file "cells")
 	       (:file "widgets")
+	       (:file "narration")
 	       (:file "browser")
-	       (:file "worlds")
-	       (:file "narration")))
+	       (:file "worlds")))
+	       
 	       
