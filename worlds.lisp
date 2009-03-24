@@ -452,7 +452,7 @@ in a roguelike until the user has pressed a key."
 	<origin-width> width
 	<origin-height> height))
 
-(defparameter *viewport-margin* 2)
+(defparameter *viewport-margin* 6)
 
 (define-method adjust viewport ()
   "Move the viewport's origin if required to keep the player onscreen."

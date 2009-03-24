@@ -57,8 +57,12 @@
  (:name "skull" :type :image :file "skull.png")
  (:name "med-hypo" :type :image :file "medhypo.png")
  (:name "rusty-wrench" :type :image :file "rusty-wrench.png")
+
+ (:name "rook" :type :image :file "rook.png")
+
  (:name "flash-1" :type :image :file "flash-1.png")
  (:name "flash-2" :type :image :file "flash-2.png")
+
  (:name "tech-box" :type :image :file "tech-box.png")
  (:name "tech-box-debris" :type :image :file "tech-box-debris.png")
 
@@ -94,6 +98,11 @@
  (:name "bullet-trail-end-thin-southeast" :type :alias :data ":rotate 90:bullet-trail-end-thin-northeast")
  (:name "bullet-trail-end-thin-southwest" :type :alias :data ":rotate 180:bullet-trail-end-thin-northeast")
  (:name "bullet-trail-end-thin-northwest" :type :alias :data ":rotate 270:bullet-trail-end-thin-northeast")
+
+ (:name	"station-arm-horz" :type :image :file "station-arm-horz.png")
+ (:name "station-arm-vert" :type :alias :data ":rotate 90:station-arm-horz")
+ (:name "station-base" :type :image :file "station-base.png")
+
 
  (:name ".startup" :type :lisp :file "invader.lisp")
 )

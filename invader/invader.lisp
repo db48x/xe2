@@ -95,7 +95,7 @@
   (speed :initform (make-stat :base 7 :min 1 :max 20))
   (movement-cost :initform (make-stat :base 7))
   ;; vital stats
-  (hit-points :initform (make-stat :base 100 :min 0 :max 100)) 
+  (hit-points :initform (make-stat :base 150 :min 0 :max 150)) 
   (dexterity :initform (make-stat :base 11 :min 0 :max 30))
   (intelligence :initform (make-stat :base 13 :min 0 :max 30))
   (strength :initform (make-stat :base 16 :min 0 :max 30))
@@ -453,7 +453,7 @@
   (default-cost :initform (make-stat :base 5))
   (tile :initform "muon")
   (direction :initform :here)
-  (clock :initform 5))
+  (clock :initform 7))
 
 (define-method find-target muon-particle ()
   (let ((target [category-in-direction-p *active-world* 
@@ -707,10 +707,75 @@
 	      [choose-new-direction self])
 	    [queue>>move self <direction>])))))
 
+;;; The evil boss stations must be destroyed.
+
+(define-prototype station-arm-horz (:parent rlx:=cell=)
+  (tile :initform "station-arm-horz")
+  (categories :initform '(:obstacle :opaque :destructible))
+  (hit-points :initform (make-stat :base 10 :min 0)))
+
+(define-prototype station-arm-vert (:parent rlx:=cell=)
+  (tile :initform "station-arm-vert")
+  (categories :initform '(:obstacle :opaque :destructible))
+  (hit-points :initform (make-stat :base 10 :min 0)))
+
+(define-prototype station-base (:parent rlx:=cell=)
+  (tile :initform "station-base")
+  (categories :initform '(:obstacle :actor :equipper :opaque))
+  (speed :initform (make-stat :base 6))
+  (hit-points :initform (make-stat :base 40 :min 0))
+  (equipment-slots :initform '(:robotic-arm))
+  (max-items :initform (make-stat :base 3))
+  (stepping :initform t)
+  (attacking-with :initform :robotic-arm)
+  (energy :initform (make-stat :base 800 :min 0 :max 1000))
+  (firing-with :initform :robotic-arm)
+  (strength :initform (make-stat :base 13))
+  (dexterity :initform (make-stat :base 9)))
+
+(defvar *station-base-count* 0)
+
+(define-method loadout station-base ()
+  (let ((cannon (clone =lepton-cannon=)))
+    [equip self [add-item self cannon]])
+  (incf *station-base-count*))
+
+(define-method initialize station-base ()
+  [make-inventory self]
+  [make-equipment self])
+
+(define-method run station-base ()
+  (clon:with-field-values (row column) self
+    (let ((world *active-world*))
+      (if (< [distance-to-player world row column] 10)
+	  (let ((player-dir [direction-to-player world row column]))
+	    [expend-default-action-points self]
+	    [queue>>fire self player-dir])))))
+
+(define-method die station-base ()
+  (decf *station-base-count*)
+  (when (= 0 *station-base-count*)
+    [>>narrateln :narrator "YOU WIN!"])
+  [parent>>die self])
+
+(defun paint-station-piece (world row column maxsize)
+  (when (not [obstacle-at-p world row column])
+    (labels ((drop-horz (r c)
+	       [drop-cell world (clone =station-arm-horz=) r c])
+	     (drop-vert (r c)
+	       [drop-cell world (clone =station-arm-vert=) r c])
+	     (drop-base (r c)
+	       [drop-cell world (clone =station-base=) r c :loadout t]))
+      (trace-row #'drop-horz row column (max 0 (- column (random maxsize))))
+      (trace-row #'drop-horz row column (+ column (random maxsize)))
+      (trace-column #'drop-vert column row (max 0 (- row (random maxsize))))
+      (trace-column #'drop-vert column row (+ row (random maxsize)))
+      (drop-base row column))))
+
 ;;; The sinister robot factory is defined here. 
 
 (define-prototype factory-world (:parent rlx:=world=)
-  (width :initform 60)
+  (width :initform 48)
   (height :initform 300)
   (pallet-size :initform 10))
 
@@ -757,14 +822,18 @@
 	[drop-cell self (clone =berserker=) row column :loadout t :no-collisions t]))
     (dotimes (i 30) 
       [drop-cell self (clone =biclops=) (random height) (random width) :loadout t :no-collisions t])
+    (dotimes (i 20)
+      [drop-cell self (clone =scanner=) (random height) (random width) :loadout t :no-collisions t])
     ;; drop other stuff
-    (dotimes (n 20)
+    (dotimes (n 26)
       [drop-cell self (clone =med-hypo=) (random height) (random height) :no-collisions t])
     (dotimes (i 45)
       [drop-cell self (clone =oxygen-tank=) (random height) (random width) :no-collisions t])
-    
-    (dotimes (i 20)
-      [drop-cell self (clone =scanner=) (random height) (random width) :loadout t :no-collisions t])
+    ;; 
+
+    (setf *station-base-count* 0)
+    (loop do (paint-station-piece self (+ 200 (random 80)) (random width) 10)
+       while (zerop *station-base-count*))
 
     (dotimes (i 20)
       [drop-cell self (clone =energy=) (random height) (random width) :no-collisions t])
