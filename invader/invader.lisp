@@ -797,8 +797,8 @@
       (trace-rectangle #'drop-wall
 		       0 0 width height)
       ;; drop pallets
-      (let ((imax (truncate (/ width pallet-size)))
-	    (jmax (truncate (/ height pallet-size))))
+      (let ((imax (1+ (truncate (/ width pallet-size))))
+	    (jmax (1+ (truncate (/ height pallet-size)))))
 	(dotimes (i imax)
 	  (dotimes (j jmax)
 	    ;; don't wall in the player
