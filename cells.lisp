@@ -412,9 +412,9 @@ Return ITEM if successful, nil otherwise."
   (setf <row> nil <column> nil))
 
 (define-method delete-from-world cell ()
-  [delete-cell *active-world* self <row> <column>]
-  [clear-location self])
-      
+  [delete-cell *active-world* self <row> <column>])
+;;  [clear-location self])
+		       
 (define-method take cell (&key (direction :here) index category)
   (multiple-value-bind (cell row column)
       [find self :direction direction :index index :category category]
@@ -553,9 +553,11 @@ slot."
       
 (define-method fire cell (direction)
   (let ((weapon [equipment-slot self <firing-with>]))
-    (when weapon
-      [expend-action-points self [stat-value weapon :attack-cost]]
-      [fire weapon direction])))
+    (if weapon
+	(progn 
+	  [expend-action-points self [stat-value weapon :attack-cost]]
+	  [fire weapon direction])
+	[>>narrateln :narrator "Nothing to fire with."])))
 
 (define-method damage cell (damage-points)
   (if (has-field :hit-points self)

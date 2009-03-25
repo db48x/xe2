@@ -120,7 +120,10 @@
     [equip self [add-item self wrench]]))
 
 (define-method activate-equipment player (slot)
-  [activate [equipment-slot self slot]])
+  (let ((item [equipment-slot self slot]))
+    (if (clon:object-p item)
+	[activate item]
+	[>>narrateln :narrator "Nothing to activate."])))
 
 ;;; To wait a turn without moving, hit W.
 
@@ -227,7 +230,7 @@
   (categories :initform '(:actor))
   (tile :initform "explosion")
   (speed :initform (make-stat :base 10))
-  (damage-per-turn :initform 14)
+  (damage-per-turn :initform 20)
   (clock :initform 3))
 
 (define-method run explosion ()
@@ -389,7 +392,7 @@
 	 *mine-sensitivity*)
       (progn
 	(setf <tile> "mine-warn")
-	(when (< (random 5) 1)
+	(when (< (random 8) 1)
 	  [explode self]))
       (setf <tile> "mine")))
 
@@ -404,7 +407,10 @@
 	  (step-in-direction <row> <column> dir)
 	(boom r c 100)))
     ;; randomly sprinkle some fire around edges
-    (trace-rectangle #'boom (- <row> 2) (- <column> 2) 5 5)
+    (trace-rectangle #'boom 
+		     (- <row> 2) 
+		     (- <column> 2) 
+		     5 5)
     [die self]))
 
 (define-method step mine (stepper)
@@ -492,7 +498,7 @@
   (default-cost :initform (make-stat :base 5))
   (tile :initform "muon")
   (direction :initform :here)
-  (clock :initform 7))
+  (clock :initform 9))
 
 (define-method find-target muon-particle ()
   (let ((target [category-in-direction-p *active-world* 
@@ -872,7 +878,7 @@
     (dotimes (i 20)
       [drop-cell self (clone =scanner=) (random height) (random width) :loadout t :no-collisions t])
     ;; drop other stuff
-    (dotimes (n 26)
+    (dotimes (n 35)
       [drop-cell self (clone =med-hypo=) (random height) (random height) :no-collisions t])
     (dotimes (i 45)
       [drop-cell self (clone =oxygen-tank=) (random height) (random width) :no-collisions t])
