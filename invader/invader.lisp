@@ -385,10 +385,13 @@
 (defvar *mine-sensitivity* 3)
 
 (define-method run mine ()
-  (when (and (< [distance-to-player *active-world* <row> <column>] 
-		*mine-sensitivity*)
-	     (< (random 5) 1))
-    [explode self]))
+  (if (< [distance-to-player *active-world* <row> <column>] 
+	 *mine-sensitivity*)
+      (progn
+	(setf <tile> "mine-warn")
+	(when (< (random 5) 1)
+	  [explode self]))
+      (setf <tile> "mine")))
 
 (define-method explode mine ()
   (labels ((boom (r c &optional (probability 50))

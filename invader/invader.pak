@@ -2,8 +2,11 @@
  (:name "med-hypo" :type :image :file "medhypo.png")
  (:name "shock-probe" :type :image :file "shock-probe.png")
  (:name "biclops" :type :image :file "biclops.png")
+
  (:name "mine" :type :image :file "mine.png")
+ (:name "mine-warn" :type :image :file "mine-warn.png")
  (:name "explosion" :type :image :file "explosion.png")
+
  (:name "wall" :type :image :file "tech-wall.png")
  (:name "electron" :type :image :file "electron.png")
  (:name "energy" :type :image :file "energy.png")
