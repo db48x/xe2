@@ -74,7 +74,8 @@ wrench. Wrench attack is Alt-DIRECTION.
 
 ** DEATH
 
-If your oxygen or hit-points reach zero, you die. 
+If your oxygen or hit-points reach zero, you die. Movement uses 1
+oxygen point per move; melee combat uses more. 
 
 ** ITEMS
 

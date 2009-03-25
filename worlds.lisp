@@ -233,8 +233,8 @@ so on, until no more messages are generated."
 		 ;; now print message
 		 [narrate-message <narrator> sender method-key rec args])
 	       ;; stop everything if player dies
-	       (when (not [in-category player :dead])
-		 (apply #'send sender method-key rec args))))))))
+	       ;(when (not [in-category player :dead])
+		 (apply #'send sender method-key rec args)))))))
   
 ;; <: events :>
 ;; <: main :>
@@ -445,8 +445,6 @@ in a roguelike until the user has pressed a key."
       ;; update geometry
       (setf <width> (* tile-size origin-width))
       (setf <height> (* tile-size origin-height)))))
-
-
 
 (define-method set-origin viewport (&key x y height width)
   (setf <origin-x> x

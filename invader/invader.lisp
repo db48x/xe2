@@ -66,11 +66,12 @@
 ;;; You can refill your oxygen stores with these tanks.
 
 (defcell oxygen-tank
-  (tile :initform "oxygen-tank"))
+  (tile :initform "oxygen-tank")
+  (name :initform "Oxygen tank"))
 
 (define-method step oxygen-tank (stepper)
   (when [is-player stepper]
-    [>>stat-effect stepper :oxygen 50]
+    [>>stat-effect stepper :oxygen 40]
     [>>die self]))
 
 ;;; There are also energy tanks for replenishing ammo.
@@ -97,18 +98,18 @@
   (speed :initform (make-stat :base 7 :min 1 :max 20))
   (movement-cost :initform (make-stat :base 7))
   ;; vital stats
-  (hit-points :initform (make-stat :base 150 :min 0 :max 150)) 
+  (hit-points :initform (make-stat :base 125 :min 0 :max 125)) 
   (dexterity :initform (make-stat :base 11 :min 0 :max 30))
   (intelligence :initform (make-stat :base 13 :min 0 :max 30))
-  (strength :initform (make-stat :base 16 :min 0 :max 30))
+  (strength :initform (make-stat :base 14 :min 0 :max 30))
   ;; inventory-related data
   (max-items :initform (make-stat :base 1))
   ;; equipment-related slots
   (attacking-with :initform :right-hand)
   (firing-with :initform :left-hand)
   ;; other stats
-  (energy :initform (make-stat :base 300 :min 0 :max 1000))
-  (oxygen :initform (make-stat :base 140 :min 0 :max 180))
+  (energy :initform (make-stat :base 220 :min 0 :max 220))
+  (oxygen :initform (make-stat :base 120 :min 0 :max 120))
   ;; default is do not generate step events; this turns it on
   (stepping :initform t))
 
@@ -131,6 +132,7 @@
 
 (define-method run player ()
   (when (<= [stat-value self :oxygen] 0)
+    [>>narrateln :narrator "Your oxygen runs out and you die."]
     [die self]))
 
 ;;; When you fight a monster close-up, you use more oxygen.
@@ -225,7 +227,7 @@
   (categories :initform '(:actor))
   (tile :initform "explosion")
   (speed :initform (make-stat :base 10))
-  (damage-per-turn :initform 7)
+  (damage-per-turn :initform 14)
   (clock :initform 3))
 
 (define-method run explosion ()
@@ -345,7 +347,7 @@
  
 ;;; Glittering flash gives clues on locations of explosions/damage
 
-(define-prototype flash (:parent rlx:=cell=)
+(defcell flash 
   (clock :initform 2)
   (tile :initform "flash-1")
   (categories :initform '(:actor))
@@ -358,9 +360,24 @@
     (0 [>>die self]))
   (decf <clock>))
 
+;;; Sparkle is a bigger but faster flash.
+
+(defcell sparkle 
+  (clock :initform 1)
+  (tile :initform "sparkle")
+  (categories :initform '(:actor))
+  (speed :initform (make-stat :base 10)))
+
+(define-method run sparkle ()
+  [expend-action-points self 10]
+  (case <clock>
+    (1 (setf <tile> "sparkle"))
+    (0 [>>die self]))
+  (decf <clock>))
+
 ;;; The exploding mine
 
-(define-prototype mine (:parent rlx:=cell=)
+(defcell mine 
   (name :initform "Contact mine")
   (categories :initform '(:item :target))
   (tile :initform "mine"))
@@ -369,7 +386,7 @@
   nil)
 
 (define-method explode mine ()
-  (dolist (dir (list :here :north :south :east :west))
+  (dolist (dir rlx:*compass-directions*)
     (multiple-value-bind (r c)
       (step-in-direction <row> <column> dir)
       (when [in-bounds-p *active-world* r c]
@@ -566,9 +583,11 @@
     [die self]))
 
 (define-prototype lepton-particle (:parent rlx:=cell=)
-  (categories :initform '(:actor))
+  (categories :initform '(:actor :target))
   (speed :initform (make-stat :base 14))
+  (hit-damage :initform (make-stat :base 14))
   (default-cost :initform (make-stat :base 2))
+  (hit-points :initform (make-stat :base 5))
   (movement-cost :initform (make-stat :base 4))
   (tile :initform "lepton")
   (direction :initform :here)
@@ -581,7 +600,7 @@
     (if target
 	(progn	
 	  [queue>>drop target (clone =flash=)]
-	  [queue>>damage target 6]
+	  [queue>>damage target [stat-value self :hit-damage]]
 	  [queue>>die self])
 	(progn 
 	  [queue>>drop self (clone =lepton-trail= <direction>)]
@@ -598,6 +617,11 @@
     (when (and (zerop <clock>) 
 	       (not [in-category self :dead]))
       [queue>>die self])))
+
+(define-method damage lepton-particle (points)
+  (declare (ignore points))
+  [>>drop self (clone =sparkle=)]
+  [>>die self])
       
 (define-method impel lepton-particle (direction)
   (assert (member direction *compass-directions*))
@@ -681,7 +705,7 @@
   (attacking-with :initform :robotic-arm)
   (energy :initform (make-stat :base 800 :min 0 :max 1000))
   (firing-with :initform :robotic-arm)
-  (strength :initform (make-stat :base 16))
+  (strength :initform (make-stat :base 24))
   (dexterity :initform (make-stat :base 12)))
 
 (define-method choose-new-direction scanner ()
@@ -842,7 +866,7 @@
 
     (setf *station-base-count* 0)
     (loop do (paint-station-piece self (+ 200 (random 80)) (random width) 10)
-       while (zerop *station-base-count*))
+       while (< *station-base-count* 3))
 
     (dotimes (i 20)
       [drop-cell self (clone =energy=) (random height) (random width) :no-collisions t])
@@ -989,7 +1013,7 @@
     [resize narrator :height 100 :width 800]
     [move narrator :x 0 :y 500]
     [set-narrator world narrator]
-    [set-verbosity narrator 2]
+    [set-verbosity narrator 1]
     ;;
     [start world]
     ;;

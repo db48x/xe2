@@ -103,6 +103,7 @@
  (:name "station-arm-vert" :type :alias :data ":rotate 90:station-arm-horz")
  (:name "station-base" :type :image :file "station-base.png")
 
+ (:name "sparkle" :type :image :file "sparkle.png")
 
  (:name ".startup" :type :lisp :file "invader.lisp")
 )

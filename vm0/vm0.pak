@@ -32,8 +32,6 @@
  (:name "muon-pistol" :type :image :file "muon-pistol.png")
  (:name "muon" :type :image :file "muon.png")
 
- (:name "lepton-cannon" :type :image :file "gun.png")
-
  (:name "muon-north" :type :image :file "muon-north.png")
  (:name "muon-east" :type :alias :data ":rotate 90:muon-north")
  (:name "muon-south" :type :alias :data ":rotate 180:muon-north")
@@ -65,6 +63,7 @@
  (:name "bullet-trail-end-northwest" :type :alias :data ":rotate 270:bullet-trail-end-northeast")
 
  (:name "lepton" :type :image :file "lepton.png")
+ (:name "lepton-cannon" :type :image :file "gun.png")
 
  (:name "lepton-north" :type :image :file "lepton-north.png")
  (:name "lepton-east" :type :alias :data ":rotate 90:lepton-north")
