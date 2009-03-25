@@ -124,6 +124,7 @@
 ;;; To wait a turn without moving, hit W.
 
 (define-method wait player ()
+  [>>stat-effect self :oxygen -1]
   [expend-action-points self <action-points>])
 
 ;;; When you run out of oxygen, you die. 
@@ -927,7 +928,6 @@
     ("W" nil "wait .")
     ("1" nil "activate-equipment :belt .")
     ("Q" (:control) "quit .")))
-    ;;
 
 (define-method install-keybindings invader-prompt ()
   (let ((keys (ecase rlx:*user-keyboard-layout* 
