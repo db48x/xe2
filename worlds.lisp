@@ -301,6 +301,7 @@ in a roguelike until the user has pressed a key."
 ;; <: lighting :>
 
 (define-method render-lighting world (cell)
+  (message "RENDER-LIGHTING ~A" (field-value :light-radius cell))
   (let* ((light-radius (field-value :light-radius cell))
 	 (ambient <ambient-light>)
 	 (light-grid <light-grid>)
@@ -318,7 +319,7 @@ in a roguelike until the user has pressed a key."
       (when (evenp total)
 	(incf total))
       (labels ((light-square (row column)
-		 (setf (aref light-grid row column) turn-number))
+		 (setf (aref light-grid row column) 1))
 	       (collect-line-point (x y)
 		 (push (list x y) line) nil)
 	       (make-line (row column)
@@ -329,7 +330,8 @@ in a roguelike until the user has pressed a key."
 		   ;; right of x1. We need to reverse the list of points if this
 		   ;; happens, otherwise shadows will be cast the wrong way.
 		   (if flipped
-		       (setf line (nreverse line))
+		       (progn (setf line (nreverse line))
+			      (message "LINE: ~A" line))
 		       ;; Furthermore, when a non-flipped line is drawn, the endpoint 
 		       ;; isn't actually visited, so we append it to the list. (Maybe this 
 		       ;; is a bug in my implementation?)
@@ -427,7 +429,7 @@ in a roguelike until the user has pressed a key."
 	  ;; <: lighting :>
 	    (if (array-in-bounds-p grid (+ i origin-y) (+ j origin-x))
 		(when (or (eq :total ambient-light)
-			  (= turn-number (aref light-grid (+ i origin-y) (+ j origin-x))))
+			  (= 1 (aref light-grid (+ i origin-y) (+ j origin-x))))
 		  (progn (setf objects (aref grid 
 					     (+ i origin-y)
 					     (+ j origin-x)))

@@ -90,7 +90,9 @@
 (defcell player 
   (tile :initform "player")
   (name :initform "Player")
-  (categories :initform '(:actor :player :obstacle :target :container))
+  (categories :initform '(:actor :player :obstacle :target :container :light-source))
+  ;; lighting
+  (light-radius :initform 7)
   ;; action points and movement
   (speed :initform (make-stat :base 7 :min 1 :max 20))
   (movement-cost :initform (make-stat :base 7))
@@ -118,6 +120,11 @@
 
 (define-method activate-equipment player (slot)
   [activate [equipment-slot self slot]])
+
+;;; To wait a turn without moving, hit W.
+
+(define-method wait player ()
+  [expend-action-points self <action-points>])
 
 ;;; When you run out of oxygen, you die. 
 
@@ -777,6 +784,7 @@
 (define-prototype factory-world (:parent rlx:=world=)
   (width :initform 48)
   (height :initform 300)
+  (ambient-light :initform :total)
   (pallet-size :initform 10))
 
 (define-method generate factory-world (&optional parameters)
@@ -796,7 +804,7 @@
       ;; create border around world
       (trace-rectangle #'drop-wall
 		       0 0 width height)
-      ;; drop pallets
+      ;; drop wall blocks ("pallets")
       (let ((imax (1+ (truncate (/ width pallet-size))))
 	    (jmax (1+ (truncate (/ height pallet-size)))))
 	(dotimes (i imax)
@@ -877,6 +885,7 @@
     ("J" (:control) "fire :south .")
     ("N" (:control) "fire :southeast .")
     ;;
+    ("W" nil "wait .")
     ("1" nil "activate-equipment :belt .")
     ("Q" (:control) "quit .")))
     ;;
@@ -915,6 +924,7 @@
     ("H" (:control) "fire :south .")
     ("B" (:control) "fire :southeast .")
     ;;
+    ("W" nil "wait .")
     ("1" nil "activate-equipment :belt .")
     ("Q" (:control) "quit .")))
     ;;
