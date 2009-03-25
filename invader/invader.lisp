@@ -1000,7 +1000,7 @@
 	       :foreground ".white"]
 	[print self " "]
 	[print self (format nil "~S" value) 
-	       :foreground ".white"
+	       :foreground ".yellow"
 	       :background color]
 	[print self " "]))))
 
@@ -1013,8 +1013,8 @@
 	  [print self nil :image tile]
 	  [print self " "]
 	  [print self name]
-	  [print self " "])
-	[print self "EMPTY "])))
+	  [print self "  "])
+	[print self "EMPTY  "])))
 
 (define-method update status ()
   [delete-all-lines self]
