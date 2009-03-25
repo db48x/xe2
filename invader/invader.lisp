@@ -988,13 +988,51 @@
 (define-method set-character status (character)
   (setf <character> character))
 
+(define-method print-stat status (stat-name &key warn-below)
+  (let* ((stat (field-value stat-name <character>))
+	 (value [stat-value <character> stat-name]))
+    (destructuring-bind (&key min max base delta) stat
+      (let ((color (if (and (numberp warn-below)
+			    (< value warn-below))
+		       ".red"
+		       ".blue")))
+	[print self (symbol-name stat-name)
+	       :foreground ".white"]
+	[print self " "]
+	[print self (format nil "~S" value) 
+	       :foreground ".white"
+	       :background color]
+	[print self " "]))))
+
+(define-method print-equipment-slot status (slot-name)
+  [print self (symbol-name slot-name)]
+  [print self ": "]
+  (let* ((item [equipment-slot <character> slot-name]))
+    (if item
+	(clon:with-field-values (name tile) item
+	  [print self nil :image tile]
+	  [print self " "]
+	  [print self name]
+	  [print self " "])
+	[print self "EMPTY "])))
+
 (define-method update status ()
   [delete-all-lines self]
   (let ((char <character>))
+    [print self nil :image (field-value :tile char)]
     [print self (field-value :name char)]
-    [print self (format nil "  HP: ~S" [stat-value char :hit-points])]
-    [print self (format nil "  OX: ~S" [stat-value char :oxygen])]
-    [println self (format nil "  EN: ~S" [stat-value char :energy])]))
+    [print self "  Statistics:  "]
+    [print-stat self :hit-points :warn-below 35]
+    [print self " "]
+    [print-stat self :oxygen :warn-below 35]
+    [print self " "]
+    [print-stat self :energy :warn-below 50]
+    [println self " "]
+    [print self "  Equipment:  "]
+    [print-equipment-slot self :right-hand]
+    [print-equipment-slot self :left-hand]
+    [print-equipment-slot self :belt]
+    [println self " "]))
 
 ;;; Main program.
 
@@ -1020,18 +1058,18 @@
     [set-player world player]
     [drop-cell world player 1 1 :loadout t]
     ;;
-    [resize status :height 20 :width 800]
+    [resize status :height 40 :width 800]
     [move status :x 5 :y 0]
     [set-character status player]
     ;;
     [set-world viewport world]
     [resize viewport :height 480 :width 800]
-    [move viewport :x 0 :y 20]
+    [move viewport :x 0 :y 40]
     [set-origin viewport :x 0 :y 0 :height 27 :width 50]
     [adjust viewport]
     ;;
-    [resize narrator :height 100 :width 800]
-    [move narrator :x 0 :y 500]
+    [resize narrator :height 80 :width 800]
+    [move narrator :x 0 :y 520]
     [set-narrator world narrator]
     [set-verbosity narrator 1]
     ;;
