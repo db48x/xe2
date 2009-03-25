@@ -379,19 +379,30 @@
 
 (defcell mine 
   (name :initform "Contact mine")
-  (categories :initform '(:item :target))
+  (categories :initform '(:item :target :actor))
   (tile :initform "mine"))
 
+(defvar *mine-sensitivity* 3)
+
 (define-method run mine ()
-  nil)
+  (when (and (< [distance-to-player *active-world* <row> <column>] 
+		*mine-sensitivity*)
+	     (< (random 5) 1))
+    [explode self]))
 
 (define-method explode mine ()
-  (dolist (dir rlx:*compass-directions*)
-    (multiple-value-bind (r c)
-      (step-in-direction <row> <column> dir)
-      (when [in-bounds-p *active-world* r c]
-  	[drop-cell *active-world* (clone =explosion=) r c :no-collisions nil])))
-  [die self])
+  (labels ((boom (r c &optional (probability 50))
+	     (prog1 nil
+	       (when (and (< (random 100) probability)
+			  [in-bounds-p *active-world* r c])
+		 [drop-cell *active-world* (clone =explosion=) r c :no-collisions nil]))))
+    (dolist (dir rlx:*compass-directions*)
+      (multiple-value-bind (r c)
+	  (step-in-direction <row> <column> dir)
+	(boom r c 100)))
+    ;; randomly sprinkle some fire around edges
+    (trace-rectangle #'boom (- <row> 2) (- <column> 2) 5 5)
+    [die self]))
 
 (define-method step mine (stepper)
   (declare (ignore stepper))
