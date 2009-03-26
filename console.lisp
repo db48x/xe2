@@ -146,7 +146,7 @@ else.")
 (defun dispatch-event (event)
   "Send EVENT to the handler function."
   (if *event-handler-function*
-      (progn (message "~A" event)
+      (progn (message "TRANSLATED EVENT: ~A" event)
 	     (funcall *event-handler-function* event))
       (error "No event handler registered.")))
 
@@ -195,7 +195,7 @@ key event symbols."
 
 (defun make-event (sdl-key sdl-mods)
   "Create a normalized event out of the SDL data SDL-KEY and SDL-MODS."
-  (message "~A" (list sdl-key sdl-mods))
+  (message "SDL KEY AND MODS: ~A" (list sdl-key sdl-mods))
   (normalize-event
    (cons (make-key-string sdl-key)
 	 (mapcar #'make-key-modifier-symbol
