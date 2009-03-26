@@ -170,7 +170,22 @@ key event symbols."
       (:SDL-KEY-MOD-NUM :num-lock)
       (:SDL-KEY-MOD-CAPS :caps-lock)
       (:SDL-KEY-MOD-MODE nil)
-      (:SDL-KEY-MOD-RESERVED nil)))
+      (:SDL-KEY-MOD-RESERVED nil)
+
+      (:SDL-KEY-NONE nil)
+      (:SDL-KEY-LSHIFT :shift)
+      (:SDL-KEY-RSHIFT :shift)
+      (:SDL-KEY-LCTRL :control)
+      (:SDL-KEY-RCTRL :control)
+      (:SDL-KEY-LALT :alt)
+      (:SDL-KEY-RALT :alt)
+      (:SDL-KEY-LMETA :meta)
+      (:SDL-KEY-RMETA :meta)
+      (:SDL-KEY-NUM :num-lock)
+      (:SDL-KEY-CAPS :caps-lock)
+      (:SDL-KEY-MODE nil)
+      (:SDL-KEY-RESERVED nil)
+      ))
 
 (defun make-key-string (sdl-key)
   "Translate from :SDL-KEY-X to the string \"X\"."
