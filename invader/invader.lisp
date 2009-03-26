@@ -921,6 +921,15 @@
     ("J" (:alt) "attack :south .")
     ("N" (:alt) "attack :southeast .")
     ;;
+    ("Y" (:meta) "attack :northwest .")
+    ("K" (:meta) "attack :north .")
+    ("U" (:meta) "attack :northeast .")
+    ("H" (:meta) "attack :west .")
+    ("L" (:meta) "attack :east .")
+    ("B" (:meta) "attack :southwest .")
+    ("J" (:meta) "attack :south .")
+    ("N" (:meta) "attack :southeast .")
+    ;;
     ("Y" (:control) "fire :northwest .")
     ("K" (:control) "fire :north .")
     ("U" (:control) "fire :northeast .")
@@ -959,6 +968,15 @@
     ("X" (:alt) "attack :southwest .")
     ("H" (:alt) "attack :south .")
     ("B" (:alt) "attack :southeast .")
+    ;;
+    ("F" (:meta) "attack :northwest .")
+    ("T" (:meta) "attack :north .")
+    ("G" (:meta) "attack :northeast .")
+    ("D" (:meta) "attack :west .")
+    ("N" (:meta) "attack :east .")
+    ("X" (:meta) "attack :southwest .")
+    ("H" (:meta) "attack :south .")
+    ("B" (:meta) "attack :southeast .")
     ;;
     ("F" (:control) "fire :northwest .")
     ("T" (:control) "fire :north .")
