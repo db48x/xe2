@@ -1,4 +1,4 @@
-;;; invader.lisp --- you against the robots
+;; invader.lisp --- you against the robots
 
 ;; Copyright (C) 2009  David O'Toole
 
@@ -35,7 +35,6 @@
 ;;   - Rooks require ranged hits, their armor is too strong for wrenches.
 ;;   - Oxygen is constantly depleting, refills are required.
 ;;   - Minimal inventory management, one slot, all pickups are "activate-on-step"
-;;   - You can't win; it just gets harder until you die, and your score is tallied. 
 
 ;;; Packaging
 
@@ -77,7 +76,7 @@
 
 ;;; There are also energy tanks for replenishing ammo.
 
-(define-prototype energy (:parent rlx:=cell=)
+(defcell energy 
   (tile :initform "energy")
   (name :initform "Energy Tank"))
 
@@ -106,7 +105,7 @@
   (strength :initform (make-stat :base 14 :min 0 :max 40))
   (defense :initform (make-stat :base 14 :min 0 :max 40))
   ;; inventory-related data
-  (max-items :initform (make-stat :base 1))
+  (max-items :initform (make-stat :base 2))
   ;; equipment-related slots
   (attacking-with :initform :right-hand)
   (firing-with :initform :left-hand)
@@ -245,10 +244,24 @@
     [>>stat-effect stepper :defense 5]
     [>>die self]))
 
+;;; Speed powerup
+
+(defcell speed-up 
+  (categories :initform '(:item))
+  (tile :initform "speedup")
+  (name :initform "Speed power-up"))
+
+(define-method step speed-up (stepper)
+  (when [is-player stepper]
+    [>>say :narrator "SPEED UP!"]
+    [>>stat-effect stepper :speed 2]
+    [>>die self]))
+
 (defun random-powerup ()
-  (clone (case (random 2)
+  (clone (case (random 3)
 	   (0 =defense-up=)
-	   (1 =level-up=))))
+	   (1 =level-up=)
+	   (2 =speed-up=))))
 
 ;;; A melee weapon for enemy robots: the Shock Probe
 
@@ -495,19 +508,35 @@
 
 (define-method die tech-box ()
   [>>drop self (clone =tech-box-debris=)]
-  (when (<= (random 20) 2)
+  (when (<= (random 16) 2)
     [>>drop self 
-	    (case (random 3)
-	      (0 =oxygen-tank=)
-	      (1 =energy=)
-	      (2 =med-hypo=))])
+	    (if (= 0 (random 100))
+		(random-powerup)
+		(case (random 3)
+		  (0 =oxygen-tank=)
+		  (1 =energy=)
+		  (2 =med-hypo=)))])
   [parent>>die self])
+
+;;; One of the dead crew is holding the Ankh.
+
+(defcell ankh
+  (tile :initform "ankh")
+  (name :initform "Ankh key")
+  (categories :initform '(:item)))
+
+(defparameter *ankh-generated-p* nil)
+
+(define-method step ankh (stepper)
+  (when [is-player stepper]
+    [>>take stepper :direction :here :category :item]))
 
 ;;; Dead crewmember with random oxygen or possibly health.
 
 (defcell crew-member 
   (tile :initform "crew")
-  (categories :initform '(:item :target)))
+  (categories :initform '(:item :target))
+  (has-ankh :initform nil))
 
 (define-method step crew-member (stepper)
   (when [is-player stepper]
@@ -525,12 +554,27 @@
 	[>>say :narrator "You recover ~D units of energy from the crewmember's battery pack." 
 	       energy]
 	[>>stat-effect stepper :energy energy]))
+    (when <has-ankh>
+      (let ((ankh (clone =ankh=)))
+	[>>say :narrator "You found the Ankh!"]
+	(if (numberp [add-item stepper ankh])
+	    [>>say :narrator "You took the ankh."]
+	    (progn 
+	      [>>drop self ankh]
+	      [>>say :narrator 
+		     "You drop the ankh on the floor, because there is no room to hold it."]))))
     [>>die self]))
+    
 
 (define-method damage crew-member (points)
   (declare (ignore points))
   [>>say :narrator "The crewmember's body was destroyed!"]
   [>>die self])
+
+(define-method loadout crew-member ()
+  (when (not *ankh-generated-p*)
+    (setf <has-ankh> t
+	  *ankh-generated-p* t)))
 
 ;;; Muon particles, trails, and pistols
 
@@ -937,6 +981,7 @@
 
 (define-method generate factory-world (&optional parameters)
   (declare (ignore parameters))
+  (setf *ankh-generated-p* nil)
   (clon:with-field-values (height width pallet-size) self
     ;; create airless corridor space
     (dotimes (i height)
@@ -999,10 +1044,12 @@
       [drop-cell self (clone =energy=) (random height) (random width) :no-collisions t])
     (dotimes (i 4)
       [drop-cell self (clone =med-pack=) (random height) (random width) :no-collisions t])
-    (dotimes (i 5)
+    (dotimes (i 4)
       [drop-cell self (clone =level-up=) (random height) (random width) :no-collisions t])
-    (dotimes (i 5)
+    (dotimes (i 4)
       [drop-cell self (clone =defense-up=) (random height) (random width) :no-collisions t])
+    (dotimes (i 4)
+      [drop-cell self (clone =speed-up=) (random height) (random width) :no-collisions t])
     (dotimes (i 10)
       [drop-cell self (clone =muon-pistol=) (random height) (random width) :no-collisions t])
     (dotimes (i 10)
@@ -1126,7 +1173,7 @@
       (let ((color (if (and (numberp warn-below)
 			    (< value warn-below))
 		       ".red"
-		       ".blue")))
+		       ".gray20")))
 	[print self (symbol-name stat-name)
 	       :foreground ".white"]
 	[print self " "]
@@ -1147,11 +1194,20 @@
 	  [print self "  "])
 	[print self "EMPTY  "])))
 
+(define-method print-inventory-slot status (slot-number)
+  [print self (format nil "[~D]: " slot-number)]
+  (let ((item [item-at <character> slot-number]))
+    (if item
+	(clon:with-field-values (name tile) item
+				[print self nil :image tile]
+				[print self " "]
+				[print self (get-some-object-name item)]
+				[print self "  "])
+	[print self "EMPTY  "])))
+
 (define-method update status ()
   [delete-all-lines self]
   (let ((char <character>))
-    [print self nil :image (field-value :tile char)]
-    [print self (field-value :name char)]
     [print self "  Statistics:  "]
     [print-stat self :hit-points :warn-below 35]
     [print self " "]
@@ -1162,12 +1218,18 @@
     [print-stat self :strength :warn-below 10]
     [print self " "]
     [print-stat self :defense :warn-below 10]
+    [print self " "]
+    [print-stat self :speed :warn-below 2]
     [println self " "]
     [print self "  Equipment:  "]
     [print-equipment-slot self :right-hand]
     [print-equipment-slot self :left-hand]
     [print-equipment-slot self :belt]
-    [println self " "]))
+    [newline self]
+    [print self "  Inventory:  "]
+    [print-inventory-slot self 0]
+    [print-inventory-slot self 1]
+    [newline self]))
 
 ;;; Main program.
 
@@ -1193,13 +1255,13 @@
     [set-player world player]
     [drop-cell world player 1 1 :loadout t]
     ;;
-    [resize status :height 40 :width 800]
+    [resize status :height 60 :width 800]
     [move status :x 5 :y 0]
     [set-character status player]
     ;;
     [set-world viewport world]
-    [resize viewport :height 480 :width 800]
-    [move viewport :x 0 :y 40]
+    [resize viewport :height 460 :width 800]
+    [move viewport :x 0 :y 60]
     [set-origin viewport :x 0 :y 0 :height 27 :width 50]
     [adjust viewport]
     ;;
@@ -1213,7 +1275,6 @@
     (install-widgets prompt status viewport narrator)))
 
 (invader)
-
 
 ;;; invader.lisp ends here
 

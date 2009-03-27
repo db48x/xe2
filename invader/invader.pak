@@ -56,7 +56,10 @@
  (:name "electron" :type :image :file "electron.png")
  (:name "scanner" :type :image :file "scanner.png")
  (:name "levelup" :type :image :file "levelup.png")
+ (:name "speedup" :type :image :file "speedup.png")
  (:name "defenseup" :type :image :file "defenseup.png")
+
+ (:name "ankh" :type :image :file "ankh.png")
 
  (:name "energy" :type :image :file "energy.png")
  (:name "gun" :type :image :file "gun.png")
