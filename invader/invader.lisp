@@ -289,8 +289,7 @@
 
 (define-method step rusty-wrench (stepper)
   (when [is-player stepper]
-    [>>take stepper :direction :here :category :item]
-    [>>equip stepper 0]))
+    [>>take stepper :direction :here :category :item]))
 
 ;;; An explosion
 
@@ -565,10 +564,12 @@
 		     "You drop the ankh on the floor, because there is no room to hold it."]))))
     [>>die self]))
     
-
 (define-method damage crew-member (points)
   (declare (ignore points))
   [>>say :narrator "The crewmember's body was destroyed!"]
+  (when <has-ankh>
+    [>>say "Something is left behind in the ashes."]
+    [>>drop self (clone =ankh=)])
   [>>die self])
 
 (define-method loadout crew-member ()
@@ -848,8 +849,7 @@
 (define-method step ion-shield (stepper)
   (when [is-player stepper]
     [>>say :narrator "You've found the Ion Shield Belt."]
-    [>>take stepper :direction :here :category :item]
-    [>>equip stepper 0]))
+    [>>take stepper :direction :here :category :item]))
 
 ;;; The deadly Scanner can be avoided because it moves (mostly) predictably
 
@@ -1100,7 +1100,9 @@
     ("N" (:control) "fire :southeast .")
     ;;
     ("W" nil "wait .")
-    ("1" nil "activate-equipment :belt .")
+    ("0" nil "equip 0 .")
+    ("1" nil "equip 1 .")
+    ("2" nil "activate-equipment :belt .")
     ("Q" (:control) "quit .")))
     ;;
 
@@ -1148,7 +1150,9 @@
     ("B" (:control) "fire :southeast .")
     ;;
     ("W" nil "wait .")
-    ("1" nil "activate-equipment :belt .")
+    ("0" nil "equip 0 .")
+    ("1" nil "equip 1 .")
+    ("2" nil "activate-equipment :belt .")
     ("Q" (:control) "quit .")))
 
 (define-method install-keybindings invader-prompt ()
