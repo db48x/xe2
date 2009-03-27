@@ -47,7 +47,8 @@
   ;; <: lighting :>
   (light-grid 
    :documentation 
-   "A 2d array of integers giving the light level at that point in <grid>.")
+   "A 2d array of integers giving the light level at that point in <grid>.
+At the moment, only 0=off and 1=on are supported.")
   (ambient-light :initform :total :documentation 
 		 "Radius of ambient visibility. :total means that lighting is turned off.")
   ;; <: action-points :>
@@ -300,7 +301,6 @@ in a roguelike until the user has pressed a key."
 ;; <: lighting :>
 
 (define-method render-lighting world (cell)
-  (message "RENDER-LIGHTING ~A" (field-value :light-radius cell))
   (let* ((light-radius (field-value :light-radius cell))
 	 (ambient <ambient-light>)
 	 (light-grid <light-grid>)
@@ -351,11 +351,17 @@ in a roguelike until the user has pressed a key."
 	       (collect-octagon-point (r c)
 		 (push (list r c) octagon) nil)
 	       (light-octagon (row column radius)
-		 (trace-octagon #'collect-octagon-point 
-				row column radius :thicken)
-		 (dolist (point octagon)
-		   (destructuring-bind (row column) point
-		     (light-line row column)))))
+	       	 (trace-octagon #'light-square
+	       			row column radius :thicken)))
+	       	 ;; (dolist (point octagon)
+	       	 ;;   (destructuring-bind (row column) point
+	       	 ;;     (light-line row column)))))
+	       ;; (light-octagon (row column radius)
+	       ;; 	 (trace-octagon #'collect-octagon-point 
+	       ;; 			row column radius :thicken)
+	       ;; 	 (dolist (point octagon)
+	       ;; 	   (destructuring-bind (row column) point
+	       ;; 	     (light-line row column)))))
 	(light-octagon source-row source-column total)))))
 
 (define-method generate world (&optional parameters)

@@ -476,39 +476,39 @@ slot."
   (setf (getf <equipment> slot) nil))
 
 (define-method equip cell (&optional reference slot)
-  (let* ((item [resolve self reference])
-	 (match [equipment-match self item])
-	 (valid [is-equipment item])
-	 (slot2 (or slot (when match 
-			   (first match))))
-	 (open (when slot2
-		 (null [equipment-slot self slot2]))))
-    (if (and valid match open)
-	(progn 
-	  [expend-default-action-points self]
-	  [add-equipment self item]
-	  [add-category item :equipped]
-	  ;; remove from inventory
-	  [remove-item self item]
-	  (setf (field-value :equipper item) self)))))
-;; 	  ;; notify user of success
-;; 	  [narrate :narrator "You equip "]
-;; 	  [print-object-tag :narrator item]
-;; 	  [newline :narrator]
-;; )
-;; 	(progn
-;; 	  ;; explain failure
-;; 	  [narrate :narrator "You cannot equip "]
-;; 	  [print-object-tag :narrator item]
-;; 	  [newline :narrator]
-;; 	  (cond
-;; 	    ((not valid) 
-;; 	     [narrateln :narrator "This item is not a piece of equipment."])
-;; 	    ((and match (not open))
-;; 	     [narrateln :narrator "You must un-equip the ~A first." slot2])
-;; 	    ((not match)
-;; 	     [narrateln :narrator "This can only be equipped in one of: ~A"
-;; 			       (field-value :equip-for item)]))))))
+  (let ((item [resolve self reference]))
+    (when item
+      (let* ((match [equipment-match self item])
+	     (valid [is-equipment item])
+	     (slot2 (or slot (when match 
+			       (first match))))
+	     (open (when slot2
+		     (null [equipment-slot self slot2]))))
+	(if (and valid match open)
+	    (progn 
+	      [expend-default-action-points self]
+	      [add-equipment self item]
+	      [add-category item :equipped]
+	      ;; remove from inventory
+	      [remove-item self item]
+	      (setf (field-value :equipper item) self)))))))
+	;;   ;; notify user of success
+	;;   [>>say :narrator "You equip "]
+	;;   [>>print-object-tag :narrator item]
+	;;   [>>newline :narrator ])
+	;; (progn
+	;;   ;; explain failure
+	;;   [>>say :narrator "You cannot equip "]
+	;;   [>>print-object-tag :narrator item]
+	;;   [>>newline :narrator]
+	;;   (cond
+	;;     ((not valid) 
+	;;      [>>say :narrator "This item is not a piece of equipment."])
+	;;     ((and match (not open))
+	;;      [>>say :narrator "You must un-equip the ~A first." slot2])
+	;;     ((not match)
+	;;      [>>say :narrator "This can only be equipped in one of: ~A"
+	;; 		       (field-value :equip-for item)])))))))
 
 (define-method dequip cell (slot)
   ;; TODO document

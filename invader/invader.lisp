@@ -684,8 +684,7 @@
 
 (define-method step muon-pistol (stepper)
   (when [is-player stepper]
-    [>>take stepper :direction :here :category :item]
-    [>>equip stepper 0]))
+    [>>take stepper :direction :here :category :item]))
 
 ;;; Lepton Seeker Cannon
 
@@ -1021,10 +1020,10 @@
       (let ((row (random height))
 	    (column (random width)))
 	[drop-cell self (clone =berserker=) row column :loadout t :no-collisions t]))
-    (dotimes (i 30) 
-      [drop-cell self (clone =biclops=) (+ 100 (random (- height 100)))
+    (dotimes (i 40) 
+      [drop-cell self (clone =biclops=) (+ 80 (random (- height 80)))
 		 (random width) :loadout t :no-collisions t])
-    (dotimes (i 30)
+    (dotimes (i 40)
       [drop-cell self (clone =scanner=) (random height) (random width) :loadout t :no-collisions t])
     ;; drop dead crewmembers to ransack
     (dotimes (i 60) 
@@ -1032,7 +1031,7 @@
     ;; drop other stuff
     (dotimes (n 35)
       [drop-cell self (clone =med-hypo=) (random height) (random height) :no-collisions t])
-    (dotimes (i 45)
+    (dotimes (i 25)
       [drop-cell self (clone =oxygen-tank=) (random height) (random width) :no-collisions t])
     ;; 
 
