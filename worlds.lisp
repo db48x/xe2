@@ -396,6 +396,7 @@ in a roguelike until the user has pressed a key."
 (define-prototype viewport 
     (:parent =widget= :documentation "A map display for RLX worlds.")
   (world :documentation "The world object to be displayed.")
+  (margin :initform 6 :documentation "Scroll margin.")
   (origin-x :initform 0 
 	    :documentation "The world x-coordinate of the tile at the viewport's origin.")
   (origin-y :initform 0 
@@ -451,8 +452,6 @@ in a roguelike until the user has pressed a key."
 	<origin-width> width
 	<origin-height> height))
 
-(defparameter *viewport-margin* 6)
-
 (define-method adjust viewport ()
   "Move the viewport's origin if required to keep the player onscreen."
   (let* ((world <world>)
@@ -464,23 +463,24 @@ in a roguelike until the user has pressed a key."
 	 (origin-x <origin-x>)
 	 (origin-y <origin-y>)
 	 (origin-height <origin-height>)
-	 (origin-width <origin-width>))
+	 (origin-width <origin-width>)
+	 (margin <margin>))
     ;; are we outside the "comfort zone"?
     (when (or 
 	   ;; too far left
-	   (> (+ origin-x *viewport-margin*) 
+	   (> (+ origin-x margin) 
 	      player-x)
 	   ;; too far right
 	   (> player-x
 	      (- (+ origin-x origin-width)
-		 *viewport-margin*))
+		 margin))
 	   ;; too far up
-	   (> (+ origin-y *viewport-margin*) 
+	   (> (+ origin-y margin) 
 	      player-y)
 	   ;; too far down 
 	   (> player-y 
 	      (- (+ origin-y origin-height)
-		 *viewport-margin*)))
+		 margin)))
       ;; yes. recenter.
       (setf <origin-x> 
 	    (max 0
