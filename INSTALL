@@ -45,7 +45,7 @@ Installation and basic playing instructions are provided.
 
    Add something like this to a new file called ~/.rlxrc:
 
-  (setf rlx:*module-directories* '("/home/dto/src/rlx"))
+  (setf rlx:*module-directories* '(#P"/home/dto/src/rlx/"))
 
 The filename should be wherever you installed the RLX source
 tree. This is auto-detected as the current directory if you don't set
