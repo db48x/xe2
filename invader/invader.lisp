@@ -141,7 +141,7 @@
 
 (define-method run player ()
   (when (<= [stat-value self :oxygen] 0)
-    [>>narrateln :narrator "Your oxygen runs out and you die."]
+    [>>narrateln :narrator "Your oxygen runs out, suffocating you."]
     [die self]))
 
 ;;; When you fight a monster close-up, you use more oxygen.
@@ -180,7 +180,9 @@
 (define-method die player ()
   (let ((skull (clone =skull=)))
     [drop-cell *active-world* skull <row> <column> :loadout t :no-collisions nil]
-    [parent>>die self]
+    (setf <action-points> 0)
+    [add-category self :dead]
+    [>>delete-from-world self]
     [>>narrateln :narrator "You die."]
     [set-player *active-world* skull]))
 

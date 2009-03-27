@@ -34,7 +34,7 @@ Installation and basic playing instructions are provided.
 
    mkdir ~/src
    cd ~/src
-   svn checkout http://lispbuilder.googlecode.com/svn/trunk/ lispbuilder-read-only	
+   svn checkout http://lispbuilder.googlecode.com/svn/trunk/ lispbuilder
 
    Then symlink all the .asd files in that tree into ~/.sbcl/systems
    (or wherever your .ASD files go) like this:
