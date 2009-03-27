@@ -310,21 +310,26 @@ in a roguelike until the user has pressed a key."
 	 (source-column (field-value :column cell))
 	 (total (+ light-radius 
 		   (if (numberp ambient) ambient 0)))
-	 (octagon nil)
-	 (line nil))
+	 (octagon (make-array 100 :initial-element nil :adjustable t :fill-pointer 0))
+	 (line (make-array 100 :initial-element nil :adjustable t :fill-pointer 0)))
     ;; don't bother lighting if everything is lit.
     (when (not (eq :total ambient))
       ;; draw only odd-radius octagons that have a center pixel
       (when (evenp total)
 	(incf total))
       (labels ((light-square (row column)
-		 (setf (aref light-grid row column) 1))
+		 (when (array-in-bounds-p light-grid row column)
+		   (setf (aref light-grid row column) 1) nil))
 	       (collect-line-point (x y)
-		 (push (list x y) line) nil)
+		 (if (array-in-bounds-p light-grid y x)
+		     (prog1 nil (vector-push-extend (list x y) line))
+		     t))
 	       (make-line (row column)
-		 (let ((flipped (trace-line #'collect-line-point 
-					    source-column source-row
-					    column row)))
+		 (setf (fill-pointer line) 0)
+		 (let ((flipped (> source-column column)))
+		   (trace-line #'collect-line-point 
+			       source-column source-row
+			       column row)
 		   ;; Bresenham's swaps the input points around when x0 is to the
 		   ;; right of x1. We need to reverse the list of points if this
 		   ;; happens, otherwise shadows will be cast the wrong way.
@@ -337,32 +342,34 @@ in a roguelike until the user has pressed a key."
 		       ;;
 		       ;; Make sure endpoint of ray is traced.
 		       (when (array-in-bounds-p grid row column)
-			 (setf line (nconc line (list (list row column))))))))
+			 (vector-push-extend (list row column) line)))))
 	       (light-line (row column)
 		 (make-line row column)
 		 (block lighting 
-		   (dolist (point line)
-		     do (destructuring-bind (r c) point
+		   (dotimes (i (fill-pointer line))
+		     do (destructuring-bind (r c) (aref line i)
 			  (when (array-in-bounds-p grid r c)
 			    (light-square r c)
 			    ;; should we stop lighting?
 			    (when [category-at-p self r c :opaque]
-			      (return-from lighting)))))))
+			      (return-from lighting t)))))))
 	       (collect-octagon-point (r c)
-		 (push (list r c) octagon) nil)
+		 (vector-push-extend (list r c) octagon) nil)
+	       (light-rectangle (row column radius)
+		 (trace-rectangle #'light-square 
+				  (- row radius)
+				  (- column radius) 
+				  (* 2 radius)
+				  (* 2 radius)
+				  :fill))
 	       (light-octagon (row column radius)
-	       	 (trace-octagon #'light-square
-	       			row column radius :thicken)))
-	       	 ;; (dolist (point octagon)
-	       	 ;;   (destructuring-bind (row column) point
-	       	 ;;     (light-line row column)))))
-	       ;; (light-octagon (row column radius)
-	       ;; 	 (trace-octagon #'collect-octagon-point 
-	       ;; 			row column radius :thicken)
-	       ;; 	 (dolist (point octagon)
-	       ;; 	   (destructuring-bind (row column) point
-	       ;; 	     (light-line row column)))))
-	(light-octagon source-row source-column total)))))
+		 (setf (fill-pointer octagon) 0)
+	       	 (trace-octagon #'collect-octagon-point 
+	       			row column radius :thicken)
+	       	 (dotimes (i (fill-pointer octagon))
+	       	   (destructuring-bind (row column) (aref octagon i)
+	       	     (light-line row column)))))
+	(light-rectangle source-row source-column total)))))
 
 (define-method generate world (&optional parameters)
   "Generate a world, reading generation parameters from the plist
@@ -425,6 +432,7 @@ in a roguelike until the user has pressed a key."
 	 (tile-size <tile-size>)
 	 objects cell)
     (with-field-values (grid light-grid environment-grid phase-number
+			     height width
 			     turn-number ambient-light) world
       ;; blank the display
       [clear self]
@@ -433,24 +441,29 @@ in a roguelike until the user has pressed a key."
 	(dotimes (j origin-width)
 	  ;; is this square lit? 
 	  ;; <: lighting :>
-	    (if (array-in-bounds-p grid (+ i origin-y) (+ j origin-x))
-		(when (or (eq :total ambient-light)
-			  (= 1 (aref light-grid (+ i origin-y) (+ j origin-x))))
-		  (progn (setf objects (aref grid 
-					     (+ i origin-y)
-					     (+ j origin-x)))
-			 (dotimes (k (fill-pointer objects))
-			   (setf cell (aref objects k))
-			   (when (object-p cell)
-			     (draw-resource-image (field-value :tile cell)
-						  (* j tile-size) (* i tile-size)
-						  :destination image)))))
-		;; not in bounds; draw blackness
+	    (if (and (array-in-bounds-p grid (+ i origin-y) (+ j origin-x))
+		     (or (eq :total ambient-light)
+			 (= 1 (aref light-grid (+ i origin-y) (+ j origin-x)))))
+		(progn 
+		  (setf objects (aref grid 
+				      (+ i origin-y)
+				      (+ j origin-x)))
+		  (dotimes (k (fill-pointer objects))
+		    (setf cell (aref objects k))
+		    (when (object-p cell)
+		      (draw-resource-image (field-value :tile cell)
+					   (* j tile-size) (* i tile-size)
+					   :destination image))))
+		;; not in bounds, or not lit; draw blackness
 		(draw-resource-image ".blackness" (* j tile-size) (* i tile-size)
 				     :destination image))))
       ;; update geometry
       (setf <width> (* tile-size origin-width))
-      (setf <height> (* tile-size origin-height)))))
+      (setf <height> (* tile-size origin-height))
+      ;; clear lighting map
+      (dotimes (i height)
+	(dotimes (j width)
+	  (setf (aref light-grid i j) 0))))))
 
 (define-method set-origin viewport (&key x y height width)
   (setf <origin-x> x

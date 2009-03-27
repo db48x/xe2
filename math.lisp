@@ -117,7 +117,7 @@ the rectangle."
 		  (funcall trace-function (+ r row) (+ width column -1)))
 	      (return-from tracing))))))
 
-(defun trace-octagon (trace-function center-row center-column radius &optional thicken)
+(defun trace-octagon (trace-function center-row center-column radius &optional thicken )
   "Call TRACE-FUNCTION for each point on the octagon of radius RADIUS
 centered at row ROW, column COLUMN. When THICKEN is non-nil, thicken
 the diagonals of the rectangle in order to facilitate raycasting.

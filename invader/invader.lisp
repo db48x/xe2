@@ -94,7 +94,7 @@
   (name :initform "Player")
   (categories :initform '(:actor :player :obstacle :target :container :light-source))
   ;; lighting
-  (light-radius :initform 7)
+  (light-radius :initform 4)
   ;; action points and movement
   (speed :initform (make-stat :base 7 :min 1 :max 20))
   (movement-cost :initform (make-stat :base 7))
@@ -975,7 +975,7 @@
 (define-prototype factory-world (:parent rlx:=world=)
   (width :initform 48)
   (height :initform 300)
-  (ambient-light :initform :total)
+  (ambient-light :initform 5)
   (pallet-size :initform 10))
 
 (define-method generate factory-world (&optional parameters)
