@@ -129,16 +129,15 @@
 non-nil, then the `loadout' method of the dropped cell is invoked
 after dropping. If NO-COLLISIONS is non-nil, then an object is not
 dropped on top of an obstacle."
-  (if (not (array-in-bounds-p <grid> row column))
-      (message "Warning: dropping cell off world at (~S, ~S)." row column)
-      (when (or (null no-collisions)
-		(not [obstacle-at-p self row column]))
-	(prog1 t
-	  (vector-push-extend cell (aref <grid> row column))
-	  (setf (field-value :row cell) row)
-	  (setf (field-value :column cell) column)
-	  (when loadout
-	    [loadout cell])))))
+  (when (array-in-bounds-p <grid> row column)
+    (when (or (null no-collisions)
+	      (not [obstacle-at-p self row column]))
+      (prog1 t
+	(vector-push-extend cell (aref <grid> row column))
+	(setf (field-value :row cell) row)
+	(setf (field-value :column cell) column)
+	(when loadout
+	  [loadout cell])))))
 
 (define-method nth-cell world (n row column)
   (aref (aref <grid> row column) n))

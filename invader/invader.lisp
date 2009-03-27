@@ -103,7 +103,8 @@
   (hit-points :initform (make-stat :base 125 :min 0 :max 125)) 
   (dexterity :initform (make-stat :base 11 :min 0 :max 30))
   (intelligence :initform (make-stat :base 13 :min 0 :max 30))
-  (strength :initform (make-stat :base 14 :min 0 :max 30))
+  (strength :initform (make-stat :base 14 :min 0 :max 40))
+  (defense :initform (make-stat :base 14 :min 0 :max 40))
   ;; inventory-related data
   (max-items :initform (make-stat :base 1))
   ;; equipment-related slots
@@ -149,6 +150,10 @@
 (define-method attack player (target)
   [>>stat-effect self :oxygen -2]
   [parent>>attack self target])
+
+(define-method damage player (damage-points)
+  [parent>>damage self (- damage-points (truncate (/ [stat-value self :defense]
+						     4)))])
 
 ;;; The player's remains are a skull and crossbones. 
 
@@ -201,7 +206,7 @@
     [>>stat-effect stepper :hit-points 30]
     [>>die self]))
 
-;;; The medical healing pack restores more hit points.
+;;; The med pack restores even more hit points.
 
 (defcell med-pack 
   (categories :initform '(:item))
@@ -213,6 +218,37 @@
     [>>say :narrator "You recover 90 hit points from the med pack."]
     [>>stat-effect stepper :hit-points 90]
     [>>die self]))
+
+;;; Strength powerup
+
+(defcell level-up 
+  (categories :initform '(:item))
+  (tile :initform "levelup")
+  (name :initform "Strength power-up"))
+
+(define-method step level-up (stepper)
+  (when [is-player stepper]
+    [>>say :narrator "LEVEL UP! You feel stronger."]
+    [>>stat-effect stepper :strength 5]
+    [>>die self]))
+
+;;; Defense powerup
+
+(defcell defense-up 
+  (categories :initform '(:item))
+  (tile :initform "defenseup")
+  (name :initform "Defense power-up"))
+
+(define-method step defense-up (stepper)
+  (when [is-player stepper]
+    [>>say :narrator "DEFENSE UP!"]
+    [>>stat-effect stepper :defense 5]
+    [>>die self]))
+
+(defun random-powerup ()
+  (clone (case (random 2)
+	   (0 =defense-up=)
+	   (1 =level-up=))))
 
 ;;; A melee weapon for enemy robots: the Shock Probe
 
@@ -287,7 +323,7 @@
   (strength :initform (make-stat :base 12 :min 0 :max 30))
   (dexterity :initform (make-stat :base 9 :min 0 :max 30))
   (intelligence :initform (make-stat :base 11 :min 0 :max 30))
-  (hit-points :initform (make-stat :base 12 :min 0 :max 10)))
+  (hit-points :initform (make-stat :base 10 :min 0 :max 10)))
 
 (define-method initialize berserker ()
   [make-inventory self]
@@ -321,7 +357,7 @@
 
 (define-prototype biclops (:parent rlx:=cell=)
   (name :initform "Biclops")
-  (strength :initform (make-stat :base 40 :min 0 :max 28))
+  (strength :initform (make-stat :base 20 :min 0 :max 50))
   (dexterity :initform (make-stat :base 15 :min 0 :max 30))
   (intelligence :initform (make-stat :base 13 :min 0 :max 30))
   (categories :initform '(:actor :target :obstacle :opaque :enemy :equipper))
@@ -332,7 +368,7 @@
   (movement-cost :initform (make-stat :base 5))
   (attacking-with :initform :robotic-arm)
   (max-weight :initform (make-stat :base 25))
-  (hit-points :initform (make-stat :base 11 :min 0 :max 10))
+  (hit-points :initform (make-stat :base 14 :min 0 :max 10))
   (tile :initform "biclops"))
 
 (define-method initialize biclops ()
@@ -362,7 +398,9 @@
 (define-method die biclops ()
   (when (> 4 (random 10))
     (if (> 3 (random 10))
-	[drop self (clone =energy=)]
+	(if (> 5 (random 10))
+	    [drop self (random-powerup)]
+	    [drop self (clone =energy=)])
 	[drop self (clone =med-hypo=)]))
   (if (> 2 (random 10))
       [drop self (clone =explosion=)])
@@ -401,7 +439,7 @@
 ;;; The exploding mine
 
 (defcell mine 
-  (name :initform "Contact mine")
+  (name :initform "Proximity mine")
   (categories :initform '(:item :target :actor))
   (tile :initform "mine"))
 
@@ -411,6 +449,8 @@
   (if (< [distance-to-player *active-world* <row> <column>] 
 	 *mine-sensitivity*)
       (progn
+	(when (string= <tile> "mine")
+	  [>>say :narrator "You see a mine nearby!"])
 	(setf <tile> "mine-warn")
 	(when (< (random 8) 1)
 	  [explode self]))
@@ -434,8 +474,8 @@
     [die self]))
 
 (define-method step mine (stepper)
-  (declare (ignore stepper))
-  [explode self])
+  (when [is-player stepper]	      
+    [explode self]))
 
 (define-method damage mine (damage-points)
   (declare (ignore damage-points))
@@ -486,6 +526,11 @@
 	       energy]
 	[>>stat-effect stepper :energy energy]))
     [>>die self]))
+
+(define-method damage crew-member (points)
+  (declare (ignore points))
+  [>>say :narrator "The crewmember's body was destroyed!"]
+  [>>die self])
 
 ;;; Muon particles, trails, and pistols
 
@@ -702,7 +747,7 @@
   (equip-for :initform '(:robotic-arm))
   (weight :initform 14000)
   (accuracy :initform (make-stat :base 60))
-  (attack-power :initform (make-stat :base 9))
+  (attack-power :initform (make-stat :base 12))
   (attack-cost :initform (make-stat :base 20))
   (energy-cost :initform (make-stat :base 32)))
 
@@ -769,7 +814,7 @@
   (name :initform "Scanner")
   (categories :initform '(:obstacle :actor :equipper :opaque))
   (direction :initform nil)
-  (speed :initform (make-stat :base 6))
+  (speed :initform (make-stat :base 5))
   (hit-points :initform (make-stat :base 40 :min 0))
   (equipment-slots :initform '(:robotic-arm))
   (max-items :initform (make-stat :base 3))
@@ -810,6 +855,12 @@
 	    (when [obstacle-at-p world r c]
 	      [choose-new-direction self])
 	    [queue>>move self <direction>])))))
+
+(define-method die scanner ()
+  (when (= 0 (random 15))
+    [drop self (random-powerup)])
+  [parent>>die self])
+	       
 
 ;;; The evil boss stations must be destroyed.
 
@@ -921,16 +972,17 @@
 	(trace-rectangle #'drop-box (random height) (random width)
 		       (+ 16 (random 14)) (+ 4 (random 3)) :fill)))
     ;; drop enemies
-    (dotimes (i 15)
-      (let ((row (random 50))
-	    (column (random 50)))
+    (dotimes (i 30)
+      (let ((row (random height))
+	    (column (random width)))
 	[drop-cell self (clone =berserker=) row column :loadout t :no-collisions t]))
     (dotimes (i 30) 
-      [drop-cell self (clone =biclops=) (random height) (random width) :loadout t :no-collisions t])
-    (dotimes (i 20)
+      [drop-cell self (clone =biclops=) (+ 100 (random (- height 100)))
+		 (random width) :loadout t :no-collisions t])
+    (dotimes (i 30)
       [drop-cell self (clone =scanner=) (random height) (random width) :loadout t :no-collisions t])
     ;; drop dead crewmembers to ransack
-    (dotimes (i 50) 
+    (dotimes (i 60) 
       [drop-cell self (clone =crew-member=) (random height) (random width) :loadout t :no-collisions t])
     ;; drop other stuff
     (dotimes (n 35)
@@ -947,6 +999,10 @@
       [drop-cell self (clone =energy=) (random height) (random width) :no-collisions t])
     (dotimes (i 4)
       [drop-cell self (clone =med-pack=) (random height) (random width) :no-collisions t])
+    (dotimes (i 5)
+      [drop-cell self (clone =level-up=) (random height) (random width) :no-collisions t])
+    (dotimes (i 5)
+      [drop-cell self (clone =defense-up=) (random height) (random width) :no-collisions t])
     (dotimes (i 10)
       [drop-cell self (clone =muon-pistol=) (random height) (random width) :no-collisions t])
     (dotimes (i 10)
@@ -1102,6 +1158,10 @@
     [print-stat self :oxygen :warn-below 35]
     [print self " "]
     [print-stat self :energy :warn-below 50]
+    [print self " "]
+    [print-stat self :strength :warn-below 10]
+    [print self " "]
+    [print-stat self :defense :warn-below 10]
     [println self " "]
     [print self "  Equipment:  "]
     [print-equipment-slot self :right-hand]
@@ -1156,3 +1216,4 @@
 
 
 ;;; invader.lisp ends here
+

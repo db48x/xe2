@@ -104,7 +104,7 @@ Some storage crates contain items. Smash them!
 
 *** Dead crewmembers
 
-You can recover varying amounts of oxygen and sometimes medical
+You can recover varying amounts of oxygen, energy, and sometimes medical
 hypos from the dead crewmembers strewn about the facility. 
 
 *** TODO Wall cabinets
