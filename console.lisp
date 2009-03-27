@@ -300,8 +300,11 @@ window. Set this in the game startup file.")
 (defvar *initialization-hook* nil)
 
 (defun load-user-init-file ()
-  (load (merge-pathnames (make-pathname :name *user-init-file-name*)
-			 (user-homedir-pathname))))
+  (let ((file (merge-pathnames (make-pathname :name *user-init-file-name*)
+			       (user-homedir-pathname))))
+    (when (probe-file file)
+      (load (merge-pathnames (make-pathname :name *user-init-file-name*)
+			     (user-homedir-pathname))))))
 
 (defparameter *user-keyboard-layout* :qwerty)
 
@@ -455,24 +458,21 @@ resource is stored; see also `find-resource'."
 		   *resource-table*) 
 	  val)))
 
-(defvar *module-directories* (list (namestring *default-pathname-defaults*)
-				   "/usr/local/games/rlx")
+(defvar *module-directories* (list *default-pathname-defaults*
+				   #p"/usr/local/games/rlx/")
   "List of directories where RLX will search for modules.
 Directories are searched in list order.")
 
 (defun find-module-path (module-name)
   "Search the `*module-directories*' path for a directory with the
 name MODULE-NAME. Returns the pathname if found, otherwise nil."
-  (when (null *module-directories*)
-    (error "You must set the variable RLX:*MODULE-DIRECTORIES* in the configuration file ~~/.rlxrc"))
-  (let (path)
-    (block finding 
-      (dolist (dir *module-directories*)
-	(setf path (probe-file
-		    (merge-pathnames module-name 
-				     (probe-file (make-pathname :directory dir)))))
-	(when path
-	  (return-from finding path))))))
+  (or 
+   (loop
+      for dir in *module-directories*
+      for path = (probe-file (make-pathname :directory (append (pathname-directory dir) (list module-name))
+					    :defaults dir))
+      when path return path)
+   (error "Cannot find module ~s. You must set the variable RLX:*MODULE-DIRECTORIES* in the configuration file ~~/.rlxrc" module-name)))
 
 (defun find-module-file (module-name file)
   "Make a pathname for FILE within the module MODULE-NAME."

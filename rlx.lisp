@@ -53,10 +53,6 @@
 ;;   (asdf-install:install :lispbuilder-sdl) 
 ;;   (asdf-install:install :lispbuilder-sdl-image)
 
-(eval-when (:execute :load-toplevel :compile-toplevel) 
-  (require :lispbuilder-sdl)
-  (require :lispbuilder-sdl-image))
-
 ;;; Code:
 
 (defpackage :rlx 

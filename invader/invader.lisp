@@ -1282,6 +1282,7 @@
 ;;; Main program.
 
 (defun invader ()
+  (setf clon:*send-parent-depth* 2)
   (setf rlx:*screen-height* 600)
   (setf rlx:*screen-width* 800)
   (let* ((prompt (clone =invader-prompt=))

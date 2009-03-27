@@ -394,9 +394,8 @@ Return ITEM if successful, nil otherwise."
 	    (let* ((cells [cells-at world nrow ncol])
 		   (index2 (cond 
 			     ((not (null category))
-			      (progn
 				(setf cell [category-at-p world nrow ncol category])
-				(position cell cells)))
+				(position cell cells :test 'eq))
 			     ((and (eq :top index) (eq :here direction))
 			      ;; skip yourself and instead get the item you're standing on
 			      (- (fill-pointer cells) 2))
@@ -405,7 +404,8 @@ Return ITEM if successful, nil otherwise."
 			     ((numberp index) 
 			      (when (array-in-bounds-p cells index)
 				index)))))
-	      (setf cell (or cell (aref cells index2)))
+	      (message "INDEX2: ~A" index2)
+	      (setf cell (aref cells index2))
 	      (values cell nrow ncol index2)))))))
 
 (define-method clear-location cell ()
@@ -424,14 +424,14 @@ Return ITEM if successful, nil otherwise."
       [add-item self cell]
       [delete-from-world cell])))
 
-(define-method resolve cell (reference)
+(define-method resolve cell (reference &optional category)
   "Accept a REFERENCE to a cell, and try to get the real cell.
 The REFERENCE may be an object, one of the `*compass-directions*', an
 equipment slot keyword, or an integer denoting the nth inventory
 slot."
   (etypecase reference
     (keyword (if (member reference *compass-directions*)
-		 [find self :direction reference]
+		 [find self :direction reference :category category]
 		 [equipment-slot self reference]))
     (integer [item-at self reference])
     (rlx:object reference)))

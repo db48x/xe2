@@ -395,9 +395,14 @@ in a roguelike until the user has pressed a key."
 
 (define-method delete-cell world (cell row column)
   (let* ((grid <grid>)
-	 (square (aref grid row column)))
-    (setf (aref grid row column)
-	  (delete cell square :test #'eq))))
+	 (square (aref grid row column))
+	 (start (position cell square :test #'eq)))
+    (when start
+      (replace square square :start1 start :start2 (1+ start))
+      (decf (fill-pointer square)))))
+
+;;     (setf (aref grid row column)
+;; 	  (make-array :de(delete cell square :test #'eq))))
 
 (define-method move-cell world (cell row column)
   (let* ((old-row (field-value :row cell))
