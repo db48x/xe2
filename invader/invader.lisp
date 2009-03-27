@@ -977,7 +977,7 @@
 (define-prototype factory-world (:parent rlx:=world=)
   (width :initform 48)
   (height :initform 300)
-  (ambient-light :initform 5)
+  (ambient-light :initform :total)
   (pallet-size :initform 10))
 
 (define-method generate factory-world (&optional parameters)
