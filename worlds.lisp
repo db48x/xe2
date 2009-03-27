@@ -264,9 +264,8 @@ in a roguelike until the user has pressed a key."
 	  (when (not [in-category <player> :dead])
 	    [run-cpu-phase self])
 	  (incf <phase-number>)
-	  [begin-phase player])
-	;; TODO fix this
-	[render-lighting self player]))))
+	  [begin-phase player])))))
+
         
 (define-method get-phase-number world ()
   <phase-number>)
@@ -314,6 +313,7 @@ in a roguelike until the user has pressed a key."
 	 (line (make-array 100 :initial-element nil :adjustable t :fill-pointer 0)))
     ;; don't bother lighting if everything is lit.
     (when (not (eq :total ambient))
+      [clear-light-grid self]
       ;; draw only odd-radius octagons that have a center pixel
       (when (evenp total)
 	(incf total))
@@ -371,6 +371,12 @@ in a roguelike until the user has pressed a key."
 	       	     (light-line row column)))))
 	(light-rectangle source-row source-column total)))))
 
+(define-method clear-light-grid world ()
+  (let ((light-grid <light-grid>))
+    (dotimes (i <height>)
+      (dotimes (j <width>)
+	(setf (aref light-grid i j) 0)))))
+
 (define-method generate world (&optional parameters)
   "Generate a world, reading generation parameters from the plist
   PARAMETERS."  
@@ -383,6 +389,7 @@ in a roguelike until the user has pressed a key."
   nil)
 
 (define-method start world ()
+  [render-lighting self <player>]
   (with-message-queue <message-queue>
     [begin-phase <player>]))
 
@@ -459,11 +466,7 @@ in a roguelike until the user has pressed a key."
 				     :destination image))))
       ;; update geometry
       (setf <width> (* tile-size origin-width))
-      (setf <height> (* tile-size origin-height))
-      ;; clear lighting map
-      (dotimes (i height)
-	(dotimes (j width)
-	  (setf (aref light-grid i j) 0))))))
+      (setf <height> (* tile-size origin-height)))))
 
 (define-method set-origin viewport (&key x y height width)
   (setf <origin-x> x
