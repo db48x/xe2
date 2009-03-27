@@ -71,6 +71,7 @@
 
 (define-method step oxygen-tank (stepper)
   (when [is-player stepper]
+    [>>say :narrator "You recover 40 points from the oxygen tank."]
     [>>stat-effect stepper :oxygen 40]
     [>>die self]))
 
@@ -83,6 +84,7 @@
 (define-method step energy (stepper)
   (when [is-player stepper]
     (when (has-field :energy stepper)
+      [>>say :narrator "You recover 100 units of energy from the tank."]
       [>>stat-effect stepper :energy 100]
       [>>die self])))
 
@@ -191,6 +193,7 @@
 
 (define-method step med-hypo (stepper)
   (when [is-player stepper]
+    [>>say :narrator "You recover 30 hit points from the med hypo."]
     [>>stat-effect stepper :hit-points 30]
     [>>die self]))
 
@@ -425,11 +428,13 @@
 
 (defcell tech-box
   (tile :initform "tech-box")
+  (name :initform "Storage crate")
   (categories :initform '(:obstacle :opaque :pushable :destructible))
   (hit-points :initform (make-stat :base 10 :min 0)))
 
 (defcell tech-box-debris
-  (tile :initform "tech-box-debris"))
+  (tile :initform "tech-box-debris")
+  (name :initform "Crate debris"))
 
 (define-method die tech-box ()
   [>>drop self (clone =tech-box-debris=)]
@@ -440,6 +445,27 @@
 	      (1 =energy=)
 	      (2 =med-hypo=))])
   [parent>>die self])
+
+;;; Dead crewmember with random oxygen or possibly health.
+
+(defcell crew-member 
+  (tile :initform "crew")
+  (categories :initform '(:item :target)))
+
+(define-method step crew-member (stepper)
+  (when [is-player stepper]
+    [>>say :narrator "You search the dead crewmember's body."]
+    [expend-default-action-points stepper]
+    (let ((oxygen (+ 10 (random 60))))
+      [>>say :narrator 
+	     (format nil 
+		     "You recover ~S units of oxygen from the crewmember's tank."
+		     oxygen)]
+      [>>stat-effect stepper :oxygen oxygen])
+    (when (> 3 (random 10))
+      [>>say :narrator "You find a medical hypo, and recover 30 hit points."]
+      [>>stat-effect stepper :hit-points 30])
+    [>>die self]))
 
 ;;; Muon particles, trails, and pistols
 
@@ -715,6 +741,7 @@
 
 (defcell scanner 
   (tile :initform "scanner")
+  (name :initform "Scanner")
   (categories :initform '(:obstacle :actor :equipper :opaque))
   (direction :initform nil)
   (speed :initform (make-stat :base 6))
@@ -877,6 +904,9 @@
       [drop-cell self (clone =biclops=) (random height) (random width) :loadout t :no-collisions t])
     (dotimes (i 20)
       [drop-cell self (clone =scanner=) (random height) (random width) :loadout t :no-collisions t])
+    ;; drop dead crewmembers to ransack
+    (dotimes (i 50) 
+      [drop-cell self (clone =crew-member=) (random height) (random width) :loadout t :no-collisions t])
     ;; drop other stuff
     (dotimes (n 35)
       [drop-cell self (clone =med-hypo=) (random height) (random height) :no-collisions t])
@@ -1089,7 +1119,7 @@
     [resize narrator :height 80 :width 800]
     [move narrator :x 0 :y 520]
     [set-narrator world narrator]
-    [set-verbosity narrator 1]
+    [set-verbosity narrator 0]
     ;;
     [start world]
     ;;

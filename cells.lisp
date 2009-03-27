@@ -530,26 +530,33 @@ slot."
 ;;; Combat
 
 (define-method attack cell (target)
-  (let ((weapon [equipment-slot self <attacking-with>]))
+  (let* ((weapon [equipment-slot self <attacking-with>])
+	 (target-cell [resolve self target])
+	 (target-name (field-value :name target-cell)))
     (if (null weapon)
-	[>>narrateln :narrator "Cannot attack without a weapon in ~A." 
-			  <attacking-with>]
-      (let* ((attack-cost [stat-value weapon :attack-cost])
-	     (accuracy [stat-value weapon :accuracy])
-	     (dexterity [stat-value self :dexterity])
-	     (strength [stat-value self :strength])
-	     (to-hit (< (random 100)
-			(+ accuracy (* (random 10) (/ dexterity 2))))))
-	(if to-hit
-	    ;; calculate and send damage
-	    (let ((damage (+ (truncate (/ strength 3))
-			     [stat-value weapon :attack-power])))
-	      [>>expend-action-points self attack-cost]
-	      [>>damage [resolve self target] damage])
-	    (progn 
-	      [>>expend-default-action-points self]
-	      (when [is-player self]
-		[>>narrateln :narrator "You missed."])))))))
+	(when [is-player self]
+	  [>>say :narrator "Cannot attack without a weapon in ~A." 
+		 <attacking-with>])
+	(let* ((attack-cost [stat-value weapon :attack-cost])
+	       (accuracy [stat-value weapon :accuracy])
+	       (dexterity [stat-value self :dexterity])
+	       (strength [stat-value self :strength])
+	       (to-hit (< (random 100)
+			  (+ accuracy (* (random 10) (/ dexterity 2))))))
+	  (if to-hit
+	      ;; calculate and send damage
+	      (let ((damage (+ (truncate (/ strength 3))
+			       [stat-value weapon :attack-power])))
+		[>>expend-action-points self attack-cost]
+		(when [is-player self]
+		  [>>say :narrator "You do ~D points of damage on the ~A."
+			 damage
+			 (or target-name (symbol-name (object-parent target-cell)))])
+		[>>damage target-cell damage])
+	      (progn 
+		[>>expend-default-action-points self]
+		(when [is-player self]
+		  [>>narrateln :narrator "You missed."])))))))
       
 (define-method fire cell (direction)
   (let ((weapon [equipment-slot self <firing-with>]))
@@ -560,13 +567,13 @@ slot."
 	[>>narrateln :narrator "Nothing to fire with."])))
 
 (define-method damage cell (damage-points)
-  (if (has-field :hit-points self)
-      (progn 
-	[stat-effect self :hit-points (- damage-points)]
-	(when (zerop [stat-value self :hit-points])
-	  [die self]))
+  (when (has-field :hit-points self)
+    (progn 
+      [stat-effect self :hit-points (- damage-points)]
+      (when (zerop [stat-value self :hit-points])
+	[die self])
       (when [is-player self]
-	[>>narrateln :narrator "Nothing happens."])))
+	[>>say :narrator "You take ~D hit points of damage." damage-points]))))
 	
 (define-method die cell ()
   (if [in-category self :dead]

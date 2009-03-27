@@ -117,6 +117,10 @@ http://en.wikipedia.org/wiki/Passive_voice"
   [println self 
 	   (apply #'format nil control-string args)])
 
+(define-method say narrator (control-string &rest args)
+  [println self 
+	   (apply #'format nil control-string args)])
+
 (define-method narrate-message narrator (sender action receiver args &optional force)
   (when (> <verbosity> 0)
     (let ((A (or sender rlx:=asterisk=))

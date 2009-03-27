@@ -8,7 +8,7 @@
  (:name "explosion" :type :image :file "explosion.png")
 
  (:name "question" :type :image :file "question.png")
-
+ (:name "crew" :type :image :file "crew.png")
 
  (:name "wall" :type :image :file "tech-wall.png")
  (:name "electron" :type :image :file "electron.png")

@@ -242,6 +242,7 @@ key event symbols."
    (cons (make-key-string sdl-key)
 	 (mapcar #'make-key-modifier-symbol
 		 (cond ((numberp sdl-mods)
+			;; invoke sabetts' fix
 			(sdlmod-to-list sdl-mods))
 		       ((keywordp sdl-mods)
 			(list sdl-mods))
