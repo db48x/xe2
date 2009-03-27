@@ -341,7 +341,7 @@
 
 (define-method die biclops ()
   (when (> 4 (random 10))
-    (if (> 5 (random 10))
+    (if (> 3 (random 10))
 	[drop self (clone =energy=)]
 	[drop self (clone =med-hypo=)]))
   (if (> 2 (random 10))
