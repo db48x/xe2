@@ -825,7 +825,8 @@ The default destination is the main window."
 	  (index-module *next-module*)
 	  (find-resource *startup*)
 	  (run-main-loop))
-       (setf *quitting* t)))
+       (setf *quitting* t))
+  (setf *quitting* nil))
   
 
   
