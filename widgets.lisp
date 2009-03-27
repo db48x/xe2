@@ -1,4 +1,4 @@
-;;; widgets.lisp --- interactive graphical elements with offscreen drawing
+/;;; widgets.lisp --- interactive graphical elements with offscreen drawing
 
 ;; Copyright (C) 2008  David O'Toole
 
@@ -230,13 +230,16 @@ line."
 auto-updated displays."  
   nil)
 
+(defun get-some-object-name (ob)
+  (if (stringp (field-value :name ob))
+      (field-value :name ob)
+      (let ((str (symbol-name (object-name (object-parent ob)))))
+	(string-capitalize (subseq str 1 (search "=" str :from-end t))))))
+
 (define-method print-object-tag formatter (ob)
   [print-image self (field-value :tile ob)]
   [space self]
-  [print self (if (stringp (field-value :name ob))
-		  (field-value :name ob)
-		  (let ((str (symbol-name (object-name (object-parent ob)))))
-		    (subseq str 1 (search "=" str :from-end t))))]
+  [print self (get-some-object-name ob)]
   [space self])
 
 (define-method print-separator formatter ()

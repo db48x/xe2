@@ -551,7 +551,7 @@ slot."
 		(when [is-player self]
 		  [>>say :narrator "You do ~D points of damage on the ~A."
 			 damage
-			 (or target-name (symbol-name (object-parent target-cell)))])
+			 (get-some-object-name target-cell)])
 		[>>damage target-cell damage])
 	      (progn 
 		[>>expend-default-action-points self]

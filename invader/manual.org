@@ -77,6 +77,13 @@ wrench. Wrench attack is Alt-DIRECTION.
 If your oxygen or hit-points reach zero, you die. Movement uses 1
 oxygen point per move; melee combat uses more. 
 
+** WEAPONS
+
+*** Melee: the Rusty Wrench
+
+Melee combat is effective, but takes up more oxygen than ranged combat
+or movement.
+
 ** ITEMS
 
 *** Med hypo 
@@ -92,7 +99,14 @@ The medical hypo restores some hit points.
 
 *** The floor
 *** Crates
-*** TODO Dead crewmembers
+
+Some storage crates contain items. Smash them!
+
+*** Dead crewmembers
+
+You can recover varying amounts of oxygen and sometimes medical
+hypos from the dead crewmembers strewn about the facility. 
+
 *** TODO Wall cabinets
 
 ** ENEMIES   

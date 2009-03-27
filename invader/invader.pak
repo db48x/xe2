@@ -61,7 +61,10 @@
  (:name "ion-shield-wall" :type :image :file "ion-shield-wall.png")
  (:name "ion-shield" :type :image :file "combelt.png")
  (:name "skull" :type :image :file "skull.png")
+
  (:name "med-hypo" :type :image :file "medhypo.png")
+ (:name "med-pack" :type :image :file "medpack.png")
+
  (:name "rusty-wrench" :type :image :file "rusty-wrench.png")
 
  (:name "rook" :type :image :file "rook.png")

@@ -99,7 +99,7 @@
   read-sexp-from-file write-pak send-event-to-widgets
   draw-resource-image *event-handler-function* trace-rectangle
   trace-row trace-column trace-octagon trace-line midpoint =asterisk=
-  =gray-asterisk= self *module-widgets*
+  =gray-asterisk= self *module-widgets* get-some-object-name
   transform-declaration-field-descriptor no-such-field =narrator=
   find-modules-in-directory =environment= directory-is-module-p
   find-all-modules *next-module* transform-tree stat-value

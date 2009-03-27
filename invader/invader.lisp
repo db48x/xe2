@@ -127,6 +127,10 @@
 	[activate item]
 	[>>narrateln :narrator "Nothing to activate."])))
 
+;; (define-method damage player (damage-points)
+;;   [>>say :narrator "You take ~D points of damage." damage-points]
+;;   [parent>>damage self damage-points])
+
 ;;; To wait a turn without moving, hit W.
 
 (define-method wait player ()
@@ -195,6 +199,19 @@
   (when [is-player stepper]
     [>>say :narrator "You recover 30 hit points from the med hypo."]
     [>>stat-effect stepper :hit-points 30]
+    [>>die self]))
+
+;;; The medical healing pack restores more hit points.
+
+(defcell med-pack 
+  (categories :initform '(:item))
+  (tile :initform "med-pack")
+  (name :initform "Medical Hypo"))
+
+(define-method step med-pack (stepper)
+  (when [is-player stepper]
+    [>>say :narrator "You recover 90 hit points from the med pack."]
+    [>>stat-effect stepper :hit-points 90]
     [>>die self]))
 
 ;;; A melee weapon for enemy robots: the Shock Probe
@@ -429,7 +446,7 @@
 (defcell tech-box
   (tile :initform "tech-box")
   (name :initform "Storage crate")
-  (categories :initform '(:obstacle :opaque :pushable :destructible))
+  (categories :initform '(:obstacle :opaque :pushable :destructible :target))
   (hit-points :initform (make-stat :base 10 :min 0)))
 
 (defcell tech-box-debris
@@ -438,7 +455,7 @@
 
 (define-method die tech-box ()
   [>>drop self (clone =tech-box-debris=)]
-  (when (<= (random 10) 2)
+  (when (<= (random 20) 2)
     [>>drop self 
 	    (case (random 3)
 	      (0 =oxygen-tank=)
@@ -457,14 +474,17 @@
     [>>say :narrator "You search the dead crewmember's body."]
     [expend-default-action-points stepper]
     (let ((oxygen (+ 10 (random 60))))
-      [>>say :narrator 
-	     (format nil 
-		     "You recover ~S units of oxygen from the crewmember's tank."
-		     oxygen)]
+      [>>say :narrator "You recover ~D units of oxygen from the crewmember's tank."
+		     oxygen]
       [>>stat-effect stepper :oxygen oxygen])
     (when (> 3 (random 10))
       [>>say :narrator "You find a medical hypo, and recover 30 hit points."]
       [>>stat-effect stepper :hit-points 30])
+    (when (> 3 (random 10))
+      (let ((energy (+ 10 (random 50))))
+	[>>say :narrator "You recover ~D units of energy from the crewmember's battery pack." 
+	       energy]
+	[>>stat-effect stepper :energy energy]))
     [>>die self]))
 
 ;;; Muon particles, trails, and pistols
@@ -718,22 +738,27 @@
   (equip-for :initform '(:belt))
   (size :initform 5))
 
+(defparameter *ion-shield-energy-cost* 60)
+
 (define-method activate ion-shield ()
   (let* ((world *active-world*)
 	 (row [player-row world])
 	 (column [player-column world])
 	 (size <size>))
-    (when [expend-energy [get-player world] 100]
+    (if [expend-energy [get-player world] *ion-shield-energy-cost*]
       (labels ((drop-ion (r c)
 		 (prog1 nil
 		   [drop-cell world (clone =ion-shield-wall=) r c :no-collisions nil])))
+	[>>say :narrator "Activating ion shield."]
 	(trace-rectangle #'drop-ion 
 			 (- row (truncate (/ size 2)))
 			 (- column (truncate (/ size 2)))
-			 size size)))))
+			 size size))
+      [say :narrator "Not enough energy to activate shield."])))
 
 (define-method step ion-shield (stepper)
   (when [is-player stepper]
+    [>>say :narrator "You've found the Ion Shield Belt."]
     [>>take stepper :direction :here :category :item]
     [>>equip stepper 0]))
 
@@ -891,10 +916,10 @@
 			       (random pallet-size)
 			       (random pallet-size)
 			       :fill)))))
-      ;; drop columns
-      (dotimes (i 13)
-	(trace-octagon #'drop-box (random height) (random width)
-		       (+ 3 (random 8)))))
+      ;; drop groups of boxes
+      (dotimes (i 20)
+	(trace-rectangle #'drop-box (random height) (random width)
+		       (+ 16 (random 14)) (+ 4 (random 3)) :fill)))
     ;; drop enemies
     (dotimes (i 15)
       (let ((row (random 50))
@@ -920,6 +945,8 @@
 
     (dotimes (i 20)
       [drop-cell self (clone =energy=) (random height) (random width) :no-collisions t])
+    (dotimes (i 4)
+      [drop-cell self (clone =med-pack=) (random height) (random width) :no-collisions t])
     (dotimes (i 10)
       [drop-cell self (clone =muon-pistol=) (random height) (random width) :no-collisions t])
     (dotimes (i 10)
