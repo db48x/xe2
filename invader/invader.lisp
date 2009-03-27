@@ -1105,7 +1105,49 @@
     ("1" nil "equip 1 .")
     ("2" nil "activate-equipment :belt .")
     ("Q" (:control) "quit .")))
+
+(defparameter *alternate-qwerty-keybindings*
+  '(("Q" nil "move :northwest .")
+    ("W" nil "move :north .")
+    ("E" nil "move :northeast .")
+    ("A" nil "move :west .")
+    ("D" nil "move :east .")
+    ("Z" nil "move :southwest .")
+    ("X" nil "move :south .")
+    ("C" nil "move :southeast .")
     ;;
+    ("Q" (:alt) "attack :northwest .")
+    ("W" (:alt) "attack :north .")
+    ("E" (:alt) "attack :northeast .")
+    ("A" (:alt) "attack :west .")
+    ("D" (:alt) "attack :east .")
+    ("Z" (:alt) "attack :southwest .")
+    ("X" (:alt) "attack :south .")
+    ("C" (:alt) "attack :southeast .")
+    ;;
+    ("Q" (:meta) "attack :northwest .")
+    ("W" (:meta) "attack :north .")
+    ("E" (:meta) "attack :northeast .")
+    ("A" (:meta) "attack :west .")
+    ("D" (:meta) "attack :east .")
+    ("Z" (:meta) "attack :southwest .")
+    ("X" (:meta) "attack :south .")
+    ("C" (:meta) "attack :southeast .")
+    ;;
+    ("Q" (:control) "fire :northwest .")
+    ("W" (:control) "fire :north .")
+    ("E" (:control) "fire :northeast .")
+    ("A" (:control) "fire :west .")
+    ("D" (:control) "fire :east .")
+    ("Z" (:control) "fire :southwest .")
+    ("X" (:control) "fire :south .")
+    ("C" (:control) "fire :southeast .")
+    ;;
+    ("S" nil "wait .")
+    ("0" nil "equip 0 .")
+    ("1" nil "equip 1 .")
+    ("2" nil "activate-equipment :belt .")
+    ("Q" (:control) "quit .")))
 
 ;; f t g
 ;;  \|/
@@ -1159,6 +1201,7 @@
 (define-method install-keybindings invader-prompt ()
   (let ((keys (ecase rlx:*user-keyboard-layout* 
 		(:qwerty *qwerty-keybindings*)
+		(:alternate-qwerty *alternate-qwerty-keybindings*)
 		(:dvorak *dvorak-keybindings*))))
     (dolist (k keys)
       (apply #'bind-key-to-prompt-insertion self k))))
