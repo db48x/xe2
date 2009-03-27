@@ -824,8 +824,10 @@ The default destination is the main window."
 	  (index-module "standard") 
 	  (index-module *next-module*)
 	  (find-resource *startup*)
-	  (run-main-loop)))
-  (setf *quitting* nil))
+	  (run-main-loop))
+       (setf *quitting* t)))
+  
+
   
 ;;; Playing sounds
 ;;; Playing background music
