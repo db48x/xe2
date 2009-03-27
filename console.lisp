@@ -171,7 +171,7 @@ key event symbols."
       (:SDL-KEY-MOD-CAPS :caps-lock)
       (:SDL-KEY-MOD-MODE nil)
       (:SDL-KEY-MOD-RESERVED nil)
-
+      ;; for compatibility:
       (:SDL-KEY-NONE nil)
       (:SDL-KEY-LSHIFT :shift)
       (:SDL-KEY-RSHIFT :shift)
@@ -187,6 +187,48 @@ key event symbols."
       (:SDL-KEY-RESERVED nil)
       ))
 
+;; Thanks to Shawn Betts for the following two fixes.  On some
+;; machines LISPBUILDER-SDL is passing an integer to encode the
+;; modifiers, and not a keyword or list of keywords as the docs
+;; say. This fixes it for those users.
+
+(cffi:defcenum SDL-Mod-Enum
+	(:SDL-KEY-MOD-NONE #x0000)
+	(:SDL-KEY-MOD-LSHIFT #x0001)
+	(:SDL-KEY-MOD-RSHIFT #x0002)
+	(:SDL-KEY-MOD-LCTRL #x0040)
+	(:SDL-KEY-MOD-RCTRL #x0080)
+	(:SDL-KEY-MOD-LALT #x0100)
+	(:SDL-KEY-MOD-RALT #x0200)
+	(:SDL-KEY-MOD-LMETA #x0400)
+	(:SDL-KEY-MOD-RMETA #x0800)
+	(:SDL-KEY-MOD-NUM #x1000)
+	(:SDL-KEY-MOD-CAPS #x2000)
+	(:SDL-KEY-MOD-MODE #x4000)
+	(:SDL-KEY-MOD-RESERVED #x8000))
+
+(defun sdlmod-to-list (mod)
+  (let (acc)
+    (labels ((add-mod (kw)
+ 	       (when (plusp (logand mod 
+				    (cffi:foreign-enum-value 
+				     'lispbuilder-sdl-cffi::Sdl-Mod-Enum kw)))
+		 (push kw acc))))
+      ;;(add-mod :SDL-KEY-MOD-NONE)
+      (add-mod :SDL-KEY-MOD-LSHIFT)
+      (add-mod :SDL-KEY-MOD-RSHIFT)
+      (add-mod :SDL-KEY-MOD-LCTRL)
+      (add-mod :SDL-KEY-MOD-RCTRL)
+      (add-mod :SDL-KEY-MOD-LALT)
+      (add-mod :SDL-KEY-MOD-RALT)
+      (add-mod :SDL-KEY-MOD-LMETA)
+      (add-mod :SDL-KEY-MOD-RMETA)
+      (add-mod :SDL-KEY-MOD-NUM)
+      (add-mod :SDL-KEY-MOD-CAPS)
+      (add-mod :SDL-KEY-MOD-MODE)
+      (add-mod :SDL-KEY-MOD-RESERVED)
+      acc)))
+
 (defun make-key-string (sdl-key)
   "Translate from :SDL-KEY-X to the string \"X\"."
   (let ((prefix "SDL-KEY-"))
@@ -199,7 +241,9 @@ key event symbols."
   (normalize-event
    (cons (make-key-string sdl-key)
 	 (mapcar #'make-key-modifier-symbol
-		 (cond ((keywordp sdl-mods)
+		 (cond ((numberp sdl-mods)
+			(sdlmod-to-list sdl-mods))
+		       ((keywordp sdl-mods)
 			(list sdl-mods))
 		       ((listp sdl-mods)
 			sdl-mods)

@@ -674,7 +674,7 @@
   (tile :initform "ion-shield-wall")
   (categories :initform '(:obstacle :actor :target))
   (hit-points :initform (make-stat :base 7 :min 0))
-  (clock :initform (+ 9 (random 4))))
+  (clock :initform (+ 12 (random 4))))
 
 (define-method die ion-shield-wall ()
   [queue>>drop-cell *active-world* (clone =flash=) <row> <column>]
