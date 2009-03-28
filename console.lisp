@@ -467,10 +467,12 @@ Directories are searched in list order.")
   "Search the `*module-directories*' path for a directory with the
 name MODULE-NAME. Returns the pathname if found, otherwise nil."
   (or 
-   (loop
-      for dir in *module-directories*
-      for path = (probe-file (make-pathname :directory (append (pathname-directory dir) (list module-name))
-					    :defaults dir))
+   (loop 
+      for dir in *module-directories* for path
+      = (probe-file (make-pathname :directory 
+				   (append (pathname-directory
+					    dir) (list module-name))
+				   :defaults dir))
       when path return path)
    (error "Cannot find module ~s. You must set the variable RLX:*MODULE-DIRECTORIES* in the configuration file ~~/.rlxrc" module-name)))
 
@@ -570,9 +572,13 @@ table."
 					       "*"))))
     (sdl:initialise-font (symbol-value (intern font-name :lispbuilder-sdl)))))
 
+(defun load-music-resource (resource)
+  (sdl-mixer:load-music (namestring (resource-file resource))))
+
 (defvar *resource-handlers* (list :image #'load-image-resource
 				  :lisp #'load-lisp-resource
 				  :color #'load-color-resource
+				  :music #'load-music-resource
 				  :canvas #'load-canvas-resource
 				  :font #'load-font-resource)
   "A property list mapping resource type keywords to handler functions.
@@ -688,6 +694,20 @@ found."
   "Read the value of PROPERTY from the resource RESOURCE-NAME."
   (getf (resource-properties (find-resource resource-name))
 	property))
+
+;;; Playing music
+
+(defun play-music (music-name &rest args)
+  (let ((resource (find-resource music-name)))
+    (assert (eq :music (resource-type resource)))
+    (apply #'sdl-mixer:play-music 
+	   (resource-object resource)
+	   args)))
+
+(defun halt-music (fade-milliseconds)
+  (sdl-mixer:halt-music fade-milliseconds))
+
+;; TODO (defun seek-music 
 
 ;;; Font operations
 
@@ -815,23 +835,29 @@ The default destination is the main window."
   ;; now play modules until done
   (loop while (and (not *quitting*)
 		   *next-module*)
-     do (sdl:with-init (sdl:SDL-INIT-VIDEO)
+     do (sdl:with-init (sdl:SDL-INIT-VIDEO sdl:SDL-INIT-AUDIO)
 	  ;; <: initialization :>
 	  (load-user-init-file)
 	  (run-hook '*initialization-hook*)
 	  (initialize-resource-table)
 	  (initialize-colors)
+	  (sdl-mixer:open-audio)
 	  (index-module "standard") 
 	  (index-module *next-module*)
 	  (find-resource *startup*)
 	  (run-main-loop))
        (setf *quitting* t))
-  (setf *quitting* nil))
+  (setf *quitting* nil)
+  (sdl-mixer:close-audio t))
+  ;; ;; free audio
+  ;; (maphash #'(lambda (name resource)
+  ;; 	       (declare (ignore name))
+  ;; 	       (when (eq :music (resource-type resource))
+  ;; 		 (sdl-mixer:free (resource-object resource))))
+  ;; 	   *resource-table*))
   
 
   
-;;; Playing sounds
-;;; Playing background music
 ;;; Saving and loading data 
 ;;; Taking screenshots
 

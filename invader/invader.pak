@@ -61,7 +61,6 @@
 
  (:name "ankh" :type :image :file "ankh.png")
 
-
  (:name "invader-splash" :type :image :file "splash.png")
  (:name "energy" :type :image :file "energy.png")
  (:name "gun" :type :image :file "gun.png")
@@ -120,6 +119,8 @@
  (:name "station-base" :type :image :file "station-base.png")
 
  (:name "sparkle" :type :image :file "sparkle.png")
+
+ (:name "xiomacs2" :type :music :file "xiomacs2.xm")
 
  (:name ".startup" :type :lisp :file "invader.lisp")
 )

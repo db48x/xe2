@@ -1290,13 +1290,13 @@
 			   :destination <image>))
 
 (define-method dismiss splash ()
+  (play-music "xiomacs2" :loop t)
   (apply #'rlx:install-widgets *play-widgets*))
 
 (define-prototype splash-prompt (:parent =prompt=)
   (default-keybindings :initform '(("SPACE" nil "dismiss ."))))
 
 ;;; Main program.
-
 
 (defun invader ()
   (setf clon:*send-parent-depth* 2)

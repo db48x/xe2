@@ -92,14 +92,14 @@
   render-formatted-paragraph make-formatted-string draw-string-shaded
   render-formatted-string render-formatted-line resource
   write-sexp-to-file with-message-sender *message-sender*
-  read-sexp-from-file write-pak send-event-to-widgets
-  draw-resource-image *event-handler-function* trace-rectangle
-  trace-row trace-column trace-octagon trace-line midpoint =asterisk=
-  =gray-asterisk= self *module-widgets* get-some-object-name
-  transform-declaration-field-descriptor no-such-field =narrator=
-  find-modules-in-directory =environment= directory-is-module-p
-  find-all-modules *next-module* transform-tree stat-value
-  *default-message-verbosities* *message-verbosities*
+  read-sexp-from-file write-pak send-event-to-widgets play-music
+  halt-music seek-music draw-resource-image *event-handler-function*
+  trace-rectangle trace-row trace-column trace-octagon trace-line
+  midpoint =asterisk= =gray-asterisk= self *module-widgets*
+  get-some-object-name transform-declaration-field-descriptor
+  no-such-field =narrator= find-modules-in-directory =environment=
+  directory-is-module-p find-all-modules *next-module* transform-tree
+  stat-value *default-message-verbosities* *message-verbosities*
   set-message-verbosities operation-symbol message-symbol
   add-message-verbosities with-message-queue *user-keyboard-layout*
   set-field-option-value field-options *quitting* quit reset))
