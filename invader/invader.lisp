@@ -1036,7 +1036,6 @@
     (dotimes (i 25)
       [drop-cell self (clone =oxygen-tank=) (random height) (random width) :no-collisions t])
     ;; 
-
     (setf *station-base-count* 0)
     (loop do (paint-station-piece self (+ 200 (random 80)) (random width) 10)
        while (< *station-base-count* 3))
@@ -1149,50 +1148,50 @@
     ("2" nil "activate-equipment :belt .")
     ("Q" (:control) "quit .")))
 
-;; f t g
+;; g c r
 ;;  \|/
-;; d-.-n
+;; h-.-n
 ;;  /|\ 
-;; x h b
+;; m w v
 
 (defparameter *dvorak-keybindings*
-  '(("F" nil "move :northwest .")
-    ("T" nil "move :north .")
-    ("G" nil "move :northeast .")
-    ("D" nil "move :west .")
+  '(("G" nil "move :northwest .")
+    ("C" nil "move :north .")
+    ("R" nil "move :northeast .")
+    ("H" nil "move :west .")
     ("N" nil "move :east .")
-    ("X" nil "move :southwest .")
-    ("H" nil "move :south .")
-    ("B" nil "move :southeast .")
+    ("M" nil "move :southwest .")
+    ("W" nil "move :south .")
+    ("V" nil "move :southeast .")
     ;;
-    ("F" (:alt) "attack :northwest .")
-    ("T" (:alt) "attack :north .")
-    ("G" (:alt) "attack :northeast .")
-    ("D" (:alt) "attack :west .")
+    ("G" (:alt) "attack :northwest .")
+    ("C" (:alt) "attack :north .")
+    ("R" (:alt) "attack :northeast .")
+    ("H" (:alt) "attack :west .")
     ("N" (:alt) "attack :east .")
-    ("X" (:alt) "attack :southwest .")
-    ("H" (:alt) "attack :south .")
-    ("B" (:alt) "attack :southeast .")
+    ("M" (:alt) "attack :southwest .")
+    ("W" (:alt) "attack :south .")
+    ("V" (:alt) "attack :southeast .")
     ;;
-    ("F" (:meta) "attack :northwest .")
-    ("T" (:meta) "attack :north .")
-    ("G" (:meta) "attack :northeast .")
-    ("D" (:meta) "attack :west .")
+    ("G" (:meta) "attack :northwest .")
+    ("C" (:meta) "attack :north .")
+    ("R" (:meta) "attack :northeast .")
+    ("H" (:meta) "attack :west .")
     ("N" (:meta) "attack :east .")
-    ("X" (:meta) "attack :southwest .")
-    ("H" (:meta) "attack :south .")
-    ("B" (:meta) "attack :southeast .")
+    ("M" (:meta) "attack :southwest .")
+    ("W" (:meta) "attack :south .")
+    ("V" (:meta) "attack :southeast .")
     ;;
-    ("F" (:control) "fire :northwest .")
-    ("T" (:control) "fire :north .")
-    ("G" (:control) "fire :northeast .")
-    ("D" (:control) "fire :west .")
+    ("G" (:control) "fire :northwest .")
+    ("C" (:control) "fire :north .")
+    ("R" (:control) "fire :northeast .")
+    ("H" (:control) "fire :west .")
     ("N" (:control) "fire :east .")
-    ("X" (:control) "fire :southwest .")
-    ("H" (:control) "fire :south .")
-    ("B" (:control) "fire :southeast .")
+    ("M" (:control) "fire :southwest .")
+    ("W" (:control) "fire :south .")
+    ("V" (:control) "fire :southeast .")
     ;;
-    ("W" nil "wait .")
+    ("S" nil "wait .")
     ("0" nil "equip 0 .")
     ("1" nil "equip 1 .")
     ("2" nil "activate-equipment :belt .")
