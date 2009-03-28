@@ -950,17 +950,17 @@
 
 ;;; The evil boss stations must be destroyed.
 
-(define-prototype station-arm-horz (:parent rlx:=cell=)
+(defcell station-arm-horz 
   (tile :initform "station-arm-horz")
-  (categories :initform '(:obstacle :opaque :destructible))
+  (categories :initform '(:obstacle :opaque :destructible :target))
   (hit-points :initform (make-stat :base 10 :min 0)))
 
-(define-prototype station-arm-vert (:parent rlx:=cell=)
+(defcell station-arm-vert 
   (tile :initform "station-arm-vert")
-  (categories :initform '(:obstacle :opaque :destructible))
+  (categories :initform '(:obstacle :opaque :destructible :target))
   (hit-points :initform (make-stat :base 10 :min 0)))
 
-(define-prototype station-base (:parent rlx:=cell=)
+(defcell station-base 
   (tile :initform "station-base")
   (categories :initform '(:obstacle :actor :equipper :opaque))
   (speed :initform (make-stat :base 6))
@@ -1055,22 +1055,22 @@
 			       (random pallet-size)
 			       :fill)))))
       ;; drop groups of boxes
-      (dotimes (i 20)
+      (dotimes (i 34)
 	(trace-rectangle #'drop-box (random height) (random width)
 		       (+ 16 (random 14)) (+ 4 (random 3)) :fill)))
     ;; drop enemies
-    (dotimes (i 30)
+    (dotimes (i 40)
       (let ((row (random height))
 	    (column (random width)))
 	[drop-cell self (clone =berserker=) row column :loadout t :no-collisions t]))
-    (dotimes (i 40) 
-      [drop-cell self (clone =biclops=) (+ 80 (random (- height 80)))
+    (dotimes (i 30) 
+      [drop-cell self (clone =biclops=) (+ 60 (random (- height 80)))
 		 (random width) :loadout t :no-collisions t])
-    (dotimes (i 32)
+    (dotimes (i 30)
       [drop-cell self (clone =scanner=) (+ 100 (random (- height 100)))
 		 (random width) :loadout t :no-collisions t])
     (dotimes (i 20)
-      [drop-cell self (clone =rook=) (+ 100 (random (- height 100))) (random width) :loadout t :no-collisions t])
+      [drop-cell self (clone =rook=) (+ 150 (random (- height 150))) (random width) :loadout t :no-collisions t])
     ;; drop dead crewmembers to ransack
     (dotimes (i 60) 
       [drop-cell self (clone =crew-member=) (random height) (random width) :loadout t :no-collisions t])
@@ -1094,9 +1094,9 @@
       [drop-cell self (clone =defense-up=) (random height) (random width) :no-collisions t])
     (dotimes (i 4)
       [drop-cell self (clone =speed-up=) (random height) (random width) :no-collisions t])
-    (dotimes (i 10)
+    (dotimes (i 5)
       [drop-cell self (clone =muon-pistol=) (random height) (random width) :no-collisions t])
-    (dotimes (i 10)
+    (dotimes (i 5)
       [drop-cell self (clone =ion-shield=) (random height) (random width) :no-collisions t])
 ;;    [drop-cell self (clone =rusty-wrench=) 3 2 :no-collisions nil]
     (dotimes (i 40) 
@@ -1306,9 +1306,9 @@
   [delete-all-lines self]
   (let ((char <character>))
     [print self "  Statistics:  "]
-    [print-stat self :hit-points :warn-below 35]
+    [print-stat self :hit-points :warn-below 40]
     [print self " "]
-    [print-stat self :oxygen :warn-below 35]
+    [print-stat self :oxygen :warn-below 40]
     [print self " "]
     [print-stat self :energy :warn-below 50]
     [print self " "]

@@ -279,6 +279,7 @@ window. Set this in the game startup file.")
 (defun run-main-loop ()
   (sdl:window *screen-width* *screen-height*
 	      :title-caption "RLX")
+  ;; :flags sdl:SDL-FULLSCREEN)
   (sdl:clear-display sdl:*black*)
   (show-widgets)
   (sdl:update-display)
