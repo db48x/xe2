@@ -647,7 +647,7 @@
 	  [queue>>move self <direction>]
 	  [queue>>expend-default-action-points self]
 	  [queue>>drop self (clone =flash=)]
-	  [queue>>damage target 5]
+	  [queue>>damage target 7]
 	  [queue>>die self])
 	(progn 
 	  [queue>>drop self (clone =muon-trail= <direction>)]
@@ -680,9 +680,9 @@
 (define-method fire muon-pistol (direction)
   (if [expend-energy <equipper> 10]
       (let ((muon (clone =muon-particle=)))
-	[queue>>drop <equipper> muon]
-	[queue>>impel muon direction])
-      (message "Not enough energy to fire.")))
+	[>>drop <equipper> muon]
+	[>>impel muon direction])
+      [>>say :narrator "Not enough energy to fire!"]))
 
 (define-method step muon-pistol (stepper)
   (when [is-player stepper]
