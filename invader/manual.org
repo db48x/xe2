@@ -46,11 +46,11 @@ To change to DVORAK, add the following to your ~/.rlxrc:
 
 Then use:
  
-: f t g
+: g c r
 :  \|/
-: d-.-n
+: h-.-n
 :  /|\ 
-: x h b
+: m w v
    
 for directional control. 
 
