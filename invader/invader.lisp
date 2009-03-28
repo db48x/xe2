@@ -1279,7 +1279,24 @@
     [print-inventory-slot self 1]
     [newline self]))
 
+;;; Splash screen for titles.
+
+(defvar *play-widgets*)
+
+(define-prototype splash (:parent =widget=))
+
+(define-method render splash ()
+  (rlx:draw-resource-image "invader-splash" 0 0 
+			   :destination <image>))
+
+(define-method dismiss splash ()
+  (apply #'rlx:install-widgets *play-widgets*))
+
+(define-prototype splash-prompt (:parent =prompt=)
+  (default-keybindings :initform '(("SPACE" nil "dismiss ."))))
+
 ;;; Main program.
+
 
 (defun invader ()
   (setf clon:*send-parent-depth* 2)
@@ -1290,8 +1307,17 @@
 	 (player (clone =player=))
 	 (viewport (clone =viewport=))
 	 (narrator (clone =narrator=))
-	 (status (clone =status=)))
+	 (status (clone =status=))
+	 (splash (clone =splash=))
+	 (splash-prompt (clone =splash-prompt=)))
     (setf *active-world* world)
+    ;;
+    [resize splash :height 300 :width 420]
+    [move splash :x 200 :y 100]
+    [resize splash-prompt :width 10 :height 10]
+    [move splash-prompt :x 0 :y 0]
+    [hide splash-prompt]
+    [set-receiver splash-prompt splash]
     ;;
     [resize prompt :height 20 :width 100]
     [move prompt :x 0 :y 0]
@@ -1321,7 +1347,8 @@
     ;;
     [start world]
     ;;
-    (install-widgets prompt status viewport narrator)))
+    (setf *play-widgets* (list prompt status viewport narrator))
+    (install-widgets splash-prompt splash)))
 
 (invader)
 
