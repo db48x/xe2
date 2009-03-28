@@ -380,6 +380,12 @@ Return ITEM if successful, nil otherwise."
 	;; base case; just return the weight
 	(or <weight> 0))))
 
+(define-method drop-item cell (pos)
+  (let ((item [item-at self pos]))
+    (when item
+      [remove-item self item]
+      [drop self item])))
+
 ;;; Finding and manipulating objects
 
 ;; <: finding :> 

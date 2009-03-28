@@ -59,7 +59,8 @@ for directional control.
 Alt-DIRECTION for melee attack with wrench, Control-DIRECTION to fire
 with an equipped gun (if any). To equip items, press the item's slot
 number (either 0 or 1). Press 2 (the digit two) to activate any
-equipped shield. Press Control-Q to quit at any time.
+equipped shield. Press Control-Q to quit at any time. Press Control-0
+to drop item 0, Control-1 to drop item 1.
 
 * GAMEPLAY
 

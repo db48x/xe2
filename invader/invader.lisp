@@ -1025,7 +1025,7 @@
     (dotimes (i 40) 
       [drop-cell self (clone =biclops=) (+ 80 (random (- height 80)))
 		 (random width) :loadout t :no-collisions t])
-    (dotimes (i 40)
+    (dotimes (i 32)
       [drop-cell self (clone =scanner=) (random height) (random width) :loadout t :no-collisions t])
     ;; drop dead crewmembers to ransack
     (dotimes (i 60) 
@@ -1055,7 +1055,7 @@
     (dotimes (i 10)
       [drop-cell self (clone =ion-shield=) (random height) (random width) :no-collisions t])
 ;;    [drop-cell self (clone =rusty-wrench=) 3 2 :no-collisions nil]
-    (dotimes (i 70) 
+    (dotimes (i 40) 
       [drop-cell self (clone =mine=) (random height) (random width) :no-collisions t])))
 
 ;;; Controlling the game.
@@ -1102,6 +1102,8 @@
     ("W" nil "wait .")
     ("0" nil "equip 0 .")
     ("1" nil "equip 1 .")
+    ("0" (:control) "drop-item 0 .")
+    ("1" (:control) "drop-item 1 .")
     ("2" nil "activate-equipment :belt .")
     ("Q" (:control) "quit .")))
 
@@ -1145,6 +1147,8 @@
     ("S" nil "wait .")
     ("0" nil "equip 0 .")
     ("1" nil "equip 1 .")
+    ("0" (:control) "drop-item 0 .")
+    ("1" (:control) "drop-item 1 .")
     ("2" nil "activate-equipment :belt .")
     ("Q" (:control) "quit .")))
 
@@ -1194,6 +1198,8 @@
     ("S" nil "wait .")
     ("0" nil "equip 0 .")
     ("1" nil "equip 1 .")
+    ("0" (:control) "drop-item 0 .")
+    ("1" (:control) "drop-item 1 .")
     ("2" nil "activate-equipment :belt .")
     ("Q" (:control) "quit .")))
 
