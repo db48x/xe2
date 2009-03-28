@@ -1,4 +1,4 @@
-#+TITLE: Invader, the Roguelike!
+#+TITLE: Invader Tactics
 
 * INSTALLATION
 

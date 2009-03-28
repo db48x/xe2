@@ -5,7 +5,8 @@ Installation and basic playing instructions are provided.
    now. You must also have the SDL libraries installed. How to do this
    is beyond the scope of this document. See libsdl.org for more
    information. In addition, the LISPBUILDER-SDL libraries are also
-   required (see below).
+   required and these should be compiled from their latest
+   SVN. (see below for instructions.)
 
 2. If you have not already done so, download RLX:
   
@@ -49,7 +50,8 @@ Installation and basic playing instructions are provided.
 
 The filename should be wherever you installed the RLX source
 tree. This is auto-detected as the current directory if you don't set
-it.
+it. NOTE: These must be pathnames (prefixed with #P) and must contain
+a trailing slash.
 
 7. At the shell, cd to the install directory for RLX, run SBCL, and
    then at the REPL:
