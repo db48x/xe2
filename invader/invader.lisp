@@ -457,18 +457,20 @@
   (categories :initform '(:item :target :actor))
   (tile :initform "mine"))
 
-(defvar *mine-sensitivity* 3)
+(defvar *mine-warning-sensitivity* 4)
+(defvar *mine-explosion-sensitivity* 3)
 
 (define-method run mine ()
-  (if (< [distance-to-player *active-world* <row> <column>] 
-	 *mine-sensitivity*)
-      (progn
-	(when (string= <tile> "mine")
-	  [>>say :narrator "You see a mine nearby!"])
-	(setf <tile> "mine-warn")
-	(when (< (random 8) 1)
-	  [explode self]))
-      (setf <tile> "mine")))
+  (let ((distance [distance-to-player *active-world* <row> <column>]))
+    (if (< distance *mine-warning-sensitivity*)
+	(progn
+	  (when (string= <tile> "mine")
+	    [>>say :narrator "You see a mine nearby!"])
+	  (setf <tile> "mine-warn")
+	  (when (< distance *mine-explosion-sensitivity*)
+	    (when (< (random 8) 1)
+	      [explode self])))
+	(setf <tile> "mine"))))
 
 (define-method explode mine ()
   (labels ((boom (r c &optional (probability 50))
@@ -810,7 +812,7 @@
 (defcell ion-shield-wall 
   (tile :initform "ion-shield-wall")
   (categories :initform '(:obstacle :actor :target))
-  (hit-points :initform (make-stat :base 7 :min 0))
+  (hit-points :initform (make-stat :base 10 :min 0))
   (clock :initform (+ 12 (random 4))))
 
 (define-method die ion-shield-wall ()
@@ -859,7 +861,7 @@
   (name :initform "Scanner")
   (categories :initform '(:obstacle :actor :equipper :opaque))
   (direction :initform nil)
-  (speed :initform (make-stat :base 7))
+  (speed :initform (make-stat :base 5))
   (hit-points :initform (make-stat :base 40 :min 0))
   (equipment-slots :initform '(:robotic-arm))
   (max-items :initform (make-stat :base 3))
@@ -1037,8 +1039,8 @@
       [drop-cell self (clone =oxygen-tank=) (random height) (random width) :no-collisions t])
     ;; 
     (setf *station-base-count* 0)
-    (loop do (paint-station-piece self (+ 200 (random 80)) (random width) 10)
-       while (< *station-base-count* 3))
+    (loop do (paint-station-piece self (+ 150 (random 140)) (random width) 10)
+       while (< *station-base-count* 5))
 
     (dotimes (i 20)
       [drop-cell self (clone =energy=) (random height) (random width) :no-collisions t])
