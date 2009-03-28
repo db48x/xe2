@@ -646,7 +646,7 @@
 	(progn
 	  [queue>>move self <direction>]
 	  [queue>>expend-default-action-points self]
-	  [queue>>drop self (clone =flash=)]
+	  [queue>>drop target (clone =flash=)]
 	  [queue>>damage target 7]
 	  [queue>>die self])
 	(progn 
