@@ -111,7 +111,7 @@
   (firing-with :initform :left-hand)
   ;; other stats
   (energy :initform (make-stat :base 220 :min 0 :max 220))
-  (oxygen :initform (make-stat :base 120 :min 0 :max 120))
+  (oxygen :initform (make-stat :base 140 :min 0 :max 140))
   ;; default is do not generate step events; this turns it on
   (stepping :initform t))
 
@@ -420,6 +420,45 @@
       [drop self (clone =explosion=)])
   [parent>>die self])
  
+;;; Rooks are the most difficult enemies. Slow, but powerful.
+
+(defcell rook 
+  (categories :initform '(:actor :target :obstacle :opaque :enemy))
+  (equipment-slots :initform '(:robotic-arm :shoulder-mount))
+  (attacking-with :initform :robotic-arm)
+  (dexterity :initform (make-stat :base 20))
+  (max-items :initform (make-stat :base 1))
+  (speed :initform (make-stat :base 5))
+  (stepping :initform t)
+  (strength :initform (make-stat :base 50))
+  (movement-cost :initform (make-stat :base 8))
+  (tile :initform "rook")
+  (target :initform nil)
+  (hit-points :initform (make-stat :base 40 :min 0 :max 40)))
+
+(define-method run rook ()
+  (clon:with-field-values (row column) self
+    (when (< [distance-to-player *active-world* row column] 10)
+      (let ((direction [direction-to-player *active-world* row column])
+	    (world *active-world*))
+	(if [adjacent-to-player world row column]
+	    [>>attack self direction]
+	    (if [obstacle-in-direction-p world row column direction]
+		(let ((target [target-in-direction-p world row column direction]))
+		  (if (and target (not [in-category target :enemy]))
+		      [>>attack self direction]
+		      (progn (setf <direction> (random-direction))
+			     [>>move self direction])))
+		(progn (when (< 7 (random 10))
+			 (setf <direction> (random-direction)))
+		       [>>move self direction])))))))
+    
+(define-method loadout rook ()
+  [make-inventory self]
+  [make-equipment self]
+  (let ((probe (clone =shock-probe=)))
+    [equip self [add-item self probe]]))
+
 ;;; Glittering flash gives clues on locations of explosions/damage
 
 (defcell flash 
@@ -1028,7 +1067,10 @@
       [drop-cell self (clone =biclops=) (+ 80 (random (- height 80)))
 		 (random width) :loadout t :no-collisions t])
     (dotimes (i 32)
-      [drop-cell self (clone =scanner=) (random height) (random width) :loadout t :no-collisions t])
+      [drop-cell self (clone =scanner=) (+ 100 (random (- height 100)))
+		 (random width) :loadout t :no-collisions t])
+    (dotimes (i 20)
+      [drop-cell self (clone =rook=) (+ 100 (random (- height 100))) (random width) :loadout t :no-collisions t])
     ;; drop dead crewmembers to ransack
     (dotimes (i 60) 
       [drop-cell self (clone =crew-member=) (random height) (random width) :loadout t :no-collisions t])
