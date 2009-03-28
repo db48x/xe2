@@ -307,6 +307,7 @@ window. Set this in the game startup file.")
 			     (user-homedir-pathname))))))
 
 (defparameter *user-keyboard-layout* :qwerty)
+(defparameter *use-sound* t)
 
 ;;; PAK resource interchange files
 
@@ -573,7 +574,8 @@ table."
     (sdl:initialise-font (symbol-value (intern font-name :lispbuilder-sdl)))))
 
 (defun load-music-resource (resource)
-  (sdl-mixer:load-music (namestring (resource-file resource))))
+  (when *use-sound*
+    (sdl-mixer:load-music (namestring (resource-file resource)))))
 
 (defvar *resource-handlers* (list :image #'load-image-resource
 				  :lisp #'load-lisp-resource
@@ -698,14 +700,16 @@ found."
 ;;; Playing music
 
 (defun play-music (music-name &rest args)
-  (let ((resource (find-resource music-name)))
-    (assert (eq :music (resource-type resource)))
-    (apply #'sdl-mixer:play-music 
-	   (resource-object resource)
-	   args)))
+  (when *use-sound*
+    (let ((resource (find-resource music-name)))
+      (assert (eq :music (resource-type resource)))
+      (apply #'sdl-mixer:play-music 
+	     (resource-object resource)
+	     args))))
 
 (defun halt-music (fade-milliseconds)
-  (sdl-mixer:halt-music fade-milliseconds))
+  (when *use-sound*
+    (sdl-mixer:halt-music fade-milliseconds)))
 
 ;; TODO (defun seek-music 
 
@@ -841,14 +845,16 @@ The default destination is the main window."
 	  (run-hook '*initialization-hook*)
 	  (initialize-resource-table)
 	  (initialize-colors)
-	  (sdl-mixer:open-audio)
+	  (when *use-sound*
+	    (sdl-mixer:open-audio))
 	  (index-module "standard") 
 	  (index-module *next-module*)
 	  (find-resource *startup*)
 	  (run-main-loop))
        (setf *quitting* t))
   (setf *quitting* nil)
-  (sdl-mixer:close-audio t))
+  (when *use-sound* 
+    (sdl-mixer:close-audio t)))
   ;; ;; free audio
   ;; (maphash #'(lambda (name resource)
   ;; 	       (declare (ignore name))
