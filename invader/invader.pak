@@ -61,6 +61,8 @@
 
  (:name "ankh" :type :image :file "ankh.png")
 
+
+ (:name "invader-splash" :type :image :file "splash.png")
  (:name "energy" :type :image :file "energy.png")
  (:name "gun" :type :image :file "gun.png")
  (:name "ion-shield-wall" :type :image :file "ion-shield-wall.png")
