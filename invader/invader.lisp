@@ -1339,6 +1339,7 @@
 			   :destination <image>))
 
 (define-method dismiss splash ()
+  (set-music-volume 255)	       
   (play-music "xiomacs2" :loop t)
   (apply #'rlx:install-widgets *play-widgets*))
 

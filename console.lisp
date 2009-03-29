@@ -578,10 +578,15 @@ table."
   (when *use-sound*
     (sdl-mixer:load-music (namestring (resource-file resource)))))
 
+(defun load-sample-resource (resource)
+  (when *use-sound*
+    (sdl-mixer:load-sample (namestring (resource-file resource)))))
+
 (defvar *resource-handlers* (list :image #'load-image-resource
 				  :lisp #'load-lisp-resource
 				  :color #'load-color-resource
 				  :music #'load-music-resource
+				  :sample #'load-sample-resource
 				  :canvas #'load-canvas-resource
 				  :font #'load-font-resource)
   "A property list mapping resource type keywords to handler functions.
@@ -698,7 +703,7 @@ found."
   (getf (resource-properties (find-resource resource-name))
 	property))
 
-;;; Playing music
+;;; Playing music and sound effects
 
 (defun play-music (music-name &rest args)
   (when *use-sound*
@@ -712,7 +717,19 @@ found."
   (when *use-sound*
     (sdl-mixer:halt-music fade-milliseconds)))
 
+(defun set-music-volume (number)
+  (when *use-sound*
+    (setf (sdl-mixer:music-volume) number)))
+
 ;; TODO (defun seek-music 
+
+(defun play-sample (sample-name &rest args)
+  (when *use-sound*
+    (let ((resource (find-resource sample-name)))
+      (assert (eq :sample (resource-type resource)))
+      (apply #'sdl-mixer:play-sample 
+	     (resource-object resource)
+	     args))))
 
 ;;; Font operations
 

@@ -100,9 +100,10 @@
   no-such-field =narrator= find-modules-in-directory =environment=
   directory-is-module-p find-all-modules *next-module* transform-tree
   stat-value *default-message-verbosities* *message-verbosities*
-  set-message-verbosities operation-symbol message-symbol
-  add-message-verbosities with-message-queue *user-keyboard-layout*
-  set-field-option-value field-options *quitting* quit reset))
+  set-message-verbosities operation-symbol message-symbol play-sample
+  set-music-volume add-message-verbosities with-message-queue
+  *user-keyboard-layout* set-field-option-value field-options
+  *quitting* quit reset))
 
 (in-package :rlx)
 
