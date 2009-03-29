@@ -1340,7 +1340,9 @@
 
 (define-method dismiss splash ()
   (set-music-volume 255)	       
-  (play-music "xiomacs2" :loop t)
+  (play-music (if (= 0 (random 2))
+		  "xiomacs2"
+		  "technogirl") :loop t)
   (apply #'rlx:install-widgets *play-widgets*))
 
 (define-prototype splash-prompt (:parent =prompt=)

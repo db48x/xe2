@@ -121,6 +121,7 @@
  (:name "sparkle" :type :image :file "sparkle.png")
 
  (:name "xiomacs2" :type :music :file "xiomacs2.xm")
+ (:name "technogirl" :type :music :file "technogirl.xm")
 
  (:name ".startup" :type :lisp :file "invader.lisp")
 )
