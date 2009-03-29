@@ -152,7 +152,7 @@
 
 (define-method damage player (damage-points)
   [parent>>damage self (- damage-points (truncate (/ [stat-value self :defense]
-						     4)))])
+						     3)))])
 
 ;;; The player's remains are a skull and crossbones. 
 
