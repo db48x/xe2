@@ -847,7 +847,11 @@ The default destination is the main window."
 	  (initialize-resource-table)
 	  (initialize-colors)
 	  (when *use-sound*
-	    (sdl-mixer:open-audio))
+	    ;; try opening sound
+	    (when (null (sdl-mixer:open-audio))
+	      ;; if that didn't work, disable effects/music
+	      (message "Could not open audio. Disabling sound.")
+	      (setf *use-sound* nil)))
 	  (index-module "standard") 
 	  (index-module *next-module*)
 	  (find-resource *startup*)
