@@ -1340,9 +1340,7 @@
 
 (define-method dismiss splash ()
   (set-music-volume 255)	       
-  (play-music (if (= 0 (random 2))
-		  "xiomacs2"
-		  "technogirl") :loop t)
+  (play-music "xiomacs2" :loop t)
   (apply #'rlx:install-widgets *play-widgets*))
 
 (define-prototype splash-prompt (:parent =prompt=)
@@ -1399,6 +1397,7 @@
     ;;
     [start world]
     ;;
+    (play-music "technogirl" :loop t)
     (setf *play-widgets* (list prompt status viewport narrator))
     (install-widgets splash-prompt splash)))
 
