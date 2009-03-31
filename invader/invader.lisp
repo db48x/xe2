@@ -1099,7 +1099,7 @@
     (dotimes (i 5)
       [drop-cell self (clone =ion-shield=) (random height) (random width) :no-collisions t])
 ;;    [drop-cell self (clone =rusty-wrench=) 3 2 :no-collisions nil]
-    (dotimes (i 40) 
+    (dotimes (i 20) 
       [drop-cell self (clone =mine=) (random height) (random width) :no-collisions t])))
 
 ;;; Controlling the game.
