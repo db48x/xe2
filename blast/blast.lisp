@@ -194,9 +194,9 @@
 ;;; The endless void.
 
 (define-prototype void-world (:parent rlx:=world=)
-  (width :initform 50)
-  (height :initform 50)
-  (asteroid-count :initform 50)
+  (width :initform 200)
+  (height :initform 200)
+  (asteroid-count :initform 100)
   (ambient-light :initform :total))
 
 (define-method generate void-world (&optional parameters)
@@ -401,10 +401,11 @@
     [set-narrator world narrator]
     [set-verbosity narrator 0]
    ;;
+    (setf (clon:field-value :tile-size viewport) 10)
     [set-world viewport world]
     [resize viewport :height 460 :width 800]
     [move viewport :x 0 :y 60]
-    [set-origin viewport :x 0 :y 0 :height 27 :width 50]
+    [set-origin viewport :x 0 :y 0 :height 46 :width 80]
     [adjust viewport]
     ;;
     [start world]

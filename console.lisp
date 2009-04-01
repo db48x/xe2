@@ -279,7 +279,7 @@ at the time the cell method is run.")
   (setf *timer-p* t))
 
 (defun disable-timer ()
-  (setf *timer-p nil))
+  (setf *timer-p* nil))
 
 (defvar *timer-event* (list nil :timer))
 
@@ -338,6 +338,7 @@ window. Set this in the game startup file.")
 		   (sdl:update-display)
 		   (setf *clock* *timer-interval*))
 		 (decf *clock*))))))
+
 
 ;;; The .rlxrc user init file
 

@@ -1350,8 +1350,9 @@
 
 (defun invader ()
   (setf clon:*send-parent-depth* 2)
-  (setf rlx:*screen-height* 600)
-  (setf rlx:*screen-width* 800)
+  (rlx:set-screen-height 600)
+  (rlx:set-screen-width 800)
+  (rlx:disable-timer)
   (let* ((prompt (clone =invader-prompt=))
 	 (world (clone =factory-world=))
 	 (player (clone =player=))
