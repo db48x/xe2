@@ -474,14 +474,14 @@
 	 (hits [stat-value char :hit-points]))
     [print self " HITS: "]
     (dotimes (i 3)
-      [print self "[]" 
+      [print self "  " 
 	     :foreground ".yellow"
 	     :background (if (< i hits)
 			     ".red"
 			     ".gray20")]
       [space self])
-    [print self " --- SCORE: "]
-    [print self (format nil "~D" (field-value :score char))]))
+    [print self "     SCORE: "]
+    [println self (format nil "~D" (field-value :score char))]))
 
 (defvar *status*)
 
