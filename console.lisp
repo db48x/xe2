@@ -347,8 +347,6 @@ window. Set this in the game startup file.")
 		   (setf *clock* *timer-interval*))
 		 (decf *clock*))))))
 
-
-
 ;;; The .rlxrc user init file
 
 ;; <: initialization :>

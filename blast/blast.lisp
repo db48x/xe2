@@ -88,7 +88,9 @@
 
 (define-method step trail (stepper)
   [drop self (clone =explosion=)]	       
-  [damage stepper 5])
+  [damage stepper 10])
+
+;;; Death icon.
 
 (define-prototype skull (:parent rlx:=cell=)
   (tile :initform "skull")
@@ -119,10 +121,10 @@
   (speed :initform (make-stat :base 10))
   (strength :initform (make-stat :base 10))
   (defense :initform (make-stat :base 10))
-  (hit-points :initform (make-stat :base 10))
+  (hit-points :initform (make-stat :base 10 :min 0))
   (movement-cost :initform (make-stat :base 10))
   (max-items :initform (make-stat :base 2))
-  (trail-length :initform 8)
+  (trail-length :initform 10)
   (stepping :initform t)
   (lives :initform 3)
   (score :initform 0)
@@ -165,12 +167,18 @@
   (categories :initform '(:actor :sticky))
   (hit-points :initform (make-stat :base 10))
   (movement-cost :initform (make-stat :base 10))
-  (stuck-p :initform nil)
+  (stuck-to :initform nil)
   (direction :initform :north)
   (stepping :initform t))
 
 (define-method is-stuck asteroid ()
-  <stuck-p>)
+  <stuck-to>)
+
+(define-method die asteroid ()
+  [>>say :narrator "You destroyed an asteroid!"]
+  (when <stuck-to>
+    [unstick <stuck-to> self])
+  [parent>>die self])
 
 (define-method initialize asteroid (&key speed direction color)
   (setf <speed> (make-stat :base speed))
@@ -185,26 +193,32 @@
   (if (<= [stat-value self :hit-points] 0)
       [die self]
       ;; if free, float
-      (if (and (not <stuck-p>)
+      (if (and (not <stuck-to>)
 	       (not [obstacle-in-direction-p *active-world* <row> <column> <direction>]))
 	  [move self <direction>]
 	  ;; otherwise bounce (when free)
-	  (unless <stuck-p>
+	  (unless <stuck-to>
 	    (setf <direction> (rlx:random-direction))))))
+
+(define-method step asteroid (stepper)
+  (when [in-category stepper :player]
+    [damage stepper 5]
+    [>>say :narrator "You took a hit!"])) 
 
 ;;; Polaris collects asteroids
 
 (defcell polaris
   (tile :initform "polaris")
   (asteroids :initform '())
-  (categories :initform '(:actor))
+  (categories :initform '(:actor :obstacle))
   (direction :initform (rlx:random-direction)))
 
 (define-method scan-neighborhood polaris ()
   (dolist (dir *compass-directions*)
-    (do-cells (cell [cells-at *active-world* <row> <column>])
-      (when (eq =asteroid= (object-parent cell)))
-	[stick self cell])))
+    (multiple-value-bind (r c) (rlx:step-in-direction <row> <column> dir)
+      (do-cells (cell [cells-at *active-world* r c])
+	(when (and cell [in-category cell :sticky])
+	  [stick self cell])))))
 
 (define-method change-direction polaris (direction)
   (dolist (asteroid <asteroids>)
@@ -218,6 +232,9 @@
   ;; now move the stuck asteroids
   (dolist (a <asteroids>)
     [move a direction]))
+
+(define-method unstick polaris (asteroid)
+  (setf <asteroids> (delete asteroid <asteroids>)))
 
 (define-method run polaris ()
   [scan-neighborhood self]	       
@@ -240,7 +257,7 @@
 (define-method stick polaris (asteroid)
   (when (and [in-category asteroid :sticky]
 	     (not [is-stuck asteroid]))
-    (setf (field-value :stuck-p asteroid) t)
+    (setf (field-value :stuck-to asteroid) self)
     (setf (field-value :direction asteroid) <direction>)
     ;; put it back where it was
     [move asteroid (rlx:opposite-direction (field-value :direction asteroid))]
@@ -434,8 +451,8 @@
   (setf clon:*send-parent-depth* 2)
   (rlx:set-screen-height 600)
   (rlx:set-screen-width 800)
-;;  (rlx:set-frame-rate 30)
-  (rlx:set-timer-interval 15)
+  (rlx:set-frame-rate 30)
+  (rlx:set-timer-interval 10)
   (rlx:enable-timer)
   (rlx:enable-held-keys 0 15)
   (let* ((prompt (clone =blast-prompt=))
@@ -472,6 +489,6 @@
     ;;
 	 ;;    (play-music "void" :loop t)
     
-    (install-widgets  prompt viewport)))
+    (install-widgets  prompt viewport narrator)))
 
 (blast)

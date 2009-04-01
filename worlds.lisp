@@ -122,7 +122,8 @@ At the moment, only 0=off and 1=on are supported.")
   (setf <browser> browser))
 
 (define-method cells-at world (row column)
-  (aref <grid> row column))
+  (when (array-in-bounds-p <grid> row column)
+    (aref <grid> row column)))
 
 (define-method drop-cell world (cell row column 
 				     &optional &key loadout no-collisions)
@@ -520,6 +521,20 @@ in a roguelike until the user has pressed a key."
 		 (min (- world-height origin-height)
 		      (- player-y 
 			 (truncate (/ origin-height 2)))))))))
+
+(defmacro do-cells ((var expr) &body body)
+  (let ((counter (gensym))
+	(vector (gensym)))
+    `(progn
+       (let* ((,var nil)
+	      (,vector (progn ,expr)))
+	 (when (vectorp ,vector)
+	   (let ((,counter (fill-pointer ,vector)))
+	     (decf ,counter)
+	     (loop while (plusp ,counter)
+		do (setf ,var (aref ,vector ,counter))
+ 		  (progn (decf ,counter)
+			 (when ,var ,@body)))))))))
 
 ;;; Metaworlds: implementing larger maps as grids of worlds
 
