@@ -1,6 +1,7 @@
 (
  (:name "player-ship-north-dying" :type :image :file "player-ship-north-dying.png")
  (:name	"player-ship-north" :type :image :file "player-ship-north.png")
+
  (:name	"player-ship-north-shield" :type :image :file "player-ship-north-shield.png")
  (:name "asteroid-blue" :type :image :file "asteroid-blue-north.png")
  (:name "asteroid-brown" :type :image :file "asteroid-brown-north.png")
@@ -8,6 +9,7 @@
  (:name "star" :type :image :file "star.png")
  (:name "skull" :type :image :file "skull.png")
  (:name "polaris" :type :image :file "polaris.png")
+ (:name "diamond" :type :image :file "diamond.png")
 
  (:name "trail-north" :type :image :file "trail-north.png")
  (:name "trail-west" :type :alias :data ":rotate 90:trail-north")

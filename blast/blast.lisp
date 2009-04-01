@@ -130,7 +130,7 @@
   (trail-length :initform 12)
   (stepping :initform t)
   (lives :initform 3)
-  (score :initform 0)
+  (score :initform (make-stat :base 0))
   (categories :initform '(:actor :player :target :container :light-source))
   (equipment-slots :initform '(:gun :trail))
   (boost-clock :initform 0))
@@ -176,6 +176,18 @@
     [>>narrateln :narrator "You die."]
     [set-player *active-world* skull]))
 
+;;; A crystal.
+
+(defcell diamond
+  (tile :initform "diamond"))
+
+(define-method step diamond (stepper)
+  (when [is-player stepper]
+   [>>say :narrator "You gain 1 hit point and 2000 score."] 
+   [stat-effect stepper :hit-points 1]
+   [stat-effect stepper :score 2000]
+   [die self]))
+   
 ;;; An asteroid.
 
 (defcell asteroid
@@ -191,7 +203,9 @@
 
 (define-method die asteroid ()
   [>>say :narrator "You destroyed an asteroid!"]
-  (incf (field-value :score [get-player *active-world*]) 80)
+  (when (< (random 5) 1) 
+    [drop self (clone =diamond=)])
+  [stat-effect [get-player *active-world*] :score 80]
   (when <stuck-to>
     [unstick <stuck-to> self])
   [parent>>die self])
@@ -481,7 +495,7 @@
 			     ".gray20")]
       [space self])
     [print self "     SCORE: "]
-    [println self (format nil "~D" (field-value :score char))]))
+    [println self (format nil "~D" [stat-value char :score])]))
 
 (defvar *status*)
 
