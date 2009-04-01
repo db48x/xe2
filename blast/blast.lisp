@@ -162,11 +162,15 @@
 ;;; An asteroid.
 
 (defcell asteroid
-  (categories :initform '(:actor))
+  (categories :initform '(:actor :sticky))
   (hit-points :initform (make-stat :base 10))
   (movement-cost :initform (make-stat :base 10))
+  (stuck-p :initform nil)
   (direction :initform :north)
   (stepping :initform t))
+
+(define-method is-stuck asteroid ()
+  <stuck-p>)
 
 (define-method initialize asteroid (&key speed direction color)
   (setf <speed> (make-stat :base speed))
@@ -180,23 +184,75 @@
 (define-method run asteroid ()
   (if (<= [stat-value self :hit-points] 0)
       [die self]
-      [move self <direction>]))
+      ;; if free, float
+      (if (and (not <stuck-p>)
+	       (not [obstacle-in-direction-p *active-world* <row> <column> <direction>]))
+	  [move self <direction>]
+	  ;; otherwise bounce (when free)
+	  (unless <stuck-p>
+	    (setf <direction> (rlx:random-direction))))))
 
-(define-method step asteroid (stepper)
-  [damage stepper 5]
-  (setf <direction> (rlx:random-direction)))
+;;; Polaris collects asteroids
 
-(define-method move asteroid (direction)
-  (when [obstacle-in-direction-p *active-world* <row> <column> direction]
-    (setf <direction> (rlx:random-direction)))
-  [parent>>move self direction])
+(defcell polaris
+  (tile :initform "polaris")
+  (asteroids :initform '())
+  (categories :initform '(:actor))
+  (direction :initform (rlx:random-direction)))
+
+(define-method scan-neighborhood polaris ()
+  (dolist (dir *compass-directions*)
+    (do-cells (cell [cells-at *active-world* <row> <column>])
+      (when (eq =asteroid= (object-parent cell)))
+	[stick self cell])))
+
+(define-method change-direction polaris (direction)
+  (dolist (asteroid <asteroids>)
+    (assert (clon:object-p asteroid))
+    (setf (field-value :direction asteroid) direction))
+  (setf <direction> direction))
+
+(define-method move-as-group polaris (direction)
+  ;; move self first so that nobody steps on us
+  [move self direction]
+  ;; now move the stuck asteroids
+  (dolist (a <asteroids>)
+    [move a direction]))
+
+(define-method run polaris ()
+  [scan-neighborhood self]	       
+  (let ((direction <direction>))	       
+    (labels ((obstructed (asteroid)
+	       [obstacle-in-direction-p *active-world*
+					(field-value :row asteroid)
+					(field-value :column asteroid)
+					direction]))
+      (let ((timeout 8)) 
+	(loop while (and (plusp timeout)
+			 (or (some #'obstructed <asteroids>)
+			     (obstructed self)))
+	   do [change-direction self (rlx:random-direction)]
+	     (decf timeout))
+	(unless (zerop timeout)
+	  ;; it's safe. move as a group. 
+	  [move-as-group self <direction>])))))
+	      
+(define-method stick polaris (asteroid)
+  (when (and [in-category asteroid :sticky]
+	     (not [is-stuck asteroid]))
+    (setf (field-value :stuck-p asteroid) t)
+    (setf (field-value :direction asteroid) <direction>)
+    ;; put it back where it was
+    [move asteroid (rlx:opposite-direction (field-value :direction asteroid))]
+    (pushnew asteroid <asteroids>)))
 
 ;;; The endless void.
 
 (define-prototype void-world (:parent rlx:=world=)
   (width :initform 200)
   (height :initform 200)
-  (asteroid-count :initform 100)
+  (asteroid-count :initform 500)
+  (polaris-count :initform 100)
   (ambient-light :initform :total))
 
 (define-method generate void-world (&optional parameters)
@@ -211,7 +267,11 @@
 			     :direction (rlx:random-direction)
 			     :color (nth (random 3)
 					 '(:red :blue :brown)))
+		 (random height) (random width)])
+    (dotimes (i <polaris-count>)
+      [drop-cell self (clone =polaris=)
 		 (random height) (random width)])))
+			     
 
 ;;; Controlling the game.
 
@@ -374,7 +434,7 @@
   (setf clon:*send-parent-depth* 2)
   (rlx:set-screen-height 600)
   (rlx:set-screen-width 800)
-  (rlx:set-frame-rate 30)
+;;  (rlx:set-frame-rate 30)
   (rlx:set-timer-interval 15)
   (rlx:enable-timer)
   (rlx:enable-held-keys 0 15)
