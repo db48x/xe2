@@ -260,10 +260,10 @@ at the time the cell method is run.")
 (defun world ()
   *active-world*)
 
-;;; The main loop and timer events
+;;; Timer events
 
-;; This is the main loop; all it does is open an SDL window, dispatch
-;; events, and draw widgets until the module quits.
+;; This can be used for pseudo-realtime roguelike play (see
+;; also blast.lisp) or for on-screen animations.
 
 (defvar *frame-rate* 30)
 
@@ -271,26 +271,26 @@ at the time the cell method is run.")
   (setf *frame-rate* rate)
   (setf (sdl:frame-rate) rate))
 
-(defvar *clock* 0)
+(defvar *clock* 0 "Number of SDL frames until next timer event.")
 
-(defvar *timer-p* nil)
+(defvar *timer-p* nil "Non-nil if timer events are actually being sent.")
 
 (defun enable-timer ()
+  "Enable timer events. The next scheduled event will be the first sent."
   (setf *timer-p* t))
 
 (defun disable-timer ()
+  "Disable timer events."
   (setf *timer-p* nil))
 
-(defvar *timer-event* (list nil :timer))
+(defvar *timer-event* (list nil :timer) "We only need one of these for now.")
 
-(defvar *timer-interval* 15)
+(defvar *timer-interval* 15 "Number of frames to wait before sending each timer event.")
 
 (defun set-timer-interval (inverval)
-  (setf *timer-interval 15))
+  (setf *timer-interval* 15))
 
-(defvar *next-module* "standard")
-
-(defvar *quitting* nil)
+;;; Key repeat
 
 (defun enable-held-keys (delay interval)
   (let ((delay-milliseconds (truncate (* delay (/ 1000.0 *frame-rate*))))
@@ -300,6 +300,8 @@ at the time the cell method is run.")
 
 (defun disable-held-keys ()
   (sdl:disable-key-repeat))
+
+;;; Screen dimensions
 
 (defvar *screen-width* 640 "The width (in pixels) of the game
 window. Set this in the game startup file.")
@@ -312,6 +314,12 @@ window. Set this in the game startup file.")
 
 (defun set-screen-height (height)
   (setf *screen-height* height))
+
+;;; The main loop of RLX
+
+(defvar *next-module* "standard")
+
+(defvar *quitting* nil)
 
 (defun run-main-loop ()
   (sdl:window *screen-width* *screen-height*
@@ -338,6 +346,7 @@ window. Set this in the game startup file.")
 		   (sdl:update-display)
 		   (setf *clock* *timer-interval*))
 		 (decf *clock*))))))
+
 
 
 ;;; The .rlxrc user init file
