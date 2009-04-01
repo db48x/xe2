@@ -113,6 +113,9 @@
   (declare (ignore args))
  [queue>>narrateln :narrator "You are dead. You can't do anything!"])
 
+(define-method quit skull ()
+  (rlx:quit :shutdown))
+
 ;;; Your ship.
 
 (defcell ship 
@@ -128,7 +131,7 @@
   (stepping :initform t)
   (lives :initform 3)
   (score :initform 0)
-  (categories :initform '(:actor :player :obstacle :target :container :light-source))
+  (categories :initform '(:actor :player :target :container :light-source))
   (equipment-slots :initform '(:gun :trail))
   (boost-clock :initform 0))
 
@@ -266,10 +269,10 @@
 ;;; The endless void.
 
 (define-prototype void-world (:parent rlx:=world=)
-  (width :initform 200)
-  (height :initform 200)
-  (asteroid-count :initform 500)
-  (polaris-count :initform 100)
+  (width :initform 80)
+  (height :initform 46)
+  (asteroid-count :initform 70)
+  (polaris-count :initform 20)
   (ambient-light :initform :total))
 
 (define-method generate void-world (&optional parameters)
@@ -280,7 +283,7 @@
 	[drop-cell self (clone =space=) i j]))
     (dotimes (i <asteroid-count>)
       [drop-cell self (clone =asteroid= 
-			     :speed (+ 3 (random 8))
+			     :speed (+ 3 (random 7))
 			     :direction (rlx:random-direction)
 			     :color (nth (random 3)
 					 '(:red :blue :brown)))
