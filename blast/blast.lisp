@@ -46,7 +46,7 @@
   (categories :initform '(:actor))
   (tile :initform "explosion")
   (speed :initform (make-stat :base 10))
-  (damage-per-turn :initform 10)
+  (damage-per-turn :initform 1)
   (clock :initform 3))
 
 (define-method run explosion ()
@@ -88,7 +88,7 @@
 
 (define-method step trail (stepper)
   [drop self (clone =explosion=)]	       
-  [damage stepper 10])
+  [damage stepper 1])
 
 ;;; Death icon.
 
@@ -119,15 +119,15 @@
 ;;; Your ship.
 
 (defcell ship 
-  (tile :initform "player-ship-north")
+  (tile :initform "player-ship-north-shield")
   (name :initform "Olvac 2")
   (speed :initform (make-stat :base 10))
   (strength :initform (make-stat :base 10))
   (defense :initform (make-stat :base 10))
-  (hit-points :initform (make-stat :base 10 :min 0))
+  (hit-points :initform (make-stat :base 3 :min 0))
   (movement-cost :initform (make-stat :base 10))
   (max-items :initform (make-stat :base 2))
-  (trail-length :initform 10)
+  (trail-length :initform 12)
   (stepping :initform t)
   (lives :initform 3)
   (score :initform 0)
@@ -137,6 +137,9 @@
 
 (define-method quit ship ()
   (rlx:quit :shutdown))
+
+(define-method run ship ()
+  [update *status*])	       
 
 (define-method wait ship ()
   [stat-effect self :oxygen -1]
@@ -148,12 +151,21 @@
 		    :clock <trail-length>)]
   [parent>>move self direction])
 
+(define-method update-tile ship ()
+  (setf <tile> 
+	(ecase [stat-value self :hit-points]
+	  (3 "player-ship-north-shield")
+	  (2 "player-ship-north")
+	  (1 "player-ship-north-dying")
+	  (0 "skull"))))
+		 
+(define-method damage ship (points)
+  [parent>>damage self points]
+  [update-tile self])
+
 (define-method loadout ship ()
   [make-inventory self]
   [make-equipment self])
-
-(define-method run ship ()
- nil)
 
 (define-method die ship ()
   (let ((skull (clone =skull=)))
@@ -168,7 +180,7 @@
 
 (defcell asteroid
   (categories :initform '(:actor :sticky))
-  (hit-points :initform (make-stat :base 10))
+  (hit-points :initform (make-stat :base 1 :min 0))
   (movement-cost :initform (make-stat :base 10))
   (stuck-to :initform nil)
   (direction :initform :north)
@@ -179,6 +191,7 @@
 
 (define-method die asteroid ()
   [>>say :narrator "You destroyed an asteroid!"]
+  (incf (field-value :score [get-player *active-world*]) 80)
   (when <stuck-to>
     [unstick <stuck-to> self])
   [parent>>die self])
@@ -205,7 +218,7 @@
 
 (define-method step asteroid (stepper)
   (when [in-category stepper :player]
-    [damage stepper 5]
+    [damage stepper 1]
     [>>say :narrator "You took a hit!"])) 
 
 ;;; Polaris collects asteroids
@@ -291,7 +304,6 @@
     (dotimes (i <polaris-count>)
       [drop-cell self (clone =polaris=)
 		 (random height) (random width)])))
-			     
 
 ;;; Controlling the game.
 
@@ -448,19 +460,45 @@
   [define-key self nil '(:timer) (lambda ()
 				   [run-cpu-phase *active-world* :timer])])
 
+;;; A shield status and score widget.
+
+(define-prototype status (:parent rlx:=formatter=)
+  (character :documentation "The character cell whose status is shown."))
+
+(define-method set-character status (char)
+  (setf <character> char))
+
+(define-method update status ()
+  [delete-all-lines self]
+  (let* ((char <character>)
+	 (hits [stat-value char :hit-points]))
+    [print self " HITS: "]
+    (dotimes (i 3)
+      [print self "[]" 
+	     :foreground ".yellow"
+	     :background (if (< i hits)
+			     ".red"
+			     ".gray20")]
+      [space self])
+    [print self " --- SCORE: "]
+    [print self (format nil "~D" (field-value :score char))]))
+
+(defvar *status*)
+
 ;;; Main program. 
 
 (defun blast ()
   (setf clon:*send-parent-depth* 2)
   (rlx:set-screen-height 600)
   (rlx:set-screen-width 800)
-  (rlx:set-frame-rate 30)
+;;  (rlx:set-frame-rate 30)
   (rlx:set-timer-interval 10)
   (rlx:enable-timer)
   (rlx:enable-held-keys 0 15)
   (let* ((prompt (clone =blast-prompt=))
 	 (world (clone =void-world=))
 	 (narrator (clone =narrator=))
+	 (status (clone =status=))
 	 (player (clone =ship=))
 	 (viewport (clone =viewport=)))
     (setf *active-world* world)
@@ -480,6 +518,12 @@
     [move narrator :x 0 :y 520]
     [set-narrator world narrator]
     [set-verbosity narrator 0]
+    ;;
+    [resize status :height 30 :width 700]
+    [move status :x 10 :y 10]
+    [set-character status player]
+    (setf *status* status)
+    [update status]
    ;;
     (setf (clon:field-value :tile-size viewport) 10)
     [set-world viewport world]
@@ -492,6 +536,6 @@
     ;;
 	 ;;    (play-music "void" :loop t)
     
-    (install-widgets  prompt viewport narrator)))
+    (install-widgets prompt status viewport narrator)))
 
 (blast)
