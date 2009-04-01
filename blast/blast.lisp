@@ -364,14 +364,20 @@
 		(:alternate-qwerty *alternate-qwerty-keybindings*)
 		(:dvorak *dvorak-keybindings*))))
     (dolist (k keys)
-      (apply #'bind-key-to-prompt-insertion self k))))
+      (apply #'bind-key-to-prompt-insertion self k)))
+  [define-key self nil '(:timer) (lambda ()
+				   [run-cpu-phase *active-world* :timer])])
 
 ;;; Main program. 
 
 (defun blast ()
   (setf clon:*send-parent-depth* 2)
-  (setf rlx:*screen-height* 600)
-  (setf rlx:*screen-width* 800)
+  (rlx:set-screen-height 600)
+  (rlx:set-screen-width 800)
+  (rlx:set-frame-rate 30)
+  (rlx:set-timer-interval 15)
+  (rlx:enable-timer)
+  (rlx:enable-held-keys 0 15)
   (let* ((prompt (clone =blast-prompt=))
 	 (world (clone =void-world=))
 	 (narrator (clone =narrator=))

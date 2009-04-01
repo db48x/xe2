@@ -251,30 +251,67 @@ key event symbols."
 
 ;;; The active world
 
-;; <: worlds :>
-
 (defvar *active-world* nil 
 "The current world object. Only one may be active at a time. See also
 worlds.lisp. Cells are free to send messages to `*active-world*' at
 any time, because it is always bound to the world containing the cell
 at the time the cell method is run.")
 
-;;; The main loop
+(defun world ()
+  *active-world*)
 
-;; <: main :>
+;;; The main loop and timer events
 
 ;; This is the main loop; all it does is open an SDL window, dispatch
 ;; events, and draw widgets until the module quits.
+
+(defvar *frame-rate* 30)
+
+(defun set-frame-rate (rate)
+  (setf *frame-rate* rate)
+  (setf (sdl:frame-rate) rate))
+
+(defvar *clock* 0)
+
+(defvar *timer-p* nil)
+
+(defun enable-timer ()
+  (setf *timer-p* t))
+
+(defun disable-timer ()
+  (setf *timer-p nil))
+
+(defvar *timer-event* (list nil :timer))
+
+(defvar *timer-interval* 15)
+
+(defun set-timer-interval (inverval)
+  (setf *timer-interval 15))
 
 (defvar *next-module* "standard")
 
 (defvar *quitting* nil)
 
+(defun enable-held-keys (delay interval)
+  (let ((delay-milliseconds (truncate (* delay (/ 1000.0 *frame-rate*))))
+	(interval-milliseconds (truncate (* interval (/ 1000.0 *frame-rate*)))))
+    (message "~A" (list delay-milliseconds interval-milliseconds))
+    (sdl:enable-key-repeat delay-milliseconds interval-milliseconds)))
+
+(defun disable-held-keys ()
+  (sdl:disable-key-repeat))
+
 (defvar *screen-width* 640 "The width (in pixels) of the game
 window. Set this in the game startup file.")
 
+(defun set-screen-width (width)
+  (setf *screen-width* width))
+
 (defvar *screen-height* 480 "The height (in pixels) of the game
 window. Set this in the game startup file.")
+
+(defun set-screen-height (height)
+  (setf *screen-height* height))
 
 (defun run-main-loop ()
   (sdl:window *screen-width* *screen-height*
@@ -290,7 +327,17 @@ window. Set this in the game startup file.")
 		     (sdl:clear-display sdl:*black*)
 		     (dispatch-event (make-event key mod))
 		     (show-widgets)
-		     (sdl:update-display))))
+		     (sdl:update-display))
+    (:idle ()
+	   (when *timer-p*
+	     (if (zerop *clock*)
+		 (progn 
+		   (sdl:clear-display sdl:*black*)
+		   (dispatch-event *timer-event*)
+		   (show-widgets)
+		   (sdl:update-display)
+		   (setf *clock* *timer-interval*))
+		 (decf *clock*))))))
 
 ;;; The .rlxrc user init file
 

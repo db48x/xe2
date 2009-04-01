@@ -103,6 +103,9 @@
   set-message-verbosities operation-symbol message-symbol play-sample
   set-music-volume add-message-verbosities with-message-queue
   *user-keyboard-layout* set-field-option-value field-options
+  world set-frame-rate *frame-rate* set-timer-interval set-screen-width
+  set-screen-height *timer-interval* enable-timer disable-timer
+  enable-held-keys disable-held-keys
   *quitting* quit reset))
 
 (in-package :rlx)

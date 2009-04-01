@@ -265,13 +265,14 @@ in a roguelike until the user has pressed a key."
 	    [run-cpu-phase self])
 	  (incf <phase-number>)
 	  [begin-phase player])))))
-
         
 (define-method get-phase-number world ()
   <phase-number>)
 
-(define-method run-cpu-phase world ()
+(define-method run-cpu-phase world (&optional timer-p)
   "Run all non-player actor cells."
+  (when timer-p
+    (incf <phase-number>))
   (with-message-queue <message-queue> 
     (let ((cells nil)
 	  (cell nil)
