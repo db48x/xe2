@@ -124,10 +124,10 @@
   (speed :initform (make-stat :base 10))
   (strength :initform (make-stat :base 10))
   (defense :initform (make-stat :base 10))
-  (hit-points :initform (make-stat :base 3 :min 0))
+  (hit-points :initform (make-stat :base 3 :min 0 :max 3))
   (movement-cost :initform (make-stat :base 10))
   (max-items :initform (make-stat :base 2))
-  (trail-length :initform 12)
+  (trail-length :initform (make-stat :base 12 :min 0))
   (stepping :initform t)
   (lives :initform 3)
   (score :initform (make-stat :base 0))
@@ -148,7 +148,7 @@
 (define-method move ship (direction)
   [drop self (clone =trail= 
 		    :direction direction 
-		    :clock <trail-length>)]
+		    :clock [stat-value self :trail-length])]
   [parent>>move self direction])
 
 (define-method update-tile ship ()
@@ -187,7 +187,26 @@
    [stat-effect stepper :hit-points 1]
    [stat-effect stepper :score 2000]
    [die self]))
-   
+
+;;; A trail extender.
+
+(defcell extender 
+  (tile :initform "plus"))
+
+(define-method step extender (stepper)
+  (when [is-player stepper]
+    [>>say :narrator "Trail extend!"]
+    [stat-effect stepper :trail-length 2]
+    [stat-effect stepper :score 2000]
+    [die self]))
+
+;;; Random powerup function
+
+(defun random-powerup ()
+  (clone (ecase (random 2)
+	   (0 =diamond=)
+	   (1 =extender=))))
+	   
 ;;; An asteroid.
 
 (defcell asteroid
@@ -203,8 +222,8 @@
 
 (define-method die asteroid ()
   [>>say :narrator "You destroyed an asteroid!"]
-  (when (< (random 5) 1) 
-    [drop self (clone =diamond=)])
+  (when (< (random 3) 1) 
+    [drop self (random-powerup)])
   [stat-effect [get-player *active-world*] :score 80]
   (when <stuck-to>
     [unstick <stuck-to> self])

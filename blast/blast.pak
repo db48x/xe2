@@ -9,7 +9,9 @@
  (:name "star" :type :image :file "star.png")
  (:name "skull" :type :image :file "skull.png")
  (:name "polaris" :type :image :file "polaris.png")
+
  (:name "diamond" :type :image :file "diamond.png")
+ (:name "plus" :type :image :file "plus.png")
 
  (:name "trail-north" :type :image :file "trail-north.png")
  (:name "trail-west" :type :alias :data ":rotate 90:trail-north")
