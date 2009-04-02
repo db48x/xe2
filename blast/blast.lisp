@@ -92,29 +92,51 @@
 
 ;;; Death icon.
 
+(defparameter *death-message* "You are dead. Press SPACE BAR to respawn.")
+(defparameter *game-over-message* "No lives remaining. GAME OVER.")
+
 (define-prototype skull (:parent rlx:=cell=)
   (tile :initform "skull")
+  (player :initform nil)
+  (lives :initform nil)
   (categories :initform '(:dead :player :actor))
   (action-points :initform 0))
 
 (define-method forward skull (&rest args)
   (declare (ignore args))
-  [queue>>narrateln :narrator "You are dead. You can't do anything!"])
+  [queue>>narrateln :narrator *death-message*])
   
 (define-method move skull (&rest args)
   (declare (ignore args))
- [queue>>narrateln :narrator "You are dead. You can't do anything!"])
+ [queue>>narrateln :narrator *death-message*])
 
 (define-method attack skull (&rest args)
   (declare (ignore args))
- [queue>>narrateln :narrator "You are dead. You can't do anything!"])
+ [queue>>narrateln :narrator *death-message*])
 
 (define-method fire skull (&rest args)
   (declare (ignore args))
- [queue>>narrateln :narrator "You are dead. You can't do anything!"])
+ [queue>>narrateln :narrator *death-message*])
 
 (define-method quit skull ()
   (rlx:quit :shutdown))
+
+(define-method initialize skull (player lives)
+  (setf <player> player
+	<lives> lives)
+  (if (plusp lives)
+      (progn [>>say :narrator *death-message*]
+	     [>>say :narrator "You have ~D lives remaining." lives])
+      [>>say :narrator *game-over-message*]))
+
+(define-method respawn skull ()
+  (if (plusp <lives>)
+      (progn
+	[>>say :narrator "Respawning."]
+        [die self]
+	[revive <player>])
+      (progn
+	[>>say :narrator *game-over-message*])))
 
 ;;; Your ship.
 
@@ -129,7 +151,7 @@
   (max-items :initform (make-stat :base 2))
   (trail-length :initform (make-stat :base 12 :min 0))
   (stepping :initform t)
-  (lives :initform 3)
+  (lives :initform (make-stat :min 0 :base 3 :max 3))
   (score :initform (make-stat :base 0))
   (categories :initform '(:actor :player :target :container :light-source))
   (equipment-slots :initform '(:gun :trail))
@@ -142,7 +164,6 @@
   [update *status*])	       
 
 (define-method wait ship ()
-  [stat-effect self :oxygen -1]
   [expend-action-points self <action-points>])
 
 (define-method move ship (direction)
@@ -167,16 +188,28 @@
   [make-inventory self]
   [make-equipment self])
 
+(define-method step ship (stepper)
+  (when (eq =asteroid= (object-parent stepper))
+    [damage self 1]
+    [>>say :narrator "You were damaged by a floating asteroid!"]))
+
 (define-method die ship ()
-  (let ((skull (clone =skull=)))
+  [stat-effect self :lives -1]
+  (let ((skull (clone =skull= self [stat-value self :lives])))
     [drop-cell *active-world* skull <row> <column> :loadout t :no-collisions nil]
     (setf <action-points> 0)
     [add-category self :dead]
     [>>delete-from-world self]
-    [>>narrateln :narrator "You die."]
     [set-player *active-world* skull]))
 
-;;; A crystal.
+(define-method revive ship ()
+  [drop-cell *active-world* self (random 10) (random 10)]
+  [stat-effect self :hit-points 3]	       
+  [update-tile self]
+  [delete-category self :dead]
+  [set-player *active-world* self])
+
+;;; A life crystal powerup.
 
 (defcell diamond
   (tile :initform "diamond"))
@@ -188,7 +221,7 @@
    [stat-effect stepper :score 2000]
    [die self]))
 
-;;; A trail extender.
+;;; A trail extender powerup.
 
 (defcell extender 
   (tile :initform "plus"))
@@ -224,7 +257,7 @@
   [>>say :narrator "You destroyed an asteroid!"]
   (when (< (random 3) 1) 
     [drop self (random-powerup)])
-  [stat-effect [get-player *active-world*] :score 80]
+  [stat-effect [get-player *active-world*] :score 120]
   (when <stuck-to>
     [unstick <stuck-to> self])
   [parent>>die self])
@@ -282,9 +315,6 @@
   (dolist (a <asteroids>)
     [move a direction]))
 
-(define-method unstick polaris (asteroid)
-  (setf <asteroids> (delete asteroid <asteroids>)))
-
 (define-method run polaris ()
   [scan-neighborhood self]	       
   (let ((direction <direction>))	       
@@ -311,6 +341,12 @@
     ;; put it back where it was
     [move asteroid (rlx:opposite-direction (field-value :direction asteroid))]
     (pushnew asteroid <asteroids>)))
+
+(define-method unstick polaris (asteroid)
+  (setf <asteroids> (delete asteroid <asteroids>))
+  (when (= 0 (length <asteroids>))
+    [stat-effect [get-player *active-world*] :score 2000]
+    [>>say :narrator "You get 2000 extra points for wiping the polaris mine clean of asteroids."]))
 
 ;;; The endless void.
 
@@ -380,11 +416,7 @@
     ("N" (:control) "fire :southeast .")
     ;;
     ("W" nil "wait .")
-    ("0" nil "equip 0 .")
-    ("1" nil "equip 1 .")
-    ("0" (:control) "drop-item 0 .")
-    ("1" (:control) "drop-item 1 .")
-    ("2" nil "activate-equipment :belt .")
+    ("SPACE" nil "respawn .")
     ("Q" (:control) "quit .")))
 
 (defparameter *alternate-qwerty-keybindings*
@@ -425,11 +457,7 @@
     ("C" (:control) "fire :southeast .")
     ;;
     ("S" nil "wait .")
-    ("0" nil "equip 0 .")
-    ("1" nil "equip 1 .")
-    ("0" (:control) "drop-item 0 .")
-    ("1" (:control) "drop-item 1 .")
-    ("2" nil "activate-equipment :belt .")
+    ("SPACE" nil "respawn .")
     ("Q" (:control) "quit .")))
 
 ;; g c r
@@ -476,11 +504,7 @@
     ("V" (:control) "fire :southeast .")
     ;;
     ("S" nil "wait .")
-    ("0" nil "equip 0 .")
-    ("1" nil "equip 1 .")
-    ("0" (:control) "drop-item 0 .")
-    ("1" (:control) "drop-item 1 .")
-    ("2" nil "activate-equipment :belt .")
+    ("SPACE" nil "respawn .")
     ("Q" (:control) "quit .")))
 
 (define-method install-keybindings blast-prompt ()
@@ -504,13 +528,22 @@
 (define-method update status ()
   [delete-all-lines self]
   (let* ((char <character>)
-	 (hits [stat-value char :hit-points]))
+	 (hits [stat-value char :hit-points])
+	 (lives [stat-value char :lives]))
     [print self " HITS: "]
     (dotimes (i 3)
       [print self "  " 
 	     :foreground ".yellow"
 	     :background (if (< i hits)
 			     ".red"
+			     ".gray20")]
+      [space self])
+    [print self " LIVES: "]
+    (dotimes (i 3)
+      [print self "  " 
+	     :foreground ".yellow"
+	     :background (if (< i lives)
+			     ".blue"
 			     ".gray20")]
       [space self])
     [print self "     SCORE: "]
