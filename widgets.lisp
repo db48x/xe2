@@ -193,6 +193,9 @@ Return the height of the rendered line."
 Example: [print my-formatter \"hello\" :foreground \"red\"]"
   (vector-push-extend (cons string keys) <current-line>))
 
+(define-method print-formatted-string formatter (formatted-string)
+  (vector-push-extend formatted-string <current-line>))	       
+
 (define-method print-image formatter (image)
   [print self nil :image image])
 

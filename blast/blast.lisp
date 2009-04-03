@@ -34,6 +34,38 @@
 
 (in-package :blast)
 
+;;; Billboard shows most recent attention data.
+
+(defvar *billboard*)
+
+(defvar *billboard-strings* '(:go ("GO!" :foreground ".black" :background ".yellow" 
+				   :font "display-font")
+			      :extend ("EXTEND!" :foreground ".yellow" :background ".blue"
+				       :font "display-font")
+			      :shield ("SHIELD +1" :foreground ".red" :background ".blue"
+				       :font "display-font")
+			      :warning ("WARNING!" :foreground ".yellow" :background ".red"
+					:font "display-font")
+			      :hit ("HIT!" :foreground ".yellow" :background "purple" 
+				    :font "display-font")
+			      :dead ("YOU DIE!" :foreground ".yellow" :background ".purple"
+				     :font "display-font")
+			      :destroy ("DESTROY!" :foreground ".white" :background ".brown"
+					:font "display-font")
+                              :sweep ("SWEEP!" :foreground ".yellow" :background ".green"
+				      :font "display-font")))
+
+(defun billboard-string (key)
+  (getf *billboard-strings* key '("STANDBY")))
+
+(define-prototype billboard (:parent rlx:=formatter=)
+  (font :initform "display-font"))
+
+(define-method say billboard (key)
+  [delete-all-lines self]
+  [print-formatted-string self (billboard-string key)]
+  [newline self])
+
 ;;; Empty space.
 
 (defcell space 
@@ -122,6 +154,7 @@
   (rlx:quit :shutdown))
 
 (define-method initialize skull (player lives)
+  [say *billboard* :dead]
   (setf <player> player
 	<lives> lives)
   (if (plusp lives)
@@ -157,6 +190,9 @@
   (equipment-slots :initform '(:gun :trail))
   (boost-clock :initform 0))
 
+(define-method initialize ship ()
+  [say *billboard* :go])
+
 (define-method quit ship ()
   (rlx:quit :shutdown))
 
@@ -177,7 +213,8 @@
 	(ecase [stat-value self :hit-points]
 	  (3 "player-ship-north-shield")
 	  (2 "player-ship-north")
-	  (1 "player-ship-north-dying")
+	  (1 (prog1 "player-ship-north-dying"
+	       [say *billboard* :warning]))
 	  (0 "skull"))))
 		 
 (define-method damage ship (points)
@@ -190,6 +227,7 @@
 
 (define-method step ship (stepper)
   (when (eq =asteroid= (object-parent stepper))
+    [say *billboard* :hit]
     [damage self 1]
     [>>say :narrator "You were damaged by a floating asteroid!"]))
 
@@ -203,6 +241,7 @@
     [set-player *active-world* skull]))
 
 (define-method revive ship ()
+  [say *billboard* :go]
   [drop-cell *active-world* self (random 10) (random 10)]
   [stat-effect self :hit-points 3]	       
   [update-tile self]
@@ -216,6 +255,7 @@
 
 (define-method step diamond (stepper)
   (when [is-player stepper]
+   [say *billboard* :shield]
    [>>say :narrator "You gain 1 hit point and 2000 score."] 
    [stat-effect stepper :hit-points 1]
    [stat-effect stepper :score 2000]
@@ -228,6 +268,7 @@
 
 (define-method step extender (stepper)
   (when [is-player stepper]
+    [say *billboard* :extend]
     [>>say :narrator "Trail extend!"]
     [stat-effect stepper :trail-length 2]
     [stat-effect stepper :score 2000]
@@ -255,6 +296,7 @@
 
 (define-method die asteroid ()
   [>>say :narrator "You destroyed an asteroid!"]
+  [say *billboard* :destroy]
   (when (< (random 3) 1) 
     [drop self (random-powerup)])
   [stat-effect [get-player *active-world*] :score 120]
@@ -346,6 +388,7 @@
   (setf <asteroids> (delete asteroid <asteroids>))
   (when (= 0 (length <asteroids>))
     [stat-effect [get-player *active-world*] :score 2000]
+    [say *billboard* :sweep]
     [>>say :narrator "You get 2000 extra points for wiping the polaris mine clean of asteroids."]))
 
 ;;; The endless void.
@@ -561,6 +604,7 @@
   (rlx:set-timer-interval 10)
   (rlx:enable-timer)
   (rlx:enable-held-keys 0 15)
+  (setf *billboard* (clone =billboard=))
   (let* ((prompt (clone =blast-prompt=))
 	 (world (clone =void-world=))
 	 (narrator (clone =narrator=))
@@ -568,7 +612,6 @@
 	 (player (clone =ship=))
 	 (viewport (clone =viewport=)))
     (setf *active-world* world)
-    ;;
     [resize prompt :height 20 :width 100]
     [move prompt :x 0 :y 0]
     [hide prompt]
@@ -578,7 +621,7 @@
     [create-default-grid world]
     [generate world]
     [set-player world player]
-    [drop-cell world player 25 25 :loadout t]
+    [drop-cell world player 5 5 :loadout t]
     ;;
     [resize narrator :height 80 :width 800]
     [move narrator :x 0 :y 520]
@@ -590,6 +633,9 @@
     [set-character status player]
     (setf *status* status)
     [update status]
+    ;;
+    [resize *billboard* :height 20 :width 100]
+    [move *billboard* :x 700 :y 0]
    ;;
     (setf (clon:field-value :tile-size viewport) 10)
     [set-world viewport world]
@@ -602,6 +648,6 @@
     ;;
 	 ;;    (play-music "void" :loop t)
     
-    (install-widgets prompt status viewport narrator)))
+    (install-widgets prompt status viewport narrator *billboard*)))
 
 (blast)
