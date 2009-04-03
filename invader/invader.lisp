@@ -1398,7 +1398,7 @@
     ;;
     [start world]
     ;;
-    (play-music "technogirl" :loop t)
+    (play-music "theme" :loop t)
     (setf *play-widgets* (list prompt status viewport narrator))
     (install-widgets splash-prompt splash)))
 

@@ -42,17 +42,17 @@
 				   :font "display-font")
 			      :extend ("EXTEND!" :foreground ".yellow" :background ".blue"
 				       :font "display-font")
-			      :shield ("SHIELD +1" :foreground ".red" :background ".blue"
+			      :shield ("SHIELD +1" :foreground ".cyan" :background ".blue"
 				       :font "display-font")
 			      :warning ("WARNING!" :foreground ".yellow" :background ".red"
 					:font "display-font")
-			      :hit ("HIT!" :foreground ".yellow" :background "purple" 
+			      :hit ("HIT!" :foreground ".yellow" :background ".purple" 
 				    :font "display-font")
-			      :dead ("YOU DIE!" :foreground ".yellow" :background ".purple"
+			      :dead ("YOU DIE!" :foreground ".yellow" :background ".red"
 				     :font "display-font")
-			      :destroy ("DESTROY!" :foreground ".white" :background ".brown"
+			      :destroy ("DESTROY!" :foreground ".white" :background ".red"
 					:font "display-font")
-                              :sweep ("SWEEP!" :foreground ".yellow" :background ".green"
+                              :sweep ("SWEEP!" :foreground ".yellow" :background ".forest green"
 				      :font "display-font")))
 
 (defun billboard-string (key)
@@ -327,6 +327,7 @@
 (define-method step asteroid (stepper)
   (when [in-category stepper :player]
     [damage stepper 1]
+    [say *billboard* :hit]
     [>>say :narrator "You took a hit!"])) 
 
 ;;; Polaris collects asteroids
