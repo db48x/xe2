@@ -29,7 +29,7 @@
  (:name "ship-destroyed" :type :image :file "ship-destroyed.png")
  (:name "void" :type :music :file "void.xm")
 
- (:name "display-font" :type :font :properties (:height 18 :width 9) :data "9x18b")
+ (:name "display-font" :type :font :properties (:height 20 :width 10) :data "10x20")
 
  (:name ".startup" :type :lisp :file "blast.lisp")
 )
