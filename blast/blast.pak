@@ -30,6 +30,7 @@
  (:name "void" :type :music :file "void.xm")
 
  (:name "display-font" :type :font :properties (:height 20 :width 10) :data "10x20")
+ (:name "technogirl" :type :music :file "technogirl.ogg")
 
  (:name ".startup" :type :lisp :file "blast.lisp")
 )
