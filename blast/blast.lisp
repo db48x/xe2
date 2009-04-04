@@ -394,6 +394,8 @@
 	  (:brown "asteroid-brown"))))
 
 (define-method run asteroid ()
+  (when (eq :here <direction>)
+    (setf <direction> :north))
   (if (<= [stat-value self :hit-points] 0)
       [die self]
       ;; if free, float
