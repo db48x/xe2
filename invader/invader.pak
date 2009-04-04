@@ -127,7 +127,7 @@
  (:name "crunch" :type :sample :file "crunch.wav" :properties (:volume 10))
  (:name "pop-ssh" :type :sample :file "pop-ssh.wav" :properties (:volume 30))
  (:name "worp" :type :sample :file "worp.wav" :properties (:volume 10))
- (;name "death" :type :sample :file "death.wav" :properties (:volume 40))
+ (:name "death" :type :sample :file "death.wav" :properties (:volume 40))
  (:name "warn" :type :sample :file "warn.wav" :properties (:volume 10))
 
  (:name "xiomacs2" :type :music :file "xiomacs2.ogg")
