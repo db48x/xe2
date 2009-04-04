@@ -70,6 +70,7 @@
 
 (define-method step oxygen-tank (stepper)
   (when [is-player stepper]
+    (rlx:play-sample "pop-ssh")
     [>>say :narrator "You recover 40 points from the oxygen tank."]
     [>>stat-effect stepper :oxygen 40]
     [>>die self]))
@@ -147,10 +148,12 @@
 ;;; When you fight a monster close-up, you use more oxygen.
 
 (define-method attack player (target)
+  (rlx:play-sample "knock")
   [>>stat-effect self :oxygen -2]
   [parent>>attack self target])
 
 (define-method damage player (damage-points)
+  (rlx:play-sample "warn")
   [parent>>damage self (- damage-points (truncate (/ [stat-value self :defense]
 						     3)))])
 
@@ -178,6 +181,7 @@
  [queue>>narrateln :narrator "You are dead. You can't do anything!"])
 
 (define-method die player ()
+  (rlx:play-sample "death")	       
   (let ((skull (clone =skull=)))
     [drop-cell *active-world* skull <row> <column> :loadout t :no-collisions nil]
     (setf <action-points> 0)
@@ -203,6 +207,7 @@
 
 (define-method step med-hypo (stepper)
   (when [is-player stepper]
+    (play-sample "pop-ssh")
     [>>say :narrator "You recover 30 hit points from the med hypo."]
     [>>stat-effect stepper :hit-points 30]
     [>>die self]))
@@ -216,6 +221,7 @@
 
 (define-method step med-pack (stepper)
   (when [is-player stepper]
+    (play-sample "pop-ssh")
     [>>say :narrator "You recover 90 hit points from the med pack."]
     [>>stat-effect stepper :hit-points 90]
     [>>die self]))
@@ -228,7 +234,8 @@
   (name :initform "Strength power-up"))
 
 (define-method step level-up (stepper)
-  (when [is-player stepper]
+  (when [is-player stepper] 
+    (play-sample "worp")
     [>>say :narrator "LEVEL UP! You feel stronger."]
     [>>stat-effect stepper :strength 5]
     [>>die self]))
@@ -242,6 +249,7 @@
 
 (define-method step defense-up (stepper)
   (when [is-player stepper]
+    (play-sample "worp")
     [>>say :narrator "DEFENSE UP!"]
     [>>stat-effect stepper :defense 5]
     [>>die self]))
@@ -255,6 +263,7 @@
 
 (define-method step speed-up (stepper)
   (when [is-player stepper]
+    (play-sample "worp")
     [>>say :narrator "SPEED UP!"]
     [>>stat-effect stepper :speed 2]
     [>>die self]))
@@ -311,12 +320,14 @@
 	[expend-action-points self 10]
 	(let* ((cells [cells-at *active-world* <row> <column>])
 	       (x (1- (fill-pointer cells))))
+	  (play-sample "crunch")
 	  (loop while (not (minusp x))
 	       do (progn 
 		    [>>damage (aref cells x) <damage-per-turn>]
 		    (decf x)))))))
 
 ;;; The Berserker is a relatively simple AI enemy.
+
 
 ;; Run in a straight line until hitting an obstacle.
 ;; Then choose a random direction and try again.
@@ -367,6 +378,10 @@
   (let ((probe (clone =shock-probe=)))
     [equip self [add-item self probe]]))
 
+(define-method attack berserker (target)
+  (play-sample "drill-little")
+  [parent>>attack self target])
+
 ;;; The radar-equipped Biclops is more dangerous.  
 
 (define-prototype biclops (:parent rlx:=cell=)
@@ -392,6 +407,10 @@
 (define-method loadout biclops ()
   (let ((probe (clone =shock-probe=)))
     [equip self [add-item self probe]]))
+
+(define-method attack biclops (target)
+  (play-sample "drill-big")
+  [parent>>attack self target])
 
 (define-method run biclops ()
   (clon:with-field-values (row column) self

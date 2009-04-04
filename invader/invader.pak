@@ -123,8 +123,12 @@
  (:name "drill-big" :type :sample :file "drill-big.wav" :properties (:volume 30))
  (:name "drill-little" :type :sample :file "drill-little.wav" :properties (:volume 30))
  (:name "drill-bit" :type :sample :file "drill-bit.wav" :properties (:volume 30))
- (:name "knock" :type :sample :file "knock.wav"
+ (:name "knock" :type :sample :file "knock.wav" :properties (:volume 30))
+ (:name "crunch" :type :sample :file "crunch.wav" :properties (:volume 10))
  (:name "pop-ssh" :type :sample :file "pop-ssh.wav" :properties (:volume 30))
+ (:name "worp" :type :sample :file "worp.wav" :properties (:volume 10))
+ (;name "death" :type :sample :file "death.wav" :properties (:volume 40))
+ (:name "warn" :type :sample :file "warn.wav" :properties (:volume 10))
 
  (:name "xiomacs2" :type :music :file "xiomacs2.ogg")
  (:name "theme" :type :music :file "invader-theme.ogg")
