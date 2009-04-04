@@ -205,6 +205,9 @@
 (define-method wait ship ()
   [expend-action-points self <action-points>])
 
+(define-method respawn ship ()
+  nil)
+
 (define-method move ship (direction)
   [drop self (clone =trail= 
 		    :direction direction 
@@ -376,28 +379,20 @@
   <stuck-to>)
 
 (define-method die asteroid ()
-  ;;
  (decf *asteroid-count*)
- (unless (> *asteroid-count* 20)
+ (when (< *asteroid-count* 25 )
    ;; drop more asteroids!!
-   (let ((world *active-world))
-     (dotimes (i 400)
-       [drop-cell self (clone =asteroid= 
-			      :speed (+ 3 (random 7))
-			      :direction (rlx:random-direction)
-			      :color (nth (random 3)
-					  '(:red :blue :brown)))
-		  (random height) (random width)])))
-  ;;
-  [>>say :narrator "You destroyed an asteroid!"]
-  [say *billboard* :destroy]
-  (play-sample "bleep")
-  (when (< (random 3) 1) 
-    [drop self (random-powerup)])
-  [stat-effect [get-player *active-world*] :score 120]
-  (when <stuck-to>
-    [unstick <stuck-to> self])
-  [parent>>die self])
+   [drop-asteroids *active-world* 120])
+ ;;
+ [>>say :narrator "You destroyed an asteroid!"]
+ [say *billboard* :destroy]
+ (play-sample "bleep")
+ (when (< (random 3) 1) 
+   [drop self (random-powerup)])
+ [stat-effect [get-player *active-world*] :score 120]
+ (when <stuck-to>
+   [unstick <stuck-to> self])
+ [parent>>die self])
 
 (define-method initialize asteroid (&key speed direction color)
   (incf *asteroid-count*)
@@ -496,7 +491,7 @@
 (define-prototype void-world (:parent rlx:=world=)
   (width :initform 80)
   (height :initform 46)
-  (asteroid-count :initform 70)
+  (asteroid-count :initform 100)
   (polaris-count :initform 20)
   (probe-count :initform 15)
   (ambient-light :initform :total))
@@ -507,13 +502,7 @@
     (dotimes (i height)
       (dotimes (j width)
 	[drop-cell self (clone =space=) i j]))
-    (dotimes (i <asteroid-count>)
-      [drop-cell self (clone =asteroid= 
-			     :speed (+ 3 (random 7))
-			     :direction (rlx:random-direction)
-			     :color (nth (random 3)
-					 '(:red :blue :brown)))
-		 (random height) (random width)])
+    [drop-asteroids self 120]
     (dotimes (i <polaris-count>)
       [drop-cell self (clone =polaris=)
 		 (random height) (random width)])
@@ -521,15 +510,31 @@
       [drop-cell self (clone =probe=)
 		 (random height) (random width)])))
 
-(define-method render void-world ()
-  [parent>>render self]
-  (rlx:draw-box 0 0 (* <tile-size> <width>) (* <tile-size> <height>)
-		:stroke-color ".blue" :color "blue"))
+(define-method drop-asteroids void-world (count)
+  (clon:with-field-values (height width) self
+    (dotimes (i count)
+      [drop-cell self (clone =asteroid= 
+			     :speed (+ 3 (random 7))
+			     :direction (rlx:random-direction)
+			     :color (nth (random 3)
+					 '(:red :blue :brown)))
+		 (random height) (random width)])))
 
 (define-method die probe ()
   (play-sample "death-alien")
   [say *billboard* :dead]
   [parent>>die self])
+
+;;; Custom bordered viewport
+
+(define-prototype view (:parent rlx:=viewport=))
+
+(define-method render view ()
+  [parent>>render self]
+  (rlx:draw-rectangle 0 0 
+		      <width>
+		      <height>
+		      :color ".blue" :destination <image>))
 
 ;;; Controlling the game.
 
@@ -724,7 +729,7 @@
 	 (narrator (clone =narrator=))
 	 (status (clone =status=))
 	 (player (clone =ship=))
-	 (viewport (clone =viewport=)))
+	 (viewport (clone =view=)))
     (setf *active-world* world)
     [resize prompt :height 20 :width 100]
     [move prompt :x 0 :y 0]
@@ -753,8 +758,8 @@
    ;;
     (setf (clon:field-value :tile-size viewport) 10)
     [set-world viewport world]
-    [resize viewport :height 460 :width 800]
-    [move viewport :x 0 :y 60]
+    [resize viewport :height 462 :width 800]
+    [move viewport :x 0 :y 40]
     [set-origin viewport :x 0 :y 0 :height 46 :width 80]
     [adjust viewport]
     ;;

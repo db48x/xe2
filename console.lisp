@@ -895,10 +895,16 @@ The default destination is the main window."
 		 &key (stroke-color ".white")
 		 (color ".black")
 		 destination)
-  "Draw a rectangle at (X Y) of size (* WIDTH HEIGHT)."
+  "Draw a filled rectangle at (X Y) of size (* WIDTH HEIGHT)."
   (sdl:draw-box-* x y width height :color (find-resource-object color)
 		  :stroke-color (find-resource-object stroke-color)
 		  :surface destination))
+
+(defun draw-rectangle (x y width height
+		       &key (color ".white")
+		       destination)
+  (sdl:draw-rectangle-* x y width height :color (find-resource-object color)
+			:surface destination))
 
 ;;; Engine status
 

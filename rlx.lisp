@@ -105,7 +105,7 @@
   *user-keyboard-layout* set-field-option-value field-options
   world set-frame-rate *frame-rate* set-timer-interval set-screen-width
   set-screen-height *timer-interval* enable-timer disable-timer
-  enable-held-keys disable-held-keys do-cells draw-box
+  enable-held-keys disable-held-keys do-cells draw-box draw-rectangle
   *quitting* quit reset))
 
 (in-package :rlx)
