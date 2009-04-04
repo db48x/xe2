@@ -181,7 +181,7 @@
   (speed :initform (make-stat :base 10))
   (strength :initform (make-stat :base 10))
   (defense :initform (make-stat :base 10))
-  (hit-points :initform (make-stat :base 3 :min 0 :max 3))
+  (hit-points :initform (make-stat :base 5 :min 0 :max 5))
   (movement-cost :initform (make-stat :base 10))
   (max-items :initform (make-stat :base 2))
   (trail-length :initform (make-stat :base 12 :min 0))
@@ -213,7 +213,9 @@
 (define-method update-tile ship ()
   (setf <tile> 
 	(ecase [stat-value self :hit-points]
-	  (3 "player-ship-north-shield")
+	  (5 "player-ship-north-shield")
+	  (4 "player-ship-north-shield")
+	  (3 "player-ship-north")
 	  (2 "player-ship-north")
 	  (1 (prog1 "player-ship-north-dying"
 	       [say *billboard* :warning]))
@@ -490,6 +492,12 @@
       [drop-cell self (clone =probe=)
 		 (random height) (random width)])))
 
+(define-method render void-world ()
+  [parent>>render self]
+  (rlx:draw-box 0 0 (* <tile-size> <width>) (* <tile-size> <height>)
+		:stroke-color ".blue" :color "blue"))
+					       
+
 (define-method die probe ()
   [say *billboard* :dead]
   [parent>>die self])
@@ -651,7 +659,7 @@
 	 (hits [stat-value char :hit-points])
 	 (lives [stat-value char :lives]))
     [print self " HITS: "]
-    (dotimes (i 3)
+    (dotimes (i 5)
       [print self "  " 
 	     :foreground ".yellow"
 	     :background (if (< i hits)
