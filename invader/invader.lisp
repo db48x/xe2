@@ -864,6 +864,7 @@
 (define-method fire lepton-cannon (direction)
   (if [expend-energy <equipper> [stat-value self :energy-cost]]
       (let ((lepton (clone =lepton-particle=)))
+	(rlx:play-sample "bloup")
 	[queue>>drop <equipper> lepton]
 	[queue>>impel lepton direction]
 	[expend-action-points <equipper> [stat-value self :attack-cost]]

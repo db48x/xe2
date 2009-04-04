@@ -131,6 +131,7 @@
  (:name "warn" :type :sample :file "warn.wav" :properties (:volume 10))
  (:name "whoop" :type :sample :file "whoop.wav" :properties (:volume 20))
  (:name "power" :type :sample :file "power.wav" :properties (:volume 20))
+ (:name "bloup" :type :sample :file "bloup.wav" :properties (:volume 30))
 
  (:name "xiomacs2" :type :music :file "xiomacs2.ogg")
  (:name "theme" :type :music :file "invader-theme.ogg")
