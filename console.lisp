@@ -167,7 +167,8 @@ key event symbols."
       (:SDL-KEY-MOD-RALT :alt)
       (:SDL-KEY-MOD-LMETA :meta)
       (:SDL-KEY-MOD-RMETA :meta)
-      (:SDL-KEY-MOD-NUM :num-lock)
+      ;; fix for windows
+      (:SDL-KEY-MOD-NUM nil)
       (:SDL-KEY-MOD-CAPS :caps-lock)
       (:SDL-KEY-MOD-MODE nil)
       (:SDL-KEY-MOD-RESERVED nil)
@@ -181,7 +182,8 @@ key event symbols."
       (:SDL-KEY-RALT :alt)
       (:SDL-KEY-LMETA :meta)
       (:SDL-KEY-RMETA :meta)
-      (:SDL-KEY-NUM :num-lock)
+      ;; fix for windows
+      (:SDL-KEY-MOD-NUM nil)
       (:SDL-KEY-CAPS :caps-lock)
       (:SDL-KEY-MODE nil)
       (:SDL-KEY-RESERVED nil)
