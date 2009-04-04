@@ -84,6 +84,7 @@
 (define-method step energy (stepper)
   (when [is-player stepper]
     (when (has-field :energy stepper)
+      (play-sample "power")
       [>>say :narrator "You recover 100 units of energy from the tank."]
       [>>stat-effect stepper :energy 100]
       [>>die self])))
@@ -465,7 +466,9 @@
 	    (if [obstacle-in-direction-p world row column direction]
 		(let ((target [target-in-direction-p world row column direction]))
 		  (if (and target (not [in-category target :enemy]))
-		      [>>attack self direction]
+		      (progn
+			[>>attack self direction]
+			(play-sample "drill-bit"))
 		      (progn (setf <direction> (random-direction))
 			     [>>move self direction])))
 		(progn (when (< 7 (random 10))
@@ -740,6 +743,7 @@
 (define-method fire muon-pistol (direction)
   (if [expend-energy <equipper> 10]
       (let ((muon (clone =muon-particle=)))
+	(play-sample "whoop")
 	[>>drop <equipper> muon]
 	[>>impel muon direction])
       [>>say :narrator "Not enough energy to fire!"]))
