@@ -22,12 +22,24 @@
  (:name "trail-northwest" :type :alias :data ":rotate 90:trail-northeast")
  (:name "trail-southeast" :type :alias :data ":rotate 90:trail-northeast")
 
+
+ (:name "radiation-north" :type :image :file "radiation-north.png")
+ (:name "radiation-west" :type :alias :data ":rotate 90:radiation-north")
+ (:name "radiation-east" :type :alias :data ":rotate 90:radiation-north")
+ (:name "radiation-south" :type :image :file "radiation-north.png")
+ (:name "radiation-northeast" :type :image :file "radiation-northeast.png")
+ (:name "radiation-southwest" :type :image :file "radiation-northeast.png")
+ (:name "radiation-northwest" :type :alias :data ":rotate 90:radiation-northeast")
+ (:name "radiation-southeast" :type :alias :data ":rotate 90:radiation-northeast")
+
+
  (:name "gravity-beam" :type :image :file "gravity-beam.png")
  (:name "explosion" :type :image :file "explosion.png")
  (:name "space" :type :image :file "space.png")
  (:name "bullet" :type :image :file "bullet.png")
  (:name "ship-destroyed" :type :image :file "ship-destroyed.png")
  (:name "void" :type :music :file "void.xm")
+ (:name "probe" :type :image :file "probe.png")
 
  (:name "display-font" :type :font :properties (:height 20 :width 10) :data "10x20")
  (:name "technogirl" :type :music :file "technogirl.ogg")

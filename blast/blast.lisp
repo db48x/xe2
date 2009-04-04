@@ -51,8 +51,10 @@
 			      :dead ("YOU DIE!" :foreground ".yellow" :background ".red"
 				     :font "display-font")
 			      :destroy ("DESTROY!" :foreground ".white" :background ".red"
+					:font "display-font") 
+			      :probe-kill ("DESTROY!" :foreground ".white" :background ".red"
 					:font "display-font")
-                              :sweep ("SWEEP!" :foreground ".yellow" :background ".forest green"
+                             :sweep ("SWEEP!" :foreground ".yellow" :background ".forest green"
 				      :font "display-font")))
 
 (defun billboard-string (key)
@@ -280,7 +282,73 @@
   (clone (ecase (random 2)
 	   (0 =diamond=)
 	   (1 =extender=))))
+
+;;; A radiation probe releases a trail of toxic particles.
+
+(defcell radiation 
+  (categories :initform '(:actor))
+  (clock :initform 4))
+  
+(define-method initialize radiation (&key direction clock)
+  (setf <clock> clock)
+  (setf <tile> (ecase direction
+		 (:north "radiation-north")
+		 (:south "radiation-south")
+		 (:east "radiation-east")
+		 (:west "radiation-west")
+		 (:northeast "radiation-northeast")
+		 (:northwest "radiation-northwest")
+		 (:southeast "radiation-southeast")
+		 (:southwest "radiation-southwest")
+		 (:here "explosion"))))
+
+(define-method run radiation ()
+  [expend-action-points self 10]
+  (decf <clock>)
+  (when (zerop <clock>)
+    [die self]))
+
+(define-method step radiation (stepper)
+  (when (eq =ship= (object-parent stepper))
+    [drop self (clone =explosion=)]	       
+    [damage stepper 1]))
 	   
+(defcell probe 
+  (tile :initform "probe")
+  (hit-points :initform (make-stat :base 3 :max 3 :min 0))
+  (speed :initform (make-stat :base 6))
+  (strength :initform (make-stat :base 10))
+  (defense :initform (make-stat :base 10))
+  (stepping :initform t)
+  (movement-cost :initform (make-stat :base 10))
+  (max-items :initform (make-stat :base 2))
+  (direction :initform (random-direction))
+  (movement-cost :initform (make-stat :base 10))
+  (categories :initform '(:actor :obstacle :enemy :target))
+  (trail-length :initform (make-stat :base 10)))
+
+(define-method move probe (direction)
+  [drop self (clone =radiation= 
+		    :direction direction 
+		    :clock [stat-value self :trail-length])]
+  [parent>>move self direction])
+
+(define-method run probe ()
+  (clon:with-field-values (row column) self
+    (let* ((world *active-world*)
+	   (direction [direction-to-player *active-world* row column])
+	   (distance [distance-to-player *active-world* row column]))
+      (if (< distance 8)
+	  (progn (setf <direction> (if (< distance 4)
+				       (random-direction)
+				       direction))
+		 [>>move self <direction>])
+	  ;; bounce around
+	  (progn 
+	    (when [obstacle-in-direction-p *active-world* <row> <column> <direction>]
+	      (setf <direction> (random-direction)))
+	    [>>move self <direction>])))))
+
 ;;; An asteroid.
 
 (defcell asteroid
@@ -399,6 +467,7 @@
   (height :initform 46)
   (asteroid-count :initform 70)
   (polaris-count :initform 20)
+  (probe-count :initform 15)
   (ambient-light :initform :total))
 
 (define-method generate void-world (&optional parameters)
@@ -416,7 +485,14 @@
 		 (random height) (random width)])
     (dotimes (i <polaris-count>)
       [drop-cell self (clone =polaris=)
+		 (random height) (random width)])
+    (dotimes (i <probe-count>)
+      [drop-cell self (clone =probe=)
 		 (random height) (random width)])))
+
+(define-method die probe ()
+  [say *billboard* :dead]
+  [parent>>die self])
 
 ;;; Controlling the game.
 
@@ -602,7 +678,7 @@
   (rlx:set-screen-height 600)
   (rlx:set-screen-width 800)
 ;;  (rlx:set-frame-rate 30)
-  (rlx:set-timer-interval 10)
+  (rlx:set-timer-interval 15)
   (rlx:enable-timer)
   (rlx:enable-held-keys 0 15)
   (setf *billboard* (clone =billboard=))
