@@ -637,7 +637,10 @@ table."
 
 (defun load-sample-resource (resource)
   (when *use-sound*
-    (sdl-mixer:load-sample (namestring (resource-file resource)))))
+    (let ((chunk (sdl-mixer:load-sample (namestring (resource-file resource)))))
+      (destructuring-bind (&key volume) (resource-properties resource)
+	(prog1 chunk
+	  (setf (sdl-mixer:sample-volume chunk) volume))))))
 
 (defvar *resource-handlers* (list :image #'load-image-resource
 				  :lisp #'load-lisp-resource
