@@ -250,7 +250,7 @@
 (define-method revive ship ()
   [say *billboard* :go]
   [drop-cell *active-world* self (random 10) (random 10)]
-  [stat-effect self :hit-points 3]	       
+  [stat-effect self :hit-points 5]	       
   [update-tile self]
   [delete-category self :dead]
   [set-player *active-world* self])
@@ -399,8 +399,8 @@
   (if (<= [stat-value self :hit-points] 0)
       [die self]
       ;; if free, float
-      (if (and (not <stuck-to>)
-	       (not [obstacle-in-direction-p *active-world* <row> <column> <direction>]))
+      (if (and (not <stuck-to>)  
+	       (not [obstacle-in-direction-p *active-world* <row> <c olumn> <direction>]))
 	  [move self <direction>]
 	  ;; otherwise bounce (when free)
 	  (unless <stuck-to>
