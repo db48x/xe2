@@ -439,7 +439,7 @@
  (decf *asteroid-count*)
  (when (< *asteroid-count* 25 )
    ;; drop more asteroids!!
-   [drop-asteroids *active-world* 120])
+   [drop-plasma-asteroids *active-world* 120])
  ;;
  [>>say :narrator "You destroyed an asteroid!"]
  [say *billboard* :destroy]
@@ -559,7 +559,7 @@
     (dotimes (i height)
       (dotimes (j width)
 	[drop-cell self (clone =space=) i j]))
-    [drop-asteroids self 120]
+    [drop-plasma-asteroids self 120]
     (dotimes (i <polaris-count>)
       [drop-cell self (clone =polaris=)
 		 (random height) (random width)])
@@ -567,15 +567,37 @@
       [drop-cell self (clone =probe=)
 		 (random height) (random width)])))
 
-(define-method drop-asteroids void-world (count)
+(define-method drop-random-asteroids void-world (count)
   (clon:with-field-values (height width) self
     (dotimes (i count)
-      [drop-cell self (clone =asteroid= 
-			     :speed (+ 3 (random 7))
+      [drop-cell self (clone =asteroid= :speed (+ 3 (random 7))
 			     :direction (rlx:random-direction)
 			     :color (nth (random 3)
 					 '(:red :blue :brown)))
 		 (random height) (random width)])))
+
+(define-method drop-plasma-asteroids void-world (count)
+  (clon:with-field-values (height width) self
+    (let ((plasma (rlx:render-plasma height width :graininess 0.5))
+	  (color nil)
+	  (value nil))
+      (dotimes (i height)
+	(dotimes (j width)
+	  (setf value (aref plasma i j))
+	  (setf color (cond ((minusp value)
+			     nil)
+			    ((> 0.5 value)
+			     :brown)
+			    ((> 0.7 value)
+			     :red )
+			    ((> 0.9 value) 
+			     :blue)))
+	  (when color
+	    [drop-cell self (clone =asteroid=
+				   :speed (+ 3 (random 7))
+				   :direction (rlx:random-direction)
+				   :color color)
+		       i j]))))))
 
 (define-method die probe ()
   (play-sample "death-alien")
