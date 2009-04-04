@@ -40,7 +40,7 @@
  (:name "ship-destroyed" :type :image :file "ship-destroyed.png")
  (:name "void" :type :music :file "void.xm")
  (:name "probe" :type :image :file "probe.png")
-
+ (:name "gravicept" :type :image :file "gravicept.png")
  (:name "display-font" :type :font :properties (:height 20 :width 10) :data "10x20")
  (:name "sweep" :type :sample :file "snare-wak2.wav" :properties (:volume 40))
  (:name "bleep" :type :sample :file "bleep.wav" :properties (:volume 20))

@@ -293,7 +293,59 @@
 	   (0 =diamond=)
 	   (1 =extender=))))
 
-;;; A radiation probe releases a trail of toxic particles.
+;;; Radiation graviceptors
+
+(defcell graviceptor
+ (tile :initform "gravicept")
+ (hit-points :initform (make-stat :base 3 :max 3 :min 0))
+ (speed :initform (make-stat :base 3))
+ (strength :initform (make-stat :base 10))
+ (defense :initform (make-stat :base 10))
+ (stepping :initform t)
+ (movement-cost :initform (make-stat :base 10))
+ (max-items :initform (make-stat :base 2))
+ (direction :initform (random-direction))
+ (movement-cost :initform (make-stat :base 10))
+ (categories :initform '(:actor :obstacle :enemy :target)))
+
+(define-method run graviceptor ()
+  (clon:with-field-values (row column) self
+    (let* ((world *active-world*)
+	   (direction [direction-to-player world row column]))
+      (if [adjacent-to-player world row column]
+	  [explode self]
+	  (if [obstacle-in-direction-p world row column direction]
+	      (let ((target [target-in-direction-p world row column direction]))
+		(if (and target (not [in-category target :enemy]))
+		    [explode self]
+		    (progn (setf <direction> (random-direction))
+			   [>>move self direction])))
+	      (progn (when (< 7 (random 10))
+		       (setf <direction> (random-direction)))
+		     [>>move self direction]))))))
+
+(define-method explode graviceptor ()
+  (labels ((boom (r c &optional (probability 50))
+	     (prog1 nil
+	       (when (and (< (random 100) probability)
+			  [in-bounds-p *active-world* r c])
+		 [drop-cell *active-world* (clone =explosion=) r c :no-collisions nil]))))
+    (dolist (dir rlx:*compass-directions*)
+      (multiple-value-bind (r c)
+	  (step-in-direction <row> <column> dir)
+	(boom r c 100)))
+    ;; randomly sprinkle some fire around edges
+    (trace-rectangle #'boom 
+		     (- <row> 2) 
+		     (- <column> 2) 
+		     5 5)
+    [die self]))
+
+(define-method damage graviceptor (points)
+  (declare (ignore points))
+  [explode self])
+
+;;; A radiation probe releases a trail of toxic graviceptor particles.
 
 (defcell radiation 
   (categories :initform '(:actor))
@@ -317,6 +369,11 @@
   (decf <clock>)
   (when (zerop <clock>)
     [die self]))
+
+(define-method die radiation ()
+  (when (> 1 (random 150))
+    [drop self (clone =graviceptor=)])
+  [parent>>die self])
 
 (define-method step radiation (stepper)
   (when (eq =ship= (object-parent stepper))
@@ -492,7 +549,7 @@
   (width :initform 80)
   (height :initform 46)
   (asteroid-count :initform 100)
-  (polaris-count :initform 20)
+  (polaris-count :initform 30)
   (probe-count :initform 15)
   (ambient-light :initform :total))
 
