@@ -400,7 +400,7 @@
       [die self]
       ;; if free, float
       (if (and (not <stuck-to>)  
-	       (not [obstacle-in-direction-p *active-world* <row> <c olumn> <direction>]))
+	       (not [obstacle-in-direction-p *active-world* <row> <column> <direction>]))
 	  [move self <direction>]
 	  ;; otherwise bounce (when free)
 	  (unless <stuck-to>
