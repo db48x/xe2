@@ -362,6 +362,8 @@
 
 ;;; An asteroid.
 
+(defvar *asteroid-count* 0)
+
 (defcell asteroid
   (categories :initform '(:actor :sticky))
   (hit-points :initform (make-stat :base 1 :min 0))
@@ -374,6 +376,19 @@
   <stuck-to>)
 
 (define-method die asteroid ()
+  ;;
+ (decf *asteroid-count*)
+ (unless (> *asteroid-count* 20)
+   ;; drop more asteroids!!
+   (let ((world *active-world))
+     (dotimes (i 400)
+       [drop-cell self (clone =asteroid= 
+			      :speed (+ 3 (random 7))
+			      :direction (rlx:random-direction)
+			      :color (nth (random 3)
+					  '(:red :blue :brown)))
+		  (random height) (random width)])))
+  ;;
   [>>say :narrator "You destroyed an asteroid!"]
   [say *billboard* :destroy]
   (play-sample "bleep")
@@ -385,6 +400,7 @@
   [parent>>die self])
 
 (define-method initialize asteroid (&key speed direction color)
+  (incf *asteroid-count*)
   (setf <speed> (make-stat :base speed))
   (setf <direction> direction)
   (setf <tile>
@@ -509,7 +525,6 @@
   [parent>>render self]
   (rlx:draw-box 0 0 (* <tile-size> <width>) (* <tile-size> <height>)
 		:stroke-color ".blue" :color "blue"))
-					       
 
 (define-method die probe ()
   (play-sample "death-alien")

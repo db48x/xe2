@@ -120,6 +120,12 @@
 
  (:name "sparkle" :type :image :file "sparkle.png")
 
+ (:name "drill-big" :type :sample :file "drill-big.wav" :properties (:volume 30))
+ (:name "drill-little" :type :sample :file "drill-little.wav" :properties (:volume 30))
+ (:name "drill-bit" :type :sample :file "drill-bit.wav" :properties (:volume 30))
+ (:name "knock" :type :sample :file "knock.wav"
+ (:name "pop-ssh" :type :sample :file "pop-ssh.wav" :properties (:volume 30))
+
  (:name "xiomacs2" :type :music :file "xiomacs2.ogg")
  (:name "theme" :type :music :file "invader-theme.ogg")
  (:name ".startup" :type :lisp :file "invader.lisp")
