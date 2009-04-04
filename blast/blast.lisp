@@ -169,6 +169,7 @@
       (progn
 	[>>say :narrator "Respawning."]
         [die self]
+	(play-sample "go")
 	[revive <player>])
       (progn
 	[>>say :narrator *game-over-message*])))
@@ -222,6 +223,7 @@
 	  (0 "skull"))))
 		 
 (define-method damage ship (points)
+  (play-sample "warn")
   [parent>>damage self points]
   [update-tile self])
 
@@ -236,6 +238,7 @@
     [>>say :narrator "You were damaged by a floating asteroid!"]))
 
 (define-method die ship ()
+  (play-sample "death")
   [stat-effect self :lives -1]
   (let ((skull (clone =skull= self [stat-value self :lives])))
     [drop-cell *active-world* skull <row> <column> :loadout t :no-collisions nil]
@@ -259,6 +262,7 @@
 
 (define-method step diamond (stepper)
   (when [is-player stepper]
+   (play-sample "powerup")
    [say *billboard* :shield]
    [>>say :narrator "You gain 1 hit point and 2000 score."] 
    [stat-effect stepper :hit-points 1]
@@ -272,6 +276,7 @@
 
 (define-method step extender (stepper)
   (when [is-player stepper]
+    (play-sample "powerup")
     [say *billboard* :extend]
     [>>say :narrator "Trail extend!"]
     [stat-effect stepper :trail-length 2]
@@ -351,6 +356,10 @@
 	      (setf <direction> (random-direction)))
 	    [>>move self <direction>])))))
 
+(define-method die probe ()
+  (play-sample "aagh")
+  [parent>>die self])
+
 ;;; An asteroid.
 
 (defcell asteroid
@@ -367,6 +376,7 @@
 (define-method die asteroid ()
   [>>say :narrator "You destroyed an asteroid!"]
   [say *billboard* :destroy]
+  (play-sample "bleep")
   (when (< (random 3) 1) 
     [drop self (random-powerup)])
   [stat-effect [get-player *active-world*] :score 120]
@@ -459,6 +469,7 @@
   (setf <asteroids> (delete asteroid <asteroids>))
   (when (= 0 (length <asteroids>))
     [stat-effect [get-player *active-world*] :score 2000]
+    (rlx:play-sample "sweep")
     [say *billboard* :sweep]
     [>>say :narrator "You get 2000 extra points for wiping the polaris mine clean of asteroids."]))
 
@@ -499,6 +510,7 @@
 					       
 
 (define-method die probe ()
+  (play-sample "death-alien")
   [say *billboard* :dead]
   [parent>>die self])
 
@@ -731,6 +743,7 @@
     ;;
     [start world]
     (play-music "technogirl" :loop t)
+    (play-sample "go")
     
     (install-widgets prompt status viewport narrator *billboard*)))
 

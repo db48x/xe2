@@ -42,6 +42,14 @@
  (:name "probe" :type :image :file "probe.png")
 
  (:name "display-font" :type :font :properties (:height 20 :width 10) :data "10x20")
+ (:name "sweep" :type :sample :file "snare-wak2.wav")
+ (:name "bleep" :type :sample :file "bleep.wav")
+ (:name "go" :type :sample :file "go.wav")
+ (:name "aagh" :type :sample :file "aagh.wav")
+ (:name "warn" :type :sample :file "warn.wav")
+ (:name "death" :type :sample :file "death.wav") 
+ (:name "death-alien" :type :sample :file "death-alien.wav") 
+ (:name "powerup" :type :sample :file "powerup.wav")
  (:name "technogirl" :type :music :file "technogirl.ogg")
 
  (:name ".startup" :type :lisp :file "blast.lisp")
