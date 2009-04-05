@@ -239,6 +239,7 @@
   (if (= 0 <invincibility-clock>)
     (progn (play-sample "warn")
 	   [parent>>damage self points]
+	   (say *billboard* :react)
 	   (setf <invincibility-clock> 5)
 	   [update-tile self]
 	   [>>say :narrator "React Shield up with 5 turns remaining."])
