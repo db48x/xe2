@@ -20,10 +20,10 @@
 
 ;;; Commentary 
 
-;; Blast Tactics is a micro shoot-em-up in Common Lisp. 
-
-;; You can shoot asteroids or destroy them with your trail.  Powerups
-;; extend the trail, enabling higher scores!
+;; Blast Tactics is a mini space-roguelike puzzler incorporating
+;; elements of the classic Asteroids, plus gravity and a unique weapon
+;; system. Instead of shooting asteroids, you sweep your trail across
+;; them. Powerups extend your trail's length and enable higher scores. 
 
 ;;; Packaging
 
@@ -40,7 +40,8 @@
 
 (defvar *billboard-strings* '(:go ("GO!" :foreground ".black" :background ".yellow" 
 				   :font "display-font")
-			      :react ("REACT!" :foreground ".red" :background ".cyan")
+			      :react ("REACT!" :foreground ".red" :background ".navy blue"
+				      :font "display-font")
 			      :extend ("EXTEND!" :foreground ".yellow" :background ".blue"
 				       :font "display-font")
 			      :shield ("SHIELD +1" :foreground ".cyan" :background ".blue"
@@ -239,7 +240,7 @@
   (if (= 0 <invincibility-clock>)
     (progn (play-sample "warn")
 	   [parent>>damage self points]
-	   (say *billboard* :react)
+	   [say *billboard* :react]
 	   (setf <invincibility-clock> 5)
 	   [update-tile self]
 	   [>>say :narrator "React Shield up with 5 turns remaining."])
@@ -247,9 +248,7 @@
       [>>say :narrator "React shield blocks 1 damage."]
       (decf <invincibility-clock>)
       [update-tile self])))
-      
   
-
 (define-method loadout ship ()
   [make-inventory self]
   [make-equipment self])
@@ -259,21 +258,6 @@
     [say *billboard* :hit]
     [damage self 1]
     [>>say :narrator "You were damaged by a floating asteroid!"]))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 (define-method die ship ()
   (play-sample "death")
