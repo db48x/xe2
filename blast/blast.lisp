@@ -197,7 +197,7 @@
   (tile :initform "pulse")
   (categories :initform '(:actor :target))
   (hit-points :initform (make-stat :base 10 :min 0))
-  (clock :initform (+ 2 (random 4))))
+  (clock :initform (+ 4 (random 4))))
 
 (define-method run pulse ()
   (when (zerop <clock>)
@@ -717,7 +717,7 @@
 
 (define-method drop-plasma-space void-world ()
   (clon:with-field-values (height width) self
-    (let ((plasma (rlx:render-plasma height width :graininess 2))
+    (let ((plasma (rlx:render-plasma height width :graininess 0.1))
 	  (value nil))
       (dotimes (i height)
 	(dotimes (j width)
