@@ -218,7 +218,9 @@
   [drop self (clone =trail= 
 		    :direction direction 
 		    :clock [stat-value self :trail-length])]
-  [parent>>move self direction])
+  [parent>>move self direction]
+  [update-tile self]
+  [update *status*])
 
 (define-method update-tile ship ()
   (setf <tile> 
@@ -471,6 +473,10 @@
 	       [damage stepper 1])
 	(progn [>>say :narrator "Your movement is slowed by the space debris."]
 	       [expend-action-points stepper 5]))))
+
+(define-method damage debris (points)
+  (declare (ignore points))
+  [die self])
 
 
 ;;; An asteroid.
