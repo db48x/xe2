@@ -76,6 +76,11 @@
 (defcell space 
   (tile :initform "space"))
 
+;;; Blurred  space background.
+
+(defcell space2
+  (tile :initform "space2"))
+
 ;;; A destructible wall.
 
 (defcell wall
@@ -599,19 +604,18 @@
 ;;; The inescapable game grid.
 
 (define-prototype void-world (:parent rlx:=world=)
-  (width :initform 80)
+  (width :initform 300)
   (height :initform 46)
-  (asteroid-count :initform 80)
-  (polaris-count :initform 22)
-  (probe-count :initform 15)
+  (asteroid-count :initform 500)
+  (polaris-count :initform 90)
+  (probe-count :initform 40)
+  (room-count :initform 20)
   (ambient-light :initform :total))
 
 (define-method generate void-world (&optional parameters)
   (declare (ignore parameters))
   (clon:with-field-values (height width) self
-    (dotimes (i height)
-      (dotimes (j width)
-	[drop-cell self (clone =space=) i j]))
+    [drop-plasma-space self]
     [drop-random-asteroids self 70]
     [drop-plasma-debris self]
     (dotimes (i <polaris-count>)
@@ -620,7 +624,7 @@
     (dotimes (i <probe-count>)
       [drop-cell self (clone =probe=)
 		 (random height) (random width)])
-    (dotimes (i 4)
+    (dotimes (i <room-count>)
       (let ((r (random height))
 	    (c (random width)))
 	[drop-room self r c]))))
@@ -644,6 +648,17 @@
 	  (when (< 0 value)
 	    (let ((object =debris=))
 	      [drop-cell self (clone object) (+ 10 i) (+ 10 j) :no-collisions t])))))))
+
+(define-method drop-plasma-space void-world ()
+  (clon:with-field-values (height width) self
+    (let ((plasma (rlx:render-plasma height width :graininess 2))
+	  (value nil))
+      (dotimes (i height)
+	(dotimes (j width)
+	  (setf value (aref plasma i j))
+	  [drop-cell self (clone (if (minusp value)
+				     =space= =space2=))
+		     i j])))))
 
 (define-method drop-room void-world (row column &key 
                                          (height (+ 3 (random 10)))

@@ -35,7 +35,10 @@
 
  (:name "gravity-beam" :type :image :file "gravity-beam.png")
  (:name "explosion" :type :image :file "explosion.png")
+
  (:name "space" :type :image :file "space.png")
+ (:name "space2" :type :image :file "space2.png")
+
  (:name "bullet" :type :image :file "bullet.png")
  (:name "ship-destroyed" :type :image :file "ship-destroyed.png")
  (:name "void" :type :music :file "void.xm")
