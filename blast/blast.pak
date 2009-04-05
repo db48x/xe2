@@ -1,6 +1,7 @@
 (
  (:name "player-ship-north-dying" :type :image :file "player-ship-north-dying.png")
  (:name	"player-ship-north" :type :image :file "player-ship-north.png")
+ (:name	"player-ship-invincible" :type :image :file "ship-invincible.png")
 
  (:name	"player-ship-north-shield" :type :image :file "player-ship-north-shield.png")
  (:name "asteroid-blue" :type :image :file "asteroid-blue-north.png")

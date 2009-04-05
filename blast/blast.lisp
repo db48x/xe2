@@ -1,4 +1,4 @@
-;; blast.lisp --- a micro shmup in common lisp
+;; blast.lisp --- a micro anti-shmup in common lisp
 
 ;; Copyright (C) 2009  David O'Toole
 
@@ -40,6 +40,7 @@
 
 (defvar *billboard-strings* '(:go ("GO!" :foreground ".black" :background ".yellow" 
 				   :font "display-font")
+			      :react ("REACT!" :foreground ".red" :background ".cyan")
 			      :extend ("EXTEND!" :foreground ".yellow" :background ".blue"
 				       :font "display-font")
 			      :shield ("SHIELD +1" :foreground ".cyan" :background ".blue"
@@ -186,6 +187,7 @@
   (movement-cost :initform (make-stat :base 10))
   (max-items :initform (make-stat :base 2))
   (trail-length :initform (make-stat :base 12 :min 0))
+  (invincibility-clock :initform 0)
   (stepping :initform t)
   (lives :initform (make-stat :min 0 :base 3 :max 3))
   (score :initform (make-stat :base 0))
@@ -200,6 +202,7 @@
   (rlx:quit :shutdown))
 
 (define-method run ship ()
+  [update-tile self]
   [update *status*])	       
 
 (define-method wait ship ()
@@ -209,6 +212,9 @@
   nil)
 
 (define-method move ship (direction)
+  (when (not (<= <invincibility-clock> 0))
+    (decf <invincibility-clock>)
+    [>>say :narrator "React shield up with ~D turns remaining." <invincibility-clock>])
   [drop self (clone =trail= 
 		    :direction direction 
 		    :clock [stat-value self :trail-length])]
@@ -216,19 +222,30 @@
 
 (define-method update-tile ship ()
   (setf <tile> 
-	(ecase [stat-value self :hit-points]
-	  (5 "player-ship-north-shield")
-	  (4 "player-ship-north-shield")
-	  (3 "player-ship-north")
-	  (2 "player-ship-north")
-	  (1 (prog1 "player-ship-north-dying"
-	       [say *billboard* :warning]))
-	  (0 "skull"))))
+	(if  (plusp <invincibility-clock>)
+	     "player-ship-invincible"
+	     (ecase [stat-value self :hit-points]
+	       (5 "player-ship-north-shield")
+	       (4 "player-ship-north-shield")
+	       (3 "player-ship-north")
+	       (2 "player-ship-north")
+	       (1 (prog1 "player-ship-north-dying"
+		    [say *billboard* :warning]))
+	       (0 "skull")))))
 		 
 (define-method damage ship (points)
-  (play-sample "warn")
-  [parent>>damage self points]
-  [update-tile self])
+  (if (= 0 <invincibility-clock>)
+    (progn (play-sample "warn")
+	   [parent>>damage self points]
+	   (setf <invincibility-clock> 5)
+	   [update-tile self]
+	   [>>say :narrator "React Shield up with 5 turns remaining."])
+    (progn 
+      [>>say :narrator "React shield blocks 1 damage."]
+      (decf <invincibility-clock>)
+      [update-tile self])))
+      
+  
 
 (define-method loadout ship ()
   [make-inventory self]
@@ -239,6 +256,21 @@
     [say *billboard* :hit]
     [damage self 1]
     [>>say :narrator "You were damaged by a floating asteroid!"]))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 (define-method die ship ()
   (play-sample "death")
@@ -325,22 +357,26 @@
 		     [>>move self direction]))))))
 
 (define-method explode graviceptor ()
-  (labels ((boom (r c &optional (probability 50))
-	     (prog1 nil
-	       (when (and (< (random 100) probability)
-			  [in-bounds-p *active-world* r c])
-		 [drop-cell *active-world* (clone =explosion=) r c :no-collisions nil]))))
-    (dolist (dir rlx:*compass-directions*)
-      (multiple-value-bind (r c)
-	  (step-in-direction <row> <column> dir)
-	(boom r c 100)))
-    ;; randomly sprinkle some fire around edges
-    (trace-rectangle #'boom 
-		     (- <row> 2) 
-		     (- <column> 2) 
-		     5 5)
-    [die self]))
-
+  ;; only when not in space debris... debris are "safe zones" from mines
+  (when (notany #'(lambda (ob)
+		    (eq =debris= (object-parent ob)))
+		[cells-at *active-world* <row> <column>])
+    (labels ((boom (r c &optional (probability 50))
+	       (prog1 nil
+		 (when (and (< (random 100) probability)
+			    [in-bounds-p *active-world* r c])
+		   [drop-cell *active-world* (clone =explosion=) r c :no-collisions nil]))))
+      (dolist (dir rlx:*compass-directions*)
+	(multiple-value-bind (r c)
+	    (step-in-direction <row> <column> dir)
+	  (boom r c 100)))
+      ;; randomly sprinkle some fire around edges
+      (trace-rectangle #'boom 
+		       (- <row> 2) 
+		       (- <column> 2) 
+		       5 5)
+      [die self])))
+  
 (define-method damage graviceptor (points)
   (declare (ignore points))
   [stat-effect [get-player *active-world*] :score 5000]
@@ -422,6 +458,21 @@
   (play-sample "aagh")
   [parent>>die self])
 
+;;; Magnetic space debris can damage you or slow movement
+
+(defcell debris 
+;  (categories :initform '(:obstacle))
+  (tile :initform "debris"))
+
+(define-method step debris (stepper)
+  (when [is-player stepper]	
+    (if (> 1 (random 80))
+	(progn [>>say :narrator "Your ship is damaged by the space debris!"]
+	       [damage stepper 1])
+	(progn [>>say :narrator "Your movement is slowed by the space debris."]
+	       [expend-action-points stepper 5]))))
+
+
 ;;; An asteroid.
 
 (defvar *asteroid-count* 0)
@@ -441,7 +492,7 @@
  (decf *asteroid-count*)
  (when (< *asteroid-count* 25 )
    ;; drop more asteroids!!
-   [drop-plasma-asteroids *active-world* 70])
+   [drop-random-asteroids *active-world* 70])
  ;;
  [>>say :narrator "You destroyed an asteroid!"]
  [say *billboard* :destroy]
@@ -551,8 +602,8 @@
 (define-prototype void-world (:parent rlx:=world=)
   (width :initform 80)
   (height :initform 46)
-  (asteroid-count :initform 100)
-  (polaris-count :initform 30)
+  (asteroid-count :initform 80)
+  (polaris-count :initform 22)
   (probe-count :initform 15)
   (ambient-light :initform :total))
 
@@ -563,6 +614,7 @@
       (dotimes (j width)
 	[drop-cell self (clone =space=) i j]))
     [drop-random-asteroids self 70]
+    [drop-plasma-debris self]
     (dotimes (i <polaris-count>)
       [drop-cell self (clone =polaris=)
 		 (random height) (random width)])
@@ -579,34 +631,19 @@
 					 '(:red :blue :brown :orange)))
 		 (random height) (random width)])))
 
-(define-method drop-plasma-asteroids void-world (count)
+(define-method drop-plasma-debris void-world ()
   (clon:with-field-values (height width) self
-    (let ((plasma (rlx:render-plasma height width :graininess 0.3))
-	  (color nil)
+    (let ((plasma (rlx:render-plasma height width :graininess 0.1))
 	  (value nil))
-      (dotimes (i height)
-	(dotimes (j width)
+      (dotimes (i (- height 10))
+	(dotimes (j (- width 10))
 	  (setf value (aref plasma i j))
-	  (setf color (cond ((> 0.5 value)
-			     nil)
-			    ((> 0.7 value)
-			     :brown)
-			    ((> 0.9 value)
-			     :red )
-			    ((> 1.0 value)
-			     :blue)
-			    ((< 1.0 value)
-			     nil)))
-	  (when color
-	    [drop-cell self (clone =asteroid=
-				   :speed (+ 3 (random 7))
-				   :direction (rlx:random-direction)
-				   :color color)
-		       i j]))))))
+	  (if (> 0.0 value)
+	      [drop-cell self (clone =debris=) (+ 10 i) (+ 10 j)]))))))
 
 (define-method die probe ()
   (play-sample "death-alien")
-  [say *billboard* :dead]
+  [say *billboard* :destroy]
   [parent>>die self])
 
 ;;; Custom bordered viewport
@@ -793,7 +830,11 @@
 			     ".gray20")]
       [space self])
     [print self "     SCORE: "]
-    [println self (format nil "~D" [stat-value char :score])]))
+    [print self (format nil "~D" [stat-value char :score])]
+    [space self]
+    [println self (format nil "    REACT SHIELD TIME: ~D " 
+			  (field-value :invincibility-clock char))]))
+    
 
 (defvar *status*)
 
