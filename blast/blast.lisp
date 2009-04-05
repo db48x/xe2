@@ -81,7 +81,7 @@
   (tile :initform "explosion")
   (speed :initform (make-stat :base 10))
   (damage-per-turn :initform 1)
-  (clock :initform 3))
+  (clock :initform 2))
 
 (define-method run explosion ()
   (if (zerop <clock>)
@@ -373,7 +373,7 @@
     [die self]))
 
 (define-method die radiation ()
-  (when (> 1 (random 180))
+  (when (> 1 (random 230))
     [drop self (clone =graviceptor=)])
   [parent>>die self])
 
@@ -459,6 +459,7 @@
   (setf <direction> direction)
   (setf <tile>
 	(ecase color
+	  (:orange "asteroid-orange")
 	  (:red "asteroid-red")
 	  (:blue "asteroid-blue")
 	  (:brown "asteroid-brown"))))
@@ -574,8 +575,8 @@
     (dotimes (i count)
       [drop-cell self (clone =asteroid= :speed (+ 3 (random 7))
 			     :direction (rlx:random-direction)
-			     :color (nth (random 3)
-					 '(:red :blue :brown)))
+			     :color (nth (random 4)
+					 '(:red :blue :brown :orange)))
 		 (random height) (random width)])))
 
 (define-method drop-plasma-asteroids void-world (count)
@@ -801,7 +802,7 @@
   (rlx:set-screen-height 600)
   (rlx:set-screen-width 800)
 ;;  (rlx:set-frame-rate 30)
-  (rlx:set-timer-interval 15)
+  (rlx:set-timer-interval 20)
   (rlx:enable-timer)
   (rlx:enable-held-keys 0 15)
   (setf *billboard* (clone =billboard=))

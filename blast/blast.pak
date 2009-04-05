@@ -22,7 +22,6 @@
  (:name "trail-northwest" :type :alias :data ":rotate 90:trail-northeast")
  (:name "trail-southeast" :type :alias :data ":rotate 90:trail-northeast")
 
-
  (:name "radiation-north" :type :image :file "radiation-north.png")
  (:name "radiation-west" :type :alias :data ":rotate 90:radiation-north")
  (:name "radiation-east" :type :alias :data ":rotate 90:radiation-north")
@@ -32,7 +31,6 @@
  (:name "radiation-northwest" :type :alias :data ":rotate 90:radiation-northeast")
  (:name "radiation-southeast" :type :alias :data ":rotate 90:radiation-northeast")
 
-
  (:name "gravity-beam" :type :image :file "gravity-beam.png")
  (:name "explosion" :type :image :file "explosion.png")
  (:name "space" :type :image :file "space.png")
@@ -41,7 +39,9 @@
  (:name "void" :type :music :file "void.xm")
  (:name "probe" :type :image :file "probe.png")
  (:name "gravicept" :type :image :file "gravicept.png")
- (:name "display-font" :type :font :properties (:height 20 :width 10) :data "10x20")
+ (:name "debris" :type :image :file "debris.png")
+ (:name "asteroid-orange" :type :image :file "asteroid-orange.png")
+
  (:name "sweep" :type :sample :file "snare-wak2.wav" :properties (:volume 40))
  (:name "bleep" :type :sample :file "bleep.wav" :properties (:volume 20))
  (:name "go" :type :sample :file "go.wav" :properties (:volume 30))
@@ -52,5 +52,6 @@
  (:name "powerup" :type :sample :file "powerup.wav" :properties (:volume 40))
  (:name "technogirl" :type :music :file "technogirl.ogg")
 
+ (:name "display-font" :type :font :properties (:height 20 :width 10) :data "10x20")
  (:name ".startup" :type :lisp :file "blast.lisp")
 )
