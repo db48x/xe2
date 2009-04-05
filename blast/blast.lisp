@@ -1,4 +1,4 @@
-;; blast.lisp --- a micro anti-shmup in common lisp
+;;; blast.lisp --- a micro anti-shmup in common lisp
 
 ;; Copyright (C) 2009  David O'Toole
 
@@ -55,6 +55,7 @@
 			      :destroy ("DESTROY!" :foreground ".white" :background ".red"
 					:font "display-font") 
 			      :probe-kill ("DESTROY!" :foreground ".white" :background ".red"
+
 					:font "display-font")
                              :sweep ("SWEEP!" :foreground ".yellow" :background ".forest green"
 				      :font "display-font")))
@@ -74,6 +75,13 @@
 
 (defcell space 
   (tile :initform "space"))
+
+;;; A destructible wall.
+
+(defcell wall
+  (tile :initform "wall")
+  (categories :initform '(:obstacle))
+  (hit-points :initform (make-stat :base 10 :min 0)))
 
 ;;; An explosion.
 
@@ -442,7 +450,8 @@
 	    [>>move self <direction>])))))
 
 (define-method die probe ()
-  (play-sample "aagh")
+  (play-sample "death-alien")
+  [say *billboard* :destroy]
   [parent>>die self])
 
 ;;; Magnetic space debris can damage you or slow movement
@@ -462,7 +471,6 @@
 (define-method damage debris (points)
   (declare (ignore points))
   [die self])
-
 
 ;;; An asteroid.
 
@@ -588,7 +596,7 @@
     [say *billboard* :sweep]
     [>>say :narrator "You get 2000 extra points for wiping the polaris mine clean of asteroids."]))
 
-;;; The endless void.
+;;; The inescapable game grid.
 
 (define-prototype void-world (:parent rlx:=world=)
   (width :initform 80)
@@ -611,8 +619,12 @@
 		 (random height) (random width)])
     (dotimes (i <probe-count>)
       [drop-cell self (clone =probe=)
-		 (random height) (random width)])))
-
+		 (random height) (random width)])
+    (dotimes (i 4)
+      (let ((r (random height))
+	    (c (random width)))
+	[drop-room self r c]))))
+	    
 (define-method drop-random-asteroids void-world (count)
   (clon:with-field-values (height width) self
     (dotimes (i count)
@@ -624,18 +636,29 @@
 
 (define-method drop-plasma-debris void-world ()
   (clon:with-field-values (height width) self
-    (let ((plasma (rlx:render-plasma height width :graininess 0.1))
+    (let ((plasma (rlx:render-plasma height width :graininess 1))
 	  (value nil))
       (dotimes (i (- height 10))
 	(dotimes (j (- width 10))
 	  (setf value (aref plasma i j))
-	  (if (> 0.0 value)
-	      [drop-cell self (clone =debris=) (+ 10 i) (+ 10 j)]))))))
+	  (when (< 0 value)
+	    (let ((object =debris=))
+	      [drop-cell self (clone object) (+ 10 i) (+ 10 j) :no-collisions t])))))))
 
-(define-method die probe ()
-  (play-sample "death-alien")
-  [say *billboard* :destroy]
-  [parent>>die self])
+(define-method drop-room void-world (row column &key 
+                                         (height (+ 3 (random 10)))
+					 (width (+ 3 (random 10))))
+  (let (rectangle)
+    (labels ((collect-point (&rest args)
+	       (prog1 nil (push args rectangle))))
+      (trace-rectangle #'collect-point row column height width)
+      ;; make sure there are openings
+      (dotimes (i 3)
+	(let ((n (random (length rectangle))))
+	  (delete (nth n rectangle) rectangle)))
+      (dolist (point rectangle)
+	(destructuring-bind (r c) point
+	[drop-cell self (clone =wall=) r c :no-collisions t])))))
 
 ;;; Custom bordered viewport
 

@@ -8,6 +8,9 @@ Installation and basic playing instructions are provided.
    required and these should be compiled from their latest
    SVN. (see below for instructions.)
 
+   Your Linux distribution will have SDL packages for sdl, sdl-image,
+   and sdl-mixer, all of which are required libraries.
+
 2. If you have not already done so, download RLX:
   
    mkdir ~/src

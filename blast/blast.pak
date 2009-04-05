@@ -10,6 +10,7 @@
  (:name "star" :type :image :file "star.png")
  (:name "skull" :type :image :file "skull.png")
  (:name "polaris" :type :image :file "polaris.png")
+ (:name "wall" :type :image :file "wall.png")
 
  (:name "diamond" :type :image :file "diamond.png")
  (:name "plus" :type :image :file "plus.png")
