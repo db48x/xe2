@@ -581,20 +581,22 @@
 
 (define-method drop-plasma-asteroids void-world (count)
   (clon:with-field-values (height width) self
-    (let ((plasma (rlx:render-plasma height width :graininess 0.5))
+    (let ((plasma (rlx:render-plasma height width :graininess 0.3))
 	  (color nil)
 	  (value nil))
       (dotimes (i height)
 	(dotimes (j width)
 	  (setf value (aref plasma i j))
-	  (setf color (cond ((minusp value)
+	  (setf color (cond ((> 0.5 value)
 			     nil)
-			    ((> 0.5 value)
-			     :brown)
 			    ((> 0.7 value)
+			     :brown)
+			    ((> 0.9 value)
 			     :red )
-			    ((> 0.9 value) 
-			     :blue)))
+			    ((> 1.0 value)
+			     :blue)
+			    ((< 1.0 value)
+			     nil)))
 	  (when color
 	    [drop-cell self (clone =asteroid=
 				   :speed (+ 3 (random 7))
