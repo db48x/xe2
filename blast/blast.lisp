@@ -343,6 +343,8 @@
 
 (define-method damage graviceptor (points)
   (declare (ignore points))
+  [stat-effect [get-player *active-world*] :score 5000]
+  [>>say :narrator "Graviceptor destroyed. 5000 Bonus Points."]
   [explode self])
 
 ;;; A radiation probe releases a trail of toxic graviceptor particles.
@@ -371,7 +373,7 @@
     [die self]))
 
 (define-method die radiation ()
-  (when (> 1 (random 150))
+  (when (> 1 (random 180))
     [drop self (clone =graviceptor=)])
   [parent>>die self])
 
@@ -439,7 +441,7 @@
  (decf *asteroid-count*)
  (when (< *asteroid-count* 25 )
    ;; drop more asteroids!!
-   [drop-plasma-asteroids *active-world* 120])
+   [drop-plasma-asteroids *active-world* 70])
  ;;
  [>>say :narrator "You destroyed an asteroid!"]
  [say *billboard* :destroy]
@@ -559,7 +561,7 @@
     (dotimes (i height)
       (dotimes (j width)
 	[drop-cell self (clone =space=) i j]))
-    [drop-plasma-asteroids self 120]
+    [drop-random-asteroids self 70]
     (dotimes (i <polaris-count>)
       [drop-cell self (clone =polaris=)
 		 (random height) (random width)])
