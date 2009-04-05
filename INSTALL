@@ -59,6 +59,10 @@ a trailing slash.
     (require :rlx)
     (rlx:play "invader")
 
+or for more of a twitch experience:
+
+    (rlx:play "blast")
+
   If you get an error about TRIVIAL-FEATURES-TESTS, try this:
   (require :trivial-features-tests)
   
