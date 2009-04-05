@@ -44,6 +44,8 @@
 				      :font "display-font")
 			      :extend ("EXTEND!" :foreground ".yellow" :background ".blue"
 				       :font "display-font")
+			      :ammo ("AMMO!" :foreground ".red" :background ".black"
+				       :font "display-font")
 			      :shield ("SHIELD +1" :foreground ".cyan" :background ".blue"
 				       :font "display-font")
 			      :warning ("WARNING!" :foreground ".yellow" :background ".red"
@@ -189,6 +191,47 @@
       (progn
 	[>>say :narrator *game-over-message*])))
 
+;;; Pulse particle
+
+(defcell pulse
+  (tile :initform "pulse")
+  (categories :initform '(:actor :target))
+  (hit-points :initform (make-stat :base 10 :min 0))
+  (clock :initform (+ 2 (random 4))))
+
+(define-method run pulse ()
+  (when (zerop <clock>)
+    [die self])
+  (decf <clock>)
+  (rlx:do-cells (cell [cells-at *active-world* <row> <column>])
+    (when (not [is-player cell])
+      [damage cell 5])))
+
+;;; Pulse wave cannon
+
+(defcell pulse-cannon 
+  (categories :initform '(:item :weapon :equipment))
+  (attack-power :initform (make-stat :base 10))
+  (attack-cost :initform (make-stat :base 6))
+  (accuracy :initform (make-stat :base 90))
+  (weight :initform 3000)
+  (equip-for :initform '(:left-bay))
+  (tile :initform "pulse-cannon"))
+
+(define-method activate pulse-cannon ()
+  (let* ((world *active-world*)
+	 (row [player-row world])
+	 (column [player-column world]))
+    (if (plusp [stat-value <equipper> :pulse-ammo])
+	(progn 
+	  [>>say :narrator "Activating pulse cannon."]
+	  (labels ((drop-pulse (r c)
+		     (prog1 nil 
+		       [drop-cell world (clone =pulse=) r c])))
+	    (trace-rectangle #'drop-pulse (- row 2) (- column 2)
+			     5 5 :fill)))
+	[>>say :narrator "Out of pulse ammo."])))
+
 ;;; Your ship.
 
 (defcell ship 
@@ -201,12 +244,13 @@
   (movement-cost :initform (make-stat :base 10))
   (max-items :initform (make-stat :base 2))
   (trail-length :initform (make-stat :base 12 :min 0))
+  (pulse-ammo :initform (make-stat :base 3 :min 0 :max 5))
   (invincibility-clock :initform 0)
   (stepping :initform t)
   (lives :initform (make-stat :min 0 :base 3 :max 3))
   (score :initform (make-stat :base 0))
   (categories :initform '(:actor :player :target :container :light-source))
-  (equipment-slots :initform '(:gun :trail))
+  (equipment-slots :initform '(:left-bay))
   (boost-clock :initform 0))
 
 (define-method initialize ship ()
@@ -224,6 +268,11 @@
 
 (define-method respawn ship ()
   nil)
+
+(define-method activate-pulse-cannon ship ()
+  (when (plusp [stat-value self :pulse-ammo])
+    [activate [equipment-slot self :left-bay]]
+    [stat-effect self :pulse-ammo -1]))
 
 (define-method move ship (direction)
   (when (not (<= <invincibility-clock> 0))
@@ -264,7 +313,8 @@
   
 (define-method loadout ship ()
   [make-inventory self]
-  [make-equipment self])
+  [make-equipment self]
+  [equip self [add-item self (clone =pulse-cannon=)]])
 
 (define-method step ship (stepper)
   (when (eq =asteroid= (object-parent stepper))
@@ -318,12 +368,27 @@
     [stat-effect stepper :score 2000]
     [die self]))
 
+;;; Extra ammo for pulse protector
+
+(defcell pulse-ammo 
+  (tile :initform "pulse-ammo"))
+
+(define-method step pulse-ammo (stepper)
+  (when [is-player stepper]
+    (play-sample "powerup")
+    [say *billboard* :ammo]
+    [>>say :narrator "Ammo +2!"]
+    [stat-effect stepper :pulse-ammo 2]
+    [stat-effect stepper :score 2000]
+    [die self]))
+
 ;;; Random powerup function
 
 (defun random-powerup ()
-  (clone (ecase (random 2)
+  (clone (ecase (random 3)
 	   (0 =diamond=)
-	   (1 =extender=))))
+	   (1 =pulse-ammo=)
+	   (2 =extender=))))
 
 ;;; Radiation graviceptors
 
@@ -493,20 +558,20 @@
   <stuck-to>)
 
 (define-method die asteroid ()
- (decf *asteroid-count*)
- (when (< *asteroid-count* 25 )
-   ;; drop more asteroids!!
-   [drop-random-asteroids *active-world* 70])
- ;;
- [>>say :narrator "You destroyed an asteroid!"]
- [say *billboard* :destroy]
- (play-sample "bleep")
- (when (< (random 3) 1) 
-   [drop self (random-powerup)])
- [stat-effect [get-player *active-world*] :score 120]
- (when <stuck-to>
-   [unstick <stuck-to> self])
- [parent>>die self])
+  (decf *asteroid-count*)
+  (when (< *asteroid-count* 25 )
+    ;; drop more asteroids!!
+    [drop-random-asteroids *active-world* 70])
+  ;;
+  [>>say :narrator "You destroyed an asteroid!"]
+  [say *billboard* :destroy]
+  (play-sample "bleep")
+  (when (< (random 3) 1)
+    [drop self (random-powerup)])
+  [stat-effect [get-player *active-world*] :score 120]
+  (when <stuck-to>
+    [unstick <stuck-to> self])
+  [parent>>die self])
 
 (define-method initialize asteroid (&key speed direction color)
   (incf *asteroid-count*)
@@ -536,14 +601,15 @@
   (when [in-category stepper :player]
     [damage stepper 1]
     [say *billboard* :hit]
-    [>>say :narrator "You took a hit!"])) 
+    [>>say :narrator "You took a hit!"]
+    [die self]))
 
 ;;; Polaris collects asteroids
 
 (defcell polaris
   (tile :initform "polaris")
   (asteroids :initform '())
-  (categories :initform '(:actor :obstacle))
+  (categories :initform '(:actor))
   (direction :initform (rlx:random-direction)))
 
 (define-method scan-neighborhood polaris ()
@@ -604,7 +670,7 @@
 ;;; The inescapable game grid.
 
 (define-prototype void-world (:parent rlx:=world=)
-  (width :initform 300)
+  (width :initform 200)
   (height :initform 46)
   (asteroid-count :initform 500)
   (polaris-count :initform 90)
@@ -616,7 +682,7 @@
   (declare (ignore parameters))
   (clon:with-field-values (height width) self
     [drop-plasma-space self]
-    [drop-random-asteroids self 70]
+    [drop-random-asteroids self <asteroid-count>]
     [drop-plasma-debris self]
     (dotimes (i <polaris-count>)
       [drop-cell self (clone =polaris=)
@@ -640,7 +706,7 @@
 
 (define-method drop-plasma-debris void-world ()
   (clon:with-field-values (height width) self
-    (let ((plasma (rlx:render-plasma height width :graininess 1))
+    (let ((plasma (rlx:render-plasma height width :graininess 0.4))
 	  (value nil))
       (dotimes (i (- height 10))
 	(dotimes (j (- width 10))
@@ -729,6 +795,7 @@
     ;;
     ("W" nil "wait .")
     ("SPACE" nil "respawn .")
+    ("ESCAPE" nil "activate-pulse-cannon .")
     ("Q" (:control) "quit .")))
 
 (defparameter *alternate-qwerty-keybindings*
@@ -769,6 +836,7 @@
     ("C" (:control) "fire :southeast .")
     ;;
     ("S" nil "wait .")
+    ("ESCAPE" nil "activate-pulse-cannon .")
     ("SPACE" nil "respawn .")
     ("Q" (:control) "quit .")))
 
@@ -817,6 +885,7 @@
     ;;
     ("S" nil "wait .")
     ("SPACE" nil "respawn .")
+    ("ESCAPE" nil "activate-pulse-cannon .")
     ("Q" (:control) "quit .")))
 
 (define-method install-keybindings blast-prompt ()
@@ -841,7 +910,8 @@
   [delete-all-lines self]
   (let* ((char <character>)
 	 (hits [stat-value char :hit-points])
-	 (lives [stat-value char :lives]))
+	 (lives [stat-value char :lives])
+	 (ammo [stat-value char :pulse-ammo]))
     [print self " HITS: "]
     (dotimes (i 5)
       [print self "  " 
@@ -858,6 +928,14 @@
 			     ".blue"
 			     ".gray20")]
       [space self])
+    [print self " AMMO: "]
+    (dotimes (i 6)
+      [print self "  " 
+	     :foreground ".yellow"
+	     :background (if (< i ammo)
+			     ".yellow"
+			     ".gray20")]
+     [space self])
     [print self "     SCORE: "]
     [print self (format nil "~D" [stat-value char :score])]
     [space self]
