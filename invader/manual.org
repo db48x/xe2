@@ -34,9 +34,20 @@ keymap.
 :  /|\ 
 : b j n
 
+** ALTERNATE QWERTY LAYOUT
 
-Alt-DIRECTION for melee attack with wrench, Control-DIRECTION to
-fire with an equipped gun.
+To change to the alternate qwerty layout, add the following to your
+~/.rlxrc:
+
+: (setf rlx:*user-keyboard-layout* :alternate-qwerty)
+
+This is more like PC first-person shooter games, and has sensible diagonals.
+
+: q w e
+:  \|/
+: a-.-d
+:  /|\ 
+: z x c
 
 ** DVORAK LAYOUT
 
