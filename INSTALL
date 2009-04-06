@@ -32,8 +32,20 @@ Installation and basic playing instructions are provided.
 
    ln -s ~/src/clon/clon.asd ~/.sbcl/systems
 
-5. The latest development version of LISPBUILDER-SDL is required. Use
-   Subversion to check out the source code:
+5a. Install some prerequisites for LISPBUILDER-SDL. This should be quick.
+    
+   (require :asdf)
+   (require :asdf-install)
+   (asdf-install:install :cffi)
+
+   If it asks about any GPG-KEY-CHECKS, press the appropriate listed
+   key to skip them.
+
+   Now install your GNU/Linux distribution's packages for libsdl,
+   libsdl-image, and libsdl-mixer.
+
+5b. The latest development version of LISPBUILDER-SDL is required. Use
+    Subversion to check out the source code:
 
    mkdir ~/src
    cd ~/src
