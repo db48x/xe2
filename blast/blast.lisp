@@ -56,8 +56,7 @@
 				     :font "display-font")
 			      :destroy ("DESTROY!" :foreground ".white" :background ".red"
 					:font "display-font") 
-			      :probe-kill ("DESTROY!" :foreground ".white" :background ".red"
-
+			      :probe-kill ("DESTROY!" :foreground ".white" :background ".forestgreen"
 					:font "display-font")
                              :sweep ("SWEEP!" :foreground ".yellow" :background ".forest green"
 				      :font "display-font")))
@@ -472,6 +471,10 @@
   (decf <clock>)
   (when (zerop <clock>)
     [die self]))
+
+(define-method damage radiation (points)
+  (declare (ignore points))
+  [die self])
 
 (define-method die radiation ()
   (when (> 1 (random 230))
@@ -1002,3 +1005,4 @@
     (install-widgets prompt status viewport narrator *billboard*)))
 
 (blast)
+
