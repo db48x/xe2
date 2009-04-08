@@ -1218,7 +1218,7 @@
     ("0" (:control) "drop-item 0 .")
     ("1" (:control) "drop-item 1 .")
     ("2" nil "activate-equipment :belt .")
-    ("Q" (:control) "quit .")))
+    ("P" (:control) "quit .")))
 
 ;; g c r
 ;;  \|/

@@ -77,7 +77,7 @@
 (defcell space 
   (tile :initform "space"))
 
-;;; Blurred  space background.
+;;; Colored space.
 
 (defcell space2
   (tile :initform "space2"))
@@ -260,6 +260,7 @@
 
 (define-method run ship ()
   [update-tile self]
+  [update-react-shield self]
   [update *status*])	       
 
 (define-method wait ship ()
@@ -273,10 +274,13 @@
     [activate [equipment-slot self :left-bay]]
     [stat-effect self :pulse-ammo -1]))
 
-(define-method move ship (direction)
+(define-method update-react-shield ship ()
   (when (not (<= <invincibility-clock> 0))
     (decf <invincibility-clock>)
-    [>>say :narrator "React shield up with ~D turns remaining." <invincibility-clock>])
+    [>>say :narrator "React shield up with ~D turns remaining." <invincibility-clock>]))
+
+(define-method move ship (direction)
+  [update-react-shield self]
   [drop self (clone =trail= 
 		    :direction direction 
 		    :clock [stat-value self :trail-length])]
@@ -722,7 +726,7 @@
   (clon:with-field-values (height width) self
     (let ((plasma (rlx:render-plasma height width :graininess 0.1))
 	  (value nil))
-      (dotimes (i height)
+`      (dotimes (i height)
 	(dotimes (j width)
 	  (setf value (aref plasma i j))
 	  [drop-cell self (clone (if (minusp value)
@@ -841,7 +845,7 @@
     ("S" nil "wait .")
     ("ESCAPE" nil "activate-pulse-cannon .")
     ("SPACE" nil "respawn .")
-    ("Q" (:control) "quit .")))
+    ("P" (:control) "quit .")))
 
 ;; g c r
 ;;  \|/

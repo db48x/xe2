@@ -280,6 +280,7 @@ in a roguelike until the user has pressed a key."
 	  (phase-number <phase-number>)
 	  (player <player>)
 	  (grid <grid>))
+      [run player]
       (dotimes (i <height>)
 	(dotimes (j <width>)
 	  (setf cells (aref grid i j))
