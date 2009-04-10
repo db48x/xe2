@@ -961,7 +961,7 @@
 ;;  (rlx:set-frame-rate 30)
   (rlx:set-timer-interval 20)
   (rlx:enable-timer)
-  (rlx:enable-held-keys 0 15)
+  (rlx:enable-held-keys 1 15)
   (setf *billboard* (clone =billboard=))
   (let* ((prompt (clone =blast-prompt=))
 	 (world (clone =void-world=))
