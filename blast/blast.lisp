@@ -137,8 +137,10 @@
     [die self]))
 
 (define-method step trail (stepper)
-  [drop self (clone =explosion=)]	       
-  [damage stepper 1])
+  ;; don't damage player
+  (unless [is-player stepper]
+    [drop self (clone =explosion=)]	       
+    [damage stepper 1]))
 
 ;;; Death icon.
 
