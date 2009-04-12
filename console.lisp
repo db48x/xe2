@@ -255,7 +255,6 @@ at the time the cell method is run.")
 (defun enable-held-keys (delay interval)
   (let ((delay-milliseconds (truncate (* delay (/ 1000.0 *frame-rate*))))
 	(interval-milliseconds (truncate (* interval (/ 1000.0 *frame-rate*)))))
-    (message "~A" (list delay-milliseconds interval-milliseconds))
     (sdl:enable-key-repeat delay-milliseconds interval-milliseconds)))
 
 (defun disable-held-keys ()

@@ -91,7 +91,7 @@
 
 ;;; An explosion.
 
-(define-prototype explosion (:parent rlx:=cell=)
+(defcell explosion 
   (name :initform "Explosion")
   (categories :initform '(:actor))
   (tile :initform "explosion")
@@ -641,6 +641,9 @@
 
 (define-method run polaris ()
   [scan-neighborhood self]	       
+  ;; reset direction for stuck mines
+  (when (eq <direction> :here)
+    (setf <direction> :north))
   (let ((direction <direction>))	       
     (labels ((obstructed (asteroid)
 	       [obstacle-in-direction-p *active-world*
@@ -726,7 +729,7 @@
   (clon:with-field-values (height width) self
     (let ((plasma (rlx:render-plasma height width :graininess 0.1))
 	  (value nil))
-`      (dotimes (i height)
+      (dotimes (i height)
 	(dotimes (j width)
 	  (setf value (aref plasma i j))
 	  [drop-cell self (clone (if (minusp value)
@@ -902,6 +905,7 @@
 		(:dvorak *dvorak-keybindings*))))
     (dolist (k keys)
       (apply #'bind-key-to-prompt-insertion self k)))
+  ;; we also want to respond to timer events. this is how. 
   [define-key self nil '(:timer) (lambda ()
 				   [run-cpu-phase *active-world* :timer])])
 

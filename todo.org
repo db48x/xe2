@@ -1,0 +1,81 @@
+#+SEQ_TODO: TODO FEATURE TUNE BUG NEXT PROGRESS WAITING DOC | DONE
+#+TAGS: blast invader engine clon win32
+
+* Tasks
+** FEATURE [#A] drop bombs and trigger			  :blast:
+** FEATURE [#A] transparent bomb			  :blast:
+** FEATURE [#A] destructible, thinner/different colored enemy trails :blast:
+** FEATURE [#A] smarter enemies that talk	  :blast:invader:
+** BUG [#A] overlapping pickups don't erase	  :invader:win32:
+** FEATURE [#A] Pak text file type			 :engine:
+** FEATURE [#A] Better level generation ... corridors 	:invader:
+** BUG [#A] fix some pickups not dying			:invader:
+** FEATURE [#A] ankh lock to next level			:invader:
+** BUG [#A] not attack corridor				:invader:
+** FEATURE [#A] numpad support 				 :engine:
+** FEATURE [#A] pak :startup type			 :engine:
+** FEATURE [#A] pak autoload lisp in order		 :engine:
+** FEATURE [#A] pathfinding				 :engine:
+** BUG [#A] prevent corner clumping			  :blast:
+** TUNE [#A] reread cells.lisp				 :engine:
+** BUG [#A] Fix bresenham's 
+** BUG [#A] Fix lighting 
+** DOC [#A] better error messages throughout
+** DOC [#A] better prompt API documentation 
+** FEATURE [#A] cell-mode for widget layout
+** TODO [#A] win! defeat all robots (or find the exit?)
+** BUG [#B] silly death messages in Blast		  :blast:
+** FEATURE [#B] security cameras			:invader:
+** BUG [#B] crash on death			  :invader:win32:
+** BUG [#B] Fix die method to handle contained/equipped objects :engine:
+** FEATURE [#B] make gun and shield more useful		:invader:
+** FEATURE [#B] simpler setup with keywords for widget arrangement :engine:
+** BUG [#B] stop having to position / hide prompts	 :engine:
+** FEATURE [#B] 1-pixel automap				:invader:
+** BUG [#B] scrolling anomalies when near edges		 :engine:
+** FEATURE [#B] airlocks and oxygenated safe rooms with stored items
+** FEATURE [#B] better Dungeon generation: connected rooms w/or/w/o corridors a la meritous
+** FEATURE [#B] console.lisp: animation events (somehow!)
+** FEATURE [#B] enemies avoid debris?
+** BUG [#B] fix oxygen death duplicate body problem
+** FEATURE [#B] inventory throw?
+** FEATURE [#B] powerups inside rooms
+** TUNE [#B] too many crewmembers?
+** TUNE [#B] vary pallet size 10-18 randomly as levels change... open levels are hard
+** DOC [#B] document install-keybindings vs install-default-keybindings << remove requirement for 2nd?/
+** FEATURE [#B] enemy generators 
+** FEATURE [#B] ditch having to run (yourmod) at the end of yourmod.lisp
+** FEATURE [#B] improve intro screen with self-explanatory description
+** FEATURE [#B] system log levels
+** DOC [#B] Better error messages for everything (incl. macros) :clon:
+*** TODO cannot forward
+*** TODO create new widget to send messages to
+*** TODO no such field
+*** TODO sending to nil
+*** TODO start with prompt as VERY first widget
+*** TODO thoroughly explain messages
+** FEATURE [#C] graph bar status display with danger coding :engine:
+** TODO [#C] CLON duplication forwarding: tie status widget update events to message types in queue? 
+** FEATURE [#C] custom bitmap font or free ttf font
+
+* TODO paper dungeon
+
+: <dto> basically i want large tiles with abstract smiley / frowny face
+:       people. i want it to be a sort of kids game. a simple dungeon hack, that
+:       will be the REAL example rlx game. Invader Tactics has taken on a life
+:       of its own and doesn't serve as a simple code example  [16:05]
+: <dto> i want there to be some block pushing
+: <dto> some goblin smashing
+
+** TODO blocks game with larger 24x24 tiles (or maybe smaller??)
+** TODO large rooms full of growing crystalline structures
+** TODO grabbing triangles and pushing them onto bioform squares with corresponding cancel buttons
+** TODO zoom level: color synth resource is an image of a particular size and color
+** TODO canvas widget
+
+* TODO gravity platformer? 
+* DONE realtime/timer events? 
+CLOSED: [2009-04-08 Wed 17:03]
+* TODO combat tank game where rotating the turret takes time? thrust?
+* TODO drop walls and build a fortress? 
+* TODO collisions knock out trail piece. big ones can break through
