@@ -1040,10 +1040,7 @@
 			     ".gray20")]
      [space self])
     [print self "     SCORE: "]
-    [print self (format nil "~D" [stat-value char :score])]
-    [space self]
-    [println self (format nil "    REACT SHIELD TIME: ~D " 
-			  (field-value :invincibility-clock char))]))
+    [println self (format nil "~D" [stat-value char :score])]))
     
 
 (defvar *status*)
