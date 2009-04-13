@@ -1,6 +1,8 @@
 #+SEQ_TODO: TODO FEATURE TUNE BUG NEXT PROGRESS WAITING DOC | DONE
 #+TAGS: blast invader engine clon win32
 
+* OTHER: Mini org-publish tutorial
+
 * Tasks
 ** FEATURE [#A] drop bombs and trigger			  :blast:
 ** FEATURE [#A] transparent bomb			  :blast:
@@ -16,7 +18,6 @@
 ** FEATURE [#A] pak :startup type			 :engine:
 ** FEATURE [#A] pak autoload lisp in order		 :engine:
 ** FEATURE [#A] pathfinding				 :engine:
-** BUG [#A] prevent corner clumping			  :blast:
 ** TUNE [#A] reread cells.lisp				 :engine:
 ** BUG [#A] Fix bresenham's 
 ** BUG [#A] Fix lighting 

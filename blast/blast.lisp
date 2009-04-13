@@ -112,6 +112,58 @@
 		    [>>damage (aref cells x) <damage-per-turn>]
 		    (decf x)))))))
 
+;;; A bomb with countdown display.
+
+(defvar *bomb-tiles* '("bomb-1" "bomb-2" "bomb-3" "bomb-4"))
+
+(defun bomb-tile (n)
+  (nth (- n 1) *bomb-tiles*))
+
+(defcell bomb 
+  (categories :initform '(:actor))
+  (clock :initform 4)
+  (speed :initform (make-stat :base 10))
+  (tile :initform (bomb-tile 4)))
+
+(define-method run bomb () 
+  (clon:with-fields (clock) self	       
+    [expend-action-points self 10]		    
+    (setf <tile> (bomb-tile clock))
+    (decf clock)
+    (when (zerop clock) 
+      [explode self])))
+
+(define-method explode bomb ()  
+  (labels ((boom (r c &optional (probability 50))
+	     (prog1 nil
+	       (when (and (< (random 100) probability)
+			  [in-bounds-p *active-world* r c])
+		 [drop-cell *active-world* (clone =explosion=) r c :no-collisions nil]))))
+    (dolist (dir rlx:*compass-directions*)
+      (multiple-value-bind (r c)
+	  (step-in-direction <row> <column> dir)
+	(boom r c 100)))
+    ;; randomly sprinkle some fire around edges
+    (trace-rectangle #'boom 
+		     (- <row> 2) 
+		     (- <column> 2) 
+		     5 5)
+    [die self]))
+
+;;; Bomb bay cannon.
+
+(defcell bomb-cannon
+  (categories :initform '(:item :weapon :equipment))
+  (weight :initform 3000)
+  (equip-for :initform '(:right-bay)))
+
+(define-method activate bomb-cannon ()
+  (clon:with-field-values (last-direction row column) <equipper>
+    (multiple-value-bind (r c) 
+	(step-in-direction row column 
+			   (opposite-direction last-direction))
+      [drop-cell *active-world* (clone =bomb=) r c])))
+
 ;;; Your explosive vapor trail. 
 
 (defcell trail 
@@ -238,6 +290,7 @@
 (defcell ship 
   (tile :initform "player-ship-north-shield")
   (name :initform "Olvac 2")
+  (last-direction :initform :here)
   (speed :initform (make-stat :base 10))
   (strength :initform (make-stat :base 10))
   (defense :initform (make-stat :base 10))
@@ -246,12 +299,13 @@
   (max-items :initform (make-stat :base 2))
   (trail-length :initform (make-stat :base 12 :min 0))
   (pulse-ammo :initform (make-stat :base 3 :min 0 :max 5))
+  (bomb-ammo :initform (make-stat :base 3 :min 0 :max 5))
   (invincibility-clock :initform 0)
   (stepping :initform t)
   (lives :initform (make-stat :min 0 :base 3 :max 3))
   (score :initform (make-stat :base 0))
   (categories :initform '(:actor :player :target :container :light-source))
-  (equipment-slots :initform '(:left-bay))
+  (equipment-slots :initform '(:left-bay :right-bay))
   (boost-clock :initform 0))
 
 (define-method initialize ship ()
@@ -276,12 +330,18 @@
     [activate [equipment-slot self :left-bay]]
     [stat-effect self :pulse-ammo -1]))
 
+(define-method activate-bomb-cannon ship ()
+  (when (plusp [stat-value self :bomb-ammo])
+    [activate [equipment-slot self :right-bay]]
+    [stat-effect self :bomb-ammo -1]))
+
 (define-method update-react-shield ship ()
   (when (not (<= <invincibility-clock> 0))
     (decf <invincibility-clock>)
     [>>say :narrator "React shield up with ~D turns remaining." <invincibility-clock>]))
 
 (define-method move ship (direction)
+  (setf <last-direction> direction)
   [update-react-shield self]
   [drop self (clone =trail= 
 		    :direction direction 
@@ -319,7 +379,8 @@
 (define-method loadout ship ()
   [make-inventory self]
   [make-equipment self]
-  [equip self [add-item self (clone =pulse-cannon=)]])
+  [equip self [add-item self (clone =pulse-cannon=)]]
+  [equip self [add-item self (clone =bomb-cannon=)]])
 
 (define-method step ship (stepper)
   (when (eq =asteroid= (object-parent stepper))
@@ -684,9 +745,9 @@
 (define-prototype void-world (:parent rlx:=world=)
   (width :initform 200)
   (height :initform 46)
-  (asteroid-count :initform 500)
-  (polaris-count :initform 90)
-  (probe-count :initform 40)
+  (asteroid-count :initform 200)
+  (polaris-count :initform 50)
+  (probe-count :initform 20)
   (room-count :initform 20)
   (ambient-light :initform :total))
 
@@ -808,6 +869,7 @@
     ("W" nil "wait .")
     ("SPACE" nil "respawn .")
     ("ESCAPE" nil "activate-pulse-cannon .")
+    ("1" nil "activate-bomb-cannon .")
     ("Q" (:control) "quit .")))
 
 (defparameter *alternate-qwerty-keybindings*

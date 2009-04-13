@@ -8,6 +8,12 @@
  (:name "asteroid-brown" :type :image :file "asteroid-brown-north.png")
  (:name "asteroid-red" :type :image :file "asteroid-red-north.png")
  (:name "star" :type :image :file "star.png")
+
+ (:name "bomb-1" :type :image :file "bomb-1.png")
+ (:name "bomb-2" :type :image :file "bomb-2.png")
+ (:name "bomb-3" :type :image :file "bomb-3.png")
+ (:name "bomb-4" :type :image :file "bomb-4.png")
+
  (:name "skull" :type :image :file "skull.png")
  (:name "polaris" :type :image :file "polaris.png")
  (:name "wall" :type :image :file "wall.png")
