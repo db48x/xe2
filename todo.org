@@ -4,9 +4,10 @@
 * OTHER: Mini org-publish tutorial
 
 * Tasks
-** FEATURE [#A] drop bombs and trigger			  :blast:
+** DONE [#A] drop bombs and trigger			  :blast:
+CLOSED: [2009-04-13 Mon 11:55]
 ** FEATURE [#A] transparent bomb			  :blast:
-** FEATURE [#A] destructible, thinner/different colored enemy trails :blast:
+** FEATURE [#A] destructible enemy trails :blast:
 ** FEATURE [#A] smarter enemies that talk	  :blast:invader:
 ** BUG [#A] overlapping pickups don't erase	  :invader:win32:
 ** FEATURE [#A] Pak text file type			 :engine:

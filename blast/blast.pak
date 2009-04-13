@@ -13,6 +13,7 @@
  (:name "bomb-2" :type :image :file "bomb-2.png")
  (:name "bomb-3" :type :image :file "bomb-3.png")
  (:name "bomb-4" :type :image :file "bomb-4.png")
+ (:name "bomb-ammo" :type :image :file "bomb-ammo.png")
 
  (:name "skull" :type :image :file "skull.png")
  (:name "polaris" :type :image :file "polaris.png")

@@ -44,7 +44,9 @@
 				      :font "display-font")
 			      :extend ("EXTEND!" :foreground ".yellow" :background ".blue"
 				       :font "display-font")
-			      :ammo ("AMMO!" :foreground ".red" :background ".black"
+			      :pulse-ammo ("PULSE AMMO!" :foreground ".red" :background ".black"
+				       :font "display-font")
+			      :bomb-ammo ("PULSE AMMO!" :foreground ".red" :background ".black"
 				       :font "display-font")
 			      :shield ("SHIELD +1" :foreground ".cyan" :background ".blue"
 				       :font "display-font")
@@ -158,6 +160,7 @@
   (equip-for :initform '(:right-bay)))
 
 (define-method activate bomb-cannon ()
+  ;; leave bomb behind ship
   (clon:with-field-values (last-direction row column) <equipper>
     (multiple-value-bind (r c) 
 	(step-in-direction row column 
@@ -260,7 +263,7 @@
     (when (not [is-player cell])
       [damage cell 5])))
 
-;;; Pulse wave cannon
+;;; Pulse wave cannon destroys anything near you.
 
 (defcell pulse-cannon 
   (categories :initform '(:item :weapon :equipment))
@@ -442,19 +445,34 @@
 (define-method step pulse-ammo (stepper)
   (when [is-player stepper]
     (play-sample "powerup")
-    [say *billboard* :ammo]
-    [>>say :narrator "Ammo +2!"]
+    [say *billboard* :pulse-ammo]
+    [>>say :narrator "PULSE +2!"]
     [stat-effect stepper :pulse-ammo 2]
+    [stat-effect stepper :score 2000]
+    [die self]))
+
+;;; Extra bomb ammo
+
+(defcell bomb-ammo
+  (tile :initform "bomb-ammo"))
+
+(define-method step bomb-ammo (stepper)
+  (when [is-player stepper]
+    (play-sample "powerup")
+    [say *billboard* :bomb-ammo]
+    [>>say :narrator "BOMB +2!"]
+    [stat-effect stepper :bomb-ammo 2]
     [stat-effect stepper :score 2000]
     [die self]))
 
 ;;; Random powerup function
 
 (defun random-powerup ()
-  (clone (ecase (random 3)
+  (clone (ecase (random 4)
 	   (0 =diamond=)
 	   (1 =pulse-ammo=)
-	   (2 =extender=))))
+	   (2 =extender=)
+	   (3 =bomb-ammo=))))
 
 ;;; Radiation graviceptors
 
