@@ -44,9 +44,9 @@
 				      :font "display-font")
 			      :extend ("EXTEND!" :foreground ".yellow" :background ".blue"
 				       :font "display-font")
-			      :pulse-ammo ("PULSE AMMO!" :foreground ".red" :background ".black"
+			      :pulse-ammo ("PULSE +2" :foreground ".red" :background ".black"
 				       :font "display-font")
-			      :bomb-ammo ("PULSE AMMO!" :foreground ".red" :background ".black"
+			      :bomb-ammo ("BOMB +2" :foreground ".red" :background ".black"
 				       :font "display-font")
 			      :shield ("SHIELD +1" :foreground ".cyan" :background ".blue"
 				       :font "display-font")
@@ -129,11 +129,12 @@
 
 (define-method run bomb () 
   (clon:with-fields (clock) self	       
-    [expend-action-points self 10]		    
-    (setf <tile> (bomb-tile clock))
-    (decf clock)
-    (when (zerop clock) 
-      [explode self])))
+    (if (zerop clock) 
+	[explode self]
+	(progn 
+	  [expend-action-points self 10]		    
+	  (setf <tile> (bomb-tile clock))
+	  (decf clock)))))
 
 (define-method explode bomb ()  
   (labels ((boom (r c &optional (probability 50))
@@ -1004,10 +1005,11 @@
   (let* ((char <character>)
 	 (hits [stat-value char :hit-points])
 	 (lives [stat-value char :lives])
-	 (ammo [stat-value char :pulse-ammo]))
+	 (pulse-ammo [stat-value char :pulse-ammo])
+	 (bomb-ammo [stat-value char :bomb-ammo]))
     [print self " HITS: "]
     (dotimes (i 5)
-      [print self "  " 
+      [print self " " 
 	     :foreground ".yellow"
 	     :background (if (< i hits)
 			     ".red"
@@ -1015,18 +1017,26 @@
       [space self])
     [print self " LIVES: "]
     (dotimes (i 3)
-      [print self "  " 
+      [print self " " 
 	     :foreground ".yellow"
 	     :background (if (< i lives)
 			     ".blue"
 			     ".gray20")]
       [space self])
-    [print self " AMMO: "]
+    [print self " PULSE: "]
     (dotimes (i 6)
-      [print self "  " 
+      [print self " " 
 	     :foreground ".yellow"
-	     :background (if (< i ammo)
+	     :background (if (< i pulse-ammo)
 			     ".yellow"
+			     ".gray20")]
+     [space self])
+    [print self " BOMBS: "]
+    (dotimes (i 6)
+      [print self " " 
+	     :foreground ".red"
+	     :background (if (< i bomb-ammo)
+			     ".green"
 			     ".gray20")]
      [space self])
     [print self "     SCORE: "]
