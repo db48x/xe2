@@ -62,6 +62,7 @@
  (:name "go" :type :sample :file "go.wav" :properties (:volume 30))
  (:name "aagh" :type :sample :file "aagh.wav" :properties (:volume 20))
  (:name "warn" :type :sample :file "warn.wav" :properties (:volume 30))
+ (:name "crunch" :type :sample :file "crunch.wav" :properties (:volume 10))
  (:name "death" :type :sample :file "death.wav" :properties (:volume 50))
  (:name "death-alien" :type :sample :file "death-alien.wav" :properties (:volume 30))
  (:name "powerup" :type :sample :file "powerup.wav" :properties (:volume 40))

@@ -105,6 +105,7 @@
   (if (zerop <clock>)
       [die self]
       (progn
+	(play-sample "crunch")
 	(decf <clock>)
 	[expend-action-points self 10]
 	(let* ((cells [cells-at *active-world* <row> <column>])
@@ -613,7 +614,7 @@
   [say *billboard* :destroy]
   [parent>>die self])
 
-;;; Magnetic space debris can damage you or slow movement
+;;; Magnetic space debris will slow movement
 
 (defcell debris 
 ;  (categories :initform '(:obstacle))
@@ -621,11 +622,8 @@
 
 (define-method step debris (stepper)
   (when [is-player stepper]	
-    (if (> 1 (random 80))
-	(progn [>>say :narrator "Your ship is damaged by the space debris!"]
-	       [damage stepper 1])
-	(progn [>>say :narrator "Your movement is slowed by the space debris."]
-	       [expend-action-points stepper 5]))))
+    [>>say :narrator "Your movement is slowed by the space debris."]
+    [expend-action-points stepper 5]))
 
 (define-method damage debris (points)
   (declare (ignore points))

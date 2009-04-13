@@ -6,8 +6,8 @@
 * Tasks
 ** DONE [#A] drop bombs and trigger			  :blast:
 CLOSED: [2009-04-13 Mon 11:55]
-** FEATURE [#A] transparent bomb			  :blast:
-** FEATURE [#A] destructible enemy trails :blast:
+** DONE [#A] destructible enemy trails			  :blast:
+CLOSED: [2009-04-13 Mon 12:11]
 ** FEATURE [#A] smarter enemies that talk	  :blast:invader:
 ** BUG [#A] overlapping pickups don't erase	  :invader:win32:
 ** FEATURE [#A] Pak text file type			 :engine:
