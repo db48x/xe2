@@ -1,13 +1,18 @@
 #+SEQ_TODO: TODO FEATURE TUNE BUG NEXT PROGRESS WAITING DOC | DONE
 #+TAGS: blast invader engine clon win32
 
-* OTHER: Mini org-publish tutorial
+http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
-** DONE [#A] drop bombs and trigger			  :blast:
-CLOSED: [2009-04-13 Mon 11:55]
-** DONE [#A] destructible enemy trails			  :blast:
-CLOSED: [2009-04-13 Mon 12:11]
+** FEATURE port pathfinding
+** FEATURE port lighting
+** FEATURE cell environment sensors?
+** BUG cannot load resource "space" when no :tile ? 
+** BUG bad clon error message (forward not found)
+** BUG annoying music/ change to ambient/softerbeats 	  :blast:
+** BUG [#A] Fix rlx:find-all-modules and standard.lisp
+** BUG [#B] Don't hit own bullets 			:invader:
+** BUG [#B] No damage messages when your bullets hit them :invader:
 ** FEATURE [#A] smarter enemies that talk	  :blast:invader:
 ** BUG [#A] overlapping pickups don't erase	  :invader:win32:
 ** FEATURE [#A] Pak text file type			 :engine:
