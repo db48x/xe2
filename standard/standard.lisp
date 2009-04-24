@@ -87,14 +87,14 @@
 		    (apply #'vector quit
 			   (mapcar #'(lambda (m)
 				       (clone =module-launcher= m)))
-				   modules))]
+				   modules)]
     ;; set up prompt
     [resize prompt :height 30 :width 400]
     [move prompt :x 0 :y 0]
     [hide prompt]
     [set-receiver prompt browser]
     ;; go!
-    (install-widgets (list splash prompt browser))))
+    (install-widgets splash prompt browser)))
     
 (defun rlx-standard ()
   (setf rlx:*screen-height* 600)

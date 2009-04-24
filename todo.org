@@ -5,6 +5,8 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 ** FEATURE port pathfinding
+*** TODO Read pathfinding code
+*** TODO Separate heap structure (pool.lisp?)
 ** FEATURE port lighting
 ** FEATURE cell environment sensors?
 ** BUG cannot load resource "space" when no :tile ? 

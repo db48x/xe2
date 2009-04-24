@@ -490,7 +490,8 @@ name MODULE-NAME. Returns the pathname if found, otherwise nil."
 					    dir) (list module-name))
 				   :defaults dir))
       when path return path)
-   (error "Cannot find module ~s. You must set the variable RLX:*MODULE-DIRECTORIES* in the configuration file ~~/.rlxrc" module-name)))
+   (error "Cannot find module ~s. You must set the variable RLX:*MODULE-DIRECTORIES* in the configuration file ~~/.rlxrc"
+   module-name)))
 
 (defun find-module-file (module-name file)
   "Make a pathname for FILE within the module MODULE-NAME."
