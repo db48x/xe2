@@ -20,18 +20,18 @@
 
 ;;; Commentary:
 
-;; This file contains unported Emacs Lisp code and will not compile.
-
-;;; Code:
-
 ;; What follows is an implementation of the well-known A* pathfinding
 ;; algorithm on a rectangular grid.
 
 ;; http://en.wikipedia.org/wiki/A-star_search_algorithm
 
+;;; Code:
+
+(in-package :rlx)
+
 ;; The nodes are implemented as structures with the following slots: 
 
-(defstruct rlx-node 
+(defstruct node 
   row 
   column
   parent ; previous node along generated path
@@ -47,17 +47,17 @@
 ;; The following routines maintain the open and closed sets. We
 ;; use a minheap to store the open set.
 
-(defun rlx-open-node (world node)
-  (let* ((path-heap-end (if (null (rlx-world-path-heap-end world))
-			    (setf (rlx-world-path-heap-end world) 1)
-			  (incf (rlx-world-path-heap-end world))))
-	 (path-heap (rlx-world-path-heap world))
+(defun open-node (world node)
+  (let* ((path-heap-end (if (null (world-path-heap-end world))
+			    (setf (world-path-heap-end world) 1)
+			  (incf (world-path-heap-end world))))
+	 (path-heap (world-path-heap world))
  	 (ptr path-heap-end)
 	 (parent nil)
 	 (finished nil))
     ;;
     ;; make it easy to check whether node is open
-    (setf (rlx-node-open node) (rlx-world-path-turn-number world))
+    (setf (node-open node) (world-path-turn-number world))
     ;;
     ;; add node to end of heap 
     (setf (aref path-heap path-heap-end) node)
@@ -66,7 +66,7 @@
     (while (and (not finished) (< 1 ptr))
       (setf parent (/ ptr 2))
       ;; should it rise? 
-      (if (< (rlx-node-F node) (rlx-node-F (aref path-heap parent)))
+      (if (< (node-F node) (node-F (aref path-heap parent)))
 	  ;;
 	  ;; yes. swap parent and node
 	  (progn 
@@ -81,19 +81,19 @@
     (if (and (not finished) (equal 1 ptr))
 	(setf (aref path-heap 1) node))))
 
-(defun rlx-close-node (world)
-  (let* ((path-heap (rlx-world-path-heap world))
+(defun close-node (world)
+  (let* ((path-heap (world-path-heap world))
 	 ;; save root of heap to return to caller
 	 (node (aref path-heap 1))
 	 (last nil)
-	 (path-heap-end (rlx-world-path-heap-end world))
+	 (path-heap-end (world-path-heap-end world))
 	 (ptr 1)
 	 (left 2)
 	 (right 3)
 	 (finished nil))
     ;; is there only one node?
     (if (equal 1 path-heap-end)
-	(setf (rlx-world-path-heap-end world) nil)
+	(setf (world-path-heap-end world) nil)
       (if (null path-heap-end)
 	  nil
 	;;
@@ -102,19 +102,19 @@
 	(setf (aref path-heap 1) last)
 	;; 
 	;; shrink heap
-	(decf (rlx-world-path-heap-end world))
+	(decf (world-path-heap-end world))
 	(decf path-heap-end)
 	;;
-	(setf (rlx-node-closed node) (rlx-world-path-turn-number world))
+	(setf (node-closed node) (world-path-turn-number world))
 	;;
 	;; figure out where former last element should go
 	;;
 	(while (and (not finished) (>= path-heap-end right))
-;	  (message "HEAPING /// %s" (rlx-print-heap path-heap path-heap-end))
+;	  (message "HEAPING /// %s" (print-heap path-heap path-heap-end))
 	  ;;
 	  ;; does it need to sink? 
-	  (if (and (< (rlx-node-F last) (rlx-node-F (aref path-heap left)))
-		   (< (rlx-node-F last) (rlx-node-F (aref path-heap right))))
+	  (if (and (< (node-F last) (node-F (aref path-heap left)))
+		   (< (node-F last) (node-F (aref path-heap right))))
 	      ;;
 	      ;; no. we're done
 	      (progn 
@@ -122,8 +122,8 @@
 		(setf (aref path-heap ptr) last))
 	    ;;
 	    ;; does it need to sink rightward?
-	    (if (>= (rlx-node-F (aref path-heap left)) 
-		    (rlx-node-F (aref path-heap right)))
+	    (if (>= (node-F (aref path-heap left)) 
+		    (node-F (aref path-heap right)))
 		;;
 		;; yes
 		(progn
@@ -138,8 +138,8 @@
 	;;
 	;; 
 	(if (and (equal left path-heap-end)
-		 (> (rlx-node-F last)
-		    (rlx-node-F (aref path-heap left))))
+		 (> (node-F last)
+		    (node-F (aref path-heap left))))
 	    (setf ptr left))))
     ;;
     ;; save former last element in its new place
@@ -148,44 +148,44 @@
 
 ;; The ordinary distance algorithm is used to score nodes.
     
-(defun rlx-score-node (world node path-turn-number new-parent-node goal-row goal-column)
+(defun score-node (world node path-turn-number new-parent-node goal-row goal-column)
   "Update scores for NODE. Update heap position if necessary."
-  (let* ((direction (rlx-direction-to (rlx-node-row new-parent-node)
-				      (rlx-node-column new-parent-node)
-				      (rlx-node-row node)
-				      (rlx-node-column node)))
-	 (G (+ 1 (rlx-node-G new-parent-node)))
+  (let* ((direction (direction-to (node-row new-parent-node)
+				      (node-column new-parent-node)
+				      (node-row node)
+				      (node-column node)))
+	 (G (+ 1 (node-G new-parent-node)))
 	       
- 	 (H (* (max (abs (- (rlx-node-row node) goal-row))
-		    (abs (- (rlx-node-column node) goal-column)))
+ 	 (H (* (max (abs (- (node-row node) goal-row))
+		    (abs (- (node-column node) goal-column)))
 	       1.001))
 	 (F (+ G H)))
     ;; 
     ;; is this a new node, i.e. not on the open list? 
-    (if (not (equal path-turn-number (rlx-node-open node)))
+    (if (not (equal path-turn-number (node-open node)))
 	;;
 	;; yes, update its scores and parent
 	(progn 
-	  (setf (rlx-node-G node) G)
-	  (setf (rlx-node-H node) H)
-	  (setf (rlx-node-F node) F)
-	  (setf (rlx-node-parent node) new-parent-node))
+	  (setf (node-G node) G)
+	  (setf (node-H node) H)
+	  (setf (node-F node) F)
+	  (setf (node-parent node) new-parent-node))
       ;;
       ;; no, it's already open. is the path through NEW-PARENT-NODE
       ;; better than through the old parent?
-      (if (and (rlx-node-G node)
-	       (< G (rlx-node-G node)))
+      (if (and (node-G node)
+	       (< G (node-G node)))
 	  ;;
 	  ;; yes. update scores and re-heap.
-	  (let ((heap (rlx-world-path-heap world))
-		(heap-end (rlx-world-path-heap-end world))
+	  (let ((heap (world-path-heap world))
+		(heap-end (world-path-heap-end world))
 		(ptr 1)
 		(par nil)
 		(finished nil))
-	    (setf (rlx-node-G node) G)
-	    (setf (rlx-node-H node) H)
-	    (setf (rlx-node-F node) F)
-	    (setf (rlx-node-parent node) new-parent-node)
+	    (setf (node-G node) G)
+	    (setf (node-H node) H)
+	    (setf (node-F node) F)
+	    (setf (node-parent node) new-parent-node)
 	    ;;
 	    (message "Better score found.")
 	    ;; 
@@ -200,7 +200,7 @@
 		  (setf par (/ ptr 2))
 		  ;;
 		  ;; should it rise? 
-		  (if (< (rlx-node-F node) (rlx-node-F (aref heap par)))
+		  (if (< (node-F node) (node-F (aref heap par)))
 		      ;;
 		      ;; yes. swap it with its parent
 		      (progn
@@ -219,55 +219,55 @@
 	      (incf ptr)))
 	;;
 	;; new score is not better. do nothing.
-	;(setf (rlx-node-parent node) new-parent-node)
+	;(setf (node-parent node) new-parent-node)
 	))))
 	      
-(defun rlx-node-successors (world node path-turn-number goal-row goal-column)
+(defun node-successors (world node path-turn-number goal-row goal-column)
   (delq nil 
 	(mapcar 
 	 (lambda (direction)
-	   (let* ((grid (rlx-world-grid world))
-		  (path-map (rlx-world-path-map world))
-		  (new-G (+ 1 (rlx-node-G node)))
-		  (step (rlx-step-in-direction 
-			(rlx-node-row node)
-			(rlx-node-column node)
+	   (let* ((grid (world-grid world))
+		  (path-map (world-path-map world))
+		  (new-G (+ 1 (node-G node)))
+		  (step (step-in-direction 
+			(node-row node)
+			(node-column node)
 			direction))
 		  (r (first step))
 		  (c (second step))
 		  (successor nil))
 	     ;; 
-	     (if (rlx-bounds-check grid r c)
+	     (if (bounds-check grid r c)
 		 (progn 
-		   (setf successor (rlx-grid-get path-map r c))
+		   (setf successor (grid-get path-map r c))
 		   
 		   (if (or 
 			;; always allow the goal square even when it's an obstacle.
 			(and (equal r goal-row) (equal c goal-column))
 			;; ignore non-walkable squares and closed squares,
-			(and (not (rlx-first-in-category (rlx-grid-get grid r c)
+			(and (not (first-in-category (grid-get grid r c)
 							 :obstacle))
-			     (not (equal path-turn-number (rlx-node-closed successor)))))
+			     (not (equal path-turn-number (node-closed successor)))))
 		       ;; if successor is open and existing path is better
 		       ;; or as good as new path, discard the successor
 		       ;; if successor is not open, proceed 
-		       (if (equal path-turn-number (rlx-node-open successor))
-			   (if (< new-G (rlx-node-G successor))
+		       (if (equal path-turn-number (node-open successor))
+			   (if (< new-G (node-G successor))
 			       successor
 			     nil)
 			 successor)
 		     nil))
 	       nil)))
-	 rlx-compass-directions)))
+	 compass-directions)))
 	
 ;; Now we come to the pathfinding algorithm itself. 
 
-(defun rlx-path (world starting-row starting-column goal-row goal-column)
+(defun path (world starting-row starting-column goal-row goal-column)
   "Generate a path from the starting point to the goal in WORLD.
 Returns a list of directional keywords an AI can follow to reach
 the goal."
   (let ((selected-node nil)
-	(path-turn-number (incf (rlx-world-path-turn-number world)))
+	(path-turn-number (incf (world-path-turn-number world)))
 	(pos nil)
 	(found nil)
 	(target-node nil)
@@ -275,7 +275,7 @@ the goal."
 	(F 0) (G 0) (H 0))
     ;;
     ;; reset the pathfinding heap
-    (setf (rlx-world-path-heap-end world) nil)
+    (setf (world-path-heap-end world) nil)
 
     ;;
     ;; add the starting node to the open set
@@ -283,63 +283,63 @@ the goal."
     (setf H (max (abs (- starting-row goal-row))
 		 (abs (- starting-column goal-column))))
     (setf F (+ G H))
-    (setf selected-node (make-rlx-node :row starting-row 
+    (setf selected-node (make-node :row starting-row 
 				       :column starting-column
 				       :old-G 0
 				       :parent nil :G G :F F :H H))
     ;;
-    (rlx-open-node world selected-node)
+    (open-node world selected-node)
     ;;
     ;; start pathfinding
     (setq target-node
 	  (block finding
 	    ;;
 	    ;; select and close the node with smallest F score
-	    (while (setf selected-node (rlx-close-node world))
+	    (while (setf selected-node (close-node world))
 	      ;;
 	      ;; did we fail to reach the goal? 
 	      (when (null selected-node)
 		(return-from finding nil))
 	      ;;
 	      ;; are we at the goal square?
-	      (when (and (equal goal-row (rlx-node-row selected-node))
-			 (equal goal-column (rlx-node-column selected-node)))
+	      (when (and (equal goal-row (node-row selected-node))
+			 (equal goal-column (node-column selected-node)))
 		(return-from finding selected-node))
 	      ;;
 	      ;; process adjacent walkable non-closed nodes
 	      (mapc (lambda (node)
 		      ;;
 		      ;; is this cell already on the open list?
-		      (if (equal path-turn-number (rlx-node-open node))
+		      (if (equal path-turn-number (node-open node))
 			  ;;
 			  ;; yes. update scores if needed
-			  (rlx-score-node world node path-turn-number
+			  (score-node world node path-turn-number
 					  selected-node goal-row goal-column)
 			
 			;;
 			;; it's not on the open list. add it to the open list
-			(rlx-score-node world node path-turn-number selected-node
+			(score-node world node path-turn-number selected-node
 					goal-row goal-column)
-			(rlx-open-node world node)))
+			(open-node world node)))
 		    ;;
 		    ;; map over adjacent nodes
-		    (rlx-node-successors world selected-node 
+		    (node-successors world selected-node 
 					 path-turn-number
 					 goal-row goal-column)))))
     ;;
     ;; did we find a path? 
-    (if (rlx-node-p target-node)
+    (if (node-p target-node)
 	;;
 	;; save the path by walking backwards from the target
 	(let ((previous-node target-node)
 	      (current-node nil))
-	  (while (setf current-node (rlx-node-parent previous-node))
+	  (while (setf current-node (node-parent previous-node))
 	    ;;
 	    ;; what direction do we travel to get from current to previous? 
-	    (push (rlx-direction-to (rlx-node-row current-node)
-				    (rlx-node-column current-node)
-				    (rlx-node-row previous-node)
-				    (rlx-node-column previous-node))
+	    (push (direction-to (node-row current-node)
+				    (node-column current-node)
+				    (node-row previous-node)
+				    (node-column previous-node))
 		  path)
 	    (setf previous-node current-node))
 	  ;;
@@ -351,8 +351,8 @@ the goal."
 	    
 		  
     
-(defsubst rlx-path-to (grid from to)
-  (rlx-path grid 
+(defsubst path-to (grid from to)
+  (path grid 
 	    (getf from :row)
 	    (getf from :column)
 	    (getf to :row)
