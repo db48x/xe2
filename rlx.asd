@@ -27,6 +27,7 @@
 	       (:file "narration")
 	       (:file "browser")
 	       (:file "worlds")
-	       (:file "viewport.lisp")))
+	       (:file "viewport")))
+
 	       
 	       

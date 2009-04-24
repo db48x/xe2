@@ -54,11 +54,6 @@ At the moment, only 0=off and 1=on are supported.")
   ;; <: action-points :>
   (phase-number :initform 1 :documentation "Integer number of current phase.")
   (turn-number :initform 1 :documentation "Integer number of elapsed user turns (actions).")
-  ;; <: pathfinding :>
-  ;; see also path.lisp
-  (path-grid :documentation "Array of pathfinding data nodes.") 
-  (path-heap :documentation "Heap array of open pathfinding nodes")
-  (path-heap-end :documentation "Pointer to last heap array position.")
   ;; <: queueing :>
   (message-queue :initform (make-queue))
   ;; <: narration :>
