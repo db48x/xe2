@@ -107,12 +107,10 @@
 	(setf (path-heap-end path) nil)
       (if (null path-heap-end)
 	  nil
-	;;
 	;; remove last node of heap and install as root of heap
 	 (progn
 	   (setf last (aref path-heap path-heap-end))
 	   (setf (aref path-heap 1) last)
-	   ;; 
 	   ;; shrink heap
 	   (decf (path-heap-end path))
 	   (decf path-heap-end)
@@ -122,7 +120,6 @@
 	   ;; figure out where former last element should go
 	   ;;
 	   (while (and (not finished) (>= path-heap-end right))
-					;	  (message "HEAPING /// %s" (print-heap path-heap path-heap-end))
 	     ;;
 	     ;; does it need to sink? 
 	     (if (and (< (node-F last) (node-F (aref path-heap left)))
@@ -143,8 +140,9 @@
 		       (setf ptr right))
 		     ;;
 		     ;; no, sink leftward
-		     (setf (aref path-heap ptr) (aref path-heap left))
-		     (setf ptr left)))
+		     (progn
+		       (setf (aref path-heap ptr) (aref path-heap left))
+		       (setf ptr left))))
 	     (setf left (* 2 ptr))
 	     (setf right (+ 1 left)))
 	   ;;
@@ -209,7 +207,7 @@
 		;; its score could only go down, so move it up in the
 		;; heap if necessary.
 		(while (and (not finished) (< 1 ptr))
-		  (setf par (/ ptr 2))
+		  (setf par (truncate (/ ptr 2)))
 		  ;;
 		  ;; should it rise? 
 		  (if (< (node-F node) (node-F (aref heap par)))
@@ -322,7 +320,7 @@ the goal."
 					  goal-row goal-column)
 			      (open-node path node))))
 		      ;; map over adjacent nodes
-		      (node-successors pathselected-node 
+		      (node-successors selected-node 
 				       path-turn-number
 				       goal-row goal-column))))))
     ;; did we find a path? 
