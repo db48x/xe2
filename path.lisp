@@ -56,8 +56,8 @@
 			 :heap (make-array (* height width))
 			 :end 0)))
     (prog1 path
-      (dotimes (r rows)
-	(dotimes (c columns)
+      (dotimes (r height)
+	(dotimes (c width)
 	  (setf (aref (path-grid path) r c)
 		(make-node :row r :column c)))))))
 			       
@@ -268,7 +268,7 @@
 			 successor)
 		     nil))
 	       nil)))
-	 compass-directions)))
+	 *compass-directions*)))
 	
 ;; Now we come to the pathfinding algorithm itself. 
 
