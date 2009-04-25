@@ -30,13 +30,11 @@
 (in-package :rlx)
 
 (defstruct path
+  world ;; Pointer to associated world. 
   grid ;; Array of pathfinding data nodes.
   heap ;; Heap array of open pathfinding nodes.
   end ;; Pointer to last heap array position.
   )
-
-;; The pathfinding data nodes are implemented as structures with the
-;; following slots:
 
 (defstruct node 
   row 
@@ -51,6 +49,18 @@
   open ; equal to path's path-turn-number when on open list
   )
 
+(defun create-path (&key height width world)
+  (assert (clon:object-p world))
+  (let ((path (make-path :world world
+			 :grid (make-array (list height width))
+			 :heap (make-array (* height width))
+			 :end 0)))
+    (prog1 path
+      (dotimes (r rows)
+	(dotimes (c columns)
+	  (setf (aref (path-grid path) r c)
+		(make-node :row r :column c)))))))
+			       
 ;; The following routines maintain the open and closed sets. We
 ;; use a minheap to store the open set.
 
