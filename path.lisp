@@ -303,26 +303,27 @@ the goal."
 	    (while (setf selected-node (close-node path))
 	      ;; did we fail to reach the goal? 
 	      (when (null selected-node)
-		;; are we at the goal square?
-		(when (and (equal goal-row (node-row selected-node))
-			   (equal goal-column (node-column selected-node)))
-		  (return-from finding selected-node))
-		;; process adjacent walkable non-closed nodes
-		(mapc (lambda (node)
-			;; is this cell already on the open list?
-			(if (equal path-turn-number (node-open node))
-			    ;; yes. update scores if needed
-			    (score-node path node path-turn-number
-					selected-node goal-row goal-column)
-			    (progn 
-			      ;; it's not on the open list. add it to the open list
-			      (score-node path node path-turn-number selected-node
-					  goal-row goal-column)
-			      (open-node path node))))
-		      ;; map over adjacent nodes
-		      (node-successors selected-node 
-				       path-turn-number
-				       goal-row goal-column))))))
+		(return-from finding nil))
+	      ;; are we at the goal square?
+	      (when (and (equal goal-row (node-row selected-node))
+			 (equal goal-column (node-column selected-node)))
+		(return-from finding selected-node))
+	      ;; process adjacent walkable non-closed nodes
+	      (mapc (lambda (node)
+		      ;; is this cell already on the open list?
+		      (if (equal path-turn-number (node-open node))
+			  ;; yes. update scores if needed
+			  (score-node path node path-turn-number
+				      selected-node goal-row goal-column)
+			  (progn 
+			    ;; it's not on the open list. add it to the open list
+			    (score-node path node path-turn-number selected-node
+					goal-row goal-column)
+			    (open-node path node))))
+		    ;; map over adjacent nodes
+		    (node-successors selected-node 
+				     path-turn-number
+				     goal-row goal-column)))))
     ;; did we find a path? 
     (if (node-p target-node)
 	;; save the path by walking backwards from the target
