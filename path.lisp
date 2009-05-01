@@ -34,6 +34,7 @@
   grid ;; Array of pathfinding data nodes.
   heap ;; Heap array of open pathfinding nodes.
   end ;; Pointer to last heap array position.
+  turn ;; Integer turn number
   )
 
 (defstruct node 
@@ -54,7 +55,7 @@
   (let ((path (make-path :world world
 			 :grid (make-array (list height width))
 			 :heap (make-array (* height width))
-			 :end 0)))
+			 :turn 1 :end 0)))
     (prog1 path
       (dotimes (r height)
 	(dotimes (c width)

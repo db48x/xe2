@@ -27,7 +27,7 @@
 	       (:file "narration")
 	       (:file "browser")
 	       (:file "worlds")
-	       (:file "viewport")))
-
+	       (:file "viewport")
+	       (:file "path")))
 	       
 	       
