@@ -562,6 +562,13 @@ table."
   (sdl-image:load-image (namestring (resource-file resource)) 
 				  :alpha 255))
 
+(defun load-text-resource (resource)
+  (with-open-file (file (resource-file resource)
+			:direction :input
+			:if-does-not-exist nil)
+    (let ((string (make-string (file-length file))))
+      (read-sequence string file))))
+
 (defun load-lisp-resource (resource)
   (load (resource-file resource)))
 
@@ -606,6 +613,7 @@ table."
 				  :lisp #'load-lisp-resource
 				  :color #'load-color-resource
 				  :music #'load-music-resource
+				  :text #'load-text-resource
 				  :sample #'load-sample-resource
 				  :canvas #'load-canvas-resource
 				  :font #'load-font-resource)
@@ -891,7 +899,7 @@ The default destination is the main window."
 	  (initialize-colors)
 	  (when *use-sound*
 	    ;; try opening sound
-	    (when (null (sdl-mixer:open-audio))
+	    (when (null (sdl-mixer:open-audio :chunksize 256))
 	      ;; if that didn't work, disable effects/music
 	      (message "Could not open audio. Disabling sound.")
 	      (setf *use-sound* nil)))
