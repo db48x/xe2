@@ -4,6 +4,7 @@
 http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
+** TODO meatpod manifesto
 ** FEATURE [#A] pak :startup type			 :engine:
 ** FEATURE [#A] pak autoload lisp in order		 :engine:
 ** FEATURE [#A] numpad support 				 :engine:
