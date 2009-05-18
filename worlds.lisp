@@ -126,7 +126,7 @@ At the moment, only 0=off and 1=on are supported.")
     (aref <grid> row column)))
 
 (define-method replace-cells-at world (row column data)
-  (ecase data
+  (etypecase data
     (vector (setf (aref <grid> row column) data))
     (clon:object (let ((cells (make-array *default-world-z-size* 
 					  :adjustable t
