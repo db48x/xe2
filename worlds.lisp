@@ -125,6 +125,15 @@ At the moment, only 0=off and 1=on are supported.")
   (when (array-in-bounds-p <grid> row column)
     (aref <grid> row column)))
 
+(define-method replace-cells-at world (row column data)
+  (ecase data
+    (vector (setf (aref <grid> row column) data))
+    (clon:object (let ((cells (make-array *default-world-z-size* 
+					  :adjustable t
+					  :fill-pointer 0)))
+		   (prog1 cells
+		     (vector-push-extend data cells))))))
+
 (define-method drop-cell world (cell row column 
 				     &optional &key loadout no-collisions)
   "Put CELL on top of the stack of cells at ROW, COLUMN. If LOADOUT is
