@@ -3,15 +3,22 @@
 
 http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
+
 * Tasks
+** TODO blast tactics help screen/splash
+** TODO numpad in blast tactics
+** TODO graphic x2 scaling for Blast
 ** TODO meatpod manifesto
+** TODO own trail kills you
+** TODO room walls kill you
+** TODO you keep moving? ? 
 ** FEATURE [#A] pak :startup type			 :engine:
 ** FEATURE [#A] pak autoload lisp in order		 :engine:
 ** FEATURE [#A] numpad support 				 :engine:
 ** FEATURE port pathfinding
 *** TODO Read pathfinding code
 *** TODO Separate heap structure (pool.lisp?)
-** FEATURE port lighting
+** FEATURE [#A] port lighting
 ** FEATURE cell environment sensors?
 ** FEATURE [#A] Pak text file type for story display 	 :engine:
 ** FEATURE [#A] smarter enemies that talk	  :blast:invader:

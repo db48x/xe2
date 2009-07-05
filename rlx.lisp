@@ -102,11 +102,11 @@
   stat-value *default-message-verbosities* *message-verbosities*
   set-message-verbosities operation-symbol message-symbol play-sample
   set-music-volume add-message-verbosities with-message-queue
-  *user-keyboard-layout* set-field-option-value field-options
-  world set-frame-rate *frame-rate* set-timer-interval set-screen-width
-  set-screen-height *timer-interval* enable-timer disable-timer while
-  enable-held-keys disable-held-keys do-cells draw-box draw-rectangle
-  *quitting* quit reset))
+  *user-keyboard-layout* *fullscreen* set-field-option-value
+  field-options world set-frame-rate *frame-rate* set-timer-interval
+  set-screen-width set-screen-height *timer-interval* enable-timer
+  disable-timer while enable-held-keys disable-held-keys do-cells
+  draw-box draw-rectangle *quitting* quit reset))
 
 (in-package :rlx)
 

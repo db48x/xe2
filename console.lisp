@@ -33,7 +33,7 @@
 
 ;; http://lispbuilder.sourceforge.net/
 
-(in-package :rlx)
+(in-package :rlx) 
 
 ;;; Message logging
 
@@ -280,10 +280,15 @@ window. Set this in the game startup file.")
 
 (defvar *quitting* nil)
 
+(defvar *fullscreen* nil)
+
 (defun run-main-loop ()
-  (sdl:window *screen-width* *screen-height*
-	      :title-caption "RLX")
-  ;; :flags sdl:SDL-FULLSCREEN)
+  (if *fullscreen*
+      (sdl:window *screen-width* *screen-height*
+		  :title-caption "RLX"
+		  :flags sdl:SDL-FULLSCREEN)
+      (sdl:window *screen-width* *screen-height*
+		  :title-caption "RLX"))
   (sdl:clear-display sdl:*black*)
   (show-widgets)
   (sdl:update-display)
