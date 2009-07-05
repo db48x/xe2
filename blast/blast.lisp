@@ -929,6 +929,7 @@
     ("S" nil "wait .")
     ("ESCAPE" nil "activate-pulse-cannon .")
     ("SPACE" nil "respawn .")
+    ("1" nil "activate-bomb-cannon .")
     ("P" (:control) "quit .")))
 
 ;; g c r
@@ -977,6 +978,7 @@
     ("S" nil "wait .")
     ("SPACE" nil "respawn .")
     ("ESCAPE" nil "activate-pulse-cannon .")
+    ("1" nil "activate-bomb-cannon .")
     ("Q" (:control) "quit .")))
 
 (define-method install-keybindings blast-prompt ()
