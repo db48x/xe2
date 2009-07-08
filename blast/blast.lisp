@@ -885,7 +885,7 @@
     ;;
     ("W" nil "wait .")
     ("SPACE" nil "respawn .")
-    ("ESCAPE" nil "activate-pulse-cannon .")
+    ("2" nil "activate-pulse-cannon .")
     ("1" nil "activate-bomb-cannon .")
     ("Q" (:control) "quit .")))
 
@@ -1045,6 +1045,24 @@
 
 (defvar *status*)
 
+;;; Splash screen
+
+(defvar *play-widgets*)
+
+(define-prototype splash (:parent =widget=))
+
+(define-method render splash ()
+  (rlx:draw-resource-image "splash" 0 0 
+			   :destination <image>))
+
+(define-method dismiss splash ()
+  (set-music-volume 255)	       
+;;  (play-music "xiomacs2" :loop t)
+  (apply #'rlx:install-widgets *play-widgets*))
+
+(define-prototype splash-prompt (:parent =prompt=)
+  (default-keybindings :initform '(("SPACE" nil "dismiss ."))))
+
 ;;; Main program. 
 
 (defun blast ()
@@ -1061,8 +1079,18 @@
 	 (narrator (clone =narrator=))
 	 (status (clone =status=))
 	 (player (clone =ship=))
-	 (viewport (clone =view=)))
+	 (viewport (clone =view=))
+	 (splash (clone =splash=))
+	 (splash-prompt (clone =splash-prompt=)))
     (setf *active-world* world)
+    ;;
+    [resize splash :height 600 :width 600]
+    [move splash :x 0 :y 0]
+    [resize splash-prompt :width 10 :height 10]
+    [move splash-prompt :x 0 :y 0]
+    [hide splash-prompt]
+    [set-receiver splash-prompt splash]
+    ;;
     [resize prompt :height 20 :width 100]
     [move prompt :x 0 :y 0]
     [hide prompt]
@@ -1098,8 +1126,9 @@
     [start world]
     (play-music "technogirl" :loop t)
     (play-sample "go")
-    
-    (install-widgets prompt status viewport narrator *billboard*)))
+
+    (setf *play-widgets* (list prompt status viewport narrator *billboard*))
+    (install-widgets splash-prompt splash)))
 
 (blast)
 

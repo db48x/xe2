@@ -15,6 +15,8 @@
  (:name "bomb-4" :type :image :file "bomb-4.png")
  (:name "bomb-ammo" :type :image :file "bomb-ammo.png")
 
+ (:name "splash" :type :image :file "blast-splash.png")
+
  (:name "skull" :type :image :file "skull.png")
  (:name "polaris" :type :image :file "polaris.png")
  (:name "wall" :type :image :file "wall.png")
