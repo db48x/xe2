@@ -3,10 +3,10 @@
 
 http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
-
 * Tasks
 
-** TODO [#A] resize all graphics to 16x16
+** DONE [#A] resize all graphics to 16x16
+CLOSED: [2009-07-09 Thu 19:13]
 ** TODO [#A] Tone down "asteroids" vibe... more exploration
 ** TODO [#A] add poweruppable directional firing particles
 ** TODO [#C] look into clbuild

@@ -762,7 +762,7 @@
 (define-prototype void-world (:parent rlx:=world=)
   (width :initform 80)
   (height :initform 46)
-  (asteroid-count :initform 150)
+  (asteroid-count :initform 100)
   (polaris-count :initform 50)
   (probe-count :initform 20)
   (room-count :initform 36)
@@ -1137,7 +1137,7 @@
     [adjust viewport]
     ;;
     [start world]
-    (play-music "technogirl" :loop t)
+    (play-music "xiomacs" :loop t)
     (play-sample "go")
 
     (setf *play-widgets* (list prompt status viewport narrator *billboard*))

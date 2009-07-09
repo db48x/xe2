@@ -69,6 +69,7 @@
  (:name "death-alien" :type :sample :file "death-alien.wav" :properties (:volume 30))
  (:name "powerup" :type :sample :file "powerup.wav" :properties (:volume 40))
  (:name "technogirl" :type :music :file "technogirl-x.ogg")
+ (:name "xiomacs" :type :music :file "xiomacs.ogg")
 
  (:name "display-font" :type :font :properties (:height 20 :width 10) :data "10x20")
  (:name ".startup" :type :lisp :file "blast.lisp")
