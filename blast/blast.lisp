@@ -1082,7 +1082,7 @@
   (setf clon:*send-parent-depth* 2)
   (rlx:set-screen-height 600)
   (rlx:set-screen-width 800)
-;;  (rlx:set-frame-rate 30)
+  (rlx:set-frame-rate 30)
   ;; (rlx:set-timer-interval 20)
   ;; (rlx:enable-timer)
   (rlx:enable-held-keys 1 15)
@@ -1129,11 +1129,11 @@
     [resize *billboard* :height 20 :width 100]
     [move *billboard* :x 700 :y 0]
    ;;
-    (setf (clon:field-value :tile-size viewport) 10)
+    (setf (clon:field-value :tile-size viewport) 16)
     [set-world viewport world]
     [resize viewport :height 462 :width 800]
     [move viewport :x 0 :y 40]
-    [set-origin viewport :x 0 :y 0 :height 46 :width 80]
+    [set-origin viewport :x 0 :y 0 :height 28 :width 50]
     [adjust viewport]
     ;;
     [start world]
