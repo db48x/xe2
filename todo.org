@@ -6,7 +6,10 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
-** TODO [#A] numpad in blast tactics
+** TODO [#C] look into clbuild
+** TODO 
+** DONE [#A] numpad in blast tactics
+CLOSED: [2009-07-08 Wed 14:02]
 ** TODO [#B] Switch to ambient music... game is overstimulating
 ** TODO [#B] Non-dangerous explore area in blast <- collect minerals and get info help
 ** TODO [#A] Portals between worlds

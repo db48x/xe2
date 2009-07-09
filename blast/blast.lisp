@@ -760,12 +760,12 @@
 ;;; The inescapable game grid.
 
 (define-prototype void-world (:parent rlx:=world=)
-  (width :initform 200)
+  (width :initform 80)
   (height :initform 46)
-  (asteroid-count :initform 200)
+  (asteroid-count :initform 150)
   (polaris-count :initform 50)
   (probe-count :initform 20)
-  (room-count :initform 20)
+  (room-count :initform 36)
   (ambient-light :initform :total))
 
 (define-method generate void-world (&optional parameters)
@@ -1083,8 +1083,8 @@
   (rlx:set-screen-height 600)
   (rlx:set-screen-width 800)
 ;;  (rlx:set-frame-rate 30)
-  (rlx:set-timer-interval 20)
-  (rlx:enable-timer)
+  ;; (rlx:set-timer-interval 20)
+  ;; (rlx:enable-timer)
   (rlx:enable-held-keys 1 15)
   (setf *billboard* (clone =billboard=))
   (let* ((prompt (clone =blast-prompt=))

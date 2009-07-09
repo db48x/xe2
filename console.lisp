@@ -904,7 +904,7 @@ The default destination is the main window."
 	  (initialize-colors)
 	  (when *use-sound*
 	    ;; try opening sound
-	    (when (null (sdl-mixer:open-audio :chunksize 256))
+	    (when (null (sdl-mixer:open-audio :chunksize 512))
 	      ;; if that didn't work, disable effects/music
 	      (message "Could not open audio. Disabling sound.")
 	      (setf *use-sound* nil)))
