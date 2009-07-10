@@ -353,7 +353,7 @@
   (name :initform "Muon energy pistol")
   (tile :initform "gun")
   (categories :initform '(:item :weapon :equipment))
-  (equip-for :initform '(:left-hand))
+  (equip-for :initform '(:center-bay))
   (weight :initform 7000)
   (accuracy :initform (make-stat :base 90))
   (attack-power :initform (make-stat :base 12))
@@ -418,11 +418,12 @@
   (lives :initform (make-stat :min 0 :base 3 :max 3))
   (score :initform (make-stat :base 0))
   (categories :initform '(:actor :player :target :container :light-source))
-  (equipment-slots :initform '(:left-bay :right-bay))
+  (equipment-slots :initform '(:left-bay :right-bay :center-bay))
   (boost-clock :initform 0))
 
 (define-method initialize ship ()
-  [say *billboard* :go])
+  [say *billboard* :go]
+  [add-equipment self (clone =muon-pistol=)])
 
 (define-method quit ship ()
   (rlx:quit :shutdown))
