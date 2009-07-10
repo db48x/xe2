@@ -293,6 +293,18 @@
     (when (not [is-player cell])
       [damage cell 5])))
 
+;;; There are also energy tanks for replenishing ammo.
+
+(defcell energy 
+  (tile :initform "energy"))
+
+(define-method step energy (stepper)
+  (when [is-player stepper]
+    (when (has-field :energy stepper)
+      (play-sample "powerup")
+      [>>stat-effect stepper :energy 5]
+      [>>die self])))
+
 ;;; Muon particles, trails, and pistols
 
 (defvar *muon-tiles* '(:north "muon-north"
@@ -914,6 +926,7 @@
   (polaris-count :initform 50)
   (probe-count :initform 20)
   (room-count :initform 26)
+  (energy-count :initform 30)
   (ambient-light :initform :total))
 
 (define-method generate void-world (&optional parameters)
@@ -924,6 +937,9 @@
     [drop-plasma-debris self]
     (dotimes (i <polaris-count>)
       [drop-cell self (clone =polaris=)
+		 (random height) (random width)])
+    (dotimes (i <energy-count>)
+      [drop-cell self (clone =energy=)
 		 (random height) (random width)])
     (dotimes (i <probe-count>)
       [drop-cell self (clone =probe=)
