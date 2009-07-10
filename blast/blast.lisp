@@ -1260,7 +1260,7 @@
   (setf clon:*send-parent-depth* 2)
   (rlx:set-screen-height 600)
   (rlx:set-screen-width 800)
-  (rlx:set-frame-rate 30)
+;  (rlx:set-frame-rate 30)
   ;; (rlx:set-timer-interval 20)
   ;; (rlx:enable-timer)
   (rlx:enable-held-keys 1 15)
