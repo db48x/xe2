@@ -1018,8 +1018,17 @@
     ("KP6" nil "move :east .")
     ("KP1" nil "move :southwest .")
     ("KP2" nil "move :south .")
-    ("KP3" nil "move :southeast .")))
-  
+    ("KP3" nil "move :southeast .")
+    ;;
+    ("KP7" (:control) "fire :northwest .")
+    ("KP8" (:control) "fire :north .")
+    ("KP9" (:control) "fire :northeast .")
+    ("KP4" (:control) "fire :west .")
+    ("KP6" (:control) "fire :east .")
+    ("KP1" (:control) "fire :southwest .")
+    ("KP2" (:control) "fire :south .")
+    ("KP3" (:control) "fire :southeast .")))
+
 (defparameter *qwerty-keybindings*
   (append *numpad-keybindings*
 	  '(("Y" nil "move :northwest .")
