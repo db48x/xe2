@@ -139,8 +139,7 @@
 	(decf <clock>)
 	[expend-action-points self 10]
 	(rlx:do-cells (cell [cells-at *active-world* <row> <column>])
-	  (when (not [is-player cell])
-	    [damage cell <damage-per-turn>])))))
+	  [damage cell <damage-per-turn>]))))
 
 ;;; A bomb with countdown display.
 
