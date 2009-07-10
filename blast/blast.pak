@@ -104,6 +104,11 @@
  (:name "bullet-trail-end-southwest" :type :alias :data ":rotate 180:bullet-trail-end-northeast")
  (:name "bullet-trail-end-northwest" :type :alias :data ":rotate 270:bullet-trail-end-northeast")
 
+ (:name "whoop" :type :sample :file "whoop.wav" :properties (:volume 20))
+ (:name "sparkle" :type :image :file "sparkle.png")
+ (:name "flash-1" :type :image :file "flash-1.png")
+ (:name "flash-2" :type :image :file "flash-2.png")
+
  (:name "electron" :type :image :file "electron.png")
 
  (:name "display-font" :type :font :properties (:height 20 :width 10) :data "10x20")

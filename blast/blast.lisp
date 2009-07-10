@@ -91,6 +91,36 @@
   (categories :initform '(:obstacle))
   (hit-points :initform (make-stat :base 1 :min 0)))
 
+;;; Glittering flash gives clues on locations of explosions/damage
+
+(defcell flash 
+  (clock :initform 2)
+  (tile :initform "flash-1")
+  (categories :initform '(:actor))
+  (speed :initform (make-stat :base 10)))
+
+(define-method run flash ()
+  [expend-action-points self 10]
+  (case <clock>
+    (1 (setf <tile> "flash-2"))
+    (0 [>>die self]))
+  (decf <clock>))
+
+;;; Sparkle is a bigger but faster flash.
+
+(defcell sparkle 
+  (clock :initform 1)
+  (tile :initform "sparkle")
+  (categories :initform '(:actor))
+  (speed :initform (make-stat :base 10)))
+
+(define-method run sparkle ()
+  [expend-action-points self 10]
+  (case <clock>
+    (1 (setf <tile> "sparkle"))
+    (0 [>>die self]))
+  (decf <clock>))
+
 ;;; An explosion.
 
 (defcell explosion 
@@ -155,6 +185,7 @@
 
 (defcell bomb-cannon
   (categories :initform '(:item :weapon :equipment))
+  (attack-cost :initform (make-stat :base 5))
   (weight :initform 3000)
   (equip-for :initform '(:right-bay)))
 
@@ -293,7 +324,7 @@
 
 (defvar *trail-tile-map* (list *trail-end-tiles* *trail-middle-tiles* *trail-middle-tiles*))
 
-(define-prototype muon-trail (:parent rlx:=cell=)
+(defcell muon-trail
   (categories :initform '(:actor))
   (clock :initform 2)
   (speed :initform (make-stat :base 10))
@@ -313,7 +344,7 @@
   (when (minusp <clock>)
     [die self]))
 
-(define-prototype muon-particle (:parent rlx:=cell=)
+(defcell muon-particle 
   (categories :initform '(:actor))
   (speed :initform (make-stat :base 15))
   (default-cost :initform (make-stat :base 5))
@@ -349,8 +380,8 @@
   ;; don't hit the player
   [find-target self])
 
-(define-prototype muon-pistol (:parent rlx:=cell=)
-  (name :initform "Muon energy pistol")
+(defcell muon-cannon
+  (name :initform "Muon energy cannon")
   (tile :initform "gun")
   (categories :initform '(:item :weapon :equipment))
   (equip-for :initform '(:center-bay))
@@ -358,17 +389,17 @@
   (accuracy :initform (make-stat :base 90))
   (attack-power :initform (make-stat :base 12))
   (attack-cost :initform (make-stat :base 5))
-  (energy-cost :initform (make-stat :base 10)))
+  (energy-cost :initform (make-stat :base 1)))
 
-(define-method fire muon-pistol (direction)
-  (if [expend-energy <equipper> 10]
+(define-method fire muon-cannon (direction)
+  (if [expend-energy <equipper> [stat-value self :energy-cost]]
       (let ((muon (clone =muon-particle=)))
 	(play-sample "whoop")
 	[>>drop <equipper> muon]
 	[>>impel muon direction])
       [>>say :narrator "Not enough energy to fire!"]))
 
-(define-method step muon-pistol (stepper)
+(define-method step muon-cannon (stepper)
   (when [is-player stepper]
     [>>take stepper :direction :here :category :item]))
 
@@ -406,24 +437,30 @@
   (speed :initform (make-stat :base 10))
   (strength :initform (make-stat :base 10))
   (defense :initform (make-stat :base 10))
+  (energy :initform (make-stat :base 40 :min 0 :max 40))
   (hit-points :initform (make-stat :base 5 :min 0 :max 5))
   (movement-cost :initform (make-stat :base 10))
   (max-items :initform (make-stat :base 2))
   (trail-length :initform (make-stat :base 12 :min 0))
   (pulse-ammo :initform (make-stat :base 3 :min 0 :max 5))
   (bomb-ammo :initform (make-stat :base 3 :min 0 :max 5))
-  (muon-ammo :initform (make-stat :base 0 :min 0 :max 20))
   (invincibility-clock :initform 0)
   (stepping :initform t)
   (lives :initform (make-stat :min 0 :base 3 :max 3))
   (score :initform (make-stat :base 0))
+  (attacking-with :initform :right-bay)
+  (firing-with :initform :center-bay)
   (categories :initform '(:actor :player :target :container :light-source))
   (equipment-slots :initform '(:left-bay :right-bay :center-bay))
   (boost-clock :initform 0))
 
 (define-method initialize ship ()
-  [say *billboard* :go]
-  [add-equipment self (clone =muon-pistol=)])
+  [say *billboard* :go])
+
+(define-method loadout ship ()
+  [make-inventory self]
+  [make-equipment self]
+  [equip self [add-item self (clone =muon-cannon=)]])
 
 (define-method quit ship ()
   (rlx:quit :shutdown))
@@ -493,6 +530,7 @@
 (define-method loadout ship ()
   [make-inventory self]
   [make-equipment self]
+  [equip self [add-item self (clone =muon-cannon=)]]
   [equip self [add-item self (clone =pulse-cannon=)]]
   [equip self [add-item self (clone =bomb-cannon=)]])
 
@@ -518,6 +556,7 @@
   [stat-effect self :hit-points 5]	       
   [update-tile self]
   [delete-category self :dead]
+  [stat-effect self :trail-length (- <trail-length>)]
   [set-player *active-world* self])
 
 ;;; A life crystal powerup.
@@ -743,7 +782,7 @@
 (defvar *asteroid-count* 0)
 
 (defcell asteroid
-  (categories :initform '(:actor :sticky))
+  (categories :initform '(:actor :sticky :target))
   (hit-points :initform (make-stat :base 1 :min 0))
   (movement-cost :initform (make-stat :base 10))
   (stuck-to :initform nil)
@@ -976,23 +1015,23 @@
 	    ("J" nil "move :south .")
 	    ("N" nil "move :southeast .")
 	    ;;
-	    ("Y" (:alt) "attack :northwest .")
-	    ("K" (:alt) "attack :north .")
-	    ("U" (:alt) "attack :northeast .")
-	    ("H" (:alt) "attack :west .")
-	    ("L" (:alt) "attack :east .")
-	    ("B" (:alt) "attack :southwest .")
-	    ("J" (:alt) "attack :south .")
-	    ("N" (:alt) "attack :southeast .")
-	    ;;
-	    ("Y" (:meta) "attack :northwest .")
-	    ("K" (:meta) "attack :north .")
-	    ("U" (:meta) "attack :northeast .")
-	    ("H" (:meta) "attack :west .")
-	    ("L" (:meta) "attack :east .")
-	    ("B" (:meta) "attack :southwest .")
-	    ("J" (:meta) "attack :south .")
-	    ("N" (:meta) "attack :southeast .")
+	    ;; ("Y" (:alt) "attack :northwest .")
+	    ;; ("K" (:alt) "attack :north .")
+	    ;; ("U" (:alt) "attack :northeast .")
+	    ;; ("H" (:alt) "attack :west .")
+	    ;; ("L" (:alt) "attack :east .")
+	    ;; ("B" (:alt) "attack :southwest .")
+	    ;; ("J" (:alt) "attack :south .")
+	    ;; ("N" (:alt) "attack :southeast .")
+	    ;; ;;
+	    ;; ("Y" (:meta) "attack :northwest .")
+	    ;; ("K" (:meta) "attack :north .")
+	    ;; ("U" (:meta) "attack :northeast .")
+	    ;; ("H" (:meta) "attack :west .")
+	    ;; ("L" (:meta) "attack :east .")
+	    ;; ("B" (:meta) "attack :southwest .")
+	    ;; ("J" (:meta) "attack :south .")
+	    ;; ("N" (:meta) "attack :southeast .")
 	    ;;
 	    ("Y" (:control) "fire :northwest .")
 	    ("K" (:control) "fire :north .")
@@ -1020,23 +1059,23 @@
 	    ("X" nil "move :south .")
 	    ("C" nil "move :southeast .")
 	    ;;
-	    ("Q" (:alt) "attack :northwest .")
-	    ("W" (:alt) "attack :north .")
-	    ("E" (:alt) "attack :northeast .")
-	    ("A" (:alt) "attack :west .")
-	    ("D" (:alt) "attack :east .")
-	    ("Z" (:alt) "attack :southwest .")
-	    ("X" (:alt) "attack :south .")
-	    ("C" (:alt) "attack :southeast .")
-	    ;;
-	    ("Q" (:meta) "attack :northwest .")
-	    ("W" (:meta) "attack :north .")
-	    ("E" (:meta) "attack :northeast .")
-	    ("A" (:meta) "attack :west .")
-	    ("D" (:meta) "attack :east .")
-	    ("Z" (:meta) "attack :southwest .")
-	    ("X" (:meta) "attack :south .")
-	    ("C" (:meta) "attack :southeast .")
+	    ;; ("Q" (:alt) "attack :northwest .")
+	    ;; ("W" (:alt) "attack :north .")
+	    ;; ("E" (:alt) "attack :northeast .")
+	    ;; ("A" (:alt) "attack :west .")
+	    ;; ("D" (:alt) "attack :east .")
+	    ;; ("Z" (:alt) "attack :southwest .")
+	    ;; ("X" (:alt) "attack :south .")
+	    ;; ("C" (:alt) "attack :southeast .")
+	    ;; ;;
+	    ;; ("Q" (:meta) "attack :northwest .")
+	    ;; ("W" (:meta) "attack :north .")
+	    ;; ("E" (:meta) "attack :northeast .")
+	    ;; ("A" (:meta) "attack :west .")
+	    ;; ("D" (:meta) "attack :east .")
+	    ;; ("Z" (:meta) "attack :southwest .")
+	    ;; ("X" (:meta) "attack :south .")
+	    ;; ("C" (:meta) "attack :southeast .")
 	    ;;
 	    ("Q" (:control) "fire :northwest .")
 	    ("W" (:control) "fire :north .")
@@ -1070,23 +1109,23 @@
 	    ("W" nil "move :south .")
 	    ("V" nil "move :southeast .")
 	    ;;
-	    ("G" (:alt) "attack :northwest .")
-	    ("C" (:alt) "attack :north .")
-	    ("R" (:alt) "attack :northeast .")
-	    ("H" (:alt) "attack :west .")
-	    ("N" (:alt) "attack :east .")
-	    ("M" (:alt) "attack :southwest .")
-	    ("W" (:alt) "attack :south .")
-	    ("V" (:alt) "attack :southeast .")
-	    ;;
-	    ("G" (:meta) "attack :northwest .")
-	    ("C" (:meta) "attack :north .")
-	    ("R" (:meta) "attack :northeast .")
-	    ("H" (:meta) "attack :west .")
-	    ("N" (:meta) "attack :east .")
-	    ("M" (:meta) "attack :southwest .")
-	    ("W" (:meta) "attack :south .")
-	    ("V" (:meta) "attack :southeast .")
+	    ;; ("G" (:alt) "attack :northwest .")
+	    ;; ("C" (:alt) "attack :north .")
+	    ;; ("R" (:alt) "attack :northeast .")
+	    ;; ("H" (:alt) "attack :west .")
+	    ;; ("N" (:alt) "attack :east .")
+	    ;; ("M" (:alt) "attack :southwest .")
+	    ;; ("W" (:alt) "attack :south .")
+	    ;; ("V" (:alt) "attack :southeast .")
+	    ;; ;;
+	    ;; ("G" (:meta) "attack :northwest .")
+	    ;; ("C" (:meta) "attack :north .")
+	    ;; ("R" (:meta) "attack :northeast .")
+	    ;; ("H" (:meta) "attack :west .")
+	    ;; ("N" (:meta) "attack :east .")
+	    ;; ("M" (:meta) "attack :southwest .")
+	    ;; ("W" (:meta) "attack :south .")
+	    ;; ("V" (:meta) "attack :southeast .")
 	    ;;
 	    ("G" (:control) "fire :northwest .")
 	    ("C" (:control) "fire :north .")
@@ -1127,6 +1166,7 @@
   (let* ((char <character>)
 	 (hits [stat-value char :hit-points])
 	 (lives [stat-value char :lives])
+	 (energy [stat-value char :energy])
 	 (pulse-ammo [stat-value char :pulse-ammo])
 	 (bomb-ammo [stat-value char :bomb-ammo]))
     [print self " HITS: "]
@@ -1162,7 +1202,21 @@
 			     ".gray20")]
      [space self])
     [print self "     SCORE: "]
-    [println self (format nil "~D" [stat-value char :score])]))
+    [println self (format nil "~D" [stat-value char :score])]
+    ;; energy display
+    [print self " ENERGY: "]
+    (dotimes (i 40)
+      [print self " " 
+	     :foreground ".white"
+	     :background (if (< i energy)
+			     ".cyan"
+			     ".gray20")]
+     [space self])
+    [newline self]))
+  
+            
+
+
     
 
 (defvar *status*)
@@ -1228,7 +1282,7 @@
     [set-narrator world narrator]
     [set-verbosity narrator 0]
     ;;
-    [resize status :height 30 :width 700]
+    [resize status :height 50 :width 700]
     [move status :x 10 :y 10]
     [set-character status player]
     (setf *status* status)
@@ -1239,9 +1293,9 @@
    ;;
     (setf (clon:field-value :tile-size viewport) 16)
     [set-world viewport world]
-    [resize viewport :height 462 :width 800]
-    [move viewport :x 0 :y 40]
-    [set-origin viewport :x 0 :y 0 :height 28 :width 50]
+    [resize viewport :height 442 :width 800]
+    [move viewport :x 0 :y 60]
+    [set-origin viewport :x 0 :y 0 :height 25 :width 50]
     [adjust viewport]
     ;;
     [start world]
