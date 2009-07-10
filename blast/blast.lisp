@@ -89,7 +89,7 @@
 (defcell wall
   (tile :initform "wall")
   (categories :initform '(:obstacle))
-  (hit-points :initform (make-stat :base 10 :min 0)))
+  (hit-points :initform (make-stat :base 1 :min 0)))
 
 ;;; An explosion.
 
@@ -108,12 +108,9 @@
 	(play-sample "crunch")
 	(decf <clock>)
 	[expend-action-points self 10]
-	(let* ((cells [cells-at *active-world* <row> <column>])
-	       (x (1- (fill-pointer cells))))
-	  (loop while (not (minusp x))
-	       do (progn 
-		    [>>damage (aref cells x) <damage-per-turn>]
-		    (decf x)))))))
+	(rlx:do-cells (cell [cells-at *active-world* <row> <column>])
+	  (when (not [is-player cell])
+	    [damage cell <damage-per-turn>])))))
 
 ;;; A bomb with countdown display.
 
@@ -765,7 +762,7 @@
   (asteroid-count :initform 100)
   (polaris-count :initform 50)
   (probe-count :initform 20)
-  (room-count :initform 36)
+  (room-count :initform 26)
   (ambient-light :initform :total))
 
 (define-method generate void-world (&optional parameters)
@@ -1069,8 +1066,7 @@
 			   :destination <image>))
 
 (define-method dismiss splash ()
-  (set-music-volume 255)	       
-;;  (play-music "xiomacs2" :loop t)
+  (play-sample "go")
   (apply #'rlx:install-widgets *play-widgets*))
 
 (define-prototype splash-prompt (:parent =prompt=)
@@ -1138,7 +1134,7 @@
     ;;
     [start world]
     (play-music "xiomacs" :loop t)
-    (play-sample "go")
+    (set-music-volume 255)	       
 
     (setf *play-widgets* (list prompt status viewport narrator *billboard*))
     (install-widgets splash-prompt splash)))
