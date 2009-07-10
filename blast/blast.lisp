@@ -855,7 +855,9 @@
 (defcell polaris
   (tile :initform "polaris")
   (asteroids :initform '())
-  (categories :initform '(:actor))
+  (stepping :initform t)
+  (categories :initform '(:actor :target))
+  (hit-points :initform (make-stat :base 5 :min 0 :max 5))
   (direction :initform (rlx:random-direction)))
 
 (define-method scan-neighborhood polaris ()
@@ -915,6 +917,26 @@
     (rlx:play-sample "sweep")
     [say *billboard* :sweep]
     [>>say :narrator "You get 2000 extra points for wiping the polaris mine clean of asteroids."]))
+
+(define-method explode polaris ()
+  (labels ((boom (r c &optional (probability 50))
+	     (prog1 nil
+	       (when (and (< (random 100) probability)
+			  [in-bounds-p *active-world* r c])
+		 [drop-cell *active-world* (clone =explosion=) r c :no-collisions nil]))))
+    (dolist (dir rlx:*compass-directions*)
+      (multiple-value-bind (r c)
+	  (step-in-direction <row> <column> dir)
+	(boom r c 100)))
+    ;; randomly sprinkle some fire around edges
+    (trace-rectangle #'boom 
+		     (- <row> 2) 
+		     (- <column> 2) 
+		     5 5)))
+
+(define-method die polaris ()
+  [explode self]
+  [parent>>die self])
 
 ;;; The inescapable game grid.
 
@@ -1185,6 +1207,8 @@
 (define-method set-character status (char)
   (setf <character> char))
 
+(defparameter *status-bar-character* "-")
+
 (define-method update status ()
   [delete-all-lines self]
   (let* ((char <character>)
@@ -1195,47 +1219,47 @@
 	 (bomb-ammo [stat-value char :bomb-ammo]))
     [print self " HITS: "]
     (dotimes (i 5)
-      [print self " " 
+      [print self *status-bar-character* 
 	     :foreground ".yellow"
 	     :background (if (< i hits)
 			     ".red"
-			     ".gray20")]
-      [space self])
+			     ".gray20")])
+    [space self]
     [print self " LIVES: "]
     (dotimes (i 3)
-      [print self " " 
+      [print self *status-bar-character* 
 	     :foreground ".yellow"
 	     :background (if (< i lives)
 			     ".blue"
-			     ".gray20")]
-      [space self])
+			     ".gray20")])
+    [space self]
     [print self " PULSE: "]
     (dotimes (i 6)
-      [print self " " 
-	     :foreground ".yellow"
+      [print self *status-bar-character* 
+	     :foreground ".red"
 	     :background (if (< i pulse-ammo)
 			     ".yellow"
-			     ".gray20")]
-     [space self])
+			     ".gray20")])
+    [space self]
     [print self " BOMBS: "]
     (dotimes (i 6)
-      [print self " " 
+      [print self *status-bar-character* 
 	     :foreground ".red"
 	     :background (if (< i bomb-ammo)
 			     ".green"
-			     ".gray20")]
-     [space self])
+			     ".gray20")])
+    [space self]
     [print self "     SCORE: "]
     [println self (format nil "~D" [stat-value char :score])]
     ;; energy display
     [print self " ENERGY: "]
     (dotimes (i 40)
-      [print self " " 
-	     :foreground ".white"
+      [print self *status-bar-character* 
+	     :foreground ".red"
 	     :background (if (< i energy)
 			     ".cyan"
-			     ".gray20")]
-     [space self])
+			     ".gray20")])
+    [space self]
     [newline self]))
   
             
