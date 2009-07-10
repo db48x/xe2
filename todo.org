@@ -5,7 +5,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
-** TODO Reusable pellet ammo
+** TODO [#B] crystalline growth levels... mine the crystals
 ** DONE [#A] Redraw powerups to use letters 
 ** TODO [#A] Tone down "asteroids" vibe... more exploration
 ** TODO [#B] Implement multiple lisp files loading for startup
@@ -17,7 +17,6 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 ** TODO [#A] Make a few different level variations
 ** TODO meatpod manifesto
 ** TODO [#A] port lighting and LOS
-** TODO [#B] crystalline growth levels... mine the crystals
 ** TODO artifacts
 ** FEATURE [#A] pak :startup type			 :engine:
 ** FEATURE [#A] pak autoload lisp in order		 :engine:

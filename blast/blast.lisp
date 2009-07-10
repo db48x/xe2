@@ -567,7 +567,7 @@
   [stat-effect self :hit-points 5]	       
   [update-tile self]
   [delete-category self :dead]
-  [stat-effect self :trail-length (- <trail-length>)]
+  [stat-effect self :trail-length (- [stat-value self :trail-length])]
   [set-player *active-world* self])
 
 ;;; A life crystal powerup.
