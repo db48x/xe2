@@ -5,23 +5,26 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
-** TODO Fix trail length not resetting on respawn
+** TODO Reusable pellet ammo
+** DONE [#A] Redraw powerups to use letters 
 ** TODO [#A] Tone down "asteroids" vibe... more exploration
+** TODO [#B] Implement multiple lisp files loading for startup
+** TODO [#C] Fix trail length not resetting on respawn
 ** TODO [#A] add poweruppable directional firing particles
 ** TODO [#C] look into clbuild
 ** TODO [#B] Non-dangerous explore area in blast <- collect minerals and get info help
 ** TODO [#A] Portals between worlds
+** TODO [#A] Make a few different level variations
 ** TODO meatpod manifesto
-** TODO own trail kills you
-** TODO room walls kill you
-** TODO you keep moving? ? 
+** TODO [#A] port lighting and LOS
+** TODO [#B] crystalline growth levels... mine the crystals
+** TODO artifacts
 ** FEATURE [#A] pak :startup type			 :engine:
 ** FEATURE [#A] pak autoload lisp in order		 :engine:
 ** FEATURE [#A] numpad support 				 :engine:
 ** FEATURE port pathfinding
 *** TODO Read pathfinding code
 *** TODO Separate heap structure (pool.lisp?)
-** FEATURE [#A] port lighting
 ** FEATURE cell environment sensors?
 ** FEATURE [#A] Pak text file type for story display 	 :engine:
 ** FEATURE [#A] smarter enemies that talk	  :blast:invader:
