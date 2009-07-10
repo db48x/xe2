@@ -262,6 +262,116 @@
     (when (not [is-player cell])
       [damage cell 5])))
 
+;;; Muon particles, trails, and pistols
+
+(defvar *muon-tiles* '(:north "muon-north"
+		       :south "muon-south"
+		       :east "muon-east"
+		       :west "muon-west"
+		       :northeast "muon-northeast"
+		       :southeast "muon-southeast"
+		       :southwest "muon-southwest"
+		       :northwest "muon-northwest"))
+
+(defvar *trail-middle-tiles* '(:north "bullet-trail-middle-north"
+			       :south "bullet-trail-middle-south"
+			       :east "bullet-trail-middle-east"
+			       :west "bullet-trail-middle-west"
+			       :northeast "bullet-trail-middle-northeast"
+			       :southeast "bullet-trail-middle-southeast"
+			       :southwest "bullet-trail-middle-southwest"
+			       :northwest "bullet-trail-middle-northwest"))
+
+(defvar *trail-end-tiles* '(:north "bullet-trail-end-north"
+			       :south "bullet-trail-end-south"
+			       :east "bullet-trail-end-east"
+			       :west "bullet-trail-end-west"
+			       :northeast "bullet-trail-end-northeast"
+			       :southeast "bullet-trail-end-southeast"
+			       :southwest "bullet-trail-end-southwest"
+			       :northwest "bullet-trail-end-northwest"))
+
+(defvar *trail-tile-map* (list *trail-end-tiles* *trail-middle-tiles* *trail-middle-tiles*))
+
+(define-prototype muon-trail (:parent rlx:=cell=)
+  (categories :initform '(:actor))
+  (clock :initform 2)
+  (speed :initform (make-stat :base 10))
+  (default-cost :initform (make-stat :base 10))
+  (tile :initform ".gear")
+  (direction :initform :north))
+
+(define-method initialize muon-trail (direction)
+  (setf <direction> direction)
+  (setf <tile> (getf *trail-middle-tiles* direction)))
+
+(define-method run muon-trail ()
+  (setf <tile> (getf (nth <clock> *trail-tile-map*)
+		     <direction>))
+  [expend-default-action-points self]
+  (decf <clock>)
+  (when (minusp <clock>)
+    [die self]))
+
+(define-prototype muon-particle (:parent rlx:=cell=)
+  (categories :initform '(:actor))
+  (speed :initform (make-stat :base 15))
+  (default-cost :initform (make-stat :base 5))
+  (tile :initform "muon")
+  (direction :initform :here)
+  (clock :initform 9))
+
+(define-method find-target muon-particle ()
+  (let ((target [category-in-direction-p *active-world* 
+					 <row> <column> <direction>
+					 '(:obstacle :target)]))
+    (if target
+	(progn
+	  [queue>>move self <direction>]
+	  [queue>>expend-default-action-points self]
+	  [queue>>drop target (clone =flash=)]
+	  [queue>>damage target 7]
+	  [queue>>die self])
+	(progn 
+	  [queue>>drop self (clone =muon-trail= <direction>)]
+	  [queue>>move self <direction>]))))
+  
+(define-method run muon-particle ()
+  (setf <tile> (getf *muon-tiles* <direction>))
+  [find-target self]
+  (decf <clock>)
+  (when (zerop <clock>)
+    [queue>>die self]))
+
+(define-method impel muon-particle (direction)
+  (assert (member direction *compass-directions*))
+  (setf <direction> direction)
+  ;; don't hit the player
+  [find-target self])
+
+(define-prototype muon-pistol (:parent rlx:=cell=)
+  (name :initform "Muon energy pistol")
+  (tile :initform "gun")
+  (categories :initform '(:item :weapon :equipment))
+  (equip-for :initform '(:left-hand))
+  (weight :initform 7000)
+  (accuracy :initform (make-stat :base 90))
+  (attack-power :initform (make-stat :base 12))
+  (attack-cost :initform (make-stat :base 5))
+  (energy-cost :initform (make-stat :base 10)))
+
+(define-method fire muon-pistol (direction)
+  (if [expend-energy <equipper> 10]
+      (let ((muon (clone =muon-particle=)))
+	(play-sample "whoop")
+	[>>drop <equipper> muon]
+	[>>impel muon direction])
+      [>>say :narrator "Not enough energy to fire!"]))
+
+(define-method step muon-pistol (stepper)
+  (when [is-player stepper]
+    [>>take stepper :direction :here :category :item]))
+
 ;;; Pulse wave cannon destroys anything near you.
 
 (defcell pulse-cannon 
@@ -302,6 +412,7 @@
   (trail-length :initform (make-stat :base 12 :min 0))
   (pulse-ammo :initform (make-stat :base 3 :min 0 :max 5))
   (bomb-ammo :initform (make-stat :base 3 :min 0 :max 5))
+  (muon-ammo :initform (make-stat :base 0 :min 0 :max 20))
   (invincibility-clock :initform 0)
   (stepping :initform t)
   (lives :initform (make-stat :min 0 :base 3 :max 3))
