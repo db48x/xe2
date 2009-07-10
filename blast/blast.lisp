@@ -22,8 +22,8 @@
 
 ;; Blast Tactics is a mini space-roguelike puzzler incorporating
 ;; elements of the classic Asteroids, plus gravity and a unique weapon
-;; system. Instead of shooting asteroids, you sweep your trail across
-;; them. Powerups extend your trail's length and enable higher scores. 
+;; system. Shoot asteroids and enemies, or sweep your trail across
+;; them. Powerups extend your trail's length and enable higher scores.
 
 ;;; Packaging
 
