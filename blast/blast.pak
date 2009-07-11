@@ -3,6 +3,8 @@
  (:name	"player-ship-north" :type :image :file "player-ship-north.png")
  (:name	"player-ship-invincible" :type :image :file "ship-invincible.png")
 
+ (:name "worp" :type :sample :file "worp.wav" :properties (:volume 10))
+
  (:name	"player-ship-north-shield" :type :image :file "player-ship-north-shield.png")
  (:name "asteroid-blue" :type :image :file "asteroid-blue-north.png")
  (:name "asteroid-brown" :type :image :file "asteroid-brown-north.png")
@@ -151,6 +153,7 @@
  (:name "flash-2" :type :image :file "flash-2.png")
 
  (:name "energy" :type :image :file "electron.png")
+ (:name "crystal" :type :image :file "crystal.png")
 
  (:name "display-font" :type :font :properties (:height 20 :width 10) :data "10x20")
  (:name ".startup" :type :lisp :file "blast.lisp")

@@ -224,7 +224,7 @@
   ;; don't damage player
   (unless [is-player stepper]
     [drop self (clone =explosion=)]	       
-    [damage stepper 1]))
+    [damage stepper 2]))
 
 ;;; Death icon.
 
@@ -399,7 +399,7 @@
   (weight :initform 7000)
   (accuracy :initform (make-stat :base 90))
   (attack-power :initform (make-stat :base 12))
-  (attack-cost :initform (make-stat :base 5))
+  (attack-cost :initform (make-stat :base 10))
   (energy-cost :initform (make-stat :base 1)))
 
 (define-method fire muon-cannon (direction)
@@ -446,6 +446,7 @@
   (name :initform "Olvac 2")
   (last-direction :initform :here)
   (speed :initform (make-stat :base 10))
+  (crystals :initform (make-stat :base 0 :min 0))
   (strength :initform (make-stat :base 10))
   (defense :initform (make-stat :base 10))
   (energy :initform (make-stat :base 40 :min 0 :max 40))
@@ -567,7 +568,7 @@
   [stat-effect self :trail-length (- [stat-value self :trail-length])]
   [set-player *active-world* self])
 
-;;; A life crystal powerup.
+;;; A life powerup.
 
 (defcell diamond
   (tile :initform "diamond"))
@@ -578,6 +579,20 @@
    [say *billboard* :shield]
    [stat-effect stepper :hit-points 8]
    [stat-effect stepper :score 2000]
+   [die self]))
+
+;;; Mineral crystal. 
+
+(defcell crystal
+  (tile :initform "crystal")
+  (categories :initform '(:target))
+  (hit-points :initform (make-stat :base 1 :min 0)))
+
+(define-method step crystal (stepper)
+  (when [is-player stepper]
+   (play-sample "worp")
+   [stat-effect stepper :crystals 1]
+   [stat-effect stepper :score 1000]
    [die self]))
 
 ;;; A trail extender powerup.
@@ -1255,7 +1270,14 @@
 	  (delete (nth n rectangle) rectangle)))
       (dolist (point rectangle)
 	(destructuring-bind (r c) point
-	[drop-cell self (clone =wall=) r c :no-collisions t])))))
+	[drop-cell self (clone =wall=) r c :no-collisions t])))
+    (when (> 4 (random 10))
+      (dotimes (i (+ 2 (random 10)))
+	[drop-cell self (clone =crystal=) 
+		   (+ 1 row (random 4))
+		   (+ 1 column (random 4))
+		   :no-collisions t]))))
+
 
 (define-method drop-box-cluster void-world (row column &key
 						(height (+ 3 (random 10)))
@@ -1513,6 +1535,8 @@
     [space self]
     [print self " ASTEROIDS REMAINING: "]
     [print self (format nil "~D" *asteroid-count*)]
+    [print self " CRYSTALS: "]
+    [print self (format nil "~D" [stat-value char :crystals])]
     [newline self]))
 
 (defvar *status*)
