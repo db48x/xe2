@@ -62,10 +62,46 @@
  (:name "blast-box" :type :image :file "blast-box.png")
  (:name "blast-box-debris" :type :image :file "blast-box-debris.png")
 
+ (:name "scanner" :type :image :file "scanner.png")
+
+ (:name "lepton" :type :image :file "lepton.png")
+ (:name "lepton-cannon" :type :image :file "gun.png")
+
+ (:name "lepton-north" :type :image :file "lepton-north.png")
+ (:name "lepton-east" :type :alias :data ":rotate 90:lepton-north")
+ (:name "lepton-south" :type :alias :data ":rotate 180:lepton-north")
+ (:name "lepton-west" :type :alias :data ":rotate 270:lepton-north")
+
+ (:name "lepton-northeast" :type :image :file "lepton-northeast.png")
+ (:name "lepton-southeast" :type :alias :data ":rotate 90:lepton-northeast")
+ (:name "lepton-southwest" :type :alias :data ":rotate 180:lepton-northeast")
+ (:name "lepton-northwest" :type :alias :data ":rotate 270:lepton-northeast")
+
+ (:name "bullet-trail-middle-thin-north" :type :image :file "bullet-trail-middle-thin-north.png")
+ (:name "bullet-trail-middle-thin-east" :type :alias :data ":rotate 90:bullet-trail-middle-thin-north")
+ (:name "bullet-trail-middle-thin-south" :type :alias :data ":rotate 180:bullet-trail-middle-thin-north")
+ (:name "bullet-trail-middle-thin-west" :type :alias :data ":rotate 270:bullet-trail-middle-thin-north")
+
+ (:name "bullet-trail-middle-thin-northeast" :type :image :file "bullet-trail-middle-thin-northeast.png")
+ (:name "bullet-trail-middle-thin-southeast" :type :alias :data ":rotate 90:bullet-trail-middle-thin-northeast")
+ (:name "bullet-trail-middle-thin-southwest" :type :alias :data ":rotate 180:bullet-trail-middle-thin-northeast")
+ (:name "bullet-trail-middle-thin-northwest" :type :alias :data ":rotate 270:bullet-trail-middle-thin-northeast")
+
+ (:name "bullet-trail-end-thin-north" :type :image :file "bullet-trail-end-thin-north.png")
+ (:name "bullet-trail-end-thin-east" :type :alias :data ":rotate 90:bullet-trail-end-thin-north")
+ (:name "bullet-trail-end-thin-south" :type :alias :data ":rotate 180:bullet-trail-end-thin-north")
+ (:name "bullet-trail-end-thin-west" :type :alias :data ":rotate 270:bullet-trail-end-thin-north")
+
+ (:name "bullet-trail-end-thin-northeast" :type :image :file "bullet-trail-thin-end-northeast.png")
+ (:name "bullet-trail-end-thin-southeast" :type :alias :data ":rotate 90:bullet-trail-end-thin-northeast")
+ (:name "bullet-trail-end-thin-southwest" :type :alias :data ":rotate 180:bullet-trail-end-thin-northeast")
+ (:name "bullet-trail-end-thin-northwest" :type :alias :data ":rotate 270:bullet-trail-end-thin-northeast")
+
  (:name "sweep" :type :sample :file "snare-wak2.wav" :properties (:volume 40))
  (:name "dtmf1" :type :sample :file "dtmf1.wav" :properties (:volume 3))
  (:name "dtmf2" :type :sample :file "dtmf2.wav" :properties (:volume 30))
  (:name "bleep" :type :sample :file "bleep.wav" :properties (:volume 20))
+ (:name "bloup" :type :sample :file "bloup.wav" :properties (:volume 30))
  (:name "go" :type :sample :file "go.wav" :properties (:volume 30))
  (:name "aagh" :type :sample :file "aagh.wav" :properties (:volume 20))
  (:name "warn" :type :sample :file "warn.wav" :properties (:volume 30))

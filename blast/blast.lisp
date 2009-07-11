@@ -952,6 +952,220 @@
   [>>drop self (clone =blast-box-debris=)]
   [parent>>die self])
 
+;;; Lepton Seeker Cannon
+
+(defvar *lepton-tiles* '(:north "lepton-north"
+		       :south "lepton-south"
+		       :east "lepton-east"
+		       :west "lepton-west"
+		       :northeast "lepton-northeast"
+		       :southeast "lepton-southeast"
+		       :southwest "lepton-southwest"
+		       :northwest "lepton-northwest"))
+
+(defvar *lepton-trail-middle-tiles* '(:north "bullet-trail-middle-thin-north"
+			       :south "bullet-trail-middle-thin-south"
+			       :east "bullet-trail-middle-thin-east"
+			       :west "bullet-trail-middle-thin-west"
+			       :northeast "bullet-trail-middle-thin-northeast"
+			       :southeast "bullet-trail-middle-thin-southeast"
+			       :southwest "bullet-trail-middle-thin-southwest"
+			       :northwest "bullet-trail-middle-thin-northwest"))
+
+(defvar *lepton-trail-end-tiles* '(:north "bullet-trail-end-thin-north"
+			       :south "bullet-trail-end-thin-south"
+			       :east "bullet-trail-end-thin-east"
+			       :west "bullet-trail-end-thin-west"
+			       :northeast "bullet-trail-end-thin-northeast"
+			       :southeast "bullet-trail-end-thin-southeast"
+			       :southwest "bullet-trail-end-thin-southwest"
+			       :northwest "bullet-trail-end-thin-northwest"))
+
+(defvar *lepton-trail-tile-map* (list *lepton-trail-end-tiles* *lepton-trail-middle-tiles* *lepton-trail-middle-tiles*))
+
+(define-prototype lepton-trail (:parent rlx:=cell=)
+  (categories :initform '(:actor))
+  (clock :initform 2)
+  (speed :initform (make-stat :base 10))
+  (default-cost :initform (make-stat :base 10))
+  (tile :initform ".gear")
+  (direction :initform :north))
+
+(define-method initialize lepton-trail (direction)
+  (setf <direction> direction)
+  (setf <tile> (getf *lepton-trail-middle-tiles* direction)))
+
+(define-method run lepton-trail ()
+  (setf <tile> (getf (nth <clock> *lepton-trail-tile-map*)
+		     <direction>))
+  [expend-default-action-points self]
+  (decf <clock>)
+  (when (minusp <clock>)
+    [die self]))
+
+(define-prototype lepton-particle (:parent rlx:=cell=)
+  (categories :initform '(:actor :target))
+  (speed :initform (make-stat :base 14))
+  (hit-damage :initform (make-stat :base 7))
+  (default-cost :initform (make-stat :base 2))
+  (hit-points :initform (make-stat :base 5))
+  (movement-cost :initform (make-stat :base 4))
+  (tile :initform "lepton")
+  (direction :initform :here)
+  (clock :initform 10))
+
+(define-method find-target lepton-particle ()
+  (let ((target [category-in-direction-p *active-world* 
+					 <row> <column> <direction>
+					 '(:obstacle :target)]))
+    (if target
+	(progn	
+	  [queue>>drop target (clone =flash=)]
+	  [queue>>damage target [stat-value self :hit-damage]]
+	  [queue>>die self])
+	(progn 
+	  [queue>>drop self (clone =lepton-trail= <direction>)]
+	  [queue>>move self <direction>]))))
+  
+(define-method run lepton-particle ()
+  (setf <tile> (getf *lepton-tiles* <direction>))
+  (clon:with-field-values (row column) self
+    (let* ((world *active-world*)
+	   (direction [direction-to-player *active-world* row column]))
+      (setf <direction> direction)
+      [find-target self])
+    (decf <clock>)
+    (when (and (zerop <clock>) 
+	       (not [in-category self :dead]))
+      [queue>>die self])))
+
+(define-method damage lepton-particle (points)
+  (declare (ignore points))
+  [>>drop self (clone =sparkle=)]
+  [>>die self])
+      
+(define-method impel lepton-particle (direction)
+  (assert (member direction *compass-directions*))
+  (setf <direction> direction)
+  ;; don't hit the player
+  [find-target self])
+
+(define-prototype lepton-cannon (:parent rlx:=cell=)
+  (name :initform "Xiong Les Fleurs Lepton(TM) energy cannon")
+  (tile :initform "lepton-cannon")
+  (categories :initform '(:item :weapon :equipment))
+  (equip-for :initform '(:robotic-arm))
+  (weight :initform 14000)
+  (accuracy :initform (make-stat :base 60))
+  (attack-power :initform (make-stat :base 16))
+  (attack-cost :initform (make-stat :base 25))
+  (energy-cost :initform (make-stat :base 32)))
+
+(define-method fire lepton-cannon (direction)
+  (if [expend-energy <equipper> [stat-value self :energy-cost]]
+      (let ((lepton (clone =lepton-particle=)))
+	(rlx:play-sample "bloup")
+	[queue>>drop <equipper> lepton]
+	[queue>>impel lepton direction]
+	[expend-action-points <equipper> [stat-value self :attack-cost]]
+      (message "Not enough energy to fire."))))
+
+;;; The ion shield
+
+(defcell ion-shield-wall 
+  (tile :initform "ion-shield-wall")
+  (categories :initform '(:obstacle :actor :target))
+  (hit-points :initform (make-stat :base 10 :min 0))
+  (clock :initform (+ 12 (random 4))))
+
+(define-method die ion-shield-wall ()
+  [queue>>drop-cell *active-world* (clone =flash=) <row> <column>]
+  [parent>>die self])
+
+(define-method run ion-shield-wall ()
+  (when (zerop <clock>)
+    [die self])
+  (decf <clock>))
+
+(defcell ion-shield 
+  (categories :initform '(:item :equipment))
+  (name :initform "Ion shield belt")
+  (tile :initform "ion-shield")
+  (equip-for :initform '(:belt))
+  (size :initform 5))
+
+(defparameter *ion-shield-energy-cost* 60)
+
+(define-method activate ion-shield ()
+  (let* ((world *active-world*)
+	 (row [player-row world])
+	 (column [player-column world])
+	 (size <size>))
+    (if [expend-energy [get-player world] *ion-shield-energy-cost*]
+      (labels ((drop-ion (r c)
+		 (prog1 nil
+		   [drop-cell world (clone =ion-shield-wall=) r c :no-collisions nil])))
+	[>>say :narrator "Activating ion shield."]
+	(trace-rectangle #'drop-ion 
+			 (- row (truncate (/ size 2)))
+			 (- column (truncate (/ size 2)))
+			 size size))
+      [say :narrator "Not enough energy to activate shield."])))
+
+(define-method step ion-shield (stepper)
+  (when [is-player stepper]
+    [>>say :narrator "You've found the Ion Shield Belt."]
+    [>>take stepper :direction :here :category :item]))
+
+;;; The deadly Scanner can be avoided because it moves (mostly) predictably
+
+(defcell scanner 
+  (tile :initform "scanner")
+  (name :initform "Scanner")
+  (categories :initform '(:obstacle :actor :equipper :opaque))
+  (direction :initform nil)
+  (speed :initform (make-stat :base 5))
+  (hit-points :initform (make-stat :base 40 :min 0))
+  (equipment-slots :initform '(:robotic-arm))
+  (max-items :initform (make-stat :base 3))
+  (stepping :initform t)
+  (attacking-with :initform :robotic-arm)
+  (energy :initform (make-stat :base 800 :min 0 :max 1000))
+  (firing-with :initform :robotic-arm)
+  (strength :initform (make-stat :base 24))
+  (dexterity :initform (make-stat :base 12)))
+
+(define-method choose-new-direction scanner ()
+  (setf <direction>
+	(if (= 0 (random 20))
+	    ;; occasionally choose a random dir
+	    (nth (random 3)
+		 '(:north :south :east :west))
+	    ;; otherwise turn left
+	    (getf '(:north :west :west :south :south :east :east :north)
+		  (or <direction> :north)))))
+  
+(define-method loadout scanner ()
+  (let ((cannon (clone =lepton-cannon=)))
+    [equip self [add-item self cannon]]
+    [choose-new-direction self]))
+  
+(define-method initialize scanner ()
+  [make-inventory self]
+  [make-equipment self])
+
+(define-method run scanner ()
+  (clon:with-field-values (row column) self
+    (let ((world *active-world*))
+      (if (< [distance-to-player world row column] 8)
+	  (let ((player-dir [direction-to-player world row column]))
+	    [queue>>fire self player-dir])
+	  (multiple-value-bind (r c)
+	      (step-in-direction <row> <column> <direction>)
+	    (when [obstacle-at-p world r c]
+	      [choose-new-direction self])
+	    [queue>>move self <direction>])))))
+
 ;;; The inescapable game grid.
 
 (define-prototype void-world (:parent rlx:=world=)
@@ -962,6 +1176,7 @@
   (probe-count :initform 20)
   (box-cluster-count :initform 20)
   (room-count :initform 35)
+  (scanner-count :initform 20)
   (energy-count :initform 30)
   (ambient-light :initform :total))
 
@@ -977,6 +1192,9 @@
     (dotimes (i <energy-count>)
       [drop-cell self (clone =energy=)
 		 (random height) (random width)])
+    (dotimes (i <scanner-count>)
+      [drop-cell self (clone =scanner=)
+		 (random height) (random width) :loadout t])
     (dotimes (i <probe-count>)
       [drop-cell self (clone =probe=)
 		 (random height) (random width)])

@@ -5,6 +5,8 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO Ion shield
+** TODO Scanners
 ** TODO [#B] crystalline growth levels... mine the crystals
 ** DONE [#A] Redraw powerups to use letters 
 ** TODO [#A] Tone down "asteroids" vibe... more exploration
