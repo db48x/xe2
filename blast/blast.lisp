@@ -1169,8 +1169,8 @@
 ;;; The inescapable game grid.
 
 (define-prototype void-world (:parent rlx:=world=)
-  (width :initform 80)
-  (height :initform 46)
+  (width :initform 50)
+  (height :initform 200)
   (asteroid-count :initform 100)
   (polaris-count :initform 50)
   (probe-count :initform 20)
@@ -1494,7 +1494,9 @@
 			     ".green"
 			     ".gray20")])
     [space self]
-    [print self "     SCORE: "]
+    [print self " DEPTH: "]
+    [print self (format nil "~D" (field-value :row char))]
+    [print self " SCORE: "]
     [println self (format nil "~D" [stat-value char :score])]
     ;; energy display
     [print self " ENERGY: "]
