@@ -59,6 +59,9 @@
  (:name "debris" :type :image :file "debris.png")
  (:name "asteroid-orange" :type :image :file "asteroid-orange.png")
 
+ (:name "blast-box" :type :image :file "blast-box.png")
+ (:name "blast-box-debris" :type :image :file "blast-box-debris.png")
+
  (:name "sweep" :type :sample :file "snare-wak2.wav" :properties (:volume 40))
  (:name "dtmf1" :type :sample :file "dtmf1.wav" :properties (:volume 3))
  (:name "dtmf2" :type :sample :file "dtmf2.wav" :properties (:volume 30))

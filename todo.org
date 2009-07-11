@@ -10,7 +10,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 ** TODO [#A] Tone down "asteroids" vibe... more exploration
 ** TODO [#B] Implement multiple lisp files loading for startup
 ** TODO [#C] Fix trail length not resetting on respawn
-** TODO [#A] add poweruppable directional firing particles
+** TODO [#A] add weapon powerup firing particles?
 ** TODO [#C] look into clbuild
 ** TODO [#B] Non-dangerous explore area in blast <- collect minerals and get info help
 ** TODO [#A] Portals between worlds

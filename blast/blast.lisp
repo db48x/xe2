@@ -89,7 +89,7 @@
 (defcell wall
   (tile :initform "wall")
   (categories :initform '(:obstacle))
-  (hit-points :initform (make-stat :base 1 :min 0)))
+  (hit-points :initform (make-stat :base 40 :min 0)))
 
 ;;; Glittering flash gives clues on locations of explosions/damage
 
@@ -940,6 +940,22 @@
   [explode self]
   [parent>>die self])
 
+;;; Some destructible blocks
+
+(defcell blast-box
+  (tile :initform "blast-box")
+  (name :initform "Storage crate")
+  (categories :initform '(:obstacle :opaque :pushable :destructible :target))
+  (hit-points :initform (make-stat :base 1 :min 0)))
+
+(defcell blast-box-debris
+  (tile :initform "blast-box-debris")
+  (name :initform "Crate debris"))
+
+(define-method die blast-box ()
+  [>>drop self (clone =blast-box-debris=)]
+  [parent>>die self])
+
 ;;; The inescapable game grid.
 
 (define-prototype void-world (:parent rlx:=world=)
@@ -948,7 +964,8 @@
   (asteroid-count :initform 100)
   (polaris-count :initform 50)
   (probe-count :initform 20)
-  (room-count :initform 26)
+  (box-cluster-count :initform 20)
+  (room-count :initform 35)
   (energy-count :initform 30)
   (ambient-light :initform :total))
 
@@ -970,7 +987,11 @@
     (dotimes (i <room-count>)
       (let ((r (random height))
 	    (c (random width)))
-	[drop-room self r c]))))
+	[drop-room self r c]))
+    (dotimes (i <box-cluster-count>)
+      (let ((r (random height))
+	    (c (random width)))
+	[drop-box-cluster self r c]))))
 	    
 (define-method drop-random-asteroids void-world (count)
   (clon:with-field-values (height width) self
@@ -1017,6 +1038,14 @@
       (dolist (point rectangle)
 	(destructuring-bind (r c) point
 	[drop-cell self (clone =wall=) r c :no-collisions t])))))
+
+(define-method drop-box-cluster void-world (row column &key
+						(height (+ 3 (random 10)))
+						(width (+ 3 (random 10))))
+  (labels ((drop-box (r c)
+	     (prog1 nil
+	       [drop-cell self (clone =blast-box=) r c])))
+    (trace-rectangle #'drop-box row column height width :fill)))
 
 ;;; Custom bordered viewport
 
