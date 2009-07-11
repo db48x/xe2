@@ -1171,13 +1171,13 @@
 (define-prototype void-world (:parent rlx:=world=)
   (width :initform 50)
   (height :initform 200)
-  (asteroid-count :initform 100)
-  (polaris-count :initform 50)
-  (probe-count :initform 20)
-  (box-cluster-count :initform 20)
-  (room-count :initform 35)
-  (scanner-count :initform 20)
-  (energy-count :initform 30)
+  (asteroid-count :initform 200)
+  (polaris-count :initform 70)
+  (probe-count :initform 50)
+  (box-cluster-count :initform 40)
+  (room-count :initform 45)
+  (scanner-count :initform 25)
+  (energy-count :initform 50)
   (ambient-light :initform :total))
 
 (define-method generate void-world (&optional parameters)
@@ -1508,11 +1508,6 @@
 			     ".gray20")])
     [space self]
     [newline self]))
-  
-            
-
-
-    
 
 (defvar *status*)
 
