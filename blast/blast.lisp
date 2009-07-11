@@ -561,6 +561,7 @@
   [say *billboard* :go]
   [drop-cell *active-world* self (random 10) (random 10)]
   [stat-effect self :hit-points 20]	       
+  [stat-effect self :energy 40]	       
   [update-tile self]
   [delete-category self :dead]
   [stat-effect self :trail-length (- [stat-value self :trail-length])]
@@ -1125,7 +1126,7 @@
   (categories :initform '(:obstacle :actor :equipper :opaque))
   (direction :initform nil)
   (speed :initform (make-stat :base 5))
-  (hit-points :initform (make-stat :base 40 :min 0))
+  (hit-points :initform (make-stat :base 20 :min 0))
   (equipment-slots :initform '(:robotic-arm))
   (max-items :initform (make-stat :base 3))
   (stepping :initform t)
