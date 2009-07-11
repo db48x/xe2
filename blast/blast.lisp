@@ -576,8 +576,7 @@
   (when [is-player stepper]
    (play-sample "powerup")
    [say *billboard* :shield]
-   [>>say :narrator "You gain 1 hit point and 2000 score."] 
-   [stat-effect stepper :hit-points 1]
+   [stat-effect stepper :hit-points 8]
    [stat-effect stepper :score 2000]
    [die self]))
 
@@ -591,7 +590,7 @@
     (play-sample "powerup")
     [say *billboard* :extend]
     [>>say :narrator "Trail extend!"]
-    [stat-effect stepper :trail-length 2]
+    [stat-effect stepper :trail-length 4]
     [stat-effect stepper :score 2000]
     [die self]))
 
@@ -844,7 +843,7 @@
 
 (define-method step asteroid (stepper)
   (when [in-category stepper :player]
-    [damage stepper 1]
+    [damage stepper 3]
     [say *billboard* :hit]
     [>>say :narrator "You took a hit!"]
     [die self]))
@@ -1166,6 +1165,10 @@
 	    (when [obstacle-at-p world r c]
 	      [choose-new-direction self])
 	    [queue>>move self <direction>])))))
+
+(define-method die scanner ()
+  (play-sample "death-alien")
+  [parent>>die self])
 
 ;;; The inescapable game grid.
 
@@ -1508,6 +1511,8 @@
 			     ".cyan"
 			     ".gray20")])
     [space self]
+    [print self " ASTEROIDS REMAINING: "]
+    [print self (format nil "~D" *asteroid-count*)]
     [newline self]))
 
 (defvar *status*)
@@ -1540,6 +1545,7 @@
   ;; (rlx:enable-timer)
   (rlx:enable-held-keys 1 15)
   (setf *billboard* (clone =billboard=))
+  (setf *asteroid-count* 0)
   (let* ((prompt (clone =blast-prompt=))
 	 (world (clone =void-world=))
 	 (narrator (clone =narrator=))
