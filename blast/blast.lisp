@@ -300,7 +300,7 @@
 (define-method step energy (stepper)
   (when [is-player stepper]
     (when (has-field :energy stepper)
-      (play-sample "powerup")
+      (play-sample "whoop")
       [>>stat-effect stepper :energy 5]
       [>>die self])))
 
@@ -405,7 +405,7 @@
 (define-method fire muon-cannon (direction)
   (if [expend-energy <equipper> [stat-value self :energy-cost]]
       (let ((muon (clone =muon-particle=)))
-	(play-sample "whoop")
+	(play-sample "dtmf2")
 	[>>drop <equipper> muon]
 	[>>impel muon direction])
       [>>say :narrator "Not enough energy to fire!"]))
@@ -758,11 +758,13 @@
 	   (direction [direction-to-player *active-world* row column])
 	   (distance [distance-to-player *active-world* row column]))
       (if (< distance 8)
-	  (progn (setf <direction> (if (< distance 4)
-				       (random-direction)
-				       direction))
-		 [>>move self <direction>])
-	  ;; bounce around
+	  (progn 
+	    (rlx:play-sample "dtmf1")
+	    (setf <direction> (if (< distance 4)
+				  (random-direction)
+				  direction))
+	    [>>move self <direction>])
+	  ;; bounce around 
 	  (progn 
 	    (when [obstacle-in-direction-p *active-world* <row> <column> <direction>]
 	      (setf <direction> (random-direction)))
