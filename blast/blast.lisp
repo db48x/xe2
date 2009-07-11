@@ -89,7 +89,7 @@
 (defcell wall
   (tile :initform "wall")
   (categories :initform '(:obstacle))
-  (hit-points :initform (make-stat :base 40 :min 0)))
+  (hit-points :initform (make-stat :base 20 :min 0)))
 
 ;;; Glittering flash gives clues on locations of explosions/damage
 
@@ -128,7 +128,7 @@
   (categories :initform '(:actor))
   (tile :initform "explosion")
   (speed :initform (make-stat :base 10))
-  (damage-per-turn :initform 1)
+  (damage-per-turn :initform 5)
   (clock :initform 2))
 
 (define-method run explosion ()
@@ -372,7 +372,7 @@
 	  [queue>>move self <direction>]
 	  [queue>>expend-default-action-points self]
 	  [queue>>drop target (clone =flash=)]
-	  [queue>>damage target 7]
+	  [queue>>damage target 5]
 	  [queue>>die self])
 	(progn 
 	  [queue>>drop self (clone =muon-trail= <direction>)]
@@ -449,7 +449,7 @@
   (strength :initform (make-stat :base 10))
   (defense :initform (make-stat :base 10))
   (energy :initform (make-stat :base 40 :min 0 :max 40))
-  (hit-points :initform (make-stat :base 5 :min 0 :max 5))
+  (hit-points :initform (make-stat :base 20 :min 0 :max 20))
   (movement-cost :initform (make-stat :base 10))
   (max-items :initform (make-stat :base 2))
   (trail-length :initform (make-stat :base 12 :min 0))
@@ -516,14 +516,10 @@
   (setf <tile> 
 	(if  (plusp <invincibility-clock>)
 	     "player-ship-invincible"
-	     (ecase [stat-value self :hit-points]
-	       (5 "player-ship-north-shield")
-	       (4 "player-ship-north-shield")
-	       (3 "player-ship-north")
-	       (2 "player-ship-north")
-	       (1 (prog1 "player-ship-north-dying"
-		    [say *billboard* :warning]))
-	       (0 "skull")))))
+	     (if (> 5 [stat-value self :hit-points])
+		 "player-ship-north-dying"
+		 (prog1 "player-ship-north-shield"
+		   [say *billboard* :warning])))))
 		 
 (define-method damage ship (points)
   (if (= 0 <invincibility-clock>)
@@ -564,7 +560,7 @@
 (define-method revive ship ()
   [say *billboard* :go]
   [drop-cell *active-world* self (random 10) (random 10)]
-  [stat-effect self :hit-points 5]	       
+  [stat-effect self :hit-points 20]	       
   [update-tile self]
   [delete-category self :dead]
   [stat-effect self :trail-length (- [stat-value self :trail-length])]
@@ -1249,7 +1245,7 @@
 	 (pulse-ammo [stat-value char :pulse-ammo])
 	 (bomb-ammo [stat-value char :bomb-ammo]))
     [print self " HITS: "]
-    (dotimes (i 5)
+    (dotimes (i 20)
       [print self *status-bar-character* 
 	     :foreground ".yellow"
 	     :background (if (< i hits)
