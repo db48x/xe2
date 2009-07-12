@@ -229,6 +229,7 @@
 (define-method run trail ()
   [expend-action-points self 10]
   (decf <clock>)
+  (when (< <clock> 0) (setf <clock> 0))
   (when (zerop <clock>)
     [die self]))
 
@@ -653,11 +654,12 @@
 ;;; Random powerup function
 
 (defun random-powerup ()
-  (clone (ecase (random 4)
+  (clone (ecase (random 5)
 	   (0 =diamond=)
 	   (1 =pulse-ammo=)
 	   (2 =extender=)
-	   (3 =bomb-ammo=))))
+	   (3 =bomb-ammo=)
+	   (4 =diamond=))))
 
 ;;; Radiation graviceptors
 
@@ -838,13 +840,10 @@
 		   (setf <direction> (rlx:random-direction)))
 		 [>>move self <direction>])))))
 
-;; (define-method die berserker ()
-;;   (when (> 3 (random 10))
-;;     [drop self (clone (case (random 3)
-;; 			(0 =energy=)
-;; 			(1 =oxygen-tank=)
-;; 			(2 =med-hypo=)))])
-;;   [parent>>die self])
+(define-method die berserker ()
+  (when (> 3 (random 10))
+    [drop self (clone (random-powerup))])
+  [parent>>die self])
 
 (define-method loadout berserker ()
   (let ((probe (clone =shock-probe=)))
@@ -869,7 +868,7 @@
   (movement-cost :initform (make-stat :base 5))
   (attacking-with :initform :robotic-arm)
   (max-weight :initform (make-stat :base 25))
-  (hit-points :initform (make-stat :base 14 :min 0 :max 10))
+  (hit-points :initform (make-stat :base 20 :min 0 :max 10))
   (tile :initform "biclops"))
 
 (define-method initialize biclops ()
@@ -902,11 +901,7 @@
 
 (define-method die biclops ()
   (when (> 4 (random 10))
-    (if (> 3 (random 10))
-	[drop self (random-powerup)]
-	[drop self (clone =energy=)])
-    (if (> 2 (random 10))
-	[drop self (clone =explosion=)]))
+    [drop self (clone (random-powerup))])
   [parent>>die self])
 
 ;;; Magnetic space debris will slow movement
@@ -1314,8 +1309,8 @@
   (width :initform 50)
   (height :initform 200)
   (asteroid-count :initform 200)
-  (biclops-count :initform 10)
-  (berserker-count :initform 20)
+  (biclops-count :initform 5)
+  (berserker-count :initform 10)
   (polaris-count :initform 70)
   (probe-count :initform 50)
   (box-cluster-count :initform 40)
