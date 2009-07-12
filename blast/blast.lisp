@@ -121,6 +121,18 @@
     (0 [>>die self]))
   (decf <clock>))
 
+;;; A melee weapon for enemy robots: the Shock Probe
+
+(defcell shock-probe 
+  (name :initform "Shock probe")
+  (categories :initform '(:item :weapon :equipment))
+  (tile :initform "shock-probe")
+  (attack-power :initform (make-stat :base 5))
+  (attack-cost :initform (make-stat :base 6))
+  (accuracy :initform (make-stat :base 90))
+  (weight :initform 3000)
+  (equip-for :initform '(:robotic-arm :left-hand :right-hand)))
+
 ;;; An explosion.
 
 (defcell explosion 
@@ -135,7 +147,7 @@
   (if (zerop <clock>)
       [die self]
       (progn
-	(play-sample "crunch")
+	[play-sample self "crunch"]
 	(decf <clock>)
 	[expend-action-points self 10]
 	(rlx:do-cells (cell [cells-at *active-world* <row> <column>])
@@ -271,7 +283,7 @@
       (progn
 	[>>say :narrator "Respawning."]
         [die self]
-	(play-sample "go")
+	[play-sample self "go"]
 	[revive <player>])
       (progn
 	[>>say :narrator *game-over-message*])))
@@ -300,7 +312,7 @@
 (define-method step energy (stepper)
   (when [is-player stepper]
     (when (has-field :energy stepper)
-      (play-sample "whoop")
+      [play-sample self "whoop"]
       [>>stat-effect stepper :energy 5]
       [>>die self])))
 
@@ -405,7 +417,7 @@
 (define-method fire muon-cannon (direction)
   (if [expend-energy <equipper> [stat-value self :energy-cost]]
       (let ((muon (clone =muon-particle=)))
-	(play-sample "dtmf2")
+	[play-sample <equipper> "dtmf2"]
 	[>>drop <equipper> muon]
 	[>>impel muon direction])
       [>>say :narrator "Not enough energy to fire!"]))
@@ -449,6 +461,7 @@
   (crystals :initform (make-stat :base 0 :min 0))
   (strength :initform (make-stat :base 10))
   (defense :initform (make-stat :base 10))
+  (hearing-range :initform 15)
   (energy :initform (make-stat :base 40 :min 0 :max 40))
   (hit-points :initform (make-stat :base 20 :min 0 :max 20))
   (movement-cost :initform (make-stat :base 10))
@@ -524,7 +537,7 @@
 		 
 (define-method damage ship (points)
   (if (= 0 <invincibility-clock>)
-    (progn (play-sample "warn")
+    (progn [play-sample self "warn"]
 	   [parent>>damage self points]
 	   [say *billboard* :react]
 	   (setf <invincibility-clock> 5)
@@ -549,7 +562,7 @@
     [>>say :narrator "You were damaged by a floating asteroid!"]))
 
 (define-method die ship ()
-  (play-sample "death")
+  [play-sample self "death"]
   [stat-effect self :lives -1]
   (let ((skull (clone =skull= self [stat-value self :lives])))
     [drop-cell *active-world* skull <row> <column> :loadout t :no-collisions nil]
@@ -565,7 +578,7 @@
   [stat-effect self :energy 40]	       
   [update-tile self]
   [delete-category self :dead]
-  [stat-effect self :trail-length (- [stat-value self :trail-length])]
+  [stat-effect self :trail-length (- (1+ [stat-value self :trail-length]))]
   [set-player *active-world* self])
 
 ;;; A life powerup.
@@ -575,13 +588,13 @@
 
 (define-method step diamond (stepper)
   (when [is-player stepper]
-   (play-sample "powerup")
+   [play-sample self "powerup"]
    [say *billboard* :shield]
    [stat-effect stepper :hit-points 8]
    [stat-effect stepper :score 2000]
    [die self]))
 
-;;; Mineral crystal. 
+;;; Mineral crystals to collect.
 
 (defcell crystal
   (tile :initform "crystal")
@@ -590,7 +603,7 @@
 
 (define-method step crystal (stepper)
   (when [is-player stepper]
-   (play-sample "worp")
+   [play-sample self "worp"]
    [stat-effect stepper :crystals 1]
    [stat-effect stepper :score 1000]
    [die self]))
@@ -602,7 +615,7 @@
 
 (define-method step extender (stepper)
   (when [is-player stepper]
-    (play-sample "powerup")
+    [play-sample self "powerup"]
     [say *billboard* :extend]
     [>>say :narrator "Trail extend!"]
     [stat-effect stepper :trail-length 4]
@@ -616,7 +629,7 @@
 
 (define-method step pulse-ammo (stepper)
   (when [is-player stepper]
-    (play-sample "powerup")
+    [play-sample self "powerup"]
     [say *billboard* :pulse-ammo]
     [>>say :narrator "PULSE +2!"]
     [stat-effect stepper :pulse-ammo 2]
@@ -630,7 +643,7 @@
 
 (define-method step bomb-ammo (stepper)
   (when [is-player stepper]
-    (play-sample "powerup")
+    [play-sample self "powerup"]
     [say *billboard* :bomb-ammo]
     [>>say :narrator "BOMB +2!"]
     [stat-effect stepper :bomb-ammo 2]
@@ -770,7 +783,7 @@
 	   (distance [distance-to-player *active-world* row column]))
       (if (< distance 8)
 	  (progn 
-	    (rlx:play-sample "dtmf1")
+	    [play-sample self "dtmf1"]
 	    (setf <direction> (if (< distance 4)
 				  (random-direction)
 				  direction))
@@ -782,8 +795,118 @@
 	    [>>move self <direction>])))))
 
 (define-method die probe ()
-  (play-sample "death-alien")
+  [play-sample self "death-alien"]
   [say *billboard* :destroy]
+  [parent>>die self])
+
+;;; The Berserker is a relatively simple AI enemy.
+
+;; Run in a straight line until hitting an obstacle.
+;; Then choose a random direction and try again.
+;; If the player gets close, try and attack him.
+
+(defcell berserker 
+  (name :initform "Berserker")
+  (categories :initform '(:actor :target :obstacle :opaque :enemy :equipper))
+  (equipment-slots :initform '(:robotic-arm))
+  (speed :initform (make-stat :base 7 :min 7))
+  (max-items :initform (make-stat :base 3))
+  (movement-cost :initform (make-stat :base 3))
+  (tile :initform "humanoid")
+  (stepping :initform t)
+  (attacking-with :initform :robotic-arm)
+  (max-weight :initform (make-stat :base 25))
+  (direction :initform (rlx:random-direction))
+  (strength :initform (make-stat :base 4 :min 0 :max 30))
+  (dexterity :initform (make-stat :base 5 :min 0 :max 30))
+  (intelligence :initform (make-stat :base 11 :min 0 :max 30))
+  (hit-points :initform (make-stat :base 10 :min 0 :max 10)))
+
+(define-method initialize berserker ()
+  [make-inventory self]
+  [make-equipment self])
+
+(define-method run berserker ()
+  (clon:with-field-values (row column) self
+    (let ((world *active-world*))
+      (if (< [distance-to-player world row column] 5)
+	  (let ((player-dir [direction-to-player world row column]))
+	    (if [adjacent-to-player world row column]
+		[>>attack self player-dir]
+		[>>move self player-dir]))
+	  (progn (when [obstacle-in-direction-p world row column <direction>]
+		   (setf <direction> (rlx:random-direction)))
+		 [>>move self <direction>])))))
+
+;; (define-method die berserker ()
+;;   (when (> 3 (random 10))
+;;     [drop self (clone (case (random 3)
+;; 			(0 =energy=)
+;; 			(1 =oxygen-tank=)
+;; 			(2 =med-hypo=)))])
+;;   [parent>>die self])
+
+(define-method loadout berserker ()
+  (let ((probe (clone =shock-probe=)))
+    [equip self [add-item self probe]]))
+
+(define-method attack berserker (target)
+  [play-sample self "drill-little"]
+  [parent>>attack self target])
+
+;;; The radar-equipped Biclops is more dangerous.  
+
+(define-prototype biclops (:parent rlx:=cell=)
+  (name :initform "Biclops")
+  (strength :initform (make-stat :base 12 :min 0 :max 50))
+  (dexterity :initform (make-stat :base 15 :min 0 :max 30))
+  (intelligence :initform (make-stat :base 13 :min 0 :max 30))
+  (categories :initform '(:actor :target :obstacle :opaque :enemy :equipper))
+  (equipment-slots :initform '(:robotic-arm))
+  (max-items :initform (make-stat :base 3))
+  (stepping :initform t)
+  (speed :initform (make-stat :base 5))
+  (movement-cost :initform (make-stat :base 5))
+  (attacking-with :initform :robotic-arm)
+  (max-weight :initform (make-stat :base 25))
+  (hit-points :initform (make-stat :base 14 :min 0 :max 10))
+  (tile :initform "biclops"))
+
+(define-method initialize biclops ()
+  [make-inventory self]
+  [make-equipment self])
+
+(define-method loadout biclops ()
+  (let ((probe (clone =shock-probe=)))
+    [equip self [add-item self probe]]))
+
+(define-method attack biclops (target)
+  [play-sample self "drill-big"]
+  [parent>>attack self target])
+
+(define-method run biclops ()
+  (clon:with-field-values (row column) self
+    (let* ((world *active-world*)
+	   (direction [direction-to-player *active-world* row column]))
+      (if [adjacent-to-player world row column]
+	  [>>attack self direction]
+	  (if [obstacle-in-direction-p world row column direction]
+	      (let ((target [target-in-direction-p world row column direction]))
+		(if (and target (not [in-category target :enemy]))
+		    [>>attack self direction]
+		    (progn (setf <direction> (random-direction))
+			   [>>move self direction])))
+	      (progn (when (< 7 (random 10))
+		       (setf <direction> (random-direction)))
+		     [>>move self direction]))))))
+
+(define-method die biclops ()
+  (when (> 4 (random 10))
+    (if (> 3 (random 10))
+	[drop self (random-powerup)]
+	[drop self (clone =energy=)])
+    (if (> 2 (random 10))
+	[drop self (clone =explosion=)]))
   [parent>>die self])
 
 ;;; Magnetic space debris will slow movement
@@ -824,7 +947,7 @@
   ;;
   [>>say :narrator "You destroyed an asteroid!"]
   [say *billboard* :destroy]
-  (play-sample "bleep")
+  [play-sample self "bleep"]
   (when (< (random 3) 1)
     [drop self (random-powerup)])
   [stat-effect [get-player *active-world*] :score 120]
@@ -927,7 +1050,7 @@
   (setf <asteroids> (delete asteroid <asteroids>))
   (when (= 0 (length <asteroids>))
     [stat-effect [get-player *active-world*] :score 2000]
-    (rlx:play-sample "sweep")
+    [play-sample self "sweep"]
     [say *billboard* :sweep]
     [>>say :narrator "You get 2000 extra points for wiping the polaris mine clean of asteroids."]))
 
@@ -1079,7 +1202,7 @@
 (define-method fire lepton-cannon (direction)
   (if [expend-energy <equipper> [stat-value self :energy-cost]]
       (let ((lepton (clone =lepton-particle=)))
-	(rlx:play-sample "bloup")
+	[play-sample <equipper> "bloup"]
 	[queue>>drop <equipper> lepton]
 	[queue>>impel lepton direction]
 	[expend-action-points <equipper> [stat-value self :attack-cost]]
@@ -1182,7 +1305,7 @@
 	    [queue>>move self <direction>])))))
 
 (define-method die scanner ()
-  (play-sample "death-alien")
+  [play-sample self "death-alien"]
   [parent>>die self])
 
 ;;; The inescapable game grid.
@@ -1191,6 +1314,8 @@
   (width :initform 50)
   (height :initform 200)
   (asteroid-count :initform 200)
+  (biclops-count :initform 10)
+  (berserker-count :initform 20)
   (polaris-count :initform 70)
   (probe-count :initform 50)
   (box-cluster-count :initform 40)
@@ -1208,14 +1333,22 @@
     (dotimes (i <polaris-count>)
       [drop-cell self (clone =polaris=)
 		 (random height) (random width)])
-    (dotimes (i <energy-count>)
-      [drop-cell self (clone =energy=)
-		 (random height) (random width)])
+    ;; drop enemies
     (dotimes (i <scanner-count>)
       [drop-cell self (clone =scanner=)
 		 (random height) (random width) :loadout t])
+    (dotimes (i <berserker-count>)
+      [drop-cell self (clone =berserker=)
+		 (random height) (random width) :loadout t])
+    (dotimes (i <biclops-count>)
+      [drop-cell self (clone =biclops=)
+		 (random height) (random width) :loadout t])
     (dotimes (i <probe-count>)
       [drop-cell self (clone =probe=)
+		 (random height) (random width)])
+    ;; drop stuff
+    (dotimes (i <energy-count>)
+      [drop-cell self (clone =energy=)
 		 (random height) (random width)])
     (dotimes (i <room-count>)
       (let ((r (random height))

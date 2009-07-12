@@ -1,7 +1,6 @@
 (
  (:name "med-hypo" :type :image :file "medhypo.png")
  (:name "shock-probe" :type :image :file "shock-probe.png")
- (:name "biclops" :type :image :file "biclops.png")
 
  (:name "mine" :type :image :file "mine.png")
  (:name "mine-warn" :type :image :file "mine-warn.png")
@@ -15,6 +14,7 @@
  (:name "energy" :type :image :file "energy.png")
  (:name "gun" :type :image :file "gun.png")
  (:name "humanoid" :type :image :file "humanoid.png")
+ (:name "biclops" :type :image :file "biclops.png")
  (:name "oxygen-tank" :type :image :file "oxygen-tank.png")
  (:name "player" :type :image :file "player.png")
  (:name "skull" :type :image :file "skull.png")

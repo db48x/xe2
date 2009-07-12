@@ -5,6 +5,13 @@
 
  (:name "worp" :type :sample :file "worp.wav" :properties (:volume 10))
 
+ (:name "humanoid" :type :image :file "humanoid.png")
+ (:name "biclops" :type :image :file "biclops.png")
+
+ (:name "drill-big" :type :sample :file "drill-big.wav" :properties (:volume 30))
+ (:name "drill-little" :type :sample :file "drill-little.wav" :properties (:volume 30))
+ (:name "drill-bit" :type :sample :file "drill-bit.wav" :properties (:volume 30))
+
  (:name	"player-ship-north-shield" :type :image :file "player-ship-north-shield.png")
  (:name "asteroid-blue" :type :image :file "asteroid-blue-north.png")
  (:name "asteroid-brown" :type :image :file "asteroid-brown-north.png")

@@ -594,6 +594,18 @@ slot."
     (prog1 t
       [stat-effect self :energy (- amount)])))
 
+(defparameter *default-sample-hearing-range* 15)
+
+(define-method play-sample cell (sample-name)
+  (let ((range (if (clon:has-field :hearing-range self)
+		   <hearing-range>
+		   *default-sample-hearing-range*))
+	(dist (distance <column> <row> 
+			[player-column *active-world*]
+			[player-row *active-world*])))
+    (when (> range dist)
+      (play-sample sample-name))))
+
 ;;; The asterisk cell is a wildcard
 
 (define-prototype asterisk (:parent =cell=)
