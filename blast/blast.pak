@@ -171,5 +171,13 @@
  (:name "energy-gas" :type :image :file "elec.png")
 
  (:name "display-font" :type :font :properties (:height 20 :width 10) :data "10x20")
- (:name ".startup" :type :lisp :file "blast.lisp")
+
+ (:name "blast-lisp" :type :lisp :file "blast" :properties (:autoload t))
+ (:name "effect-lisp" :type :lisp :file "effect" :properties (:autoload t))
+ (:name "terrain-lisp" :type :lisp :file "terrain" :properties (:autoload t))
+ (:name "player-lisp" :type :lisp :file "player" :properties (:autoload t))
+ (:name "asteroid-lisp" :type :lisp :file "asteroid" :properties (:autoload t))
+ (:name "item-lisp" :type :lisp :file "item" :properties (:autoload t))
+ (:name "enemy-lisp" :type :lisp :file "enemy" :properties (:autoload t))
+ (:name ".startup" :type :lisp :file "startup" :properties (:autoload t))
 )

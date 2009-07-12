@@ -370,6 +370,9 @@ window. Set this in the game startup file.")
 
 ;;  :PROPERTIES  Property list with extra data; for example :copyright,
 ;;               :license, :author. 
+;;               The special property :AUTOLOAD, when non-nil causes
+;;               the resource to be loaded automatically.
+
 ;;  :FILE    Name of file to load data from, if any. 
 ;;           Relative to directory of PAK file.
 ;;  :DATA    Lisp data encoding the resource itself, if any.
@@ -523,7 +526,9 @@ name MODULE-NAME. Returns the pathname if found, otherwise nil."
 (defun find-all-modules ()
   (mapcar #'file-namestring
 	  (mapcan #'find-modules-in-directory *module-directories*)))
-				      
+
+(defvar *pending-autoload-resources* '())
+
 (defun index-pak (module-name pak-file)
   "Add all the resources from the pak PAK-FILE to the resource
 table. File names are relative to the module MODULE-NAME."
@@ -546,7 +551,11 @@ table. File names are relative to the module MODULE-NAME."
 	    (when (resource-file res)
 	      (setf (resource-file res)
 		    (merge-pathnames (resource-file res)
-				     (find-module-path module-name)))))))))
+				     (find-module-path module-name))))
+	    ;; save the resource name for later autoloading, if needed
+	    (when (getf (resource-properties res) :autoload)
+	      (push res *pending-autoload-resources*)))))))
+
 
 (defun index-module (module-name)
   "Add all the resources from the module MODULE-NAME to the resource
@@ -736,6 +745,14 @@ found."
   (getf (resource-properties (find-resource resource-name))
 	property))
 
+;;; Loading modules as a whole and autoloading resources
+
+(defun load-module (module)
+  (setf *pending-autoload-resources* nil)
+  (index-module module)
+  (mapc #'load-resource (nreverse *pending-autoload-resources*))
+  (setf *pending-autoload-resources* nil))
+
 ;;; Playing music and sound effects
 
 (defun play-music (music-name &rest args)
@@ -898,7 +915,7 @@ The default destination is the main window."
 		   *next-module*)
      do (sdl:with-init (sdl:SDL-INIT-VIDEO sdl:SDL-INIT-AUDIO)
 	  ;; <: initialization :>
-	  (load-user-init-file)
+	  (load-user-init-file)	
 	  (run-hook '*initialization-hook*)
 	  (initialize-resource-table)
 	  (initialize-colors)
@@ -909,8 +926,7 @@ The default destination is the main window."
 	      (message "Could not open audio. Disabling sound.")
 	      (setf *use-sound* nil)))
 	  (index-module "standard") 
-	  (index-module *next-module*)
-	  (find-resource *startup*)
+	  (load-module *next-module*)
 	  (run-main-loop))
        (setf *quitting* t))
   (setf *quitting* nil)
@@ -923,7 +939,6 @@ The default destination is the main window."
   ;; 		 (sdl-mixer:free (resource-object resource))))
   ;; 	   *resource-table*))
   
-
   
 ;;; Saving and loading data 
 ;;; Taking screenshots

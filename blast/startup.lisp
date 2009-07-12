@@ -1,0 +1,4 @@
+(in-package :blast)
+
+(blast)
+
