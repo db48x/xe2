@@ -249,22 +249,8 @@
 (define-method step level-up (stepper)
   (when [is-player stepper] 
     (play-sample "worp")
-    [>>say :narrator "LEVEL UP! You feel stronger."]
-    [>>stat-effect stepper :strength 5]
-    [>>die self]))
-
-;;; Defense powerup
-
-(defcell defense-up 
-  (categories :initform '(:item))
-  (tile :initform "defenseup")
-  (name :initform "Defense power-up"))
-
-(define-method step defense-up (stepper)
-  (when [is-player stepper]
-    (play-sample "worp")
-    [>>say :narrator "DEFENSE UP!"]
-    [>>stat-effect stepper :defense 5]
+    [>>say :narrator "LEVEL UP! Max hit points +4"]
+    [>>stat-effect stepper :hit-points 4 :max]
     [>>die self]))
 
 ;;; Speed powerup
@@ -277,15 +263,14 @@
 (define-method step speed-up (stepper)
   (when [is-player stepper]
     (play-sample "worp")
-    [>>say :narrator "SPEED UP!"]
+    [>>say :narrator "SPEED +2!"]
     [>>stat-effect stepper :speed 2]
     [>>die self]))
 
 (defun random-stat-powerup ()
-  (clone (case (random 3)
-	   (0 =defense-up=)
-	   (1 =level-up=)
-	   (2 =speed-up=))))
+  (clone (case (random 2)
+	   (0 =level-up=)
+	   (1 =speed-up=))))
 
 ;;; Death icon.
 
@@ -1667,13 +1652,22 @@
 	 (pulse-ammo [stat-value char :pulse-ammo])
 	 (bomb-ammo [stat-value char :bomb-ammo]))
     [print self " HITS: "]
-    (dotimes (i 20)
+    (dotimes (i [stat-value char :hit-points :max])
       [print self *status-bar-character* 
 	     :foreground ".yellow"
 	     :background (if (< i hits)
 			     ".red"
 			     ".gray20")])
-    [space self]
+    [newline self]
+    ;; energy display
+    [print self " ENERGY: "]
+    (dotimes (i 40)
+      [print self *status-bar-character* 
+	     :foreground ".red"
+	     :background (if (< i energy)
+			     ".cyan"
+			     ".gray20")])
+    [newline self]
     [print self " LIVES: "]
     (dotimes (i 3)
       [print self *status-bar-character* 
@@ -1702,14 +1696,6 @@
     [print self (format nil "~D" (field-value :row char))]
     [print self " SCORE: "]
     [println self (format nil "~D" [stat-value char :score])]
-    ;; energy display
-    [print self " ENERGY: "]
-    (dotimes (i 40)
-      [print self *status-bar-character* 
-	     :foreground ".red"
-	     :background (if (< i energy)
-			     ".cyan"
-			     ".gray20")])
     [space self]
     [print self " ASTEROIDS REMAINING: "]
     [print self (format nil "~D" *asteroid-count*)]
@@ -1781,8 +1767,8 @@
     [set-narrator world narrator]
     [set-verbosity narrator 0]
     ;;
-    [resize status :height 50 :width 700]
-    [move status :x 10 :y 10]
+    [resize status :height 60 :width 700]
+    [move status :x 10 :y 0]
     [set-character status player]
     (setf *status* status)
     [update status]
@@ -1792,9 +1778,9 @@
    ;;
     (setf (clon:field-value :tile-size viewport) 16)
     [set-world viewport world]
-    [resize viewport :height 442 :width 800]
-    [move viewport :x 0 :y 60]
-    [set-origin viewport :x 0 :y 0 :height 25 :width 50]
+    [resize viewport :height 432 :width 800]
+    [move viewport :x 0 :y 70]
+    [set-origin viewport :x 0 :y 0 :height 24 :width 50]
     [adjust viewport]
     ;;
     [start world]
