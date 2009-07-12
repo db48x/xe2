@@ -971,9 +971,8 @@
 
 (define-method die asteroid ()
   (decf *asteroid-count*)
-  (when (< *asteroid-count* 25 )
-    ;; drop more asteroids!!
-    [drop-random-asteroids *active-world* 70])
+  (when (zerop *asteroid-count*)
+    [>>say :narrator "YOU WIN!!!"])
   ;;
   [>>say :narrator "You destroyed an asteroid!"]
   [say *billboard* :destroy]
@@ -1341,54 +1340,59 @@
 ;;; The inescapable game grid.
 
 (define-prototype void-world (:parent rlx:=world=)
-  (width :initform 50)
-  (height :initform 200)
-  (asteroid-count :initform 200)
-  (biclops-count :initform 5)
-  (berserker-count :initform 10)
-  (polaris-count :initform 70)
-  (probe-count :initform 50)
-  (box-cluster-count :initform 40)
-  (room-count :initform 45)
-  (scanner-count :initform 25)
-  (energy-count :initform 50)
   (ambient-light :initform :total))
 
-(define-method generate void-world (&optional parameters)
-  (declare (ignore parameters))
-  (clon:with-field-values (height width) self
-    [drop-plasma-space self]
-    [drop-random-asteroids self <asteroid-count>]
-    [drop-plasma-debris self]
-    (dotimes (i <polaris-count>)
-      [drop-cell self (clone =polaris=)
-		 (random height) (random width)])
-    ;; drop enemies
-    (dotimes (i <scanner-count>)
-      [drop-cell self (clone =scanner=)
-		 (random height) (random width) :loadout t])
-    (dotimes (i <berserker-count>)
-      [drop-cell self (clone =berserker=)
-		 (random height) (random width) :loadout t])
-    (dotimes (i <biclops-count>)
-      [drop-cell self (clone =biclops=)
-		 (random height) (random width) :loadout t])
-    (dotimes (i <probe-count>)
-      [drop-cell self (clone =probe=)
-		 (random height) (random width)])
-    ;; drop stuff
-    (dotimes (i <energy-count>)
-      [drop-cell self (clone =energy=)
-		 (random height) (random width)])
-    (dotimes (i <room-count>)
-      (let ((r (random height))
-	    (c (random width)))
-	[drop-room self r c]))
-    (dotimes (i <box-cluster-count>)
-      (let ((r (random height))
-	    (c (random width)))
-	[drop-box-cluster self r c]))))
-	    
+(define-method generate void-world (&key   
+				    (width 20)
+				    (height 20)
+				    (asteroid-count 20)
+				    (biclops-count 0)
+				    (berserker-count 0)
+				    (polaris-count 5)
+				    (probe-count 5)
+				    (box-cluster-count 4)
+				    (room-size 3)
+				    (room-count 4)
+				    (scanner-count 0)
+				    (energy-count 3))
+  (setf <height> height <width> width)
+  [create-default-grid self]
+  [drop-plasma-space self]
+  [drop-plasma-debris self]
+  (dotimes (i polaris-count)
+    [drop-cell self (clone =polaris=)
+	       (random height) (random width)])
+  ;; drop enemies
+  (dotimes (i scanner-count)
+    [drop-cell self (clone =scanner=)
+	       (random height) (random width) :loadout t])
+  (dotimes (i berserker-count)
+    [drop-cell self (clone =berserker=)
+	       (random height) (random width) :loadout t])
+  (dotimes (i biclops-count)
+    [drop-cell self (clone =biclops=)
+	       (random height) (random width) :loadout t])
+  (dotimes (i probe-count)
+    [drop-cell self (clone =probe=)
+	       (random height) (random width)])
+  ;; drop stuff
+  (dotimes (i energy-count)
+    [drop-cell self (clone =energy=)
+	       (random height) (random width)])
+  (dotimes (i room-count)
+      [drop-room self 
+		 (random height)
+		 (random width)
+		 (+ room-size (random 3))
+		 (+ room-size (random 4))])
+  (dotimes (i box-cluster-count)
+    (let ((r (random height))
+	  (c (random width)))
+      [drop-box-cluster self r c]))
+  ;; and finally the 'roids
+  [drop-random-asteroids self asteroid-count])
+
+   
 (define-method drop-random-asteroids void-world (count)
   (clon:with-field-values (height width) self
     (dotimes (i count)
@@ -1396,7 +1400,8 @@
 			     :direction (rlx:random-direction)
 			     :color (nth (random 4)
 					 '(:red :blue :brown :orange)))
-		 (random height) (random width)])))
+		 (random height) (random width)
+		 :no-collisions t])))
 
 (define-method drop-plasma-debris void-world ()
   (clon:with-field-values (height width) self
@@ -1420,9 +1425,7 @@
 				     =space= =space2=))
 		     i j])))))
 
-(define-method drop-room void-world (row column &key 
-                                         (height (+ 3 (random 10)))
-					 (width (+ 3 (random 10))))
+(define-method drop-room void-world (row column height width)
   (let (rectangle)
     (labels ((collect-point (&rest args)
 	       (prog1 nil (push args rectangle))))
@@ -1433,7 +1436,7 @@
 	  (delete (nth n rectangle) rectangle)))
       (dolist (point rectangle)
 	(destructuring-bind (r c) point
-	[drop-cell self (clone =wall=) r c :no-collisions t])))
+	  [drop-cell self (clone =wall=) r c :no-collisions t])))
     (when (> 4 (random 10))
       (dotimes (i (+ 2 (random 10)))
 	[drop-cell self (clone =crystal=) 
@@ -1441,14 +1444,49 @@
 		   (+ 1 column (random 4))
 		   :no-collisions t]))))
 
-
 (define-method drop-box-cluster void-world (row column &key
-						(height (+ 3 (random 10)))
-						(width (+ 3 (random 10))))
+						(height (+ 3 (random 5)))
+						(width (+ 3 (random 5))))
   (labels ((drop-box (r c)
 	     (prog1 nil
 	       [drop-cell self (clone =blast-box=) r c])))
     (trace-rectangle #'drop-box row column height width :fill)))
+
+;;; Different challenge levels.
+
+(defvar *void-levels* '((:width 20
+			 :height 20
+			 :asteroid-count 12
+			 :polaris-count 2
+			 :probe-count 2
+			 :box-cluster-count 2
+			 :room-count 3
+			 :scanner-count 0
+			 :energy-count 3)
+			(:width 50
+			 :height 24
+			 :asteroid-count 40
+			 :polaris-count 12
+			 :probe-count 15
+			 :box-cluster-count 5
+			 :room-count 14
+			 :room-size 5
+			 :scanner-count 3
+			 :energy-count 7)
+			(:width 50
+			  :height 200
+			  :asteroid-count 200
+			  :biclops-count 10
+			  :berserker-count 10
+			  :polaris-count 70
+			  :probe-count 50
+			  :room-size 8
+			  :box-cluster-count 40
+			  :room-count 65
+			  :scanner-count 25
+			  :energy-count 40)))
+
+(defvar *level* 0)
 
 ;;; Custom bordered viewport
 
@@ -1694,6 +1732,8 @@
     [space self]
     [print self " DEPTH: "]
     [print self (format nil "~D" (field-value :row char))]
+    [print self " LEVEL: "]
+    [print self (format nil "~D" *level*)]
     [print self " SCORE: "]
     [println self (format nil "~D" [stat-value char :score])]
     [space self]
@@ -1734,6 +1774,7 @@
   (rlx:enable-held-keys 1 15)
   (setf *billboard* (clone =billboard=))
   (setf *asteroid-count* 0)
+  (setf *level 0)
   (let* ((prompt (clone =blast-prompt=))
 	 (world (clone =void-world=))
 	 (narrator (clone =narrator=))
@@ -1758,7 +1799,7 @@
     [set-receiver prompt world]
     ;;
     [create-default-grid world]
-    [generate world]
+    [generate-with world (nth 2 *void-levels*)]
     [set-player world player]
     [drop-cell world player 5 5 :loadout t]
     ;;

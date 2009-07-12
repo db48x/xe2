@@ -5,11 +5,11 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** DONE parameterize level generation
+CLOSED: [2009-07-12 Sun 04:23]
 ** TODO rooms with guns/bases that must be destroyed, plus guardians
 ** TODO make there be a point to destroying boxes
 ** TODO Ion shield
-** TODO Scanners
-** TODO [#B] crystalline growth levels... mine the crystals
 ** DONE [#A] Redraw powerups to use letters 
 ** TODO [#A] Tone down "asteroids" vibe... more exploration
 ** TODO [#B] Implement multiple lisp files loading for startup

@@ -100,8 +100,10 @@ At the moment, only 0=off and 1=on are supported.")
 	    (setf (aref environment i j) (clone =environment=))))))))
 
 (define-method create-default-grid world ()
-  [create-grid self :width <width> :height <height>])
-
+  (when (and (numberp <width>)
+	     (numberp <height>))
+    [create-grid self :width <width> :height <height>]))
+     
 (define-method environment-at world (row column)
   (aref <environment-grid> row column))
 
@@ -389,11 +391,14 @@ in a roguelike until the user has pressed a key."
       (dotimes (j <width>)
 	(setf (aref light-grid i j) 0)))))
 
-(define-method generate world (&optional parameters)
+(define-method generate world (&rest parameters)
   "Generate a world, reading generation parameters from the plist
   PARAMETERS."  
   (declare (ignore parameters))
   nil)
+
+(define-method generate-with world (parameters)
+  (apply #'send self :generate self parameters))
 
 (define-method deserialize world (sexp)
   "Load a saved world from Lisp data."
