@@ -360,6 +360,17 @@
       [>>stat-effect stepper :energy 5]
       [>>die self])))
 
+;;; Energy gas
+
+(defcell energy-gas
+  (tile :initform "energy-gas"))
+
+(define-method step energy-gas (stepper)
+  (when [is-player stepper]
+    (when (has-field :energy stepper)
+      [play-sample self "whoop"]
+      [>>stat-effect stepper :energy 5])))
+
 ;;; Muon particles, trails, and pistols
 
 (defvar *muon-tiles* '(:north "muon-north"
@@ -1360,6 +1371,7 @@
 				    (berserker-count 0)
 				    (polaris-count 5)
 				    (probe-count 5)
+				    (energy-gas-cluster-count 2)
 				    (box-cluster-count 4)
 				    (gas-cluster-count 0)
 				    (room-size 3)
@@ -1404,6 +1416,10 @@
     (let ((r (random height))
 	  (c (random width)))
       [drop-gas-cluster self r c]))
+  (dotimes (i energy-gas-cluster-count)
+    (let ((r (random height))
+	  (c (random width)))
+      [drop-energy-gas-cluster self r c]))
   ;; and finally the 'roids
   [drop-random-asteroids self asteroid-count])
 
@@ -1475,6 +1491,14 @@
 	       [drop-cell self (clone =gas=) r c])))
     (trace-rectangle #'drop-gas row column (+ 1 height) (+ 1 width) :fill)))
 
+(define-method drop-energy-gas-cluster void-world (row column &key
+						       (height (+ 3 (random 5)))
+						       (width (+ 3 (random 5))))
+  (labels ((drop-gas (r c)
+	     (prog1 nil
+	       [drop-cell self (clone =energy-gas=) r c])))
+    (trace-rectangle #'drop-gas row column (+ 1 height) (+ 1 width) :fill)))
+
 ;;; Different challenge levels.
 
 (defvar *void-levels* '((:width 20
@@ -1505,6 +1529,7 @@
 			  :berserker-count 10
 			  :polaris-count 70
 			  :probe-count 50
+			  :energy-gas-cluster-count 8
 			  :gas-cluster-count 25
 			  :room-size 8
 			  :box-cluster-count 40
