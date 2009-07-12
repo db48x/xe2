@@ -3,7 +3,12 @@
  (:name	"player-ship-north" :type :image :file "player-ship-north.png")
  (:name	"player-ship-invincible" :type :image :file "ship-invincible.png")
 
+ (:name "levelup" :type :image :file "levelup.png")
+ (:name "speedup" :type :image :file "speedup.png")
+ (:name "defenseup" :type :image :file "defenseup.png")
+
  (:name "worp" :type :sample :file "worp.wav" :properties (:volume 10))
+ (:name "bip" :type :sample :file "bip.wav" :properties (:volume 10))
 
  (:name "humanoid" :type :image :file "humanoid.png")
  (:name "biclops" :type :image :file "biclops.png")

@@ -5,6 +5,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO rooms with guns/bases that must be destroyed, plus guardians
 ** TODO make there be a point to destroying boxes
 ** TODO Ion shield
 ** TODO Scanners

@@ -239,6 +239,54 @@
     [drop self (clone =explosion=)]	       
     [damage stepper 2]))
 
+;;; Strength powerup
+
+(defcell level-up 
+  (categories :initform '(:item))
+  (tile :initform "levelup")
+  (name :initform "Strength power-up"))
+
+(define-method step level-up (stepper)
+  (when [is-player stepper] 
+    (play-sample "worp")
+    [>>say :narrator "LEVEL UP! You feel stronger."]
+    [>>stat-effect stepper :strength 5]
+    [>>die self]))
+
+;;; Defense powerup
+
+(defcell defense-up 
+  (categories :initform '(:item))
+  (tile :initform "defenseup")
+  (name :initform "Defense power-up"))
+
+(define-method step defense-up (stepper)
+  (when [is-player stepper]
+    (play-sample "worp")
+    [>>say :narrator "DEFENSE UP!"]
+    [>>stat-effect stepper :defense 5]
+    [>>die self]))
+
+;;; Speed powerup
+
+(defcell speed-up 
+  (categories :initform '(:item))
+  (tile :initform "speedup")
+  (name :initform "Speed power-up"))
+
+(define-method step speed-up (stepper)
+  (when [is-player stepper]
+    (play-sample "worp")
+    [>>say :narrator "SPEED UP!"]
+    [>>stat-effect stepper :speed 2]
+    [>>die self]))
+
+(defun random-stat-powerup ()
+  (clone (case (random 3)
+	   (0 =defense-up=)
+	   (1 =level-up=)
+	   (2 =speed-up=))))
+
 ;;; Death icon.
 
 (defparameter *death-message* "You are dead. Press SPACE BAR to respawn.")
@@ -604,7 +652,7 @@
 
 (define-method step crystal (stepper)
   (when [is-player stepper]
-   [play-sample self "worp"]
+   [play-sample self "bip"]
    [stat-effect stepper :crystals 1]
    [stat-effect stepper :score 1000]
    [die self]))
@@ -859,7 +907,7 @@
 
 (define-prototype biclops (:parent rlx:=cell=)
   (name :initform "Biclops")
-  (strength :initform (make-stat :base 12 :min 0 :max 50))
+  (strength :initform (make-stat :base 15 :min 0 :max 50))
   (dexterity :initform (make-stat :base 15 :min 0 :max 30))
   (intelligence :initform (make-stat :base 13 :min 0 :max 30))
   (categories :initform '(:actor :target :obstacle :opaque :enemy :equipper))
@@ -870,7 +918,7 @@
   (movement-cost :initform (make-stat :base 5))
   (attacking-with :initform :robotic-arm)
   (max-weight :initform (make-stat :base 25))
-  (hit-points :initform (make-stat :base 20 :min 0 :max 10))
+  (hit-points :initform (make-stat :base 25 :min 0 :max 10))
   (tile :initform "biclops"))
 
 (define-method initialize biclops ()
@@ -903,7 +951,7 @@
 
 (define-method die biclops ()
   (when (> 4 (random 10))
-    [drop self (clone (random-powerup))])
+    [drop self (clone (random-stat-powerup))])
   [parent>>die self])
 
 ;;; Magnetic space debris will slow movement
