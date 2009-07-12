@@ -661,7 +661,8 @@
 	   (3 =bomb-ammo=)
 	   (4 =diamond=))))
 
-;;; Radiation graviceptors
+
+;;; Radiation graviceptors leave energy behind when you kill them. 
 
 (defcell graviceptor
  (tile :initform "gravicept")
@@ -798,6 +799,7 @@
 
 (define-method die probe ()
   [play-sample self "death-alien"]
+  [drop self (clone =energy=)]
   [say *billboard* :destroy]
   [parent>>die self])
 
