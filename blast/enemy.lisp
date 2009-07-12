@@ -44,6 +44,15 @@
 		       (setf <direction> (random-direction)))
 		     [>>move self direction]))))))
 
+(define-method drop-gas graviceptor (row column &key
+					       (height (+ 3 (random 5)))
+					       (width (+ 3 (random 5))))
+  (labels ((drop-gas (r c)
+	     (prog1 nil
+	       [drop-cell *active-world* (clone =gas=) r c])))
+    [play-sample self "pop-ssh"]
+    (trace-rectangle #'drop-gas (- row 3) (- column 3) (+ 1 height) (+ 1 width) :fill)))
+
 (define-method explode graviceptor ()
   ;; only when not in space debris... debris are "safe zones" from mines
   (when (notany #'(lambda (ob)
@@ -63,6 +72,9 @@
 		       (- <row> 2) 
 		       (- <column> 2) 
 		       5 5)
+      ;; release radiation
+;      (when (< 3 (random 10))
+      [drop-gas self (- <row> 2) (- <column> 2) :height 5 :width 5]
       [die self])))
   
 (define-method damage graviceptor (points)
@@ -101,7 +113,7 @@
   [die self])
 
 (define-method die radiation ()
-  (when (> 1 (random 230))
+  (when (> 1 (random 100))
     [drop self (clone =graviceptor=)])
   [parent>>die self])
 

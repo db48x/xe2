@@ -9,6 +9,7 @@
 
  (:name "worp" :type :sample :file "worp.wav" :properties (:volume 10))
  (:name "bip" :type :sample :file "bip.wav" :properties (:volume 10))
+ (:name "pop-ssh" :type :sample :file "pop-ssh.wav" :properties (:volume 30))
 
  (:name "rad" :type :image :file "rad.png")
  

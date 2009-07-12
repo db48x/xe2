@@ -13,12 +13,20 @@
 ;;; Radioactive gas
 
 (defcell gas
-  (tile :initform "rad"))
+  (tile :initform "rad")
+  (clock :initform 8)
+  (categories :initform '(:actor)))
 
 (define-method step gas (stepper)
   (when [is-player stepper]
-    [damage stepper 4]
+    [damage stepper 5]
     [>>say :narrator "RADIOACTIVE HAZARD!"]))
+
+(define-method run gas ()
+  (decf <clock>)
+  (if (> 0 <clock>)
+      [die self]
+      [move self (random-direction)]))
 
 ;;; A destructible wall.
 
@@ -108,10 +116,10 @@
     (let ((r (random height))
 	  (c (random width)))
       [drop-box-cluster self r c]))
-  (dotimes (i gas-cluster-count)
-    (let ((r (random height))
-	  (c (random width)))
-      [drop-gas-cluster self r c]))
+  ;; (dotimes (i gas-cluster-count)
+  ;;   (let ((r (random height))
+  ;; 	  (c (random width)))
+  ;;     [drop-gas-cluster self r c]))
   (dotimes (i energy-gas-cluster-count)
     (let ((r (random height))
 	  (c (random width)))
@@ -179,14 +187,6 @@
 	       [drop-cell self (clone =blast-box=) r c])))
     (trace-rectangle #'drop-box row column height width)))
 
-(define-method drop-gas-cluster void-world (row column &key
-						(height (+ 3 (random 5)))
-						(width (+ 3 (random 5))))
-  (labels ((drop-gas (r c)
-	     (prog1 nil
-	       [drop-cell self (clone =gas=) r c])))
-    (trace-rectangle #'drop-gas row column (+ 1 height) (+ 1 width) :fill)))
-
 (define-method drop-energy-gas-cluster void-world (row column &key
 						       (height (+ 3 (random 5)))
 						       (width (+ 3 (random 5))))
@@ -213,7 +213,6 @@
 			 :polaris-count 12
 			 :probe-count 15
 			 :box-cluster-count 5
-			 :gas-cluster-count 4
 			 :room-count 14
 			 :room-size 5
 			 :scanner-count 3
@@ -226,7 +225,6 @@
 			  :polaris-count 70
 			  :probe-count 50
 			  :energy-gas-cluster-count 8
-			  :gas-cluster-count 25
 			  :room-size 8
 			  :box-cluster-count 40
 			  :room-count 65
