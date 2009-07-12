@@ -10,6 +10,8 @@
  (:name "worp" :type :sample :file "worp.wav" :properties (:volume 10))
  (:name "bip" :type :sample :file "bip.wav" :properties (:volume 10))
 
+ (:name "rad" :type :image :file "rad.png")
+ 
  (:name "humanoid" :type :image :file "humanoid.png")
  (:name "biclops" :type :image :file "biclops.png")
 

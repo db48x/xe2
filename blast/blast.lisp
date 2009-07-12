@@ -84,6 +84,16 @@
 (defcell space2
   (tile :initform "space2"))
 
+;;; Radioactive gas
+
+(defcell gas
+  (tile :initform "rad"))
+
+(define-method step gas (stepper)
+  (when [is-player stepper]
+    [damage stepper 4]
+    [>>say :narrator "RADIOACTIVE HAZARD!"]))
+
 ;;; A destructible wall.
 
 (defcell wall
@@ -1351,6 +1361,7 @@
 				    (polaris-count 5)
 				    (probe-count 5)
 				    (box-cluster-count 4)
+				    (gas-cluster-count 0)
 				    (room-size 3)
 				    (room-count 4)
 				    (scanner-count 0)
@@ -1389,6 +1400,10 @@
     (let ((r (random height))
 	  (c (random width)))
       [drop-box-cluster self r c]))
+  (dotimes (i gas-cluster-count)
+    (let ((r (random height))
+	  (c (random width)))
+      [drop-gas-cluster self r c]))
   ;; and finally the 'roids
   [drop-random-asteroids self asteroid-count])
 
@@ -1400,8 +1415,8 @@
 			     :direction (rlx:random-direction)
 			     :color (nth (random 4)
 					 '(:red :blue :brown :orange)))
-		 (random height) (random width)
-		 :no-collisions t])))
+		 (random height) (random width)])))
+
 
 (define-method drop-plasma-debris void-world ()
   (clon:with-field-values (height width) self
@@ -1450,7 +1465,15 @@
   (labels ((drop-box (r c)
 	     (prog1 nil
 	       [drop-cell self (clone =blast-box=) r c])))
-    (trace-rectangle #'drop-box row column height width :fill)))
+    (trace-rectangle #'drop-box row column height width)))
+
+(define-method drop-gas-cluster void-world (row column &key
+						(height (+ 3 (random 5)))
+						(width (+ 3 (random 5))))
+  (labels ((drop-gas (r c)
+	     (prog1 nil
+	       [drop-cell self (clone =gas=) r c])))
+    (trace-rectangle #'drop-gas row column (+ 1 height) (+ 1 width) :fill)))
 
 ;;; Different challenge levels.
 
@@ -1460,6 +1483,7 @@
 			 :polaris-count 2
 			 :probe-count 2
 			 :box-cluster-count 2
+			 :room-size 4
 			 :room-count 3
 			 :scanner-count 0
 			 :energy-count 3)
@@ -1469,6 +1493,7 @@
 			 :polaris-count 12
 			 :probe-count 15
 			 :box-cluster-count 5
+			 :gas-cluster-count 4
 			 :room-count 14
 			 :room-size 5
 			 :scanner-count 3
@@ -1480,6 +1505,7 @@
 			  :berserker-count 10
 			  :polaris-count 70
 			  :probe-count 50
+			  :gas-cluster-count 25
 			  :room-size 8
 			  :box-cluster-count 40
 			  :room-count 65
