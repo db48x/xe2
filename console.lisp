@@ -37,10 +37,13 @@
 
 ;;; Message logging
 
+(defparameter *message-logging* t)
+
 (defun message (format-string &rest args)
   "Print a log message to the standard output."
-  (apply #'format t format-string args)
-  (fresh-line))
+  (when *message-logging*
+    (apply #'format t format-string args)
+    (fresh-line)))
 
 ;;; Hooks
 
