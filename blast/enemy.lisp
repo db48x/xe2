@@ -51,7 +51,7 @@
 	     (prog1 nil
 	       [drop-cell *active-world* (clone =gas=) r c])))
     [play-sample self "pop-ssh"]
-    (trace-rectangle #'drop-gas (- row 3) (- column 3) (+ 1 height) (+ 1 width) :fill)))
+    (trace-rectangle #'drop-gas row column height width :fill)))
 
 (define-method explode graviceptor ()
   ;; only when not in space debris... debris are "safe zones" from mines
