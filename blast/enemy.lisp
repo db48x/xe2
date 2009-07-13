@@ -331,7 +331,7 @@
   (firing-with :initform :robotic-arm)
   (dexterity :initform (make-stat :base 20))
   (max-items :initform (make-stat :base 1))
-  (speed :initform (make-stat :base 5))
+  (speed :initform (make-stat :base 12))
   (stepping :initform t)
   (behavior :initform :seeking)
   (clock :initform 0)
@@ -355,7 +355,7 @@
 	(if [adjacent-to-player world row column]
 	    (progn
 	      [>>fire self direction]
-	      (setf <clock> 8
+	      (setf <clock> 6
 		    <behavior> :fleeing))
 	    (if [obstacle-in-direction-p world row column direction]
 		(let ((target [target-in-direction-p world row column direction]))
