@@ -11,6 +11,8 @@
  (:name "bip" :type :sample :file "bip.wav" :properties (:volume 10))
  (:name "pop-ssh" :type :sample :file "pop-ssh.wav" :properties (:volume 30))
 
+ (:name "rook" :type :image :file "rook.png")
+
  (:name "rad" :type :image :file "rad.png")
  
  (:name "humanoid" :type :image :file "humanoid.png")

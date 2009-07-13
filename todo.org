@@ -5,6 +5,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO fix biclops not digging
 ** TODO Enemies who drop bombs!
 ** TODO split blast into different lisp files
 ** TODO make debug output optional

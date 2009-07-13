@@ -1,6 +1,5 @@
 (in-package :blast)
 
-
 ;;; A melee weapon for enemy robots: the Shock Probe
 
 (defcell shock-probe 
@@ -56,6 +55,7 @@
 (define-method explode graviceptor ()
   ;; only when not in space debris... debris are "safe zones" from mines
   (when (notany #'(lambda (ob)
+		    ;; this is ugly:
 		    (eq =debris= (object-parent ob)))
 		[cells-at *active-world* <row> <column>])
     (labels ((boom (r c &optional (probability 50))
@@ -322,3 +322,88 @@
   [play-sample self "death-alien"]
   [parent>>die self])
 
+;;; Rooks are the most difficult enemies. They bomb you.
+
+(defcell rook 
+  (categories :initform '(:actor :target :obstacle :opaque :enemy))
+  (equipment-slots :initform '(:robotic-arm :shoulder-mount))
+  (attacking-with :initform :robotic-arm)
+  (firing-with :initform :robotic-arm)
+  (dexterity :initform (make-stat :base 20))
+  (max-items :initform (make-stat :base 1))
+  (speed :initform (make-stat :base 5))
+  (stepping :initform t)
+  (behavior :initform :seeking)
+  (clock :initform 0)
+  (last-direction :initform :north)
+  (strength :initform (make-stat :base 50))
+  (movement-cost :initform (make-stat :base 8))
+  (tile :initform "rook")
+  (target :initform nil)
+  (hit-points :initform (make-stat :base 40 :min 0 :max 40)))
+
+(define-method run rook ()
+  (ecase <behavior>
+    (:seeking [seek self])
+    (:fleeing [flee self])))
+
+(define-method seek rook ()
+  (clon:with-field-values (row column) self
+    (when (< [distance-to-player *active-world* row column] 10)
+      (let ((direction [direction-to-player *active-world* row column])
+	    (world *active-world*))
+	(if [adjacent-to-player world row column]
+	    (progn
+	      [>>fire self direction]
+	      (setf <clock> 8
+		    <behavior> :fleeing))
+	    (if [obstacle-in-direction-p world row column direction]
+		(let ((target [target-in-direction-p world row column direction]))
+		  (if (and target (not [in-category target :enemy]))
+		      (progn
+;;			[>>attack self direction]
+			[play-sample self "drill-bit"])
+		      (progn (setf <direction> (random-direction))
+			     [>>move self direction])))
+		(progn (when (< 7 (random 10))
+			 (setf <direction> (random-direction)))
+		       [>>move self direction])))))))
+
+(define-method flee rook ()
+  (decf <clock>)
+  ;; are we done fleeing? then begin seeking. 
+  (if (<= <clock> 0)
+      (setf <behavior> :seeking)
+      ;; otherwise, flee
+      (clon:with-field-values (row column) self
+	(let ((player-row [player-row *active-world*])
+	      (player-column [player-column *active-world*]))
+	  (labels ((neighbor (r c direction)
+		     (multiple-value-bind (r0 c0)
+			 (step-in-direction r c direction)
+		       (list r0 c0)))
+		   (all-neighbors (r c)
+		     (let (ns)
+		       (dolist (dir *compass-directions*)
+			 (push (neighbor r c dir) ns))
+		       ns))
+		   (score (r c)
+		     (distance player-column player-row c r)))
+	    (let* ((neighbors (all-neighbors row column))
+		   (scores (mapcar #'(lambda (pair)
+				       (apply #'score pair))
+				   neighbors))
+		   (farthest (apply #'max scores))
+		   (square (nth (position farthest scores)
+				neighbors)))
+	      (destructuring-bind (r c) square
+		  [move self (rlx:direction-to row column r c)])))))))
+
+(define-method move rook (direction)
+  (setf <last-direction> direction)
+  [parent>>move self direction])
+
+(define-method loadout rook ()
+  [make-inventory self]
+  [make-equipment self]
+  [equip self [add-item self (clone =bomb-cannon=)]])

@@ -81,6 +81,7 @@
 				    (room-size 3)
 				    (room-count 4)
 				    (scanner-count 0)
+				    (rook-count 0)
 				    (energy-count 3))
   (setf <height> height <width> width)
   [create-default-grid self]
@@ -92,6 +93,9 @@
   ;; drop enemies
   (dotimes (i scanner-count)
     [drop-cell self (clone =scanner=)
+	       (random height) (random width) :loadout t])
+  (dotimes (i rook-count)
+    [drop-cell self (clone =rook=)
 	       (random height) (random width) :loadout t])
   (dotimes (i berserker-count)
     [drop-cell self (clone =berserker=)
@@ -228,6 +232,7 @@
 			  :room-size 8
 			  :box-cluster-count 40
 			  :room-count 65
+			 :rook-count 20
 			  :scanner-count 25
 			  :energy-count 40)))
 

@@ -45,7 +45,7 @@
   (categories :initform '(:item :weapon :equipment))
   (attack-cost :initform (make-stat :base 5))
   (weight :initform 3000)
-  (equip-for :initform '(:right-bay)))
+  (equip-for :initform '(:right-bay :robotic-arm)))
 
 (define-method activate bomb-cannon ()
   ;; leave bomb behind ship
@@ -54,6 +54,14 @@
 	(step-in-direction row column 
 			   (opposite-direction last-direction))
       [drop-cell *active-world* (clone =bomb=) r c])))
+
+(define-method fire bomb-cannon (direction)
+  (clon:with-field-values (last-direction row column) <equipper>
+    (multiple-value-bind (r c) 
+	(step-in-direction row column direction)
+      [drop-cell *active-world* (clone =bomb=) r c])))
+
+  
 
 ;;; Your explosive vapor trail. 
 
