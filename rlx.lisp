@@ -105,9 +105,9 @@
   *user-keyboard-layout* *fullscreen* set-field-option-value
   load-module field-options world set-frame-rate *frame-rate*
   set-timer-interval *message-logging* set-screen-width =universe=
-  set-screen-height *timer-interval* enable-timer disable-timer while
-  enable-held-keys disable-held-keys do-cells draw-box draw-rectangle
-  *quitting* quit reset))
+  *active-universe* set-screen-height *timer-interval* enable-timer
+  disable-timer while enable-held-keys disable-held-keys do-cells
+  draw-box draw-rectangle *quitting* quit reset))
 
 (in-package :rlx)
 

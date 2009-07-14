@@ -148,6 +148,7 @@
 	    ;;
 	    ("W" nil "wait .")
 	    ("SPACE" nil "respawn .")
+	    ("RETURN" nil "enter .")
 	    ("3" nil "activate-extension .")
 	    ("2" nil "activate-pulse-cannon .")
 	    ("1" nil "activate-bomb-cannon .")
@@ -326,6 +327,8 @@
     [print self " SCORE: "]
     [println self (format nil "~D" [stat-value char :score])]
     [space self]
+    [print self " LOCATION: "]
+    [print self (format nil "~s" [location-name *active-world*])]
     [print self " ASTEROIDS REMAINING: "]
     [print self (format nil "~D" *asteroid-count*)]
     [print self " CRYSTALS: "]
@@ -367,7 +370,6 @@
   (setf *asteroid-count* 0)
   (setf *level* 0)
   (let* ((prompt (clone =blast-prompt=))
-	 (world (clone =void-world=))
 	 (universe (clone =universe=))
 	 (narrator (clone =narrator=))
 	 (status (clone =status=))
@@ -375,7 +377,6 @@
 	 (viewport (clone =view=))
 	 (splash (clone =splash=))
 	 (splash-prompt (clone =splash-prompt=)))
-    (setf *active-world* world)
     ;;
     [resize splash :height 600 :width 600]
     [move splash :x 0 :y 0]
@@ -388,17 +389,17 @@
     [move prompt :x 0 :y 0]
     [hide prompt]
     [install-keybindings prompt]
-    [set-receiver prompt world]
-    ;;
-    [create-default-grid world]
-    [generate-with world (nth 2 *void-levels*)]
-    [drop-player-at-entry world player]
-    [loadout player]
     ;;
     [resize narrator :height 80 :width 800]
     [move narrator :x 0 :y 520]
-    [set-narrator world narrator]
     [set-verbosity narrator 0]
+    ;;
+    [set-player universe player]
+    [play universe
+	  :address '(=star-sector= :width 20 :height 20 :star-count 5)
+	  :prompt prompt
+	  :narrator narrator]
+    [loadout player]
     ;;
     [resize status :height 60 :width 700]
     [move status :x 10 :y 0]
@@ -410,13 +411,13 @@
     [move *billboard* :x 700 :y 0]
    ;;
     [set-tile-size viewport 16]
-    [set-world viewport world]
+    ;; the default is to track the current world:
+    ;; [set-world viewport world] 
     [resize viewport :height 432 :width 800]
     [move viewport :x 0 :y 70]
     [set-origin viewport :x 0 :y 0 :height 24 :width 50]
     [adjust viewport]
     ;;
-    [start world]
     (play-music "xiomacs" :loop t)
     (set-music-volume 255)	       
 

@@ -35,6 +35,7 @@
 
 (define-prototype world
     (:documentation "An RLX game world filled with cells.")
+  (name :initform "UNKNOWN")
   (player :documentation "The player cell.")
   (width :documentation "The width of the world map, measured in tiles.")
   (height :documentation "The height of the world map, measured in tiles.")
@@ -101,6 +102,9 @@ At the moment, only 0=off and 1=on are supported.")
   (when (and (numberp <width>)
 	     (numberp <height>))
     [create-grid self :width <width> :height <height>]))
+
+(define-method location-name world ()
+  <name>)
      
 (define-method environment-at world (row column)
   (aref <environment-grid> row column))
@@ -159,8 +163,13 @@ dropped on top of an obstacle."
 	      (when [category-at-p self i j :player-entry-point]
 		(return-from seeking (values i j)))))
 	  (return-from seeking (values 0 0)))
-      [set-player self player]
+      (setf <player> player)
       [drop-cell self player dest-row dest-column])))
+
+(define-method drop-player-at-last-location world (player)
+  (setf <player> player)
+  [drop-cell self player ])
+  
 
 (define-method nth-cell world (n row column)
   (aref (aref <grid> row column) n))
@@ -265,6 +274,7 @@ so on, until no more messages are generated."
   "Send unhandled messages to the player object.
 This is where most world computations start, because nothing happens
 in a roguelike until the user has pressed a key."
+  (assert <player>)
   (prog1 nil
     (let ((player <player>)
 	  (phase-number <phase-number>))
@@ -416,6 +426,7 @@ in a roguelike until the user has pressed a key."
   nil)
 
 (define-method start world ()
+  (assert <player>)
   [render-lighting self <player>]
   (with-message-queue <message-queue>
     [begin-phase <player>]))
@@ -453,9 +464,14 @@ in a roguelike until the user has pressed a key."
 
 ;;; Universes are composed of worlds.
 
+(defvar *active-universe* nil)
+
 (defun normalize-address (address)
   "Sort the plist ADDRESS so that its keys come in alphabetical order
 by symbol name. This enables them to be used as hash keys."
+  (assert (and (symbolp (first address))
+	       (or (null (rest address))
+		   (keywordp (second address)))))
   (labels ((all-keys (plist)
 	     (let (keys)
 	       (loop while (not (null plist))
@@ -511,14 +527,21 @@ by symbol name. This enables them to be used as hash keys."
 		   [generate-world self address]]
 	candidate)))
 
-;; TODO PLAY PLAY PLAY!
-;; (define-method play universe (address)
-;;   (setf <current-address> address)
-;;   (let ((world [find-world self address])
-;; 	(player <player>))
-;;     (assert player)
-;;     [set-player world player]
-;;     ;; TODO [drop-cell world player  WHEERE? 
+(define-method play universe (&key address prompt narrator)
+  (setf <current-address> address)
+  (when prompt (setf <prompt> prompt))
+  (when narrator (setf <narrator> narrator))
+  (assert (and <prompt> <narrator>))
+  (let ((world [find-world self address])
+	(player <player>))
+    (setf *active-universe* self)
+    (setf *active-world* world)
+    [drop-player-at-entry world player]
+    [start world]
+    [set-receiver <prompt> world]
+    [set-narrator world <narrator>]))
+		  
+    
 
 ;; TODO Portals connect specific locations of different worlds together.
 

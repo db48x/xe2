@@ -51,7 +51,7 @@
     
 (define-method render viewport ()
   [adjust self] ;; hehe
-  (let* ((world <world>)
+  (let* ((world (or <world> *active-world*))
 	 (origin-width <origin-width>)
 	 (origin-height <origin-height>)
 	 (origin-x <origin-x>)
@@ -97,7 +97,7 @@
 
 (define-method adjust viewport ()
   "Move the viewport's origin if required to keep the player onscreen."
-  (let* ((world <world>)
+  (let* ((world (or <world> *active-world*))
 	 (world-width (field-value :width world))
 	 (world-height (field-value :height world))
 	 (player (field-value :player world))

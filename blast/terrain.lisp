@@ -62,16 +62,17 @@
   (declare (ignore points))
   [die self])
 
-;;; The inescapable game grid.
+;;; The ruins of Zeta Base, the game's first location.
 
-(define-prototype void-world (:parent rlx:=world=)
+(define-prototype zeta-base (:parent rlx:=world=)
+  (name :initform "Zeta Base Ruins")
   (ambient-light :initform :total))
 
 (defcell launchpad 
   (tile :initform "launchpad")
   (categories :initform '(:player-entry-point)))
 
-(define-method generate void-world (&key   
+(define-method generate zeta-base (&key   
 				    (width 20)
 				    (height 20)
 				    (asteroid-count 20)
@@ -133,7 +134,7 @@
   ;; spawn point
   [drop-cell self (clone =launchpad=) (random 16) (random 16)])
    
-(define-method drop-random-asteroids void-world (count)
+(define-method drop-random-asteroids zeta-base (count)
   (clon:with-field-values (height width) self
     (dotimes (i count)
       [drop-cell self (clone =asteroid= :speed (+ 3 (random 7))
@@ -142,7 +143,7 @@
 					 '(:red :blue :brown :orange)))
 		 (random height) (random width)])))
 
-(define-method drop-plasma-debris void-world ()
+(define-method drop-plasma-debris zeta-base ()
   (clon:with-field-values (height width) self
     (let ((plasma (rlx:render-plasma height width :graininess 0.4))
 	  (value nil))
@@ -153,7 +154,7 @@
 	    (let ((object =debris=))
 	      [drop-cell self (clone object) (+ 10 i) (+ 10 j) :no-collisions t])))))))
 
-(define-method drop-plasma-space void-world ()
+(define-method drop-plasma-space zeta-base ()
   (clon:with-field-values (height width) self
     (let ((plasma (rlx:render-plasma height width :graininess 0.1))
 	  (value nil))
@@ -164,7 +165,7 @@
 				     =space= =space2=))
 		     i j])))))
 
-(define-method drop-room void-world (row column height width)
+(define-method drop-room zeta-base (row column height width)
   (let (rectangle)
     (labels ((collect-point (&rest args)
 	       (prog1 nil (push args rectangle))))
@@ -183,7 +184,7 @@
 		   (+ 1 column (random 4))
 		   :no-collisions t]))))
 
-(define-method drop-box-cluster void-world (row column &key
+(define-method drop-box-cluster zeta-base (row column &key
 						(height (+ 3 (random 5)))
 						(width (+ 3 (random 5))))
   (labels ((drop-box (r c)
@@ -191,7 +192,7 @@
 	       [drop-cell self (clone =blast-box=) r c])))
     (trace-rectangle #'drop-box row column height width)))
 
-(define-method drop-energy-gas-cluster void-world (row column &key
+(define-method drop-energy-gas-cluster zeta-base (row column &key
 						       (height (+ 3 (random 5)))
 						       (width (+ 3 (random 5))))
   (labels ((drop-gas (r c)
@@ -232,7 +233,7 @@
 			  :room-size 8
 			  :box-cluster-count 40
 			  :room-count 65
-			 :rook-count 12
+			  :rook-count 12
 			  :scanner-count 25
 			  :energy-count 40)))
 

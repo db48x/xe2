@@ -417,6 +417,12 @@
     [>>delete-from-world self]
     [set-player *active-world* skull]))
 
+(define-method enter ship ()
+  (let ((gateway [category-at-p *active-world* <row> <column> :gateway]))
+    (if (null gateway)
+	[>>narrate :narrator "No gateway to enter."]
+	[activate gateway])))
+
 (define-method revive ship ()
   [say *billboard* :go]
   [drop-cell *active-world* self (random 10) (random 10)]
