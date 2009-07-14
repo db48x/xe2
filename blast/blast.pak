@@ -187,6 +187,14 @@
  (:name	"station-arm-horz" :type :image :file "station-arm-horz.png")
  (:name "station-arm-vert" :type :alias :data ":rotate 90:station-arm-horz")
  (:name "station-base" :type :image :file "station-base.png")
+ (:name "canaz" :type :image :file "canaz.png")
+ 
+ (:name "protostar" :type :image :file "protostar.png")
+ (:name "nebula" :type :image :file "nebula.png")
+ (:name "nebula2" :type :image :file "nebula2.png")
+ (:name "red-plasma" :type :image :file "red-plasma.png")
+ (:name "nebula-m-gateway" :type :image :file "nebula-m-gateway.png")
+ (:name "black-thunder" :type :music :file "black0999.ogg")
 
  (:name "blast-lisp" :type :lisp :file "blast" :properties (:autoload t))
  (:name "effect-lisp" :type :lisp :file "effect" :properties (:autoload t))
@@ -196,6 +204,7 @@
  (:name "asteroid-lisp" :type :lisp :file "asteroid" :properties (:autoload t))
  (:name "item-lisp" :type :lisp :file "item" :properties (:autoload t))
  (:name "enemy-lisp" :type :lisp :file "enemy" :properties (:autoload t))
+ (:name "nebula-lisp" :type :lisp :file "nebula" :properties (:autoload t))
  (:name ".startup" :type :lisp :file "startup" :properties (:autoload t))
 
 )
