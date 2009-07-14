@@ -540,8 +540,6 @@ by symbol name. This enables them to be used as hash keys."
     [set-receiver <prompt> world]
     [set-narrator world <narrator>]))
 		  
-    
-
 ;; TODO Portals connect specific locations of different worlds together.
 
 ;;; worlds.lisp ends here

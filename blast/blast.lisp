@@ -333,6 +333,8 @@
     [print self (format nil "~D" *asteroid-count*)]
     [print self " CRYSTALS: "]
     [print self (format nil "~D" [stat-value char :crystals])]
+    [print self " ENDURIUM: "]
+    [print self (format nil "~D U" [stat-value char :endurium])]
     [newline self]))
 
 (defvar *status*)

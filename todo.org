@@ -5,21 +5,10 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO escape ruins by edges of map
 ** TODO gun upgrade??!?
 *** TODO Switch to a world within a universe and install it for play
 
-** TODO grid universe? ah, JUST recursive grid maps (star-sector, system, planet, location)
-<dto> so i've got a way to make recursive maps. you have a galaxy map, each
-      square of which is either a star system or nebula or black hole or void
-      or whatever  [09:14]
-<dto> and then a portal takes you to THOSE
-<dto> i want the space to be huge and hard to travel without lots of fuel
-<dto> er ... portal takes you to the actual zoomed-in nebula.   [09:15]
-<dto> and then THAT can take you to a location  [09:16]
-<dto> i want it to be a multiscale rogueilke
-
-** TODO Universe = hash table of string->world, portal uses string as destination
-** TODO way to generate worlds-on-demand for a universe: generator function plus params
 ** TODO 2-way portals between worlds in a universe
 ** TODO define-method win-condition world
 ** TODO world map edge conditions (wrap, block).

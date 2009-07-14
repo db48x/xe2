@@ -305,6 +305,7 @@
   (defense :initform (make-stat :base 10))
   (hearing-range :initform 15)
   (energy :initform (make-stat :base 40 :min 0 :max 40))
+  (endurium :initform (make-stat :base 30 :min 0 :max 35))
   (hit-points :initform (make-stat :base 20 :min 0 :max 20))
   (movement-cost :initform (make-stat :base 10))
   (max-items :initform (make-stat :base 2))
@@ -328,7 +329,8 @@
   [make-inventory self]
   [make-equipment self]
   [equip self [add-item self (clone =muon-cannon=)]]
-  [equip self [add-item self (clone =ion-shield=)]])
+  [equip self [add-item self (clone =ion-shield=)]]
+  [>>say :narrator "This is your Olvac Model 2 freighter, now online."])
 
 (define-method quit ship ()
   (rlx:quit :shutdown))
