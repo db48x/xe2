@@ -166,11 +166,10 @@ dropped on top of an obstacle."
       (setf <player> player)
       [drop-cell self player dest-row dest-column])))
 
-(define-method drop-player-at-last-location world (player)
-  (setf <player> player)
-  [drop-cell self player ])
+;; TODO (define-method drop-player-at-last-location world (player)
+;;   (setf <player> player)
+;;   [drop-cell self player ])
   
-
 (define-method nth-cell world (n row column)
   (aref (aref <grid> row column) n))
 
