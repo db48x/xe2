@@ -101,6 +101,8 @@
 (define-method generate nebula-m (&key (height 100)
 				       (width 100)
 				       (protostars 70)
+				       (asteroids 100)
+				       (polaris 20)
 				       (energy 30)
 				       (rooks 30)
 				       (canaz 60))
@@ -121,10 +123,23 @@
     [drop-cell self (clone =protostar=) (random height) (random width)])
   (dotimes (i canaz)
     [drop-cell self (clone =canaz=) (random height) (random width) :loadout t])
+  (dotimes (i polaris)
+    [drop-cell self (clone =polaris=) (random height) (random width) :loadout t])
+
+  [drop-random-asteroids self asteroids]
+
   (setf *station-base-count* 0)
   (loop do (paint-station-piece self (random height) (random width) 10)
 	while (< *station-base-count* 20)))
 
+(define-method drop-random-asteroids nebula-m (count)
+  (clon:with-field-values (height width) self
+    (dotimes (i count)
+      [drop-cell self (clone =asteroid= :speed (+ 3 (random 7))
+			     :direction (rlx:random-direction)
+			     :color (nth (random 4)
+					 '(:red :blue :brown :orange)))
+		 (random height) (random width)])))
   
 (define-method start nebula-m ()
   (play-music "black-thunder" :loop t)

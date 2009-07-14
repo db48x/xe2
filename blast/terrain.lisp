@@ -75,7 +75,7 @@
 (define-method generate zeta-base (&key   
 				    (width 20)
 				    (height 20)
-				    (asteroid-count 20)
+				    (asteroid-count 0)
 				    (biclops-count 0)
 				    (berserker-count 0)
 				    (polaris-count 5)
@@ -92,9 +92,6 @@
   [create-default-grid self]
   [drop-plasma-space self]
   [drop-plasma-debris self]
-  (dotimes (i polaris-count)
-    [drop-cell self (clone =polaris=)
-	       (random height) (random width)])
   ;; drop enemies
   (dotimes (i scanner-count)
     [drop-cell self (clone =scanner=)
@@ -129,20 +126,9 @@
     (let ((r (random height))
 	  (c (random width)))
       [drop-energy-gas-cluster self r c]))
-  ;; and finally the 'roids
-  [drop-random-asteroids self asteroid-count]
   ;; spawn point
   [drop-cell self (clone =launchpad=) (random 16) (random 16)])
    
-(define-method drop-random-asteroids zeta-base (count)
-  (clon:with-field-values (height width) self
-    (dotimes (i count)
-      [drop-cell self (clone =asteroid= :speed (+ 3 (random 7))
-			     :direction (rlx:random-direction)
-			     :color (nth (random 4)
-					 '(:red :blue :brown :orange)))
-		 (random height) (random width)])))
-
 (define-method drop-plasma-debris zeta-base ()
   (clon:with-field-values (height width) self
     (let ((plasma (rlx:render-plasma height width :graininess 0.4))
