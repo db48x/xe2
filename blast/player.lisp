@@ -60,9 +60,7 @@
     (multiple-value-bind (r c) 
 	(step-in-direction row column direction)
       [drop-cell *active-world* (clone =bomb=) r c])))
-
   
-
 ;;; Your explosive vapor trail. 
 
 (defcell trail 
@@ -320,7 +318,7 @@
   (attacking-with :initform :right-bay)
   (firing-with :initform :center-bay)
   (categories :initform '(:actor :player :target :container :light-source))
-  (equipment-slots :initform '(:left-bay :right-bay :center-bay))
+  (equipment-slots :initform '(:left-bay :right-bay :center-bay :extension))
   (boost-clock :initform 0))
 
 (define-method initialize ship ()
@@ -329,7 +327,8 @@
 (define-method loadout ship ()
   [make-inventory self]
   [make-equipment self]
-  [equip self [add-item self (clone =muon-cannon=)]])
+  [equip self [add-item self (clone =muon-cannon=)]]
+  [equip self [add-item self (clone =ion-shield=)]])
 
 (define-method quit ship ()
   (rlx:quit :shutdown))
@@ -354,6 +353,9 @@
   (when (plusp [stat-value self :bomb-ammo])
     [activate [equipment-slot self :right-bay]]
     [stat-effect self :bomb-ammo -1]))
+
+(define-method activate-extension ship ()
+  [activate [equipment-slot self :extension]])
 
 (define-method update-react-shield ship ()
   (when (not (<= <invincibility-clock> 0))

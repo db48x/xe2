@@ -148,6 +148,7 @@
 	    ;;
 	    ("W" nil "wait .")
 	    ("SPACE" nil "respawn .")
+	    ("3" nil "activate-extension .")
 	    ("2" nil "activate-pulse-cannon .")
 	    ("1" nil "activate-bomb-cannon .")
 	    ("Q" (:control) "quit ."))))
@@ -193,6 +194,7 @@
 	    ("S" nil "wait .")
 	    ("ESCAPE" nil "activate-pulse-cannon .")
 	    ("SPACE" nil "respawn .")
+	    ("3" nil "activate-extension .")
 	    ("1" nil "activate-bomb-cannon .")
 	    ("P" (:control) "quit ."))))
   
@@ -243,6 +245,7 @@
 	    ("S" nil "wait .")
 	    ("SPACE" nil "respawn .")
 	    ("ESCAPE" nil "activate-pulse-cannon .")
+	    ("3" nil "activate-extension .")
 	    ("1" nil "activate-bomb-cannon .")
 	    ("Q" (:control) "quit ."))))
 

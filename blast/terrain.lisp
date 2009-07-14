@@ -232,7 +232,7 @@
 			  :room-size 8
 			  :box-cluster-count 40
 			  :room-count 65
-			 :rook-count 20
+			 :rook-count 12
 			  :scanner-count 25
 			  :energy-count 40)))
 

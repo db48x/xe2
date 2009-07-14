@@ -5,13 +5,25 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
-** TODO fix biclops not digging
-** TODO Enemies who drop bombs!
-** TODO split blast into different lisp files
-** TODO make debug output optional
-** DONE parameterize level generation
-CLOSED: [2009-07-12 Sun 04:23]
+** TODO grid universe? ah, JUST recursive grid maps (star-sector, system, planet, location)
+<dto> so i've got a way to make recursive maps. you have a galaxy map, each
+      square of which is either a star system or nebula or black hole or void
+      or whatever  [09:14]
+<dto> and then a portal takes you to THOSE
+<dto> i want the space to be huge and hard to travel without lots of fuel
+<dto> er ... portal takes you to the actual zoomed-in nebula.   [09:15]
+<dto> and then THAT can take you to a location  [09:16]
+<dto> i want it to be a multiscale rogueilke
+
+** TODO Universe = hash table of string->world, portal uses string as destination
+** TODO way to generate worlds-on-demand for a universe: generator function plus params
+** TODO 2-way portals between worlds in a universe
+** TODO define-method win-condition world
+** TODO world map edge conditions (wrap, block).
+** TODO yellow text map overlay tooltips a la Ultima7?
 ** TODO rooms with guns/bases that must be destroyed, plus guardians
+** TODO rook should check for obstructions before selecting a place to move to
+** TODO fix biclops not digging
 ** TODO make there be a point to destroying boxes
 ** TODO Ion shield
 ** TODO [#A] Tone down "asteroids" vibe... more exploration

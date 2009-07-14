@@ -161,7 +161,7 @@
   (categories :initform '(:item :equipment))
   (name :initform "Ion shield belt")
   (tile :initform "ion-shield")
-  (equip-for :initform '(:belt))
+  (equip-for :initform '(:belt :shoulder-mount :extension))
   (size :initform 5))
 
 (defparameter *ion-shield-energy-cost* 60)

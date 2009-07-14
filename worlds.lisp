@@ -441,9 +441,67 @@ in a roguelike until the user has pressed a key."
  		  (progn (decf ,counter)
 			 (when ,var ,@body)))))))))
 
-;;; Metaworlds: implementing larger maps as grids of worlds
+;;; Universes are composed of worlds.
 
-;; (define-prototype metaworld 
-    
+;; A world can be addressed one of several ways:
+
+;; The value nil, meaning 'create a root universe ex nihilo'.
+
+;; A list such as  '(=world-prototype= :key1 val1 :key2 val2 ...), 
+;; in which case we clone and generate via [generate-with 
+
+;; A =world= object
+
+(define-prototype universe 
+    (:documentation "A collection of connected worlds.")
+  (worlds :initform (make-hash-table :test 'equal)
+	  :documentation "Address-to-world mapping.")
+  (current-address :initform nil)
+  (current-world :initform nil)
+  (player :initform nil))
+
+(define-method add-world universe (address world)
+  (setf (gethash address <worlds>) world))
+ 
+(define-method remove-world universe (address)
+  (remhash address <worlds>))
+
+(define-method get-player universe ()
+  <player>)
+
+(define-method set-player universe (player)
+  (setf <player> player))
+
+(define-method get-world universe (address)
+  (gethash address <worlds>))
+
+(define-method get-current-world universe (address)
+  <current-world>)
+
+(define-method get-current-address universe (address)
+  <current-address>)
+
+(define-method generate-world universe (address)
+  (destructuring-bind (prototype &rest parameters) address
+    (let ((world (clone (symbol-value prototype))))
+      (prog1 world
+	[generate-with world parameters]))))
+
+(define-method find-world universe (address)
+  (let ((candidate (gethash address <worlds>)))
+    (if (null candidate)
+	(setf (gethash address <worlds>)
+	      [generate-world self address])
+	candidate)))
+
+;; (define-method play universe (address)
+;;   (setf <current-address> address)
+;;   (let ((world [find-world self address])
+;; 	(player <player>))
+;;     (assert player)
+;;     [set-player world player]
+;;     ;; TODO [drop-cell world player  WHEERE? 
+
+;; TODO Portals connect specific locations of different worlds together.
 
 ;;; worlds.lisp ends here
