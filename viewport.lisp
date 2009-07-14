@@ -44,6 +44,10 @@
 
 (define-method set-world viewport (world)
   (setf <world> world))
+
+(define-method set-tile-size viewport (size)
+  (assert (integerp size))
+  (setf <tile-size> size))
     
 (define-method render viewport ()
   [adjust self] ;; hehe

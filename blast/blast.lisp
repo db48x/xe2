@@ -360,6 +360,7 @@
   (rlx:set-screen-width 800)
 ;  (rlx:set-frame-rate 30)
   ;; (rlx:set-timer-interval 20)
+
   ;; (rlx:enable-timer)
   (rlx:enable-held-keys 1 15)
   (setf *billboard* (clone =billboard=))
@@ -367,6 +368,7 @@
   (setf *level* 0)
   (let* ((prompt (clone =blast-prompt=))
 	 (world (clone =void-world=))
+	 (universe (clone =universe=))
 	 (narrator (clone =narrator=))
 	 (status (clone =status=))
 	 (player (clone =ship=))
@@ -390,8 +392,8 @@
     ;;
     [create-default-grid world]
     [generate-with world (nth 2 *void-levels*)]
-    [set-player world player]
-    [drop-cell world player 5 5 :loadout t]
+    [drop-player-at-entry world player]
+    [loadout player]
     ;;
     [resize narrator :height 80 :width 800]
     [move narrator :x 0 :y 520]
@@ -407,7 +409,7 @@
     [resize *billboard* :height 20 :width 100]
     [move *billboard* :x 700 :y 0]
    ;;
-    (setf (clon:field-value :tile-size viewport) 16)
+    [set-tile-size viewport 16]
     [set-world viewport world]
     [resize viewport :height 432 :width 800]
     [move viewport :x 0 :y 70]

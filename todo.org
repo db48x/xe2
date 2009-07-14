@@ -5,6 +5,9 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO gun upgrade??!?
+*** TODO Switch to a world within a universe and install it for play
+
 ** TODO grid universe? ah, JUST recursive grid maps (star-sector, system, planet, location)
 <dto> so i've got a way to make recursive maps. you have a galaxy map, each
       square of which is either a star system or nebula or black hole or void

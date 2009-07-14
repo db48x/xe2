@@ -177,6 +177,7 @@
 
  (:name "ion-shield-wall" :type :image :file "ion-shield-wall.png")
  (:name "ion-shield" :type :image :file "combelt.png")
+ (:name "launchpad" :type :image :file "launchpad.png")
 
  (:name "blast-lisp" :type :lisp :file "blast" :properties (:autoload t))
  (:name "effect-lisp" :type :lisp :file "effect" :properties (:autoload t))

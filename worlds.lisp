@@ -33,8 +33,6 @@
 
 (in-package :rlx)
 
-;; <: worlds :>
-
 (define-prototype world
     (:documentation "An RLX game world filled with cells.")
   (player :documentation "The player cell.")
@@ -151,6 +149,18 @@ dropped on top of an obstacle."
 	(setf (field-value :column cell) column)
 	(when loadout
 	  [loadout cell])))))
+
+(define-method drop-player-at-entry world (player)
+  (with-field-values (width height grid) self
+    (multiple-value-bind (dest-row dest-column)
+	(block seeking
+	  (dotimes (i height)
+	    (dotimes (j width)
+	      (when [category-at-p self i j :player-entry-point]
+		(return-from seeking (values i j)))))
+	  (return-from seeking (values 0 0)))
+      [set-player self player]
+      [drop-cell self player dest-row dest-column])))
 
 (define-method nth-cell world (n row column)
   (aref (aref <grid> row column) n))

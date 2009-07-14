@@ -206,7 +206,7 @@
 		 [>>move self <direction>])))))
 
 (define-method die berserker ()
-  (when (> 3 (random 10))
+  (when (> 5 (random 10))
     [drop self (clone (random-powerup))])
   [parent>>die self])
 
@@ -265,7 +265,7 @@
 		     [>>move self direction]))))))
 
 (define-method die biclops ()
-  (when (> 4 (random 10))
+  (when (> 8 (random 10))
     [drop self (clone (random-stat-powerup))])
   [parent>>die self])
 
@@ -320,6 +320,8 @@
 
 (define-method die scanner ()
   [play-sample self "death-alien"]
+  (when (> 4 (random 10))
+    [drop self (clone (random-stat-powerup))])
   [parent>>die self])
 
 ;;; Rooks are the most difficult enemies. They bomb you.

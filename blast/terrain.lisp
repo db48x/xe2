@@ -44,8 +44,8 @@
   (when [is-player stepper]
     (when (has-field :energy stepper)
       [play-sample self "whoop"]
-      [>>say :narrator "You absorb 5 energy points from the gas."]
-      [>>stat-effect stepper :energy 5])))
+      [>>say :narrator "You absorb 2 energy points from the gas."]
+      [>>stat-effect stepper :energy 2])))
 
 ;;; Magnetic space debris will slow movement
 
@@ -66,6 +66,10 @@
 
 (define-prototype void-world (:parent rlx:=world=)
   (ambient-light :initform :total))
+
+(defcell launchpad 
+  (tile :initform "launchpad")
+  (categories :initform '(:player-entry-point)))
 
 (define-method generate void-world (&key   
 				    (width 20)
@@ -120,17 +124,14 @@
     (let ((r (random height))
 	  (c (random width)))
       [drop-box-cluster self r c]))
-  ;; (dotimes (i gas-cluster-count)
-  ;;   (let ((r (random height))
-  ;; 	  (c (random width)))
-  ;;     [drop-gas-cluster self r c]))
   (dotimes (i energy-gas-cluster-count)
     (let ((r (random height))
 	  (c (random width)))
       [drop-energy-gas-cluster self r c]))
   ;; and finally the 'roids
-  [drop-random-asteroids self asteroid-count])
-
+  [drop-random-asteroids self asteroid-count]
+  ;; spawn point
+  [drop-cell self (clone =launchpad=) (random 16) (random 16)])
    
 (define-method drop-random-asteroids void-world (count)
   (clon:with-field-values (height width) self
@@ -140,7 +141,6 @@
 			     :color (nth (random 4)
 					 '(:red :blue :brown :orange)))
 		 (random height) (random width)])))
-
 
 (define-method drop-plasma-debris void-world ()
   (clon:with-field-values (height width) self
