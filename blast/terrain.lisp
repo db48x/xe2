@@ -200,6 +200,10 @@
 	       [drop-cell self (clone =energy-gas=) r c])))
     (trace-rectangle #'drop-gas row column (+ 1 height) (+ 1 width) :fill)))
 
+(define-method start zeta-base ()
+  (play-music "basswarp" :loop t)
+  [parent>>start self])
+
 ;;; Different challenge levels.
 
 (defvar *void-levels* '((:width 20

@@ -195,6 +195,7 @@
  (:name "red-plasma" :type :image :file "red-plasma.png")
  (:name "nebula-m-gateway" :type :image :file "nebula-m-gateway.png")
  (:name "black-thunder" :type :music :file "black0999.ogg")
+ (:name "basswarp" :type :music :file "basswarp.ogg")
 
  (:name "blast-lisp" :type :lisp :file "blast" :properties (:autoload t))
  (:name "effect-lisp" :type :lisp :file "effect" :properties (:autoload t))
