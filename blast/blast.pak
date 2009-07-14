@@ -184,6 +184,10 @@
  (:name "starfield" :type :image :file "starfield.png")
  (:name "zeta-base" :type :image :file "zeta-base.png")
 
+ (:name	"station-arm-horz" :type :image :file "station-arm-horz.png")
+ (:name "station-arm-vert" :type :alias :data ":rotate 90:station-arm-horz")
+ (:name "station-base" :type :image :file "station-base.png")
+
  (:name "blast-lisp" :type :lisp :file "blast" :properties (:autoload t))
  (:name "effect-lisp" :type :lisp :file "effect" :properties (:autoload t))
  (:name "terrain-lisp" :type :lisp :file "terrain" :properties (:autoload t))
