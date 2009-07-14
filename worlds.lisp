@@ -453,14 +453,21 @@ in a roguelike until the user has pressed a key."
 
 ;;; Universes are composed of worlds.
 
-;; A world can be addressed one of several ways:
-
-;; The value nil, meaning 'create a root universe ex nihilo'.
-
-;; A list such as  '(=world-prototype= :key1 val1 :key2 val2 ...), 
-;; in which case we clone and generate via [generate-with 
-
-;; A =world= object
+(defun normalize-address (address)
+  "Sort the plist ADDRESS so that its keys come in alphabetical order
+by symbol name. This enables them to be used as hash keys."
+  (labels ((all-keys (plist)
+	     (let (keys)
+	       (loop while (not (null plist))
+		     do (progn (push (pop plist) keys)
+			       (pop plist)))
+	       keys)))
+    (let (address2)
+      (dolist (key (sort (all-keys (cdr address)) #'string> :key #'symbol-name))
+	;; build sorted plist
+	(push (getf (cdr address) key) address2)
+	(push key address2))
+	(cons (car address) address2))))
 
 (define-prototype universe 
     (:documentation "A collection of connected worlds.")
@@ -471,10 +478,13 @@ in a roguelike until the user has pressed a key."
   (player :initform nil))
 
 (define-method add-world universe (address world)
-  (setf (gethash address <worlds>) world))
+  (setf (gethash (normalize-address address) <worlds>) world))
  
 (define-method remove-world universe (address)
-  (remhash address <worlds>))
+  (remhash (normalize-address address) <worlds>))
+
+(define-method get-world universe (address)
+  (gethash (normalize-address address) <worlds>))
 
 (define-method get-player universe ()
   <player>)
@@ -482,13 +492,10 @@ in a roguelike until the user has pressed a key."
 (define-method set-player universe (player)
   (setf <player> player))
 
-(define-method get-world universe (address)
-  (gethash address <worlds>))
-
-(define-method get-current-world universe (address)
+(define-method get-current-world universe ()
   <current-world>)
 
-(define-method get-current-address universe (address)
+(define-method get-current-address universe ()
   <current-address>)
 
 (define-method generate-world universe (address)
@@ -498,12 +505,13 @@ in a roguelike until the user has pressed a key."
 	[generate-with world parameters]))))
 
 (define-method find-world universe (address)
-  (let ((candidate (gethash address <worlds>)))
+  (let ((candidate [get-world self address]))
     (if (null candidate)
-	(setf (gethash address <worlds>)
-	      [generate-world self address])
+	[add-world self (normalize-address address)
+		   [generate-world self address]]
 	candidate)))
 
+;; TODO PLAY PLAY PLAY!
 ;; (define-method play universe (address)
 ;;   (setf <current-address> address)
 ;;   (let ((world [find-world self address])
