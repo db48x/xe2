@@ -117,12 +117,13 @@
 ;;; Random powerup function
 
 (defun random-powerup ()
-  (clone (ecase (random 5)
+  (clone (ecase (random 6)
 	   (0 =diamond=)
 	   (1 =pulse-ammo=)
 	   (2 =extender=)
 	   (3 =bomb-ammo=)
-	   (4 =diamond=))))
+	   (4 =diamond=)
+	   (5 =ion-shield=))))
 
 ;;; Some destructible blocks
 
@@ -186,3 +187,20 @@
   (when [is-player stepper]
     [>>say :narrator "You've found the Ion Shield Belt."]
     [>>take stepper :direction :here :category :item]))
+
+;;; Powerup mystery box
+
+(defcell mystery-box
+  (tile :initform "mystery-box")
+  (hit-points :initform (make-stat :base 5 :min 0))
+  (categories :initform '(:target)))
+
+(define-method die mystery-box ()
+  (let ((item (clone (ecase (random 3)
+		       (0 =ion-shield=)
+		       (1 =diamond=)
+		       (2 =energy=)))))
+    [drop self item]
+    [parent>>die self]))
+
+  

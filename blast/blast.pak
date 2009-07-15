@@ -136,6 +136,8 @@
  (:name "muon-pistol" :type :image :file "muon-pistol.png")
  (:name "muon" :type :image :file "muon.png")
 
+ (:name "mystery-box" :type :image :file "mystery-box.png")
+
  (:name "muon-north" :type :image :file "muon-north.png")
  (:name "muon-east" :type :alias :data ":rotate 90:muon-north")
  (:name "muon-south" :type :alias :data ":rotate 180:muon-north")

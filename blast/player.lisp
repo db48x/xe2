@@ -329,7 +329,6 @@
   [make-inventory self]
   [make-equipment self]
   [equip self [add-item self (clone =muon-cannon=)]]
-  [equip self [add-item self (clone =ion-shield=)]]
   [equip self [add-item self (clone =pulse-cannon=)]]
   [equip self [add-item self (clone =bomb-cannon=)]])
 

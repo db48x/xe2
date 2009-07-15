@@ -80,6 +80,7 @@
 				    (berserker-count 0)
 				    (polaris-count 5)
 				    (probe-count 5)
+				    (mystery-count 2)
 				    (energy-gas-cluster-count 2)
 				    (box-cluster-count 4)
 				    (gas-cluster-count 0)
@@ -111,6 +112,9 @@
   ;; drop stuff
   (dotimes (i energy-count)
     [drop-cell self (clone =energy=)
+	       (random height) (random width)])
+  (dotimes (i mystery-count)
+    [drop-cell self (clone =mystery-box=)
 	       (random height) (random width)])
   (dotimes (i room-count)
       [drop-room self 

@@ -324,6 +324,8 @@
     [print self (format nil "~D" (field-value :row char))]
     [print self " LEVEL: "]
     [print self (format nil "~D" *level*)]
+    [print self " SPEED: "]
+    [print self (format nil "~D" [stat-value char :speed])]
     [print self " SCORE: "]
     [println self (format nil "~D" [stat-value char :score])]
     [space self]
