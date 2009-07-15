@@ -122,9 +122,9 @@
     [drop-cell self (clone =canaz=) (random height) (random width) :loadout t])
   (dotimes (i polaris)
     [drop-cell self (clone =polaris=) (random height) (random width) :loadout t])
-
+  ;;
   [drop-random-asteroids self asteroids]
-
+  ;;
   (setf *station-base-count* 0)
   (loop do (paint-station-piece self (random height) (random width) 20)
 	while (< *station-base-count* 20)))

@@ -5,10 +5,9 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO solve bidirectional nav problem
 ** TODO escape ruins by edges of map
 ** TODO gun upgrade??!?
-*** TODO Switch to a world within a universe and install it for play
-
 ** TODO 2-way portals between worlds in a universe
 ** TODO define-method win-condition world
 ** TODO world map edge conditions (wrap, block).

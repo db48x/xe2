@@ -330,6 +330,7 @@
   [make-equipment self]
   [equip self [add-item self (clone =muon-cannon=)]]
   [equip self [add-item self (clone =ion-shield=)]]
+  (assert [equipment-slot self :extension])
   [>>say :narrator "This is your Olvac Model 2 freighter, now online."])
 
 (define-method quit ship ()

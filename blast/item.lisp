@@ -42,7 +42,7 @@
   (when [is-player stepper]
     (when (has-field :energy stepper)
       [play-sample self "whoop"]
-      [>>stat-effect stepper :energy 5]
+      [>>stat-effect stepper :energy 7]
       [>>die self])))
 
 ;;; A life powerup.
