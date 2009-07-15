@@ -16,7 +16,7 @@
 (defcell station-base 
   (tile :initform "station-base")
   (categories :initform '(:obstacle :actor :equipper :opaque))
-  (speed :initform (make-stat :base 6))
+  (speed :initform (make-stat :base 4))
   (hit-points :initform (make-stat :base 40 :min 0))
   (equipment-slots :initform '(:robotic-arm))
   (max-items :initform (make-stat :base 3))
@@ -80,7 +80,7 @@
 
 (define-method step protostar (stepper)
   (when [is-player stepper]
-    [>>say :narrator "You ram into the white-hot photostar and vaporize."]
+    [>>say :narrator "You ram into the white-hot protostar and vaporize."]
     [>>die stepper]))
 
 (define-prototype nebula-m (:parent rlx:=world=)
@@ -91,21 +91,20 @@
   (clon:with-field-values (height width) self
     (let ((plasma (rlx:render-plasma height width :graininess 0.7))
 	  (value nil))
-      (dotimes (i (- height 10))
-	(dotimes (j (- width 10))
+      (dotimes (i height)
+	(dotimes (j width)
 	  (setf value (aref plasma i j))
 	  (when (< 0 value)
 	    (let ((object =red-plasma=))
-	      [drop-cell self (clone object) (+ 10 i) (+ 10 j) :no-collisions t])))))))
+	      [drop-cell self (clone object) i j :no-collisions t])))))))
 
 (define-method generate nebula-m (&key (height 100)
 				       (width 100)
-				       (protostars 70)
+				       (protostars 30)
 				       (asteroids 100)
 				       (polaris 20)
-				       (energy 30)
-				       (rooks 30)
-				       (canaz 60))
+				       (rooks 10)
+				       (canaz 30))
   (setf <height> height <width> width)
   [create-default-grid self]
   (dotimes (i width)
@@ -117,8 +116,6 @@
   [drop-plasma self]
   (dotimes (i rooks)
     [drop-cell self (clone =rook=) (random height) (random width) :loadout t])
-  (dotimes (i energy)
-    [drop-cell self (clone =energy=) (random height) (random width) :loadout t])
   (dotimes (i protostars)
     [drop-cell self (clone =protostar=) (random height) (random width)])
   (dotimes (i canaz)
@@ -129,7 +126,7 @@
   [drop-random-asteroids self asteroids]
 
   (setf *station-base-count* 0)
-  (loop do (paint-station-piece self (random height) (random width) 10)
+  (loop do (paint-station-piece self (random height) (random width) 20)
 	while (< *station-base-count* 20)))
 
 (define-method drop-random-asteroids nebula-m (count)
@@ -142,5 +139,5 @@
 		 (random height) (random width)])))
   
 (define-method start nebula-m ()
-  (play-music "black-thunder" :loop t)
+  (play-music "xiomacs2" :loop t)
   [parent>>start self])

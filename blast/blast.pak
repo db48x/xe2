@@ -128,8 +128,10 @@
  (:name "death" :type :sample :file "death.wav" :properties (:volume 50))
  (:name "death-alien" :type :sample :file "death-alien.wav" :properties (:volume 30))
  (:name "powerup" :type :sample :file "powerup.wav" :properties (:volume 40))
+
  (:name "technogirl" :type :music :file "technogirl-x.ogg")
  (:name "xiomacs" :type :music :file "xiomacs.ogg")
+ (:name "xiomacs2" :type :music :file "xiomacs2.ogg")
 
  (:name "muon-pistol" :type :image :file "muon-pistol.png")
  (:name "muon" :type :image :file "muon.png")
