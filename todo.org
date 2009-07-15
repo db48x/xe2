@@ -5,6 +5,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO assign set of required fields/types to each cell category and do sanity checks
 ** TODO solve bidirectional nav problem
 ** TODO escape ruins by edges of map
 ** TODO gun upgrade??!?
