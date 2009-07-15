@@ -360,6 +360,7 @@ Return ITEM if successful, nil otherwise."
 	[set-container item nil]))))
 
 (define-method item-at cell (pos)
+  (assert <inventory>)
   (aref <inventory> pos))
 
 (define-method replace-item-at cell (item pos)
@@ -427,8 +428,8 @@ Return ITEM if successful, nil otherwise."
     (when (and [in-category cell :item]
 	       [first-open-slot self])
       [expend-default-action-points self]
-      [add-item self cell]
-      [delete-from-world cell])))
+      [delete-from-world cell]
+      [add-item self cell])))
 
 (define-method resolve cell (reference &optional category)
   "Accept a REFERENCE to a cell, and try to get the real cell.
@@ -497,25 +498,26 @@ slot."
 	      [add-category item :equipped]
 	      ;; remove from inventory
 	      [remove-item self item]
-	      (setf (field-value :equipper item) self)))))))
-	;;   ;; notify user of success
-	;;   [>>say :narrator "You equip "]
-	;;   [>>print-object-tag :narrator item]
-	;;   [>>newline :narrator ])
-	;; (progn
-	;;   ;; explain failure
-	;;   [>>say :narrator "You cannot equip "]
-	;;   [>>print-object-tag :narrator item]
-	;;   [>>newline :narrator]
-	;;   (cond
-	;;     ((not valid) 
-	;;      [>>say :narrator "This item is not a piece of equipment."])
-	;;     ((and match (not open))
-	;;      [>>say :narrator "You must un-equip the ~A first." slot2])
-	;;     ((not match)
-	;;      [>>say :narrator "This can only be equipped in one of: ~A"
-	;; 		       (field-value :equip-for item)])))))))
-
+	      (setf (field-value :equipper item) self)
+	      (when (and *message-queue* [is-player self])
+		[>>say :narrator "You equip "]
+		[>>print-object-tag :narrator item]
+		[>>newline :narrator ]))
+	    (progn
+	      ;; explain failure
+	      (when (and *message-queue* [is-player self])
+		[>>say :narrator "You cannot equip "]
+		[>>print-object-tag :narrator item]
+		[>>newline :narrator]
+		(cond
+		  ((not valid) 
+		   [>>say :narrator "This item is not a piece of equipment."])
+		  ((and match (not open))
+		   [>>say :narrator "You must un-equip the ~A first." slot2])
+		  ((not match)
+		   [>>say :narrator "This can only be equipped in one of: ~A"
+			  (field-value :equip-for item)])))))))))
+    
 (define-method dequip cell (slot)
   ;; TODO document
   ;; TODO narration

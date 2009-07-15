@@ -910,6 +910,8 @@ The default destination is the main window."
   (setf *next-module* module-name)
   (sdl:push-quit-event))
 
+(defparameter *audio-chunksize* 1024)
+
 (defun play (&optional (module-name "standard"))
   ;; override module to play?
   (setf *next-module* module-name)
@@ -924,7 +926,7 @@ The default destination is the main window."
 	  (initialize-colors)
 	  (when *use-sound*
 	    ;; try opening sound
-	    (when (null (sdl-mixer:open-audio :chunksize 512))
+	    (when (null (sdl-mixer:open-audio :chunksize *audio-chunksize*))
 	      ;; if that didn't work, disable effects/music
 	      (message "Could not open audio. Disabling sound.")
 	      (setf *use-sound* nil)))

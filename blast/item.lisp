@@ -123,7 +123,7 @@
 	   (2 =extender=)
 	   (3 =bomb-ammo=)
 	   (4 =diamond=)
-	   (5 =ion-shield=))))
+	   (5 =mystery-box=))))
 
 ;;; Some destructible blocks
 
@@ -186,7 +186,7 @@
 (define-method step ion-shield (stepper)
   (when [is-player stepper]
     [>>say :narrator "You've found the Ion Shield Belt."]
-    [>>take stepper :direction :here :category :item]))
+    [equip stepper [take stepper :direction :here :category :item] :extension]))
 
 ;;; Powerup mystery box
 
