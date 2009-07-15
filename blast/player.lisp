@@ -330,8 +330,8 @@
   [make-equipment self]
   [equip self [add-item self (clone =muon-cannon=)]]
   [equip self [add-item self (clone =ion-shield=)]]
-  (assert [equipment-slot self :extension])
-  [>>say :narrator "This is your Olvac Model 2 freighter, now online."])
+  [equip self [add-item self (clone =pulse-cannon=)]]
+  [equip self [add-item self (clone =bomb-cannon=)]])
 
 (define-method quit ship ()
   (rlx:quit :shutdown))
@@ -358,7 +358,8 @@
     [stat-effect self :bomb-ammo -1]))
 
 (define-method activate-extension ship ()
-  [activate [equipment-slot self :extension]])
+  (assert [equipment-slot self :extension])
+  [>>activate [equipment-slot self :extension]])
 
 (define-method update-react-shield ship ()
   (when (not (<= <invincibility-clock> 0))
@@ -397,13 +398,6 @@
       (decf <invincibility-clock>)
       [update-tile self])))
   
-(define-method loadout ship ()
-  [make-inventory self]
-  [make-equipment self]
-  [equip self [add-item self (clone =muon-cannon=)]]
-  [equip self [add-item self (clone =pulse-cannon=)]]
-  [equip self [add-item self (clone =bomb-cannon=)]])
-
 (define-method step ship (stepper)
   (when (eq =asteroid= (object-parent stepper))
     [say *billboard* :hit]

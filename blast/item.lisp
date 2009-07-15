@@ -164,14 +164,14 @@
   (equip-for :initform '(:belt :shoulder-mount :extension))
   (size :initform 5))
 
-(defparameter *ion-shield-energy-cost* 60)
+(defparameter *ion-shield-energy-cost* 10)
 
 (define-method activate ion-shield ()
   (let* ((world *active-world*)
 	 (row [player-row world])
 	 (column [player-column world])
 	 (size <size>))
-    (if [expend-energy [get-player world] *ion-shield-energy-cost*]
+    (if [expend-energy <equipper> *ion-shield-energy-cost*]
       (labels ((drop-ion (r c)
 		 (prog1 nil
 		   [drop-cell world (clone =ion-shield-wall=) r c :no-collisions nil])))
@@ -180,7 +180,7 @@
 			 (- row (truncate (/ size 2)))
 			 (- column (truncate (/ size 2)))
 			 size size))
-      [say :narrator "Not enough energy to activate shield."])))
+      [>>say :narrator "Not enough energy to activate shield."])))
 
 (define-method step ion-shield (stepper)
   (when [is-player stepper]
