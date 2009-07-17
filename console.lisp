@@ -587,14 +587,17 @@ table."
       (read-sequence string file))))
 
 (defun load-lisp-resource (resource)
-  (let ((source (resource-file resource)))
+  (let* ((source (resource-file resource))
+	 (fasl (compile-file-pathname source)))
     ;; do we need recompilation?
-    (if (> (file-write-date source)
-	   (file-write-date (compile-file-pathname source)))
-	(load (compile-file source))
-	;; no, just load the fasl
-	(load (compile-file-pathname source)))))
-  
+    (if (probe-file fasl)
+    	(if (> (file-write-date source)
+    	       (file-write-date fasl))
+    	    (load (compile-file source))
+    	    ;; no, just load the fasl
+    	    (load fasl))
+	(load (compile-file source)))))
+	      
 (defun load-canvas-resource (resource)
   (destructuring-bind (&key width height background)
       (resource-properties resource)
