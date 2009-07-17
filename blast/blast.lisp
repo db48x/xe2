@@ -333,8 +333,6 @@
     [print self (format nil "~s" [location-name *active-world*])]
     [print self " ASTEROIDS REMAINING: "]
     [print self (format nil "~D" *asteroid-count*)]
-    [print self " CRYSTALS: "]
-    [print self (format nil "~D" [stat-value char :crystals])]
     [print self " ENDURIUM: "]
     [print self (format nil "~D U" [stat-value char :endurium])]
     [newline self]))
@@ -400,7 +398,7 @@
     ;;
     [set-player universe player]
     [play universe
-	  :address '(=star-sector= :width 20 :height 20 :star-count 5)
+	  :address '(=star-sector= :width 80 :height 80 :star-count 80)
 	  :prompt prompt
 	  :narrator narrator]
     [loadout player]

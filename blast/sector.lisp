@@ -72,9 +72,9 @@
 (define-prototype star-sector (:parent rlx:=world=)
   (ambient-light :initform :total))
   
-(define-method generate star-sector (&key (height 20)
-					  (width 20)
-					  (star-count 5))
+(define-method generate star-sector (&key (height 80)
+					  (width 80)
+					  (star-count 80))
   (setf <height> height <width> width)
   [create-default-grid self]
   (dotimes (i width)
@@ -85,6 +85,6 @@
 		 i j]))
   (dotimes (i star-count)
     [drop-cell self (clone =star=) (random height) (random width)])
-  [drop-cell self (clone =zeta-base-gateway=) (random height) (random width)]
-  [drop-cell self (clone =nebula-m-gateway=) (random height) (random width)])
+  [drop-cell self (clone =zeta-base-gateway=) (random 20) (random 20)]
+  [drop-cell self (clone =nebula-m-gateway=) (random 20) (random 20)])
 

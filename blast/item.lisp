@@ -68,7 +68,7 @@
 (define-method step crystal (stepper)
   (when [is-player stepper]
    [play-sample self "bip"]
-   [stat-effect stepper :crystals 1]
+   [stat-effect stepper :endurium 1]
    [stat-effect stepper :score 1000]
    [die self]))
 

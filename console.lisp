@@ -593,9 +593,11 @@ table."
     (if (probe-file fasl)
     	(if (> (file-write-date source)
     	       (file-write-date fasl))
+	    ;; recompile. 
     	    (load (compile-file source))
     	    ;; no, just load the fasl
     	    (load fasl))
+	;; create the fasl for the first time. 
 	(load (compile-file source)))))
 	      
 (defun load-canvas-resource (resource)
