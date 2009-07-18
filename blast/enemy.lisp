@@ -408,9 +408,8 @@
 	    (if [obstacle-in-direction-p world row column direction]
 		(let ((target [target-in-direction-p world row column direction]))
 		  (if (and target (not [in-category target :enemy]))
-		      (progn
+		      (progn nil)
 ;;			[>>attack self direction]
-			[play-sample self "drill-bit"])
 		      (progn (setf <direction> (random-direction))
 			     [>>move self direction])))
 		(progn (when (< 7 (random 10))
@@ -455,3 +454,7 @@
   [make-inventory self]
   [make-equipment self]
   [equip self [add-item self (clone =bomb-cannon=)]])
+
+(define-method fire rook (direction)
+  [play-sample self "drill-bit"]
+  [parent>>fire self direction])
