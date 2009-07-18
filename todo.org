@@ -5,12 +5,14 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
-** TODO compile game lisps only if needed
-<dto> hi. is there a portable way to load a lisp file only if the source is
-      newer than the fasl?   [06:15]
-<Xof> check the file-write-date of both source and fasl using the fancy >
-      operator and the IF special form?
-<Xach> dto: file-write-date might help there.
+
+** TODO scrolling message popup / interaction widget
+** TODO print line number of current view
+** TODO f1 for help
+** TODO "f1 for help" notice onscreen
+** TODO Tabbed interface. press TAB to switch views.
+** TODO email display with story background
+** TODO CLON speedups: cache 4 most recently used methods
 ** TODO assign set of required fields/types to each cell category and do sanity checks
 ** TODO solve bidirectional nav problem
 ** TODO escape ruins by edges of map

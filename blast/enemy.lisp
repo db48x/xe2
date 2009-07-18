@@ -193,7 +193,9 @@
 	  (progn 
 	    (setf <direction> (if (< distance 4)
 				  (random-direction)
-				  direction))
+				  (if (> 3 (random 10))
+				      (random-direction)
+				      direction)))
 	    [>>fire self direction])
 	  ;; bounce around 
 	  (progn 

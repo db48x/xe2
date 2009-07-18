@@ -357,8 +357,9 @@
     [stat-effect self :bomb-ammo -1]))
 
 (define-method activate-extension ship ()
-  (assert [equipment-slot self :extension])
-  [>>activate [equipment-slot self :extension]])
+  (if [equipment-slot self :extension]
+      [>>activate [equipment-slot self :extension]]
+      [>>say :narrator "No extension part equipped."]))
 
 (define-method update-react-shield ship ()
   (when (not (<= <invincibility-clock> 0))

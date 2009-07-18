@@ -925,7 +925,7 @@ The default destination is the main window."
   (setf *next-module* module-name)
   (sdl:push-quit-event))
 
-(defparameter *audio-chunksize* 1024)
+(defparameter *audio-chunksize* 512)
 
 (defun play (&optional (module-name "standard"))
   ;; override module to play?

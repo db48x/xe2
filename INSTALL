@@ -84,3 +84,16 @@ or for more of a twitch experience:
 See the separate file $INSTALLDIR/invader/manual.org for playing
 instructions.
 
+8. Here is my example .rlxrc:
+
+    ;; -*- Mode: lisp -*-
+
+    (setf rlx:*module-directories* '(#P"/home/dto/rlx/" 
+    	  			     #P"/home/dto/rlx-modules/"))
+    (setf rlx:*user-keyboard-layout* :qwerty)
+    (setf rlx:*use-sound* t)
+    (setf rlx:*message-logging* t)
+     ;; fullscreen is a pain if RLX hangs
+    (setf rlx:*fullscreen* nil)
+
+

@@ -7,6 +7,9 @@
  (:name "speedup" :type :image :file "speedup.png")
  (:name "defenseup" :type :image :file "defenseup.png")
 
+ (:name "welcome-message" :type text :file "welcome.txt")
+ (:name "help-message" :type text :file "README")
+
  (:name "worp" :type :sample :file "worp.wav" :properties (:volume 10))
  (:name "bip" :type :sample :file "bip.wav" :properties (:volume 10))
  (:name "pop-ssh" :type :sample :file "pop-ssh.wav" :properties (:volume 30))
