@@ -1,4 +1,4 @@
-/;;; widgets.lisp --- interactive graphical elements with offscreen drawing
+;;; widgets.lisp --- interactive graphical elements with offscreen drawing
 
 ;; Copyright (C) 2008  David O'Toole
 
@@ -92,6 +92,22 @@ if a binding was found, nil otherwise."
     (when func
       (prog1 t
 	(funcall func)))))
+
+;;; Stack layout
+
+(define-prototype stack 
+    (:parent =widget= :documentation "Stack all the child widgets on top of one another in a column.")
+  (children :initform nil :documentation "The widgets in the stack."))
+
+(define-method render stack ()
+  (let ((y <y>)
+	(x <x>))
+    (dolist (widget <children>)
+      [move widget :x x :y y]
+      (incf y (field-value :height widget)))))
+
+(define-method set-children stack (children)
+  (setf <children> children))
 
 ;;; Formatted display widget
 

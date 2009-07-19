@@ -1,6 +1,6 @@
 ;;; console.lisp --- basic operations for RLX
 
-;; Copyright (C) 2006, 2007, 2008  David O'Toole
+;; Copyright (C) 2006, 2007, 2008, 2009  David O'Toole
 
 ;; Author: David O'Toole <dto@gnu.org>
 ;; Keywords: multimedia, games
@@ -112,7 +112,7 @@ and the like."
 ;; below for more information.
 
 (defun send-event-to-widgets (event)
-  "Attempt to deliver EVENT to each of the *current-widgets*
+  "Attempt to deliver EVENT to each of the *active-widgets*
 one at a time (in list order) until one of them is found to have a
 matching keybinding, in which case the keybinding's corresponding
 function is triggered. If none of the widgets have a matching
@@ -334,8 +334,6 @@ window. Set this in the game startup file.")
 
 ;;; PAK resource interchange files
 
-;; <: pak :>
-
 ;; PAK is a simple Lisp data interchange file format readable and
 ;; writable by both Emacs Lisp and Common Lisp. A PAK file can contain
 ;; one or more data resources. A "resource" is an image, sound, text,
@@ -350,8 +348,6 @@ window. Set this in the game startup file.")
 ;; small decimal integers and floating-point numbers, strings, lists,
 ;; and symbols).
 
-;; <: resources :>
-
 ;; A "resource record" defines a resource. A resource record is a
 ;; structure with the following elements:
 
@@ -362,14 +358,13 @@ window. Set this in the game startup file.")
 ;;           Corresponding handlers are the responsibility of the client.
 ;;           See also `*resource-handlers*' and `load-resource'.
 
-;;           <: pak-inclusion :>
 ;;           The special type :pak is used to load the pak file
 ;;           specified in :FILE, from (optionally) another module
 ;;           whose name is given in :DATA.
 
-;;           <: aliases :> The special type :alias is used to provide
-;;           multiple names for a resource. The :DATA field contains
-;;           the name of the target resource.
+;;           The special type :alias is used to provide multiple names
+;;           for a resource. The :DATA field contains the name of the
+;;           target resource.
 
 ;;  :PROPERTIES  Property list with extra data; for example :copyright,
 ;;               :license, :author. 
@@ -439,8 +434,6 @@ This prepares it for printing as part of a PAK file."
 
 ;;; Resources and modules
 
-;; <: resources :>
-
 ;; The "resource table" maps resource names to their corresponding
 ;; records. "Indexing" a resource means that its resource record is
 ;; added to the resource table. "Loading" a resource means that any
@@ -470,8 +463,6 @@ resources go in this one hash table.")
 
 (defun initialize-resource-table ()
    (setf *resource-table* (make-hash-table :test 'equal)))
-
-;; <: aliases :>
 
 (defun index-resource (resource)
   "Add the RESOURCE's record to the resource table.
@@ -538,7 +529,6 @@ table. File names are relative to the module MODULE-NAME."
   (let ((resources (read-pak pak-file)))
     (dolist (res resources)
       (if (eq :pak (resource-type res))
-	  ;; <: pak-inclusion :>
 	  ;; we're including another pak file. if :data is specified,
 	  ;; take this as the name of the module where to look for
 	  ;; that pak file and its resources.

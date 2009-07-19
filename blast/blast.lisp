@@ -378,7 +378,8 @@
 	 (player (clone =ship=))
 	 (viewport (clone =view=))
 	 (splash (clone =splash=))
-	 (splash-prompt (clone =splash-prompt=)))
+	 (splash-prompt (clone =splash-prompt=))
+	 (stack (clone =stack=)))
     ;;
     [resize splash :height 600 :width 600]
     [move splash :x 0 :y 0]
@@ -392,8 +393,7 @@
     [hide prompt]
     [install-keybindings prompt]
     ;;
-    [resize narrator :height 80 :width 800]
-    [move narrator :x 0 :y 520]
+    [resize narrator :height 140 :width 800]
     [set-verbosity narrator 0]
     ;;
     [set-player universe player]
@@ -404,7 +404,6 @@
     [loadout player]
     ;;
     [resize status :height 60 :width 700]
-    [move status :x 10 :y 0]
     [set-character status player]
     (setf *status* status)
     [update status]
@@ -416,12 +415,13 @@
     ;; the default is to track the current world:
     ;; [set-world viewport world] 
     [resize viewport :height 432 :width 800]
-    [move viewport :x 0 :y 70]
     [set-origin viewport :x 0 :y 0 :height 24 :width 50]
     [adjust viewport]
     ;;
     (play-music "xiomacs" :loop t)
     (set-music-volume 255)	       
-
-    (setf *play-widgets* (list prompt status viewport narrator *billboard*))
+    [resize stack :width 800 :height 600]
+    [move stack :x 0 :y 0]
+    [set-children stack (list status viewport narrator)]
+    (setf *play-widgets* (list stack prompt status viewport narrator *billboard*))
     (install-widgets splash-prompt splash)))

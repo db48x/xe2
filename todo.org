@@ -5,13 +5,18 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO shift-click on anything to display :help and/or :tooltip
+** TODO OBJECT ID/HELP WIDGET identifies enemies
+** TODO email display with story background
 
+** TODO mouse support!
+** TODO emacs-ish window-panes widget layout engine
+** TODO Alien info display
 ** TODO scrolling message popup / interaction widget
 ** TODO print line number of current view
 ** TODO f1 for help
 ** TODO "f1 for help" notice onscreen
 ** TODO Tabbed interface. press TAB to switch views.
-** TODO email display with story background
 ** TODO CLON speedups: cache 4 most recently used methods
 ** TODO assign set of required fields/types to each cell category and do sanity checks
 ** TODO solve bidirectional nav problem
