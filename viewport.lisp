@@ -68,7 +68,6 @@
       (dotimes (i origin-height)
 	(dotimes (j origin-width)
 	  ;; is this square lit? 
-	  ;; <: lighting :>
 	    (if (and (array-in-bounds-p grid (+ i origin-y) (+ j origin-x))
 		     (or (eq :total ambient-light)
 			 (= 1 (aref light-grid (+ i origin-y) (+ j origin-x)))))

@@ -270,9 +270,18 @@ action during PHASE."
 (define-method end-phase cell ()
   (setf <phase-number> [get-phase-number *active-world*]))
 
-;;; Cell movement
+;;; Player orientation
 
-;; <: movement :> 
+(define-method distance-to-player cell ()
+  [distance-to-player *active-world* <row> <column>])
+
+(define-method direction-to-player cell ()
+  [direction-to-player *active-world* <row> <column>])
+
+(define-method adjacent-to-player cell ()
+  [adjacent-to-player *active-world* <row> <column>])
+
+;;; Cell movement
 
 (define-method move cell (direction)
   (multiple-value-bind (r c) 
@@ -297,14 +306,10 @@ action during PHASE."
 (define-method step cell (stepper)
   (declare (ignore stepper)))
 
-;; <: lighting :> 
-      
 (define-method is-light-source cell ()
   [in-category self :light-source])
 
 ;;; Containers
-
-;; <: containers :>
 
 ;; An object's <inventory> field is a vector. Each position of the
 ;; vector holds either a cell object or nil. The number of available

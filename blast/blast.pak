@@ -7,14 +7,18 @@
  (:name "speedup" :type :image :file "speedup.png")
  (:name "defenseup" :type :image :file "defenseup.png")
 
+
  (:name "welcome-message" :type text :file "welcome.txt")
  (:name "help-message" :type text :file "README")
 
+ (:name "gas-poof" :type :sample :file "gas.wav" :properties (:volume 4))
  (:name "worp" :type :sample :file "worp.wav" :properties (:volume 10))
  (:name "bip" :type :sample :file "bip.wav" :properties (:volume 10))
  (:name "pop-ssh" :type :sample :file "pop-ssh.wav" :properties (:volume 30))
 
  (:name "rook" :type :image :file "rook.png")
+ (:name "guardian" :type :image :file "guardian.png")
+ (:name "jelly" :type :image :file "jelly.png")
 
  (:name "rad" :type :image :file "rad.png")
  

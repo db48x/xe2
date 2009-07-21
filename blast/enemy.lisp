@@ -12,7 +12,7 @@
   (weight :initform 3000)
   (equip-for :initform '(:robotic-arm :left-hand :right-hand)))
 
-;;; Radiation graviceptors leave energy behind when you kill them. 
+;;; Radiation graviceptors leave energy behind when you kill them
 
 (defcell graviceptor
  (tile :initform "gravicept")
@@ -58,6 +58,7 @@
 		    ;; this is ugly:
 		    (eq =debris= (object-parent ob)))
 		[cells-at *active-world* <row> <column>])
+
     (labels ((boom (r c &optional (probability 50))
 	       (prog1 nil
 		 (when (and (< (random 100) probability)
@@ -460,3 +461,79 @@
 (define-method fire rook (direction)
   [play-sample self "drill-bit"]
   [parent>>fire self direction])
+
+;;; Spike beam 
+
+; (defcell spike-beam 
+
+;;; Guardians protect a given cell.
+
+(defcell guardian 
+  (categories :initform '(:actor :target :obstacle :opaque :enemy))
+  (equipment-slots :initform '(:robotic-arm :shoulder-mount))
+  (attacking-with :initform :robotic-arm)
+  (firing-with :initform :robotic-arm)
+  (dexterity :initform (make-stat :base 20))
+  (max-items :initform (make-stat :base 1))
+  (speed :initform (make-stat :base 16))
+  (stepping :initform t)
+  (behavior :initform :homing)
+  (clock :initform 8)
+  (clock-reset-value :initform 8)
+  (scouting-direction :initform :north)
+  (attack-distance :initform 10)
+  (strength :initform (make-stat :base 70))
+  (movement-cost :initform (make-stat :base 7))
+  (tile :initform "guardian")
+  (defended-cell :initform nil)
+  (hit-points :initform (make-stat :base 60 :min 0 :max 60)))
+
+(define-method defend guardian (defended-cell)
+  (setf <defended-cell> defended-cell))
+
+(define-method run guardian ()
+  (ecase <behavior>
+    (:homing [home self])
+    (:scouting [scout self])))
+
+(define-method home guardian ()
+  (decf <clock>)
+  (clon:with-field-values (row column) self
+    (if (< [distance-to-player self] <attack-distance>)
+	(let ((direction [direction-to-player self])
+	      (world *active-world*))
+	  (if [adjacent-to-player self]
+	      [>>attack self direction]
+	      (when [obstacle-in-direction-p world row column direction]
+		(setf <direction> (random-direction))
+		[>>move self direction]))
+	  ;; otherwise, move toward the defended cell until clock runs out
+	  (let* ((cell <defended-cell>)
+		 (r0 (field-value :row cell))
+		 (c0 (field-value :column cell)))
+	    (if [obstacle-in-direction-p world row column (direction-to row column r0 c0)]
+		(progn (setf <direction> (random-direction))
+		       [move self <direction>])
+		[move self (direction-to row column r0 c0)])
+	    (when (<= <clock> 0)
+	      (setf <scouting-direction> (random-direction))
+	      (setf <clock> <clock-reset-value>)
+	      (setf <behavior> :scouting)))))))
+
+(define-method scout guardian ()
+  (decf <clock>)
+  ;; check for player 
+  (if (< [distance-to-player self] <attack-distance>)
+      (setf <behavior> :homing)
+      ;; are we done scouting? then begin homing. 
+      (if (<= <clock> 0)
+	  (setf <clock> <clock-reset-value>
+		<behavior> :homing)
+	  ;; otherwise continue scouting
+	  [move self <scouting-direction>])))
+
+(define-method loadout guardian ()
+  [make-inventory self]
+  [make-equipment self]
+  [equip self [add-item self (clone =shock-probe=)]])
+

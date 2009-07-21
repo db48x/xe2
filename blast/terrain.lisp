@@ -23,13 +23,19 @@
     [>>say :narrator "RADIOACTIVE HAZARD!"]))
 
 (define-method run gas ()
+  [play-sample self "gas-poof"]
   (decf <clock>)
   (if (> 0 <clock>)
       [die self]
-      [move self (random-direction)]))
+      (progn 
+	(do-cells (cell [cells-at *active-world* <row> <column>])
+	  (when [is-player cell]
+	    [damage cell 5]
+	    [>>say :narrator "RADIOACTIVE HAZARD!"]))
+	[move self (random-direction)])))
 
 ;;; A destructible wall.
-
+  
 (defcell wall
   (tile :initform "wall")
   (categories :initform '(:obstacle))

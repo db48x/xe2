@@ -54,17 +54,21 @@
 
 (defun paint-station-piece (world row column maxsize)
   (when (not [obstacle-at-p world row column])
-    (labels ((drop-horz (r c)
-	       [drop-cell world (clone =station-arm-horz=) r c])
-	     (drop-vert (r c)
-	       [drop-cell world (clone =station-arm-vert=) r c])
-	     (drop-base (r c)
-	       [drop-cell world (clone =station-base=) r c :loadout t]))
-      (trace-row #'drop-horz row column (max 0 (- column (random maxsize))))
-      (trace-row #'drop-horz row column (+ column (random maxsize)))
-      (trace-column #'drop-vert column row (max 0 (- row (random maxsize))))
-      (trace-column #'drop-vert column row (+ row (random maxsize)))
-      (drop-base row column))))
+    (let ((guardian (clone =guardian=)))
+      (labels ((drop-horz (r c)
+		 [drop-cell world (clone =station-arm-horz=) r c])
+	       (drop-vert (r c)
+		 [drop-cell world (clone =station-arm-vert=) r c])
+	       (drop-base (r c)
+		 [drop-cell world (clone =station-base=) r c :loadout t]))
+	(trace-row #'drop-horz row column (max 0 (- column (random maxsize))))
+	(trace-row #'drop-horz row column (+ column (random maxsize)))
+	(trace-column #'drop-vert column row (max 0 (- row (random maxsize))))
+	(trace-column #'drop-vert column row (+ row (random maxsize)))
+	[drop-cell world guardian
+		   (+ (- row 5) (random 10))
+		   (+ (- column 5) (random 10))]
+	[defend guardian (drop-base row column)]))))
 
 (defcell nebula-space 
   (tile :initform "nebula"))
@@ -105,6 +109,7 @@
 				       (mysteries 4)
 				       (polaris 20)
 				       (rooks 10)
+				       (bases 20)
 				       (canaz 30))
   (setf <height> height <width> width)
   [create-default-grid self]
@@ -131,7 +136,7 @@
   ;;
   (setf *station-base-count* 0)
   (loop do (paint-station-piece self (random height) (random width) 20)
-	while (< *station-base-count* 20)))
+	while (< *station-base-count* bases)))
 
 (define-method drop-random-asteroids nebula-m (count)
   (clon:with-field-values (height width) self

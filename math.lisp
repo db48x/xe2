@@ -24,6 +24,10 @@
 
 (in-package :rlx)
 
+(defmacro percent-of-time (percent &body body)
+  `(when (< (random 100) ,percent)
+     ,@body))
+
 (defun roll (rolls &optional (sides 6) (adds 0))
   "Total ROLLS rolls of a SIDES-sided die, then add ADDS.
 So 2d6+2 would be (roll 2 6 2)."

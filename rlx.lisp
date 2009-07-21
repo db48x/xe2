@@ -88,7 +88,7 @@
   render-plasma add-hook run-hook queue-tail make-queue queue unqueue
   queue-message queued-messages-p unqueue-message send-queue
   field-value random-direction load-font-resource draw-string-solid
-  read-pak *resource-table* initialize-resource-table
+  read-pak *resource-table* initialize-resource-table percent-of-time
   render-formatted-paragraph make-formatted-string draw-string-shaded
   render-formatted-string render-formatted-line resource
   write-sexp-to-file with-message-sender *message-sender*

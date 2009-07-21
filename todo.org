@@ -5,10 +5,11 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
-** TODO shift-click on anything to display :help and/or :tooltip
-** TODO OBJECT ID/HELP WIDGET identifies enemies
-** TODO email display with story background
-
+** TODO Regular layout Storage depot with ammo, goodies, vaults, guardians
+** TODO Guardians look like the GOND
+** TODO fix bases firing too fast
+** TODO right-click on anything to display :help and/or :tooltip
+** TODO virtual email display with story background
 ** TODO mouse support!
 ** TODO emacs-ish window-panes widget layout engine
 ** TODO Alien info display

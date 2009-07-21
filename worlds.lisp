@@ -147,7 +147,7 @@ dropped on top of an obstacle."
   (when (array-in-bounds-p <grid> row column)
     (when (or (null no-collisions)
 	      (not [obstacle-at-p self row column]))
-      (prog1 t
+      (prog1 cell
 	(vector-push-extend cell (aref <grid> row column))
 	(setf (field-value :row cell) row)
 	(setf (field-value :column cell) column)

@@ -69,8 +69,6 @@
 
 ;;; The active widgets list 
 
-;; <: widgets :>
-
 (defvar *active-widgets* nil "List of active widget objects. 
 These widgets receive input events and are rendered to the screen by
 the console. See also `send-event-to-widgets'.
@@ -96,8 +94,6 @@ and the like."
   (setf *active-widgets* widgets))
 
 ;;; Event handling and widgets
-
-;; <: events :>
 
 ;; Keyboard, mouse, and timer events are represented as event lists of
 ;; the form:
@@ -154,8 +150,6 @@ else.")
       (error "No event handler registered.")))
 
 ;;; Translating SDL key events into RLX event lists
-
-;; <: events :>
 
 (defun make-key-modifier-symbol (sdl-mod)
   "Translate from the SDL key modifier symbol SDL-MOD to our own
@@ -316,8 +310,6 @@ window. Set this in the game startup file.")
 
 ;;; The .rlxrc user init file
 
-;; <: initialization :>
-
 (defparameter *user-init-file-name* ".rlxrc")
 
 (defvar *initialization-hook* nil)
@@ -406,8 +398,6 @@ This prepares it for printing as part of a PAK file."
 
 ;; First we need routines to read and write raw s-expressions to and
 ;; from text files.
-
-;; <: serialization :>
 
 (defun write-sexp-to-file (filename sexp)
   (with-open-file (file filename :direction :output 
@@ -823,8 +813,6 @@ found."
 ;; The X11 standard colors are loaded by default into the resource
 ;; table from the raw data in `*x11-color-data*'. See also rgb.lisp.
 
-;; <: colors :>
-
 (defun initialize-colors ()
   "Load the X11 color data into the resource table."
   (dolist (color *x11-color-data*)
@@ -924,7 +912,6 @@ The default destination is the main window."
   (loop while (and (not *quitting*)
 		   *next-module*)
      do (sdl:with-init (sdl:SDL-INIT-VIDEO sdl:SDL-INIT-AUDIO)
-	  ;; <: initialization :>
 	  (load-user-init-file)	
 	  (run-hook '*initialization-hook*)
 	  (initialize-resource-table)
