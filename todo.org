@@ -5,8 +5,13 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO pager widget / window manager thingy
+** TODO f1 for help, f2 for viewport
+** TODO PORT TEXTBOX WIDGET
+** TODO Make textbox widget sizing policy configurable: allow fixed size
+** TODO FINISH MENU WIDGET (menu should work on any clon obj)
+** TODO Escape points appear 
 ** TODO Regular layout Storage depot with ammo, goodies, vaults, guardians
-** TODO Guardians look like the GOND
 ** TODO fix bases firing too fast
 ** TODO right-click on anything to display :help and/or :tooltip
 ** TODO virtual email display with story background

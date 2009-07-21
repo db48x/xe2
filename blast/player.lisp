@@ -215,7 +215,7 @@
   (default-cost :initform (make-stat :base 5))
   (tile :initform "muon")
   (direction :initform :here)
-  (clock :initform 9))
+  (clock :initform 12))
 
 (define-method find-target muon-particle ()
   (let ((target [category-in-direction-p *active-world* 

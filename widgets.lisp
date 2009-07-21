@@ -109,6 +109,8 @@ if a binding was found, nil otherwise."
 (define-method set-children stack (children)
   (setf <children> children))
 
+;; TODO define-method 
+
 ;;; Formatted display widget
 
 ;; This section implements a simple output formatting widget for the
@@ -529,5 +531,106 @@ normally."
 		:color ".yellow"
 		:stroke-color ".yellow"
 		:destination image))))
+
+;;; Text display and edit control
+
+;; No fancy formatting, but editable and supports scrolling.
+
+(defparameter *textbox-margin* 4 "Default onscreen margin (in pixels) of a textbox.")
+
+(defparameter *textbox-minimum-width* 10) 
+
+(define-prototype textbox (:parent =widget=)
+  (font :initform ".default-font")
+  (buffer :initform nil)
+  (max-displayed-rows :initform nil)
+  (max-displayed-columns :initform nil)
+  (background-color :initform ".blue")
+  (foreground-color :initform ".white")
+  (point-row :initform 0)
+  (point-column :initform 0)
+  (visible :initform t))
+
+(define-method show textbox ()
+  (setf <visible> t))
+
+(define-method hide textbox ()
+  (setf <visible> nil))
+
+(define-method render textbox ()
+  (when <visible>
+    (with-fields (buffer x y width height) self
+      (with-field-values (font image) self
+	;; measure text
+	(let* ((line-height (font-height font))
+	       (line-lengths (mapcar #'(lambda (s)
+					 (font-text-extents s font))
+				     buffer)))
+	  ;; update geometry
+	  (let ((width0 (max *textbox-minimum-width*
+			     (+ (* 2 *textbox-margin*)
+				(if (null line-lengths)
+				    0 
+				    (apply #'max line-lengths)))))
+		(height0 (+ (* 2 *textbox-margin*)
+			    (* line-height (max 1 (length buffer))))))
+	    (when (or (not (equal width width0))
+		      (not (equal height height0)))
+	      [resize self :height height0 :width width0])
+	    ;; draw background
+	    (draw-box x y width height :destination image
+		      :stroke-color <foreground-color>
+		      :color <background-color>)
+	    ;; draw text
+	    (let ((x0 (+ x *textbox-margin*))
+		  (y0 (+ y *textbox-margin*)))
+	      (dolist (line buffer)
+		(draw-string-solid line x0 y0 :destination image
+				   :font font :color <foreground-color>)
+		(incf y0 line-height))
+	      ;; draw cursor
+	      (let* ((current-line (nth <point-row> buffer))
+		     (cursor-width (font-width font))
+		     (x1 (+ x *textbox-margin*
+			    (font-text-extents (subseq current-line 0 <point-column>)
+					       font)))
+		     (y1 (+ 2 y *textbox-margin*
+			    (* line-height <point-row>))))
+		(draw-rectangle x1 y1 cursor-width line-height 
+				:color ".yellow"
+				:destination image)))))))))
+ 
+;;; The pager switches between different visible groups of widgets
+
+(define-prototype pager (:parent =widget=)
+  (pages :initform nil)
+  (current-page :initform nil
+		:documentation "Keyword name of current page."))
+
+(define-method initialize pager ()
+  [parent>>initialize self]
+  (labels ((play () [select self :play])
+	   (help () [select self :help])
+	   (main () [select self :main]))
+    [define-key self "F1" nil #'help]
+    [define-key self "F2" nil #'play]
+    [define-key self "F3" nil #'main]))
+
+(define-method select pager (page)
+  (let ((newpage 
+	 (etypecase page
+	   (number (cdr (nth page <pages>)))
+	   (keyword (cdr (assoc page <pages>))))))
+    (if (null newpage)
+	(error "Cannot find page.")
+	;; insert self always as first widget
+	(apply #'rlx:install-widgets self newpage))))
+
+(define-method add-page pager (keyword &rest widgets)
+  (push (cons keyword widgets) <pages>))
+
+(define-method get-page-names pager ()
+  (remove-duplicates (mapcar #'car <pages>)))
+
 
 ;;; widgets.lisp ends here

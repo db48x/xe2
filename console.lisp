@@ -563,8 +563,11 @@ table."
   (with-open-file (file (resource-file resource)
 			:direction :input
 			:if-does-not-exist nil)
-    (let ((string (make-string (file-length file))))
-      (read-sequence string file))))
+    (loop for line = (read-line file nil)
+	  while line collect line)))
+
+    ;; (let ((string (make-string (file-length file))))
+    ;;   (read-sequence string file))))
 
 (defun load-lisp-resource (resource)
   (let* ((source (resource-file resource))
@@ -796,6 +799,10 @@ found."
 
 (defun font-width (font)
   (find-resource-property font :width))
+
+(defun font-text-extents (string font)
+  (* (length string)
+     (font-width font)))
 
 (defun draw-string-solid (string x y 
 			  &key destination (font *default-font*) (color ".white"))

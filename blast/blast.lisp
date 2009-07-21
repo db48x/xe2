@@ -341,7 +341,7 @@
 
 ;;; Splash screen
 
-(defvar *play-widgets*)
+(defvar *pager* (clone =pager=))
 
 (define-prototype splash (:parent =widget=))
 
@@ -351,7 +351,7 @@
 
 (define-method dismiss splash ()
   (play-sample "go")
-  (apply #'rlx:install-widgets *play-widgets*))
+  [select *pager* :play])
 
 (define-prototype splash-prompt (:parent =prompt=)
   (default-keybindings :initform '(("SPACE" nil "dismiss ."))))
@@ -361,7 +361,7 @@
 (defun blast ()
   (rlx:message "Initializing Blast Tactics...")
   (setf clon:*send-parent-depth* 2)
-  (rlx:set-screen-height 600)
+  (rlx:set-screen-height 700)
   (rlx:set-screen-width 800)
 ;  (rlx:set-frame-rate 30)
   ;; (rlx:set-timer-interval 20)
@@ -379,6 +379,7 @@
 	 (viewport (clone =view=))
 	 (splash (clone =splash=))
 	 (splash-prompt (clone =splash-prompt=))
+	 (textbox (clone =textbox=))
 	 (stack (clone =stack=)))
     ;;
     [resize splash :height 600 :width 600]
@@ -393,7 +394,7 @@
     [hide prompt]
     [install-keybindings prompt]
     ;;
-    [resize narrator :height 140 :width 800]
+    [resize narrator :height 120 :width 800]
     [set-verbosity narrator 0]
     ;;
     [set-player universe player]
@@ -418,10 +419,23 @@
     [set-origin viewport :x 0 :y 0 :height 24 :width 50]
     [adjust viewport]
     ;;
+    [resize textbox :height 100 :width 800]
+    [move textbox :x 0 :y 0]
+    (setf (field-value :buffer textbox)
+	  (find-resource-object "help-message"))
+    ;;
     (play-music "xiomacs" :loop t)
     (set-music-volume 255)	       
-    [resize stack :width 800 :height 600]
+    ;;
+    [resize stack :width 800 :height 700]
     [move stack :x 0 :y 0]
     [set-children stack (list status viewport narrator)]
-    (setf *play-widgets* (list stack prompt status viewport narrator *billboard*))
-    (install-widgets splash-prompt splash)))
+    ;;
+    [resize *pager* :width 800 :height 700]
+    [move *pager* :x 0 :y 0]
+    [add-page *pager* :main splash-prompt splash]
+    [add-page *pager* :help textbox]
+    [add-page *pager* :play stack prompt status viewport narrator *billboard*]
+    [select *pager* :main]))
+
+

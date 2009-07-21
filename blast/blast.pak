@@ -8,8 +8,8 @@
  (:name "defenseup" :type :image :file "defenseup.png")
 
 
- (:name "welcome-message" :type text :file "welcome.txt")
- (:name "help-message" :type text :file "README")
+ (:name "welcome-message" :type :text :file "welcome.txt")
+ (:name "help-message" :type :text :file "README")
 
  (:name "gas-poof" :type :sample :file "gas.wav" :properties (:volume 4))
  (:name "worp" :type :sample :file "worp.wav" :properties (:volume 10))
