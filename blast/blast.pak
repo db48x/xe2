@@ -10,6 +10,8 @@
 
  (:name "welcome-message" :type :text :file "welcome.txt")
  (:name "help-message" :type :text :file "README")
+ (:name "greyplate" :type :image :file "greyplate.png")
+ (:name "greenbrick" :type :image :file "greenbric.png")
 
  (:name "gas-poof" :type :sample :file "gas.wav" :properties (:volume 4))
  (:name "worp" :type :sample :file "worp.wav" :properties (:volume 10))
@@ -136,9 +138,14 @@
  (:name "death-alien" :type :sample :file "death-alien.wav" :properties (:volume 30))
  (:name "powerup" :type :sample :file "powerup.wav" :properties (:volume 40))
 
+ (:name "tech-box" :type :image :file "tech-box.png")
+ (:name "tech-box-special" :type :image :file "tech-box-special.png")
+ (:name "tech-box-debris" :type :image :file "tech-box-debris.png")
+
  (:name "technogirl" :type :music :file "technogirl-x.ogg")
  (:name "xiomacs" :type :music :file "xiomacs.ogg")
- (:name "xiomacs2" :type :music :file "xiomacs2.ogg")
+ (:name "metro" :type :music :file "metro.ogg" :properties (:volume 30))
+ (:name "xiomacs2" :type :music :file "xiomacs2.ogg" :properties (:volume 40))
 
  (:name "muon-pistol" :type :image :file "muon-pistol.png")
  (:name "muon" :type :image :file "muon.png")
@@ -182,6 +189,7 @@
 
  (:name "energy" :type :image :file "electron.png")
  (:name "crystal" :type :image :file "crystal.png")
+ (:name "big-crystal" :type :image :file "big-crystal.png")
  (:name "energy-gas" :type :image :file "elec.png")
 
  (:name "display-font" :type :font :properties (:height 20 :width 10) :data "10x20")
@@ -199,7 +207,13 @@
  (:name "station-arm-vert" :type :alias :data ":rotate 90:station-arm-horz")
  (:name "station-base" :type :image :file "station-base.png")
  (:name "canaz" :type :image :file "canaz.png")
- 
+
+ (:name "grayplate" :type :image :file "grayplate.png")
+ (:name "grayplate-dark" :type :image :file "grayplate-dark.png")
+ (:name "oxygen-tank" :type :image :file "oxygen-tank.png")
+ (:name "greenbrick" :type :image :file "greenbrick.png") 
+ (:name "crew" :type :image :file "crew.png") 
+
  (:name "protostar" :type :image :file "protostar.png")
  (:name "nebula" :type :image :file "nebula.png")
  (:name "nebula2" :type :image :file "nebula2.png")
@@ -207,6 +221,8 @@
  (:name "nebula-m-gateway" :type :image :file "nebula-m-gateway.png")
  (:name "black-thunder" :type :music :file "black0999.ogg")
  (:name "basswarp" :type :music :file "basswarp.ogg")
+
+ (:name "freighter-gateway" :type :image :file "freighter-gateway.png")
 
  (:name "blast-lisp" :type :lisp :file "blast.lisp" :properties (:autoload t))
  (:name "effect-lisp" :type :lisp :file "effect.lisp" :properties (:autoload t))
@@ -217,6 +233,7 @@
  (:name "item-lisp" :type :lisp :file "item.lisp" :properties (:autoload t))
  (:name "enemy-lisp" :type :lisp :file "enemy.lisp" :properties (:autoload t))
  (:name "nebula-lisp" :type :lisp :file "nebula.lisp" :properties (:autoload t))
+ (:name "derelict-lisp" :type :lisp :file "derelict.lisp" :properties (:autoload t))
  (:name ".startup" :type :lisp :file "startup.lisp" :properties (:autoload t))
 
 )

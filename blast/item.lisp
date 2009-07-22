@@ -58,11 +58,11 @@
    [stat-effect stepper :score 2000]
    [die self]))
 
-;;; Mineral crystals to collect.
+;;; Endurium crystals to collect.
 
 (defcell crystal
   (tile :initform "crystal")
-  (categories :initform '(:target))
+  (categories :initform '(:target :endurium))
   (hit-points :initform (make-stat :base 1 :min 0)))
 
 (define-method step crystal (stepper)
@@ -70,6 +70,18 @@
    [play-sample self "bip"]
    [stat-effect stepper :endurium 1]
    [stat-effect stepper :score 1000]
+   [die self]))
+
+(defcell big-crystal
+  (tile :initform "big-crystal")
+  (categories :initform '(:target :endurium))
+  (hit-points :initform (make-stat :base 2 :min 0)))
+
+(define-method step big-crystal (stepper)
+  (when [is-player stepper]
+   [play-sample self "bip"]
+   [stat-effect stepper :endurium 10]
+   [stat-effect stepper :score 10000]
    [die self]))
 
 ;;; A trail extender powerup.

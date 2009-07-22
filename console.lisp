@@ -756,10 +756,16 @@ found."
 
 ;;; Playing music and sound effects
 
+(defun set-music-volume (number)
+  (when *use-sound*
+    (setf (sdl-mixer:music-volume) number)))
+
 (defun play-music (music-name &rest args)
   (when *use-sound*
-    (let ((resource (find-resource music-name)))
+    (let ((resource (find-resource music-name))
+	  (volume (find-resource-property music-name :volume)))
       (assert (eq :music (resource-type resource)))
+      (set-music-volume (or volume 255))
       (apply #'sdl-mixer:play-music 
 	     (resource-object resource)
 	     args))))
@@ -767,10 +773,6 @@ found."
 (defun halt-music (fade-milliseconds)
   (when *use-sound*
     (sdl-mixer:halt-music fade-milliseconds)))
-
-(defun set-music-volume (number)
-  (when *use-sound*
-    (setf (sdl-mixer:music-volume) number)))
 
 ;; TODO (defun seek-music 
 

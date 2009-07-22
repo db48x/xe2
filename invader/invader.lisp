@@ -56,12 +56,6 @@
   (name :initform "Airless Corridor")
   (tile :initform "corridor"))
 
-;;; Moving in a corridor uses up oxygen.
-
-(define-method step corridor (stepper)
-  (when (has-field :oxygen stepper)
-    [>>stat-effect stepper :oxygen -1]))
-
 ;;; You can refill your oxygen stores with these tanks.
 
 (defcell oxygen-tank

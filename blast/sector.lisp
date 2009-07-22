@@ -67,6 +67,15 @@
 (define-method step nebula-m-gateway (stepper)
   [>>narrateln :narrator "The mysterious Nebula M. Press RETURN to enter."])
 
+;;; Infested derelict freighters. 
+
+(define-prototype freighter-gateway (:parent =gateway=)
+  (tile :initform "freighter-gateway")
+  (address :initform '(=freighter=)))
+
+(define-method step freighter-gateway (stepper)
+  [>>narrateln :narrator "An infested derelict freighter. Press RETURN to enter."])
+
 ;;; The local cluster
 
 (define-prototype star-sector (:parent rlx:=world=)
@@ -74,7 +83,8 @@
   
 (define-method generate star-sector (&key (height 80)
 					  (width 80)
-					  (star-count 80))
+					  (freighters 12)
+					  (stars 80))
   (setf <height> height <width> width)
   [create-default-grid self]
   (dotimes (i width)
@@ -83,8 +93,10 @@
 				 =starfield= 
 				 =void=))
 		 i j]))
-  (dotimes (i star-count)
+  (dotimes (i stars)
     [drop-cell self (clone =star=) (random height) (random width)])
+  (dotimes (i freighters)
+    [drop-cell self (clone =freighter-gateway=) (random height) (random width)])
   [drop-cell self (clone =zeta-base-gateway=) (random 20) (random 20)]
   [drop-cell self (clone =nebula-m-gateway=) (random 20) (random 20)])
 

@@ -331,8 +331,8 @@
     [space self]
     [print self " LOCATION: "]
     [print self (format nil "~s" [location-name *active-world*])]
-    [print self " ASTEROIDS REMAINING: "]
-    [print self (format nil "~D" *asteroid-count*)]
+    [print self " OXYGEN REMAINING: "]
+    [print self (format nil "~D" [stat-value char :oxygen])]
     [print self " ENDURIUM: "]
     [print self (format nil "~D U" [stat-value char :endurium])]
     [newline self]))
@@ -361,7 +361,7 @@
 (defun blast ()
   (rlx:message "Initializing Blast Tactics...")
   (setf clon:*send-parent-depth* 2)
-  (rlx:set-screen-height 700)
+  (rlx:set-screen-height 600)
   (rlx:set-screen-width 800)
 ;  (rlx:set-frame-rate 30)
   ;; (rlx:set-timer-interval 20)
@@ -399,7 +399,7 @@
     ;;
     [set-player universe player]
     [play universe
-	  :address '(=star-sector= :width 80 :height 80 :star-count 80)
+	  :address '(=star-sector= :width 80 :height 80 :stars 80 :freighters 12)
 	  :prompt prompt
 	  :narrator narrator]
     [loadout player]
@@ -427,11 +427,11 @@
     (play-music "xiomacs" :loop t)
     (set-music-volume 255)	       
     ;;
-    [resize stack :width 800 :height 700]
+    [resize stack :width 800 :height 600]
     [move stack :x 0 :y 0]
     [set-children stack (list status viewport narrator)]
     ;;
-    [resize *pager* :width 800 :height 700]
+    [resize *pager* :width 800 :height 600]
     [move *pager* :x 0 :y 0]
     [add-page *pager* :main splash-prompt splash]
     [add-page *pager* :help textbox]

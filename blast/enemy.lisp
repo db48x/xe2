@@ -502,22 +502,23 @@
 	(let ((direction [direction-to-player self])
 	      (world *active-world*))
 	  (if [adjacent-to-player self]
-	      [>>attack self direction]
-	      (when [obstacle-in-direction-p world row column direction]
-		(setf <direction> (random-direction))
-		[>>move self direction]))
-	  ;; otherwise, move toward the defended cell until clock runs out
-	  (let* ((cell <defended-cell>)
-		 (r0 (field-value :row cell))
-		 (c0 (field-value :column cell)))
-	    (if [obstacle-in-direction-p world row column (direction-to row column r0 c0)]
-		(progn (setf <direction> (random-direction))
-		       [move self <direction>])
-		[move self (direction-to row column r0 c0)])
-	    (when (<= <clock> 0)
-	      (setf <scouting-direction> (random-direction))
-	      (setf <clock> <clock-reset-value>)
-	      (setf <behavior> :scouting)))))))
+	      [attack self direction]
+	      (progn
+		(when [obstacle-in-direction-p world row column direction]
+		  (setf <direction> (random-direction)))
+		[move self direction])))
+	;; otherwise, move toward the defended cell until clock runs out
+	(let* ((cell <defended-cell>)
+	       (r0 (field-value :row cell))
+	       (c0 (field-value :column cell)))
+	  (when [obstacle-in-direction-p *active-world* row column (direction-to row column r0 c0)]
+	    (setf <direction> (random-direction))
+	    [move self <direction>])
+	  [move self (direction-to row column r0 c0)]
+	  (when (<= <clock> 0)
+	    (setf <scouting-direction> (random-direction))
+	    (setf <clock> <clock-reset-value>)
+	    (setf <behavior> :scouting))))))
 
 (define-method scout guardian ()
   (decf <clock>)

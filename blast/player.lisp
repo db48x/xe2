@@ -312,6 +312,7 @@
   (trail-length :initform (make-stat :base 12 :min 0))
   (pulse-ammo :initform (make-stat :base 3 :min 0 :max 5))
   (bomb-ammo :initform (make-stat :base 3 :min 0 :max 5))
+  (oxygen :initform (make-stat :base 200 :min 0 :max 200))
   (invincibility-clock :initform 0)
   (stepping :initform t)
   (lives :initform (make-stat :min 0 :base 3 :max 3))
@@ -336,9 +337,12 @@
   (rlx:quit :shutdown))
 
 (define-method run ship ()
-  [update-tile self]
-  [update-react-shield self]
-  [update *status*])	       
+  (if (<= [stat-value self :oxygen] 0)
+      (progn [>>narrateln :narrator "Your oxygen runs out, suffocating you."]
+	     [die self])
+      (progn [update-tile self]
+	     [update-react-shield self]
+	     [update *status*])))
 
 (define-method wait ship ()
   [expend-action-points self <action-points>])

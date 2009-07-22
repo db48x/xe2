@@ -109,7 +109,6 @@
 				       (mysteries 4)
 				       (polaris 20)
 				       (rooks 10)
-				       (bases 20)
 				       (canaz 30))
   (setf <height> height <width> width)
   [create-default-grid self]
@@ -132,11 +131,7 @@
   (dotimes (i polaris)
     [drop-cell self (clone =polaris=) (random height) (random width) :loadout t])
   ;;
-  [drop-random-asteroids self asteroids]
-  ;;
-  (setf *station-base-count* 0)
-  (loop do (paint-station-piece self (random height) (random width) 20)
-	while (< *station-base-count* bases)))
+  [drop-random-asteroids self asteroids])
 
 (define-method drop-random-asteroids nebula-m (count)
   (clon:with-field-values (height width) self
