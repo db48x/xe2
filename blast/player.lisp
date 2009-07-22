@@ -94,13 +94,12 @@
 
 ;;; Death icon.
 
-(defparameter *death-message* "You are dead. Press SPACE BAR to respawn.")
-(defparameter *game-over-message* "No lives remaining. GAME OVER.")
+(defparameter *death-message* "You are dead.")
+(defparameter *game-over-message* "You are dead. GAME OVER.")
 
 (define-prototype skull (:parent rlx:=cell=)
   (tile :initform "skull")
   (player :initform nil)
-  (lives :initform nil)
   (categories :initform '(:dead :player :actor))
   (action-points :initform 0))
 
@@ -123,24 +122,10 @@
 (define-method quit skull ()
   (rlx:quit :shutdown))
 
-(define-method initialize skull (player lives)
+(define-method initialize skull (player)
   [say *billboard* :dead]
-  (setf <player> player
-	<lives> lives)
-  (if (plusp lives)
-      (progn [>>say :narrator *death-message*]
-	     [>>say :narrator "You have ~D lives remaining." lives])
-      [>>say :narrator *game-over-message*]))
-
-(define-method respawn skull ()
-  (if (plusp <lives>)
-      (progn
-	[>>say :narrator "Respawning."]
-        [die self]
-	[play-sample self "go"]
-	[revive <player>])
-      (progn
-	[>>say :narrator *game-over-message*])))
+  [>>say :narrator *death-message*]
+  [>>say :narrator *game-over-message*])
 
 ;;; Pulse particle
 
@@ -315,7 +300,6 @@
   (oxygen :initform (make-stat :base 200 :min 0 :max 200))
   (invincibility-clock :initform 0)
   (stepping :initform t)
-  (lives :initform (make-stat :min 0 :base 3 :max 3))
   (score :initform (make-stat :base 0))
   (attacking-with :initform :right-bay)
   (firing-with :initform :center-bay)
@@ -346,9 +330,6 @@
 
 (define-method wait ship ()
   [expend-action-points self <action-points>])
-
-(define-method respawn ship ()
-  nil)
 
 (define-method activate-pulse-cannon ship ()
   (when (plusp [stat-value self :pulse-ammo])
@@ -410,8 +391,7 @@
 
 (define-method die ship ()
   [play-sample self "death"]
-  [stat-effect self :lives -1]
-  (let ((skull (clone =skull= self [stat-value self :lives])))
+  (let ((skull (clone =skull= self)))
     [drop-cell *active-world* skull <row> <column> :loadout t :no-collisions nil]
     (setf <action-points> 0)
     [add-category self :dead]

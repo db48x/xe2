@@ -275,7 +275,6 @@
   [delete-all-lines self]
   (let* ((char <character>)
 	 (hits [stat-value char :hit-points])
-	 (lives [stat-value char :lives])
 	 (energy [stat-value char :energy])
 	 (pulse-ammo [stat-value char :pulse-ammo])
 	 (bomb-ammo [stat-value char :bomb-ammo]))
@@ -296,14 +295,6 @@
 			     ".cyan"
 			     ".gray20")])
     [newline self]
-    [print self " LIVES: "]
-    (dotimes (i 3)
-      [print self *status-bar-character* 
-	     :foreground ".yellow"
-	     :background (if (< i lives)
-			     ".blue"
-			     ".gray20")])
-    [space self]
     [print self " PULSE: "]
     (dotimes (i 6)
       [print self *status-bar-character* 
