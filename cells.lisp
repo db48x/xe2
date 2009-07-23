@@ -301,7 +301,7 @@ action during PHASE."
 	       [>>expend-action-points self [stat-value self :movement-cost]]
 	       [>>move-cell :world self r c]
 	       (when <stepping>
-		 (rlx:do-cells (cell [cells-at world r c])
+		 (do-cells (cell [cells-at world r c])
 		   [>>step cell self]))))))))
 	     	     
 (define-method drop cell (cell)

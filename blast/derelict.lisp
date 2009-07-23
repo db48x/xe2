@@ -99,7 +99,7 @@
   (ambient-light :initform :total)
   (pallet-size :initform 13))
 
-(define-method generate freighter (&optional parameters)
+(define-method generate freighter (&key (sequence-number (random 32768)))
   [create-default-grid self]
   (setf <name> (concatenate 'string 
 			    "Freighter ID#"

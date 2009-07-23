@@ -61,7 +61,7 @@
 
 (define-prototype freighter-gateway (:parent =gateway=)
   (tile :initform "freighter-gateway")
-  (address :initform '(=freighter=)))
+  (address :initform (list '=freighter= :sequence-number (random 32768))))
 
 (define-method step freighter-gateway (stepper)
   [>>narrateln :narrator "An infested derelict freighter. Press RETURN to enter."])
