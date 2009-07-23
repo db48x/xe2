@@ -65,6 +65,8 @@
   (tile :initform "freighter-gateway")
   (address :initform (list '=freighter= 
 			   ;; ensure all freighters are distinct
+			   :rooms (random 10)
+			   :stations (random 10)
 			   :sequence-number 
 			   (incf *freighter-sequence-number*))))
 

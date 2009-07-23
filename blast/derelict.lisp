@@ -52,6 +52,7 @@
 	[>>say :narrator "You recover ~D units of energy from the crewmember's battery pack." 
 	       energy]
 	[>>stat-effect stepper :energy energy]))
+    [>>play-sample self "powerup"]
     [>>die self]))
     
 (define-method damage crew-member (points)
@@ -94,13 +95,16 @@
 
 (define-prototype freighter (:parent =world=)
   (width :initform 48)
-  (height :initform 300)
+  (height :initform 150)
   (name :initform nil)
   (ambient-light :initform :total)
   (pallet-size :initform 13))
 
 (define-method generate freighter (&key (sequence-number (random 32768))
-					(rooms 55))
+					(rooms 10)
+					(stations 10)
+					(box-groups 25)
+					(berserkers 30))
   [create-default-grid self]
   (setf <name> (concatenate 'string 
 			    "Freighter ID#"
@@ -132,7 +136,7 @@
 	(dotimes (i imax)
 	  (dotimes (j jmax)
 	    ;; don't wall in the player
-	    (when (not (= 0 i j))
+	    (when (not (= 0 j))
 	      (trace-rectangle #'drop-bulkhead
 			       (+ (random 3)
 				  (* pallet-size i))
@@ -142,11 +146,11 @@
 			       (random pallet-size)
 			       :fill)))))
       ;; drop groups of boxes
-      (dotimes (i 34)
+      (dotimes (i box-groups)
     	(trace-rectangle #'drop-box (random height) (random width)
 			 (+ 16 (random 14)) (+ 4 (random 3)) :fill)))
     ;; drop enemies
-    (dotimes (i 40)
+    (dotimes (i berserkers)
       (let ((row (random height))
     	    (column (random width)))
     	[drop-cell self (clone =berserker=) row column :loadout t :no-collisions t]))
@@ -156,19 +160,16 @@
     (dotimes (i 50) 
       [drop-cell self (clone =biclops=) (+ 100 (random (- height 80)))
     		 (random width) :loadout t :no-collisions t])
-    (dotimes (i 50)
-      [drop-cell self (clone =scanner=) (+ 40 (random (- height 100)))
-    		 (random width) :loadout t :no-collisions t])
     ;; drop dead crewmembers to ransack
-    (dotimes (i 70) 
+    (dotimes (i 30) 
       [drop-cell self (clone =crew-member=) (random height) (random width) :loadout t :no-collisions t])
     ;; drop other stuff
-    (dotimes (i 25)
+    (dotimes (i 15)
       [drop-cell self (clone =oxygen-tank=) (random height) (random width) :no-collisions t])
     ;;
     (setf *station-base-count* 0)
     (loop do (paint-station-piece self (random height) (random width) 20)
-	  while (< *station-base-count* 30))
+	  while (< *station-base-count* stations))
     ;;
     (dotimes (i 20)
       [drop-cell self (clone =energy=) (random height) (random width) :no-collisions t])
@@ -176,8 +177,8 @@
     ;; vaults
     (dotimes (i rooms)
       [drop-room self (random (- height 20)) (random (- width 20) )
-		 (+ 4 (random 5))
-		 (+ 4 (random 5))])
+		 (+ 8 (random 5))
+		 (+ 6 (random 5))])
     ;; randomly place an entry point on the hull
     (let ((entry-row 1)
 	  (entry-column (1+ (random (- width 2)))))
@@ -205,7 +206,7 @@
       (dolist (point rectangle)
 	(destructuring-bind (r c) point
 	  [drop-cell self (clone =bulkhead=) r c :no-collisions t])))
-    (when (> 2 (random 10))
+    (when (> 5 (random 10))
       (let ((treasure [random-treasure self]))
 	(dotimes (i (+ 2 (random 10)))
 	  [drop-cell self (clone treasure)

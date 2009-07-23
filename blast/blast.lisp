@@ -261,15 +261,80 @@
   [define-key self nil '(:timer) (lambda ()
 				   [run-cpu-phase *active-world* :timer])])
 
-;;; A shield status and score widget.
+;;; A ship status widget.
 
 (define-prototype status (:parent rlx:=formatter=)
-  (character :documentation "The character cell whose status is shown."))
+  (character :documentation "The character cell."))
 
-(define-method set-character status (char)
-  (setf <character> char))
+(define-method set-character status (character)
+  (setf <character> character))
 
-(defparameter *status-bar-character* "-")
+(define-method print-stat status (stat-name &key warn-below)
+  (let* ((stat (field-value stat-name <character>))
+	 (value [stat-value <character> stat-name]))
+    (destructuring-bind (&key min max base delta) stat
+      (let ((color (if (and (numberp warn-below)
+			    (< value warn-below))
+		       ".red"
+		       ".gray20")))
+	[print self (symbol-name stat-name)
+	       :foreground ".white"]
+	[print self " "]
+	[print self (format nil "~S" value) 
+	       :foreground ".yellow"
+	       :background color]
+	[print self " "]))))
+
+(define-method print-equipment-slot status (slot-name)
+  [print self (symbol-name slot-name)]
+  [print self ": "]
+  (let* ((item [equipment-slot <character> slot-name]))
+    (if item
+	(clon:with-field-values (name tile) item
+	  [print self nil :image tile]
+	  [print self " "]
+	  [print self name]
+	  [print self "  "])
+	[print self "EMPTY  "])))
+
+(define-method print-inventory-slot status (slot-number)
+  [print self (format nil "[~D]: " slot-number)]
+  (let ((item [item-at <character> slot-number]))
+    (if item
+	(clon:with-field-values (name tile) item
+				[print self nil :image tile]
+				[print self " "]
+				[print self (get-some-object-name item)]
+				[print self "  "])
+	[print self "EMPTY  "])))
+
+;; (define-method update status ()
+;;   [delete-all-lines self]
+;;   (let ((char <character>))
+;;     [print self "  Statistics:  "]
+;;     [print-stat self :hit-points :warn-below 40]
+;;     [print self " "]
+;;     [print-stat self :oxygen :warn-below 40]
+;;     [print self " "]
+;;     [print-stat self :energy :warn-below 50]
+;;     [print self " "]
+;;     [print-stat self :strength :warn-below 10]
+;;     [print self " "]
+;;     [print-stat self :defense :warn-below 10]
+;;     [print self " "]
+;;     [print-stat self :speed :warn-below 2]
+;;     [println self " "]
+;;     [print self "  Equipment:  "]
+;;     [print-equipment-slot self :right-hand]
+;;     [print-equipment-slot self :left-hand]
+;;     [print-equipment-slot self :belt]
+;;     [newline self]
+;;     [print self "  Inventory:  "]
+;;     [print-inventory-slot self 0]
+;;     [print-inventory-slot self 1]
+;;     [newline self]))
+
+(defparameter *status-bar-character* " ")
 
 (define-method update status ()
   [delete-all-lines self]
@@ -278,7 +343,7 @@
 	 (energy [stat-value char :energy])
 	 (pulse-ammo [stat-value char :pulse-ammo])
 	 (bomb-ammo [stat-value char :bomb-ammo]))
-    [print self " HITS: "]
+    [print self " HITS "]
     (dotimes (i [stat-value char :hit-points :max])
       [print self *status-bar-character* 
 	     :foreground ".yellow"
@@ -287,7 +352,7 @@
 			     ".gray20")])
     [newline self]
     ;; energy display
-    [print self " ENERGY: "]
+    [print self " ENERGY "]
     (dotimes (i 40)
       [print self *status-bar-character* 
 	     :foreground ".red"
@@ -295,7 +360,7 @@
 			     ".cyan"
 			     ".gray20")])
     [newline self]
-    [print self " PULSE: "]
+    [print self " PULSE "]
     (dotimes (i 6)
       [print self *status-bar-character* 
 	     :foreground ".red"
@@ -303,7 +368,7 @@
 			     ".yellow"
 			     ".gray20")])
     [space self]
-    [print self "  BOMBS: "]
+    [print self "  BOMBS "]
     (dotimes (i 6)
       [print self *status-bar-character* 
 	     :foreground ".red"
@@ -311,24 +376,23 @@
 			     ".green"
 			     ".gray20")])
     [space self]
-    [print self "  "]
-    [print self (format nil "~D" (field-value :row char))]
-    [print self "  LEVEL: "]
-    [print self (format nil "~D" *level*)]
-    [print self "  SPEED: "]
-    [print self (format nil "~D" [stat-value char :speed])]
-    [print self "  SCORE: "]
+    [print-stat self :oxygen :warn-below 50]
+    [print self " "]
+    [print-stat self :strength :warn-below 10]
+    [print self " "]
+    [print-stat self :defense :warn-below 10]
+    [print self " "]
+    [print-stat self :speed :warn-below 2]
+    [print self " "]
+    [print-stat self :endurium :warn-below 10]
+    [print self "  SCORE "]
     [println self (format nil "~D" [stat-value char :score])]
     [space self]
-    [print self "  LOCATION: "]
+    [print self "  LOCATION "]
     [print self (format nil "~s" [location-name *active-world*])]
-    [print self "  POS: "]
+    [print self "  POS "]
     [print self (format nil "~A" (list [player-row *active-world*]
 				       [player-column *active-world*]))]
-    [print self "  OXYGEN: "]
-    [print self (format nil "~D" [stat-value char :oxygen])]
-    [print self "  ENDURIUM: "]
-    [print self (format nil "~D U" [stat-value char :endurium])]
     [newline self]))
 
 (defvar *status*)
