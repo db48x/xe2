@@ -605,33 +605,69 @@ normally."
 (define-prototype pager (:parent =widget=)
   (pages :initform nil)
   (current-page :initform nil
-		:documentation "Keyword name of current page."))
+		:documentation "Keyword name of current page.")
+  (pager-height :initform 20
+		:documentation "Height in pixels of the pager")
+  (background-color :initform ".gray18")
+  (style :initform '(:foreground ".gray60")
+	 :documentation "Text style properties for pager display")
+  (number-separator-string :initform ": ")
+  (separator-string :initform "  ")
+  (highlighted-style :initform '(:foreground ".blue" :background ".white")))
 
 (define-method initialize pager ()
   [parent>>initialize self]
-  (labels ((play () [select self :play])
-	   (help () [select self :help])
-	   (main () [select self :main]))
-    [define-key self "F1" nil #'help]
-    [define-key self "F2" nil #'play]
-    [define-key self "F3" nil #'main]))
+  [auto-position self]
+  (labels ((s1 () [select self 1])
+	   (s2 () [select self 2])
+	   (s3 () [select self 3]))
+    [define-key self "F1" nil #'s1]
+    [define-key self "F2" nil #'s2]
+    [define-key self "F3" nil #'s3]))
 
 (define-method select pager (page)
   (let ((newpage 
 	 (etypecase page
-	   (number (cdr (nth page <pages>)))
+	   (number (cdr (nth (- page 1) <pages>)))
 	   (keyword (cdr (assoc page <pages>))))))
     (if (null newpage)
 	(error "Cannot find page.")
 	;; insert self always as first widget
 	(apply #'rlx:install-widgets self newpage))))
 
+(define-method auto-position pager ()
+  [resize self :width rlx:*screen-width* :height <pager-height>]
+  [move self :x 0 :y (- rlx:*screen-height* <pager-height>)])
+
 (define-method add-page pager (keyword &rest widgets)
-  (push (cons keyword widgets) <pages>))
+  (push (cons keyword widgets) <pages>)
+  (format t "~A" (mapcar #'car <pages>)))
 
 (define-method get-page-names pager ()
   (remove-duplicates (mapcar #'car <pages>)))
 
-
+(define-method render pager ()
+  ;; calculate geometry. always draw
+  [clear self <background-color>]
+  (let ((n 1)
+	(line '()))
+    (dolist (page <pages>)
+      (let ((page-name (car page)))
+	;; build a list of formatted strings
+	(push (cons (concatenate 'string 
+				 (format nil "~D" n)
+				 <number-separator-string>
+				 (symbol-name page-name)
+				 <separator-string>)
+		    ;; highlight current page
+		    (if (eq page-name <current-page>)
+			<highlighted-style> <style>))
+	      line))
+      (incf n))
+    ;; draw the string
+    (render-formatted-line (nreverse line) 0 0 :destination <image>)))
+    
+    
+				  
 
 ;;; widgets.lisp ends here

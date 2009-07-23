@@ -332,7 +332,7 @@
 
 ;;; Splash screen
 
-(defvar *pager* (clone =pager=))
+(defvar *pager* nil)
 
 (define-prototype splash (:parent =widget=))
 
@@ -373,7 +373,7 @@
 	 (textbox (clone =textbox=))
 	 (stack (clone =stack=)))
     ;;
-    [resize splash :height 600 :width 600]
+    [resize splash :height 580 :width 600]
     [move splash :x 0 :y 0]
     [resize splash-prompt :width 10 :height 10]
     [move splash-prompt :x 0 :y 0]
@@ -418,12 +418,12 @@
     (play-music "xiomacs" :loop t)
     (set-music-volume 255)	       
     ;;
-    [resize stack :width 800 :height 600]
+    [resize stack :width 800 :height 580]
     [move stack :x 0 :y 0]
     [set-children stack (list status viewport narrator)]
     ;;
-    [resize *pager* :width 800 :height 600]
-    [move *pager* :x 0 :y 0]
+    (setf *pager* (clone =pager=))
+    [auto-position *pager*]
     [add-page *pager* :main splash-prompt splash]
     [add-page *pager* :help textbox]
     [add-page *pager* :play stack prompt status viewport narrator *billboard*]

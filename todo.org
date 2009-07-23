@@ -5,9 +5,10 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO pager widget / window manager thingy
+** TODO make nebula more fun... digging clouds looking for ice
 ** TODO make distinct keyed ships
 ** TODO exploding oxygen tanks release ice
-** TODO pager widget / window manager thingy
 ** TODO f1 for help, f2 for viewport
 ** TODO PORT TEXTBOX WIDGET
 ** TODO Make textbox widget sizing policy configurable: allow fixed size
