@@ -469,7 +469,7 @@ in a roguelike until the user has pressed a key."
  		  (progn (decf ,counter)
 			 (when ,var ,@body)))))))))
 
-;;; Universes are composed of worlds.
+;;; Universes are composed of connected worlds.
 
 (defvar *active-universe* nil)
 
@@ -569,7 +569,7 @@ by symbol name. This enables them to be used as hash keys."
 	[set-receiver <prompt> world]
 	[set-narrator world <narrator>]))))
 
-;;; Gateways and launchpads
+;;; Gateways and launchpads connect worlds together
 
 (defcell gateway
   (tile :initform "gateway")

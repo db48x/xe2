@@ -174,7 +174,7 @@
     [drop-cell self (clone =ion-shield=) (random height) (random width) :no-collisions t]
     ;; randomly place an entry point on the hull
     (let ((entry-row 1)
-	  (entry-column (1+ (random (1- width)))))
+	  (entry-column (1+ (random (- width 2)))))
       [drop-entry-point self entry-row entry-column])))
 
   
