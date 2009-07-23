@@ -1,6 +1,19 @@
-Welcome to Blast Tactics!!
+Welcome to Blast Tactics, an outer-space rogue-like game in Common
+Lisp.
 
--sdkjhdskjhf
-fdshkfdkjhfd
+Greetings, Invader! Join the fight against the Droid Infestation.
 
----------------------
+Use your numeric keypad to move, or the roguelike movement keys:
+   ^        
+  YKU        SPACE = respawn
+< H L >      1 = drop time bomb
+  BJN        2 = pulse cannon
+   v         3 = activate shield (if any)
+
+To fire, hold down the CONTROL key and press any direction.
+To wait in place without moving, hit W.
+To quit, press CONTROL-Q.
+
+TODO: document dvorak and other non-keypad directional controls.
+
+

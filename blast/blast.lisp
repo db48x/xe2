@@ -147,7 +147,7 @@
 	    ("N" (:control) "fire :southeast .")
 	    ;;
 	    ("W" nil "wait .")
-	    ("SPACE" nil "respawn .")
+;;	    ("SPACE" nil "respawn .")
 	    ("RETURN" nil "enter .")
 	    ("3" nil "activate-extension .")
 	    ("2" nil "activate-pulse-cannon .")
@@ -194,7 +194,7 @@
 	    ;;
 	    ("S" nil "wait .")
 	    ("ESCAPE" nil "activate-pulse-cannon .")
-	    ("SPACE" nil "respawn .")
+;;	    ("SPACE" nil "respawn .")
 	    ("3" nil "activate-extension .")
 	    ("1" nil "activate-bomb-cannon .")
 	    ("P" (:control) "quit ."))))
@@ -244,7 +244,7 @@
 	    ("V" (:control) "fire :southeast .")
 	    ;;
 	    ("S" nil "wait .")
-	    ("SPACE" nil "respawn .")
+;;	    ("SPACE" nil "respawn .")
 	    ("ESCAPE" nil "activate-pulse-cannon .")
 	    ("3" nil "activate-extension .")
 	    ("1" nil "activate-bomb-cannon .")
@@ -425,8 +425,8 @@
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
     [add-page *pager* :main splash-prompt splash]
-    [add-page *pager* :help textbox]
     [add-page *pager* :play stack prompt status viewport narrator *billboard*]
+    [add-page *pager* :help textbox]
     [select *pager* :main]))
 
 

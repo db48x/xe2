@@ -559,6 +559,7 @@ normally."
 
 (define-method render textbox ()
   (when <visible>
+    [clear self]
     (with-fields (buffer x y width height) self
       (with-field-values (font image) self
 	;; measure text
@@ -611,6 +612,7 @@ normally."
   (background-color :initform ".gray18")
   (style :initform '(:foreground ".gray60")
 	 :documentation "Text style properties for pager display")
+  (prefix-string :initform "F")
   (number-separator-string :initform ": ")
   (separator-string :initform "  ")
   (highlighted-style :initform '(:foreground ".blue" :background ".white")))
@@ -655,6 +657,7 @@ normally."
       (let ((page-name (car page)))
 	;; build a list of formatted strings
 	(push (cons (concatenate 'string 
+				 <prefix-string>
 				 (format nil "~D" n)
 				 <number-separator-string>
 				 (symbol-name page-name)
