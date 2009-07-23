@@ -79,10 +79,10 @@ Do not set this variable directly from a module; instead, call
 (defun show-widgets ()
   "Draw the active widgets to the screen."
   (dolist (widget *active-widgets*)
-    [render widget]
-    (sdl:draw-surface-at-* (field-value :image widget)
-			   (field-value :x widget)
-			   (field-value :y widget))))
+    (with-field-values (image x y) widget
+      (when image
+	[render widget]
+	(sdl:draw-surface-at-* image x y)))))
 
 (defvar *module-widgets* nil "List of widget objects in the current module.")
 
