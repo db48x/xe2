@@ -59,9 +59,14 @@
 
 ;;; Infested derelict freighters. 
 
+(defvar *freighter-sequence-number* 0)
+
 (define-prototype freighter-gateway (:parent =gateway=)
   (tile :initform "freighter-gateway")
-  (address :initform (list '=freighter= :sequence-number (random 32768))))
+  (address :initform (list '=freighter= 
+			   ;; ensure all freighters are distinct
+			   :sequence-number 
+			   (incf *freighter-sequence-number*))))
 
 (define-method step freighter-gateway (stepper)
   [>>narrateln :narrator "An infested derelict freighter. Press RETURN to enter."])

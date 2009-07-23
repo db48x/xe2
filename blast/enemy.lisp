@@ -474,7 +474,7 @@
   (firing-with :initform :robotic-arm)
   (dexterity :initform (make-stat :base 20))
   (max-items :initform (make-stat :base 1))
-  (speed :initform (make-stat :base 16))
+  (speed :initform (make-stat :base 12))
   (stepping :initform t)
   (behavior :initform :homing)
   (clock :initform 8)

@@ -303,7 +303,7 @@
 			     ".yellow"
 			     ".gray20")])
     [space self]
-    [print self " BOMBS: "]
+    [print self "  BOMBS: "]
     (dotimes (i 6)
       [print self *status-bar-character* 
 	     :foreground ".red"
@@ -311,20 +311,23 @@
 			     ".green"
 			     ".gray20")])
     [space self]
-    [print self " DEPTH: "]
+    [print self "  "]
     [print self (format nil "~D" (field-value :row char))]
-    [print self " LEVEL: "]
+    [print self "  LEVEL: "]
     [print self (format nil "~D" *level*)]
-    [print self " SPEED: "]
+    [print self "  SPEED: "]
     [print self (format nil "~D" [stat-value char :speed])]
-    [print self " SCORE: "]
+    [print self "  SCORE: "]
     [println self (format nil "~D" [stat-value char :score])]
     [space self]
-    [print self " LOCATION: "]
+    [print self "  LOCATION: "]
     [print self (format nil "~s" [location-name *active-world*])]
-    [print self " OXYGEN REMAINING: "]
+    [print self "  POS: "]
+    [print self (format nil "~A" (list [player-row *active-world*]
+				       [player-column *active-world*]))]
+    [print self "  OXYGEN: "]
     [print self (format nil "~D" [stat-value char :oxygen])]
-    [print self " ENDURIUM: "]
+    [print self "  ENDURIUM: "]
     [print self (format nil "~D U" [stat-value char :endurium])]
     [newline self]))
 

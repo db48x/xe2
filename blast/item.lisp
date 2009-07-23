@@ -12,6 +12,7 @@
     (play-sample "worp")
     [>>say :narrator "LEVEL UP! Max hit points +4"]
     [>>stat-effect stepper :hit-points 4 :max]
+    [>>stat-effect stepper :strength 2]
     [>>die self]))
 
 ;;; Speed powerup

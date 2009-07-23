@@ -99,7 +99,8 @@
   (ambient-light :initform :total)
   (pallet-size :initform 13))
 
-(define-method generate freighter (&key (sequence-number (random 32768)))
+(define-method generate freighter (&key (sequence-number (random 32768))
+					(rooms 8))
   [create-default-grid self]
   (setf <name> (concatenate 'string 
 			    "Freighter ID#"
@@ -172,12 +173,45 @@
     (dotimes (i 20)
       [drop-cell self (clone =energy=) (random height) (random width) :no-collisions t])
     [drop-cell self (clone =ion-shield=) (random height) (random width) :no-collisions t]
+    ;; vaults
+    (dotimes (i rooms)
+      [drop-room self (random (- height 20)) (random (- width 20) )
+		 (+ 4 (random 5))
+		 (+ 4 (random 5))])
     ;; randomly place an entry point on the hull
     (let ((entry-row 1)
 	  (entry-column (1+ (random (- width 2)))))
       [drop-entry-point self entry-row entry-column])))
-
   
+(define-method random-treasure freighter ()
+  (ecase (random 4)
+    (0 =bomb-ammo=)
+    (1 =crystal=)
+    (2 =diamond=)
+    (3 =pulse-ammo=)))
+
+(define-method drop-room freighter (row column height width)
+  (let ((rectangle nil))
+    (labels ((collect-point (&rest args)
+	       (prog1 nil (push args rectangle)))
+	     (drop-floor (r c)
+	       (prog1 nil [replace-cells-at self r c (clone =corridor=)])))
+      (trace-rectangle #'collect-point row column height width)
+      (trace-rectangle #'drop-floor row column height width :fill)
+      ;; make sure there are openings
+      (dotimes (i 2)
+	(let ((n (random (length rectangle))))
+	  (delete (nth n rectangle) rectangle)))
+      (dolist (point rectangle)
+	(destructuring-bind (r c) point
+	  [drop-cell self (clone =bulkhead=) r c :no-collisions t])))
+    (when (> 2 (random 10))
+      (let ((treasure [random-treasure self]))
+	(dotimes (i (+ 2 (random 10)))
+	  [drop-cell self (clone treasure)
+		     (+ 1 row (random width))
+		     (+ 1 column (random height))
+		     :no-collisions t])))))
 
 (define-method start freighter ()
   (play-music "metro" :loop t)
