@@ -15,7 +15,7 @@
 			     (field-value :row stepper)
 			     (field-value :column stepper))]
     ;; are you doomed? 
-    (when (zerop [stat-value stepper :endurium])
+    (when (<= [stat-value stepper :endurium] 0)
       [>>say :narrator "You run out of endurium in the deeps of interstellar space."]
       [>>say :narrator "Your oxygen runs out, suffocating you."]
       [die stepper])))

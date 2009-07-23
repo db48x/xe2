@@ -91,7 +91,7 @@
 (define-method step small-crystal (stepper)
   (when [is-player stepper]
    [play-sample self "bip"]
-   [stat-effect stepper :endurium 0.1]
+   [stat-effect stepper :endurium 0.2]
    [stat-effect stepper :score 100]
    [die self]))
 
