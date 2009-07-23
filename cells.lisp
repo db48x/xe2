@@ -284,22 +284,26 @@ action during PHASE."
 ;;; Cell movement
 
 (define-method move cell (direction)
-  (multiple-value-bind (r c) 
-      (step-in-direction <row> <column> direction)
-    (if [obstacle-at-p *active-world* r c]
-	(when [is-player self]
-	  [queue>>narrateln :narrator "You cannot move in that direction."])
-	(progn
-	  [queue>>expend-action-points self [stat-value self :movement-cost]]
-	  [queue>>move-cell :world self r c]
-	  (when <stepping>
-	    (let ((cells [cells-at *active-world* r c])
-		  (x 0))
-	      (loop while (< x (fill-pointer cells))
-		   do (progn 
-			[queue>>step (aref cells x) self]
-			(incf x)))))))))
-
+  (let ((world *active-world*))
+    (multiple-value-bind (r c) 
+	(step-in-direction <row> <column> direction)
+      ;; 
+      (cond ((null [cells-at world r c]) ;; are we at the edge?
+	     ;; edge conditions only affect player for now
+	     (when [is-player self]
+	       (ecase (field-value :edge-condition world)
+		 (:block nil)
+		 (:wrap nil) ;; TODO implement this
+		 (:exit [exit *active-universe*]))))
+	    ([obstacle-at-p *active-world* r c] nil)
+	    (t 
+	     (progn
+	       [>>expend-action-points self [stat-value self :movement-cost]]
+	       [>>move-cell :world self r c]
+	       (when <stepping>
+		 (rlx:do-cells (cell [cells-at world r c])
+		   [>>step cell self]))))))))
+	     	     
 (define-method drop cell (cell)
   [drop-cell *active-world* cell <row> <column>])
 

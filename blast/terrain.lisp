@@ -74,10 +74,6 @@
   (name :initform "Zeta Base Ruins")
   (ambient-light :initform :total))
 
-(defcell launchpad 
-  (tile :initform "launchpad")
-  (categories :initform '(:player-entry-point)))
-
 (define-method generate zeta-base (&key   
 				    (width 20)
 				    (height 20)

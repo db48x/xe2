@@ -171,7 +171,13 @@
     ;;
     (dotimes (i 20)
       [drop-cell self (clone =energy=) (random height) (random width) :no-collisions t])
-    [drop-cell self (clone =ion-shield=) (random height) (random width) :no-collisions t]))
+    [drop-cell self (clone =ion-shield=) (random height) (random width) :no-collisions t]
+    ;; randomly place an entry point on the hull
+    (let ((entry-row 1)
+	  (entry-column (1+ (random (1- width)))))
+      [drop-entry-point self entry-row entry-column])))
+
+  
 
 (define-method start freighter ()
   (play-music "metro" :loop t)

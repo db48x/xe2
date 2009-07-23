@@ -58,7 +58,11 @@ At the moment, only 0=off and 1=on are supported.")
   ;; <: narration :>
   (narrator :documentation "The narration widget object.")
   ;; <: browsing :>
-  (browser :documentation "The browser object."))
+  (browser :documentation "The browser object.")
+  (edge-condition :initform :exit
+		  :documentation "Either :block the player, :exit the world, or :wrap around.")
+  (player-exit-row :initform 0)
+  (player-exit-column :initform 0))
 
 (defparameter *default-world-axis-size* 10)
 (defparameter *default-world-z-size* 4)
@@ -130,13 +134,14 @@ At the moment, only 0=off and 1=on are supported.")
     (aref <grid> row column)))
 
 (define-method replace-cells-at world (row column data)
-  (etypecase data
-    (vector (setf (aref <grid> row column) data))
-    (clon:object (let ((cells (make-array *default-world-z-size* 
-					  :adjustable t
-					  :fill-pointer 0)))
-		   (prog1 cells
-		     (vector-push-extend data cells))))))
+  (setf (aref <grid> row column)
+	(etypecase data
+	  (vector data)
+	  (clon:object (let ((cells (make-array *default-world-z-size* 
+						:adjustable t
+						:fill-pointer 0)))
+			 (prog1 cells
+			   (vector-push-extend data cells)))))))
 
 (define-method drop-cell world (cell row column 
 				     &optional &key loadout no-collisions)
@@ -166,9 +171,9 @@ dropped on top of an obstacle."
       (setf <player> player)
       [drop-cell self player dest-row dest-column])))
 
-;; TODO (define-method drop-player-at-last-location world (player)
-;;   (setf <player> player)
-;;   [drop-cell self player ])
+(define-method drop-player-at-last-location world (player)
+  (setf <player> player)
+  [drop-cell self player <player-exit-row> <player-exit-column>])
   
 (define-method nth-cell world (n row column)
   (aref (aref <grid> row column) n))
@@ -182,6 +187,12 @@ dropped on top of an obstacle."
 (define-method player-column world ()
   (field-value :column <player>))
 
+(define-method exit world ()
+  ;; record current location so we can exit back to it
+  (setf <player-exit-row> (field-value :row <player>))
+  (setf <player-exit-column> (field-value :column <player>))
+  [delete-cell self <player> <player-exit-row> <player-exit-column>])
+  
 (define-method obstacle-at-p world (row column)
   (or (not (array-in-bounds-p <grid> row column))
       (some #'(lambda (cell)
@@ -265,9 +276,6 @@ so on, until no more messages are generated."
 	       ;; stop everything if player dies
 	       ;(when (not [in-category player :dead])
 		 (apply #'send sender method-key rec args)))))))
-  
-;; <: events :>
-;; <: main :>
 
 (define-method forward world (method-key &rest args)
   "Send unhandled messages to the player object.
@@ -489,8 +497,8 @@ by symbol name. This enables them to be used as hash keys."
   (worlds :initform (make-hash-table :test 'equal)
 	  :documentation "Address-to-world mapping.")
   (current-address :initform nil)
-  (current-world :initform nil)
-  (player :initform nil))
+  (player :initform nil)
+  (stack :initform '()))
 
 (define-method add-world universe (address world)
   (setf (gethash (normalize-address address) <worlds>) world))
@@ -508,7 +516,7 @@ by symbol name. This enables them to be used as hash keys."
   (setf <player> player))
 
 (define-method get-current-world universe ()
-  <current-world>)
+  (car <stack>))
 
 (define-method get-current-address universe ()
   <current-address>)
@@ -532,12 +540,53 @@ by symbol name. This enables them to be used as hash keys."
   (when narrator (setf <narrator> narrator))
   (assert (and <prompt> <narrator>))
   (let ((world [find-world self address])
-	(player <player>))
-    (setf *active-universe* self)
+	(player <player>)
+	(previous-world (car <stack>)))
+    ;; make sure exit coordinates are saved, so we can go back to this point
+    (when previous-world 
+      [exit previous-world])
+    ;; make the new world the current world
+    (push world <stack>)
     (setf *active-world* world)
+    (setf *active-universe* self)
     [drop-player-at-entry world player]
     [start world]
     [set-receiver <prompt> world]
     [set-narrator world <narrator>]))
+
+(define-method exit universe ()
+  (with-fields (stack) self
+    ;; exit and discard current world
+    [exit (pop stack)]
+    ;; 
+    (let ((world (car stack)))
+      (when world
+	(setf *active-world* world)
+	(setf *active-universe* self)
+	;; resume at previous play coordinates
+	[drop-player-at-last-location world <player>]
+	[start world]
+	[set-receiver <prompt> world]
+	[set-narrator world <narrator>]))))
+
+;;; Gateways and launchpads
+
+(defcell gateway
+  (tile :initform "gateway")
+  (categories :initform '(:gateway))
+  (address :initform nil))
+
+(define-method activate gateway ()
+  [play *active-universe* :address <address>])
+
+(define-prototype launchpad (:parent =gateway=)
+  (tile :initform "launchpad")
+  (categories :initform '(:gateway :player-entry-point)))
+
+(define-method activate launchpad ()
+  [exit *active-universe*])
+
+(define-method drop-entry-point world (row column)
+  [replace-cells-at self row column (clone =launchpad=)])
 
 ;;; worlds.lisp ends here

@@ -5,6 +5,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO exit edge
 ** TODO pager widget / window manager thingy
 ** TODO make nebula more fun... digging clouds looking for ice
 ** TODO make distinct keyed ships

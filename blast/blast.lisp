@@ -342,7 +342,9 @@
 
 (define-method dismiss splash ()
   (play-sample "go")
-  [select *pager* :play])
+  [select *pager* :play]
+  ;; TODO ugh this is a hack!
+  (rlx:show-widgets))
 
 (define-prototype splash-prompt (:parent =prompt=)
   (default-keybindings :initform '(("SPACE" nil "dismiss ."))))
@@ -428,5 +430,3 @@
     [add-page *pager* :play stack prompt status viewport narrator *billboard*]
     [add-page *pager* :help textbox]
     [select *pager* :main]))
-
-

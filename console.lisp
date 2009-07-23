@@ -91,8 +91,9 @@ Do not set this variable directly from a module; instead, call
 RLX may override the current widget set at any time for system menus
 and the like."
   (setf *module-widgets* widgets)
-  (setf *active-widgets* widgets)
-  (show-widgets))
+  (setf *active-widgets* widgets))
+;; TODO why does this crash: 
+;;  (show-widgets))
 
 ;;; Event handling and widgets
 

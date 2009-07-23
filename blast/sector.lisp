@@ -1,15 +1,5 @@
 (in-package :blast)
 
-;;; Gateways 
-
-(defcell gateway
-  (tile :initform "gateway")
-  (categories :initform '(:gateway))
-  (address :initform nil))
-
-(define-method activate gateway ()
-  [play *active-universe* :address <address>])
-
 ;;; Stars
 
 (define-prototype star (:parent =gateway=)
