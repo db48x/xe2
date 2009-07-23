@@ -296,7 +296,7 @@
   (max-items :initform (make-stat :base 2))
   (trail-length :initform (make-stat :base 12 :min 0))
   (pulse-ammo :initform (make-stat :base 5 :min 0 :max 5))
-  (bomb-ammo :initform (make-stat :base 5 :min 0 :max 5))
+  (bomb-ammo :initform (make-stat :base 10 :min 0 :max 10))
   (oxygen :initform (make-stat :base 200 :min 0 :max 200))
   (invincibility-clock :initform 0)
   (stepping :initform t)

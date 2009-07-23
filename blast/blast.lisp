@@ -369,7 +369,7 @@
 			     ".gray20")])
     [space self]
     [print self "  BOMBS "]
-    (dotimes (i 6)
+    (dotimes (i 10)
       [print self *status-bar-character* 
 	     :foreground ".red"
 	     :background (if (< i bomb-ammo)
