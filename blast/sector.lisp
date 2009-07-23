@@ -69,7 +69,8 @@
 ;;; The local cluster
 
 (define-prototype star-sector (:parent rlx:=world=)
-  (ambient-light :initform :total))
+  (ambient-light :initform :total)
+  (edge-condition :initform :block))
   
 (define-method generate star-sector (&key (height 80)
 					  (width 80)
