@@ -5,6 +5,8 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO more weapons
+** TODO there should be something cool deep in the nebula
 ** TODO colored Strength and defense displays
 ** TODO Regular layout Storage depot with ammo, goodies, vaults, guardians
 ** TODO exploding oxygen tanks release ice

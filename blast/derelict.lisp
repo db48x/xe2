@@ -100,7 +100,7 @@
   (pallet-size :initform 13))
 
 (define-method generate freighter (&key (sequence-number (random 32768))
-					(rooms 8))
+					(rooms 55))
   [create-default-grid self]
   (setf <name> (concatenate 'string 
 			    "Freighter ID#"
