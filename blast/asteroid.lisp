@@ -17,14 +17,14 @@
 
 (define-method die asteroid ()
   (decf *asteroid-count*)
-  (when (zerop *asteroid-count*)
-    [>>say :narrator "YOU WIN!!!"])
-  ;;
   [>>say :narrator "You destroyed an asteroid!"]
   [say *billboard* :destroy]
   [play-sample self "bleep"]
-  (when (< (random 3) 1)
-    [drop self (random-powerup)])
+  [drop self (if (equal <tile> "asteroid-red")
+		 (random-powerup)
+		 (if (zerop (random 4))
+		     (clone =crystal=)
+		     (clone =small-crystal=)))]
   [stat-effect [get-player *active-world*] :score 120]
   (when <stuck-to>
     [unstick <stuck-to> self])

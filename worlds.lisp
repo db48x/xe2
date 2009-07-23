@@ -464,10 +464,10 @@ in a roguelike until the user has pressed a key."
 	 (when (vectorp ,vector)
 	   (let ((,counter (fill-pointer ,vector)))
 	     (decf ,counter)
-	     (loop while (plusp ,counter)
-		do (setf ,var (aref ,vector ,counter))
- 		  (progn (decf ,counter)
-			 (when ,var ,@body)))))))))
+	     (loop while (>= ,counter 0) 
+		   do (setf ,var (aref ,vector ,counter))
+		   (progn (decf ,counter)
+			  (when ,var ,@body)))))))))
 
 ;;; Universes are composed of connected worlds.
 

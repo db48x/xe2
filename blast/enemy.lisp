@@ -481,11 +481,11 @@
   (clock-reset-value :initform 8)
   (scouting-direction :initform :north)
   (attack-distance :initform 10)
-  (strength :initform (make-stat :base 70))
+  (strength :initform (make-stat :base 19))
   (movement-cost :initform (make-stat :base 7))
   (tile :initform "guardian")
   (defended-cell :initform nil)
-  (hit-points :initform (make-stat :base 60 :min 0 :max 60)))
+  (hit-points :initform (make-stat :base 25 :min 0 :max 60)))
 
 (define-method defend guardian (defended-cell)
   (setf <defended-cell> defended-cell))
@@ -502,7 +502,8 @@
 	(let ((direction [direction-to-player self])
 	      (world *active-world*))
 	  (if [adjacent-to-player self]
-	      [attack self direction]
+	      (progn (format t "FOO")
+		     [attack self direction])
 	      (progn
 		(when [obstacle-in-direction-p world row column direction]
 		  (setf <direction> (random-direction)))
@@ -511,6 +512,8 @@
 	(let* ((cell <defended-cell>)
 	       (r0 (field-value :row cell))
 	       (c0 (field-value :column cell)))
+	  (if [adjacent-to-player self]
+	      [attack self direction])
 	  (when [obstacle-in-direction-p *active-world* row column (direction-to row column r0 c0)]
 	    (setf <direction> (random-direction))
 	    [move self <direction>])

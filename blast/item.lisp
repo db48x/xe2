@@ -74,7 +74,7 @@
 
 (defcell big-crystal
   (tile :initform "big-crystal")
-  (categories :initform '(:target :endurium))
+  (categories :initform '(:endurium))
   (hit-points :initform (make-stat :base 2 :min 0)))
 
 (define-method step big-crystal (stepper)
@@ -82,6 +82,17 @@
    [play-sample self "bip"]
    [stat-effect stepper :endurium 10]
    [stat-effect stepper :score 10000]
+   [die self]))
+
+(defcell small-crystal 
+  (tile :initform "small-crystal")
+  (categories :initform '(:endurium)))
+
+(define-method step small-crystal (stepper)
+  (when [is-player stepper]
+   [play-sample self "bip"]
+   [stat-effect stepper :endurium 0.1]
+   [stat-effect stepper :score 100]
    [die self]))
 
 ;;; A trail extender powerup.

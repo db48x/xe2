@@ -67,7 +67,8 @@
 	(trace-column #'drop-vert column row (+ row (random maxsize)))
 	[drop-cell world guardian
 		   (+ (- row 5) (random 10))
-		   (+ (- column 5) (random 10))]
+		   (+ (- column 5) (random 10))
+		   :loadout t]
 	[defend guardian (drop-base row column)]))))
 
 (defcell nebula-space 

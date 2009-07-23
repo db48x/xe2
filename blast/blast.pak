@@ -190,6 +190,7 @@
  (:name "energy" :type :image :file "electron.png")
  (:name "crystal" :type :image :file "crystal.png")
  (:name "big-crystal" :type :image :file "big-crystal.png")
+ (:name "small-crystal" :type :image :file "small-crystal.png")
  (:name "energy-gas" :type :image :file "elec.png")
 
  (:name "display-font" :type :font :properties (:height 20 :width 10) :data "10x20")
