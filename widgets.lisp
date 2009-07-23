@@ -612,10 +612,10 @@ normally."
   (background-color :initform ".gray18")
   (style :initform '(:foreground ".gray60")
 	 :documentation "Text style properties for pager display")
-  (prefix-string :initform "F")
+  (prefix-string :initform " F")
   (number-separator-string :initform ": ")
   (separator-string :initform "  ")
-  (highlighted-style :initform '(:foreground ".blue" :background ".white")))
+  (highlighted-style :initform '(:foreground ".gray20" :background ".white")))
 
 (define-method initialize pager ()
   [parent>>initialize self]
@@ -628,22 +628,22 @@ normally."
     [define-key self "F3" nil #'s3]))
 
 (define-method select pager (page)
-  (let ((newpage 
-	 (etypecase page
-	   (number (cdr (nth (- page 1) <pages>)))
-	   (keyword (cdr (assoc page <pages>))))))
+  (let ((newpage (etypecase page
+		   (number (car (nth (- page 1) <pages>)))
+		   (keyword page))))
     (if (null newpage)
 	(error "Cannot find page.")
-	;; insert self always as first widget
-	(apply #'rlx:install-widgets self newpage))))
+	(progn 
+	  (setf <current-page> newpage)
+	  ;; insert self always as first widget
+	  (apply #'rlx:install-widgets self (cdr (assoc newpage <pages>)))))))
 
 (define-method auto-position pager ()
   [resize self :width rlx:*screen-width* :height <pager-height>]
   [move self :x 0 :y (- rlx:*screen-height* <pager-height>)])
 
 (define-method add-page pager (keyword &rest widgets)
-  (push (cons keyword widgets) <pages>)
-  (format t "~A" (mapcar #'car <pages>)))
+  (push (cons keyword widgets) <pages>))
 
 (define-method get-page-names pager ()
   (remove-duplicates (mapcar #'car <pages>)))

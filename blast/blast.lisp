@@ -373,7 +373,7 @@
 	 (textbox (clone =textbox=))
 	 (stack (clone =stack=)))
     ;;
-    [resize splash :height 580 :width 600]
+    [resize splash :height 580 :width 800]
     [move splash :x 0 :y 0]
     [resize splash-prompt :width 10 :height 10]
     [move splash-prompt :x 0 :y 0]
