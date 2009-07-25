@@ -23,8 +23,6 @@
 (define-prototype starfield (:parent =void=)
   (tile :initform "starfield"))
 
-;; TODO star systems with planets
-
 ;;; Zeta base
 
 (define-prototype zeta-base-gateway (:parent =gateway=)
@@ -77,6 +75,7 @@
 
 (define-prototype star-sector (:parent rlx:=world=)
   (ambient-light :initform :total)
+  (scale :initform '(1 ly))
   (edge-condition :initform :block))
   
 (define-method generate star-sector (&key (height 80)

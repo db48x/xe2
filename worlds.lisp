@@ -36,6 +36,8 @@
 (define-prototype world
     (:documentation "An RLX game world filled with cells.")
   (name :initform "UNKNOWN")
+  (scale :initform '(1 m)
+	 :documentation "Scale per square side in the form (N UNIT) where UNIT is m, km, ly etc.")
   (player :documentation "The player cell.")
   (width :documentation "The width of the world map, measured in tiles.")
   (height :documentation "The height of the world map, measured in tiles.")
@@ -59,6 +61,7 @@ At the moment, only 0=off and 1=on are supported.")
   (narrator :documentation "The narration widget object.")
   ;; <: browsing :>
   (browser :documentation "The browser object.")
+  ;; space
   (edge-condition :initform :exit
 		  :documentation "Either :block the player, :exit the world, or :wrap around.")
   (player-exit-row :initform 0)

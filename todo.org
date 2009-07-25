@@ -5,6 +5,12 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO different colored star systems with planets (look up star types) with different tiles
+** TODO interactive COMPUTER page on F3 with scan readouts.
+** TODO message scrollback, on f4
+** TODO generate planet surfaces with minerals and artifacts and ruins
+** TODO Scale factor for each world... 1m, 10m, 5km
+** TODO interesting Zeta stuff in middle of map so you can't escape easy.
 ** TODO more weapons
 ** TODO there should be something cool deep in the nebula
 ** TODO colored Strength and defense displays

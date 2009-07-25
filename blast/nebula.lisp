@@ -90,6 +90,7 @@
 
 (define-prototype nebula-m (:parent rlx:=world=)
   (name :initform "Restricted Nebula M")
+  (scale :initform '(50 m))
   (ambient-light :initform :total))
   
 (define-method drop-plasma nebula-m ()
