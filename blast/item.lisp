@@ -189,7 +189,7 @@
   (equip-for :initform '(:belt :shoulder-mount :extension))
   (size :initform 5))
 
-(defparameter *ion-shield-energy-cost* 10)
+(defparameter *ion-shield-energy-cost* 6)
 
 (define-method activate ion-shield ()
   (let* ((world *active-world*)

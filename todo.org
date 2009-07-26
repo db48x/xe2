@@ -5,6 +5,8 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO blog article on CLON and how lisp was useful for RLX (rapid prototyping in elisp)
+** TODO equip mecha extension parts that can affect attributes... stat-value should take equipment into account
 ** TODO different colored star systems with planets (look up star types) with different tiles
 ** TODO interactive COMPUTER page on F3 with scan readouts.
 ** TODO message scrollback, on f4
