@@ -25,7 +25,7 @@
 (define-prototype mars (:parent rlx:=world=)
   (height :initform 20)
   (width :initform 45)
-  (scale :initform '(200 km)))
+  (scale :initform '(2000 km)))
 
 (define-method draw-terrain mars ()
   (clon:with-field-values (height width) self
@@ -48,7 +48,7 @@
       (dotimes (j width)
 	(dotimes (n (1+ (random 3)))
 	  [drop-cell self (clone =mars-tundra=) n j]
-	  [drop-cell self (clone =mars-tundra=) (- height n) j])))))
+	  [drop-cell self (clone =mars-tundra=) (- height n 1) j])))))
 	
 
 (define-method generate mars (&rest parameters)
