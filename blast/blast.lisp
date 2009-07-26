@@ -245,6 +245,7 @@
 	    ;;
 	    ("S" nil "wait .")
 ;;	    ("SPACE" nil "respawn .")
+	    ("RETURN" nil "enter .")
 	    ("ESCAPE" nil "activate-pulse-cannon .")
 	    ("3" nil "activate-extension .")
 	    ("1" nil "activate-bomb-cannon .")
