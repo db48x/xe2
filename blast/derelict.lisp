@@ -97,7 +97,7 @@
   (width :initform 48)
   (height :initform 150)
   (name :initform nil)
-  (ambient-light :initform :total)
+  (ambient-light :initform 5)
   (pallet-size :initform 13))
 
 (define-method generate freighter (&key (sequence-number (random 32768))

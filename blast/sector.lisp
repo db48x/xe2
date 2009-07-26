@@ -55,6 +55,15 @@
 (define-method step nebula-m-gateway (stepper)
   [>>narrateln :narrator "The mysterious Nebula M. Press RETURN to enter."])
 
+;;; A mars-like planet with fractal terrain.
+
+(define-prototype mars-gateway (:parent =gateway=)
+  (tile :initform "mars-gateway")
+  (address :initform '(=mars=)))
+
+(define-method step mars-gateway (stepper)
+  [>>narrateln :narrator "The planet Mars. Press RETURN to enter."])
+
 ;;; Infested derelict freighters. 
 
 (defvar *freighter-sequence-number* 0)
@@ -95,5 +104,6 @@
   (dotimes (i freighters)
     [drop-cell self (clone =freighter-gateway=) (random height) (random width)])
   [drop-cell self (clone =zeta-base-gateway=) (random 20) (random 20)]
+  [drop-cell self (clone =mars-gateway=) (random 20) (random 20)]
   [drop-cell self (clone =nebula-m-gateway=) (random 20) (random 20)])
 

@@ -7,11 +7,16 @@
  (:name "speedup" :type :image :file "speedup.png")
  (:name "defenseup" :type :image :file "defenseup.png")
 
+ (:name "mars-terrain-flat" :type :image :file "mars-terrain-flat2.png")
+ (:name "mars-terrain-icy" :type :image :file "mars-terrain-icy.png")
+ (:name "mars-terrain-icy2" :type :image :file "mars-terrain-icy2.png")
+ (:name "mars-terrain-dark" :type :image :file "mars-terrain-dark.png")
+ (:name "mars-terrain-cracks" :type :image :file "mars-terrain-cracks.png")
 
  (:name "welcome-message" :type :text :file "welcome.txt")
  (:name "help-message" :type :text :file "README")
  (:name "greyplate" :type :image :file "greyplate.png")
- (:name "greenbrick" :type :image :file "greenbric.png")
+ (:name "greenbrick" :type :image :file "greenbrick.png")
 
  (:name "gas-poof" :type :sample :file "gas.wav" :properties (:volume 4))
  (:name "worp" :type :sample :file "worp.wav" :properties (:volume 10))
@@ -224,6 +229,7 @@
  (:name "basswarp" :type :music :file "basswarp.ogg")
 
  (:name "freighter-gateway" :type :image :file "freighter-gateway.png")
+ (:name "mars-gateway" :type :image :file "mars-gateway.png")
 
  (:name "blast-lisp" :type :lisp :file "blast.lisp" :properties (:autoload t))
  (:name "effect-lisp" :type :lisp :file "effect.lisp" :properties (:autoload t))
@@ -235,6 +241,7 @@
  (:name "enemy-lisp" :type :lisp :file "enemy.lisp" :properties (:autoload t))
  (:name "nebula-lisp" :type :lisp :file "nebula.lisp" :properties (:autoload t))
  (:name "derelict-lisp" :type :lisp :file "derelict.lisp" :properties (:autoload t))
+ (:name "mars-lisp" :type :lisp :file "mars.lisp" :properties (:autoload t))
  (:name ".startup" :type :lisp :file "startup.lisp" :properties (:autoload t))
 
 )
