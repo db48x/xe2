@@ -458,20 +458,6 @@ in a roguelike until the user has pressed a key."
     [delete-cell self cell old-row old-column]
     [drop-cell self cell row column]))
 
-(defmacro do-cells ((var expr) &body body)
-  (let ((counter (gensym))
-	(vector (gensym)))
-    `(progn
-       (let* ((,var nil)
-	      (,vector (progn ,expr)))
-	 (when (vectorp ,vector)
-	   (let ((,counter (fill-pointer ,vector)))
-	     (decf ,counter)
-	     (loop while (>= ,counter 0) 
-		   do (setf ,var (aref ,vector ,counter))
-		   (progn (decf ,counter)
-			  (when ,var ,@body)))))))))
-
 ;;; Universes are composed of connected worlds.
 
 (defvar *active-universe* nil)

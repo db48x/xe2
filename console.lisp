@@ -67,6 +67,22 @@
   (dolist (func (symbol-value hook))
     (funcall func)))
 
+;;; Vector utility macro 
+
+(defmacro do-cells ((var expr) &body body)
+  (let ((counter (gensym))
+	(vector (gensym)))
+    `(progn
+       (let* ((,var nil)
+	      (,vector (progn ,expr)))
+	 (when (vectorp ,vector)
+	   (let ((,counter (fill-pointer ,vector)))
+	     (decf ,counter)
+	     (loop while (>= ,counter 0) 
+		   do (setf ,var (aref ,vector ,counter))
+		   (progn (decf ,counter)
+			  (when ,var ,@body)))))))))
+
 ;;; The active widgets list 
 
 (defvar *active-widgets* nil "List of active widget objects. 
