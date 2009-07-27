@@ -5,6 +5,10 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO starbase and savegame? 
+** TODO easy level and first email mission.
+** TODO restart after death, return to title screen
+** TODO better message narration.
 ** TODO Minimap
 ** TODO Planet surface detail areas
 ** TODO display current terrain type

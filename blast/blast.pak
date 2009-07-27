@@ -13,10 +13,23 @@
  (:name "mars-terrain-dark" :type :image :file "mars-terrain-dark.png")
  (:name "mars-terrain-cracks" :type :image :file "mars-terrain-cracks.png")
 
+ (:name "slate-terrain-flat" :type :image :file "slate-terrain-flat.png")
+ (:name "slate-terrain-icy" :type :image :file "slate-terrain-icy.png")
+ (:name "slate-terrain-light" :type :image :file "slate-terrain-light.png")
+ (:name "slate-terrain-dark" :type :image :file "slate-terrain-dark.png")
+ (:name "slate-terrain-cracks" :type :image :file "slate-terrain-cracks.png")
+
  (:name "welcome-message" :type :text :file "welcome.txt")
  (:name "help-message" :type :text :file "README")
  (:name "greyplate" :type :image :file "greyplate.png")
  (:name "greenbrick" :type :image :file "greenbrick.png")
+
+ (:name "gold-tech-wall" :type :image :file "gold-tech-wall.png")
+ (:name "rusty-wrench" :type :image :file "rustywrench.png")
+ (:name "gray-brick" :type :image :file "graybrick.png")
+ (:name "tech-stone" :type :image :file "tech-stone.png")
+ (:name "tech-stone-moss" :type :image :file "tech-stone-moss.png")
+ (:name "yellow-tech-brick" :type :image :file "yellow-tech-brick.png")
 
  (:name "gas-poof" :type :sample :file "gas.wav" :properties (:volume 4))
  (:name "worp" :type :sample :file "worp.wav" :properties (:volume 10))
@@ -232,7 +245,7 @@
  (:name "mars-gateway" :type :image :file "mars-gateway.png")
  (:name "mars-tundra" :type :image :file "mars-tundra.png")
 
- (:name "black-thunder" :type :music :file "black0999.ogg" :properties (volume 15))
+ (:name "black-thunder" :type :music :file "black0999.ogg" :properties (:volume 18))
 
  (:name "blast-lisp" :type :lisp :file "blast.lisp" :properties (:autoload t))
  (:name "effect-lisp" :type :lisp :file "effect.lisp" :properties (:autoload t))

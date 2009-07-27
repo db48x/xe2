@@ -584,9 +584,6 @@ table."
     (loop for line = (read-line file nil)
 	  while line collect line)))
 
-    ;; (let ((string (make-string (file-length file))))
-    ;;   (read-sequence string file))))
-
 (defun load-lisp-resource (resource)
   (let* ((source (resource-file resource))
 	 (fasl (compile-file-pathname source)))
@@ -764,8 +761,6 @@ found."
 
 (defvar *loaded-modules* nil)
 
-;(defun lisp-newer-than-fasl-p (
-  
 (defun load-module (module)
   (setf *pending-autoload-resources* nil)
   (index-module module)

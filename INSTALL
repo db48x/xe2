@@ -92,4 +92,13 @@ instructions.
      ;; fullscreen is a pain if RLX hangs
     (setf rlx:*fullscreen* nil)
 
+9. For dvorak users: 
+
+   g c r
+    \|/
+   h-.-n
+    /|\ 
+   m w v
+
+   Add (setf rlx:*user-keyboard-layout* :dvorak) to your ~/.rlxrc.
 
