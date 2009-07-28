@@ -421,15 +421,6 @@ in a roguelike until the user has pressed a key."
       (dotimes (j <width>)
 	(setf (aref light-grid i j) 0)))))
 
-(define-method generate world (&rest parameters)
-  "Generate a world, reading generation parameters from the plist
-  PARAMETERS."  
-  (declare (ignore parameters))
-  nil)
-
-(define-method generate-with world (parameters)
-  (apply #'send self :generate self parameters))
-
 (define-method deserialize world (sexp)
   "Load a saved world from Lisp data."
   (declare (ignore sexp))
@@ -515,6 +506,15 @@ by symbol name. This enables them to be used as hash keys."
     (let ((world (clone (symbol-value prototype))))
       (prog1 world
 	[generate-with world parameters]))))
+
+(define-method generate world (&rest parameters)
+  "Generate a world, reading generation parameters from the plist
+  PARAMETERS."  
+  (declare (ignore parameters))
+  nil)
+
+(define-method generate-with world (parameters)
+  (apply #'send self :generate self parameters))
 
 (define-method find-world universe (address)
   (let ((candidate [get-world self address]))

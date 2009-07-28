@@ -6,6 +6,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 * Tasks
 
 
+** TODO moving walls that crush you, falling tetris pieces ???
 ** TODO in-game help browser
 ** TODO dynamic keybinding help display
 ** TODO restart after death, return to title screen

@@ -163,6 +163,7 @@
  (:name "tech-box-debris" :type :image :file "tech-box-debris.png")
 
  (:name "technogirl" :type :music :file "technogirl-x.ogg")
+ (:name "raid" :type :music :file "raid.ogg" :properties (:volume 20))
  (:name "xiomacs" :type :music :file "xiomacs.ogg")
  (:name "metro" :type :music :file "metro.ogg" :properties (:volume 12))
  (:name "xiomacs2" :type :music :file "xiomacs2.ogg" :properties (:volume 40))
@@ -246,6 +247,9 @@
  (:name "freighter-gateway" :type :image :file "freighter-gateway.png")
  (:name "mars-gateway" :type :image :file "mars-gateway.png")
  (:name "mars-tundra" :type :image :file "mars-tundra.png")
+ (:name "ocean" :type :image :file "ocean.png")
+ (:name "ocean2" :type :image :file "ocean2.png")
+ (:name "ocean-gateway" :type :image :file "ocean-gateway.png")
 
  (:name "black-thunder" :type :music :file "black0999.ogg" :properties (:volume 18))
 
@@ -260,6 +264,7 @@
  (:name "nebula-lisp" :type :lisp :file "nebula.lisp" :properties (:autoload t))
  (:name "derelict-lisp" :type :lisp :file "derelict.lisp" :properties (:autoload t))
  (:name "mars-lisp" :type :lisp :file "mars.lisp" :properties (:autoload t))
+ (:name "bay-lisp" :type :lisp :file "bay.lisp" :properties (:autoload t))
  (:name ".startup" :type :lisp :file "startup.lisp" :properties (:autoload t))
 
 )

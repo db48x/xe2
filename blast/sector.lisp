@@ -80,6 +80,17 @@
 (define-method step freighter-gateway (stepper)
   [>>narrateln :narrator "An infested derelict freighter. Press RETURN to enter."])
 
+;;; The first mission: the ocean planet bombing run! 
+
+(define-prototype ocean-gateway (:parent =gateway=)
+  (tile :initform "ocean-gateway")
+  (address :initform (list '=bay= 
+			   :sequence-number 
+			   (incf *freighter-sequence-number*))))
+
+(define-method step ocean-gateway (stepper)
+  [>>narrateln :narrator "The water planet Corva 3. Press ENTER to land."])
+
 ;;; The local cluster
 
 (define-prototype star-sector (:parent rlx:=world=)
@@ -105,5 +116,6 @@
     [drop-cell self (clone =freighter-gateway=) (random height) (random width)])
   [drop-cell self (clone =zeta-base-gateway=) (random 20) (random 20)]
   [drop-cell self (clone =mars-gateway=) (random 20) (random 20)]
+  [drop-cell self (clone =ocean-gateway=) (random 20) (random 20)]
   [drop-cell self (clone =nebula-m-gateway=) (random 20) (random 20)])
 
