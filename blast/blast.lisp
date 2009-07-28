@@ -471,7 +471,7 @@
 	  :narrator narrator]
     [loadout player]
     ;;
-    [resize status :height 60 :width 700]
+    [resize status :height 60 :width 800]
     [set-character status player]
     (setf *status* status)
     [update status]

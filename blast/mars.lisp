@@ -5,19 +5,23 @@
 (defcell mars-flat
   (tile :initform "mars-terrain-flat"))
 
-(defcell mars-icy
+(define-method step mars-flat (stepper)
+  (when (has-field :endurium stepper)
+    [>>stat-effect stepper :endurium -0.01]))
+
+(define-prototype mars-icy (:parent =mars-flat=)
   (tile :initform "mars-terrain-icy"))
 
-(defcell mars-icy2
+(define-prototype mars-icy2 (:parent =mars-flat=)
   (tile :initform "mars-terrain-icy2"))
 
-(defcell mars-tundra 
+(define-prototype mars-tundra (:parent =mars-flat=)
   (tile :initform "mars-tundra"))
 
-(defcell mars-dark 
+(define-prototype mars-dark (:parent =mars-flat=)
   (tile :initform "mars-terrain-dark"))
 
-(defcell mars-cracks 
+(define-prototype mars-cracks (:parent =mars-flat=)
   (tile :initform "mars-terrain-cracks"))
 
 ;;; Terrain generation.
