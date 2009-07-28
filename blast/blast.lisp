@@ -84,6 +84,8 @@
 		      <height>
 		      :color ".blue" :destination <image>))
 
+(defvar *view*)
+
 ;;; Controlling the game.
 
 (define-prototype blast-prompt (:parent rlx:=prompt=))
@@ -443,11 +445,12 @@
 	 (narrator (clone =narrator=))
 	 (status (clone =status=))
 	 (player (clone =ship=))
-	 (viewport (clone =view=))
 	 (splash (clone =splash=))
 	 (splash-prompt (clone =splash-prompt=))
 	 (textbox (clone =textbox=))
 	 (stack (clone =stack=)))
+    ;;
+    (setf *view* (clone =view=))
     ;;
     [resize splash :height 580 :width 800]
     [move splash :x 0 :y 0]
@@ -468,7 +471,8 @@
     [play universe
 	  :address '(=star-sector= :width 80 :height 80 :stars 80 :freighters 12)
 	  :prompt prompt
-	  :narrator narrator]
+	  :narrator narrator
+	  :viewport *view*]
     [loadout player]
     ;;
     [resize status :height 60 :width 800]
@@ -479,12 +483,12 @@
     [resize *billboard* :height 20 :width 100]
     [move *billboard* :x 700 :y 0]
    ;;
-    [set-tile-size viewport 16]
+    [set-tile-size *view* 16]
     ;; the default is to track the current world:
-    ;; [set-world viewport world] 
-    [resize viewport :height 432 :width 800]
-    [set-origin viewport :x 0 :y 0 :height 24 :width 50]
-    [adjust viewport]
+    ;; [set-world *view* world] 
+    [resize *view* :height 432 :width 800]
+    [set-origin *view* :x 0 :y 0 :height 24 :width 50]
+    [adjust *view*]
     ;;
     [resize textbox :height 100 :width 800]
     [move textbox :x 0 :y 0]
@@ -496,11 +500,11 @@
     ;;
     [resize stack :width 800 :height 580]
     [move stack :x 0 :y 0]
-    [set-children stack (list status viewport narrator)]
+    [set-children stack (list status *view* narrator)]
     ;;
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
     [add-page *pager* :main splash-prompt splash]
-    [add-page *pager* :play stack prompt status viewport narrator *billboard*]
+    [add-page *pager* :play stack prompt status *view* narrator *billboard*]
     [add-page *pager* :help textbox]
     [select *pager* :main]))

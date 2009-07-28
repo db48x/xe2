@@ -30,9 +30,12 @@
 
 (in-package :rlx)
 
+(defstruct overlay func parameters clock)
+
 (define-prototype viewport 
     (:parent =widget= :documentation "A map display for RLX worlds.")
   (world :documentation "The world object to be displayed.")
+  (overlays :documentation "Current grid of graphics objects to be overlaid on the viewport.")
   (margin :initform 6 :documentation "Scroll margin.")
   (origin-x :initform 0 
 	    :documentation "The world x-coordinate of the tile at the viewport's origin.")
@@ -41,6 +44,18 @@
   (origin-width :initform 10 :documentation "The width in tiles of the viewport.")
   (origin-height :initform 10 :documentation "The height in tiles of the viewport.")
   (tile-size :initform 16 :documentation "Size in pixels of a tile. They must be square."))
+
+(define-method get-screen-coordinates viewport (cell-row cell-column)
+  (let ((x0 (+ <x> 
+	       (* <tile-size> 
+		  (- cell-column <origin-x>))))
+	(y0 (+ <y>
+	       (* <tile-size>
+		  (- cell-row <origin-y>)))))
+    (values x0 y0)))
+
+(define-method add-overlay viewport (row column overlay)
+  (pushnew overlay (aref <overlays> row column)))
 
 (define-method set-world viewport (world)
   (setf <world> world))
@@ -134,6 +149,5 @@
 		 (min (- world-height origin-height)
 		      (- player-y 
 			 (truncate (/ origin-height 2)))))))))
-
 
 ;;; viewport.lisp ends here

@@ -6,6 +6,8 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 * Tasks
 
 
+** TODO speed-sucking lymphocyte slugs
+*** TODO zinstant laser lines!!
 ** TODO moving walls that crush you, falling tetris pieces ???
 ** TODO in-game help browser
 ** TODO dynamic keybinding help display

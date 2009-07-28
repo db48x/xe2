@@ -101,12 +101,12 @@
   show-widgets no-such-field =narrator= find-modules-in-directory
   =gateway= =launchpad= =environment= directory-is-module-p
   find-all-modules *next-module* transform-tree stat-value
-  *default-message-verbosities* *message-verbosities*
+  *default-message-verbosities* *message-verbosities* add-overlay
   set-message-verbosities operation-symbol message-symbol play-sample
   set-music-volume add-message-verbosities with-message-queue
   *user-keyboard-layout* *fullscreen* set-field-option-value =pager=
   =pager-prompt= load-module field-options world set-frame-rate
-  *frame-rate* =stack= set-timer-interval *message-logging*
+  *frame-rate* =stack= set-timer-interval *message-logging* overlay
   set-screen-width =universe= *active-universe* set-screen-height
   *timer-interval* enable-timer disable-timer while enable-held-keys
   disable-held-keys do-cells draw-box draw-rectangle *quitting* quit

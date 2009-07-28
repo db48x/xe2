@@ -617,6 +617,10 @@ slot."
     (when (> range dist)
       (play-sample sample-name))))
 
+(define-method screen-coordinates cell ()
+  [get-screen-coordinates (field-value :viewport *active-world*)
+			  <row> <column>])
+
 ;;; The asterisk cell is a wildcard
 
 (define-prototype asterisk (:parent =cell=)

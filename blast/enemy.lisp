@@ -24,7 +24,6 @@
  (movement-cost :initform (make-stat :base 10))
  (max-items :initform (make-stat :base 2))
  (direction :initform (random-direction))
- (movement-cost :initform (make-stat :base 10))
  (categories :initform '(:actor :obstacle :enemy :target)))
 
 (define-method run graviceptor ()

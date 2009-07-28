@@ -255,6 +255,7 @@ most user command messages. (See also the method `forward'.)"
     (:world self)
     (:browser <browser>)
     (:narrator <narrator>)
+    (:viewport <viewport>)
     (:player <player>)))
 
 (define-method process-messages world ()
@@ -432,6 +433,9 @@ in a roguelike until the user has pressed a key."
   (with-message-queue <message-queue>
     [begin-phase <player>]))
 
+(define-method set-viewport world (viewport)
+  (setf <viewport> viewport))
+
 (define-method delete-cell world (cell row column)
   (let* ((grid <grid>)
 	 (square (aref grid row column))
@@ -523,7 +527,7 @@ by symbol name. This enables them to be used as hash keys."
 		   [generate-world self address]]
 	candidate)))
 
-(define-method play universe (&key address prompt narrator)
+(define-method play universe (&key address prompt narrator viewport)
   (setf <current-address> address)
   (when prompt (setf <prompt> prompt))
   (when narrator (setf <narrator> narrator))
@@ -539,6 +543,7 @@ by symbol name. This enables them to be used as hash keys."
     (setf *active-world* world)
     (setf *active-universe* self)
     [drop-player-at-entry world player]
+    [set-viewport world viewport]
     [start world]
     [set-receiver <prompt> world]
     [set-narrator world <narrator>]))
@@ -577,5 +582,7 @@ by symbol name. This enables them to be used as hash keys."
 
 (define-method drop-entry-point world (row column)
   [replace-cells-at self row column (clone =launchpad=)])
+
+
 
 ;;; worlds.lisp ends here

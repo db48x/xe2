@@ -161,6 +161,9 @@
  (:name "tech-box" :type :image :file "tech-box.png")
  (:name "tech-box-special" :type :image :file "tech-box-special.png")
  (:name "tech-box-debris" :type :image :file "tech-box-debris.png")
+ (:name "solv" :type :image :file "solv.png")
+ (:name "boid" :type :image :file "boid.png")
+ (:name "tech-blackmetal" :type :image :file "tech-blackmetal")
 
  (:name "technogirl" :type :music :file "technogirl-x.ogg")
  (:name "raid" :type :music :file "raid.ogg" :properties (:volume 20))
