@@ -25,6 +25,7 @@
 (define-prototype mars (:parent rlx:=world=)
   (height :initform 20)
   (width :initform 45)
+  (technetium :initform 0)
   (scale :initform '(2000 km)))
 
 (define-method draw-terrain mars ()
@@ -49,9 +50,11 @@
 	(dotimes (n (1+ (random 3)))
 	  [drop-cell self (clone =mars-tundra=) n j])
 	(dotimes (n (1+ (random 3)))
-	  [drop-cell self (clone =mars-tundra=) (- height n 1) j])))))
+	  [drop-cell self (clone =mars-tundra=) (- height n 1) j]))
+      ;; deposit minerals
+      (dotimes (n 9)
+	[drop-cell self (clone =technetium=) (random height) (random width)]))))
 	
-
 (define-method generate mars (&rest parameters)
   [create-default-grid self]
   [draw-terrain self])

@@ -14,7 +14,6 @@
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
-
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -273,18 +272,22 @@
 (define-method print-stat status (stat-name &key warn-below)
   (let* ((stat (field-value stat-name <character>))
 	 (value [stat-value <character> stat-name]))
-    (destructuring-bind (&key min max base delta) stat
+    (destructuring-bind (&key min max base delta unit) stat
       (let ((color (if (and (numberp warn-below)
 			    (< value warn-below))
 		       ".red"
 		       ".gray20")))
 	[print self (symbol-name stat-name)
 	       :foreground ".white"]
-	[print self " "]
+	[print self ":["]
 	[print self (format nil "~S" value) 
 	       :foreground ".yellow"
 	       :background color]
-	[print self " "]))))
+	(when unit 
+	  [print self " "]
+	  [print self (symbol-name unit)])
+	[print self "]"]
+	))))
 
 (define-method print-equipment-slot status (slot-name)
   [print self (symbol-name slot-name)]
@@ -344,7 +347,7 @@
 	 (energy [stat-value char :energy])
 	 (pulse-ammo [stat-value char :pulse-ammo])
 	 (bomb-ammo [stat-value char :bomb-ammo]))
-    [print self " HITS "]
+    [print-stat self :hit-points :warn-below 10]
     (dotimes (i [stat-value char :hit-points :max])
       [print self *status-bar-character* 
 	     :foreground ".yellow"
@@ -353,7 +356,7 @@
 			     ".gray20")])
     [newline self]
     ;; energy display
-    [print self " ENERGY "]
+    [print-stat self :energy :warn-below 10]
     (dotimes (i 40)
       [print self *status-bar-character* 
 	     :foreground ".red"
@@ -386,16 +389,17 @@
     [print-stat self :speed :warn-below 2]
     [print self " "]
     [print-stat self :endurium :warn-below 10]
-    [print self "  SCORE "]
-    [println self (format nil "~D" [stat-value char :score])]
-    [space self]
-    [print self "  LOCATION "]
-    [print self (format nil "~A" [location-name *active-world*])]
-    [print self "  SCALE "]
-    [print self (format nil "~A" (field-value :scale *active-world*))]
-    [print self "  POS "]
-    [print self (format nil "~A" (list [player-row *active-world*]
-				       [player-column *active-world*]))]
+    [print self " "]
+    [newline self]
+    [print self "  LOCATION: "]
+    [print self (format nil "[~A]" [location-name *active-world*])]
+    [print self " SCALE:"]
+    (destructuring-bind (num unit) (field-value :scale *active-world*)
+      [print self (format nil "[~A ~A]" num unit)])
+    [print self " COORDINATES:"]
+    [print self (format nil "[~A ~A] " [player-row *active-world*]
+			[player-column *active-world*])]
+    [print-stat self :technetium]
     [newline self]))
 
 (defvar *status*)

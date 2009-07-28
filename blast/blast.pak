@@ -24,6 +24,7 @@
  (:name "greyplate" :type :image :file "greyplate.png")
  (:name "greenbrick" :type :image :file "greenbrick.png")
 
+ (:name "technetium" :type :image :file "technetium.png")
  (:name "gold-tech-wall" :type :image :file "gold-tech-wall.png")
  (:name "rusty-wrench" :type :image :file "rustywrench.png")
  (:name "gray-brick" :type :image :file "graybrick.png")
@@ -32,6 +33,7 @@
  (:name "yellow-tech-brick" :type :image :file "yellow-tech-brick.png")
 
  (:name "gas-poof" :type :sample :file "gas.wav" :properties (:volume 4))
+ (:name "technetium-sound" :type :sample :file "technetium.wav" :properties (:volume 10))
  (:name "worp" :type :sample :file "worp.wav" :properties (:volume 10))
  (:name "bip" :type :sample :file "bip.wav" :properties (:volume 10))
  (:name "pop-ssh" :type :sample :file "pop-ssh.wav" :properties (:volume 30))

@@ -59,7 +59,7 @@
 
 (define-prototype mars-gateway (:parent =gateway=)
   (tile :initform "mars-gateway")
-  (address :initform '(=mars=)))
+  (address :initform '(=mars= :technetium 8)))
 
 (define-method step mars-gateway (stepper)
   [>>narrateln :narrator "The planet Mars. Press RETURN to enter."])

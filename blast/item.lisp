@@ -165,6 +165,20 @@
   [>>drop self (clone =blast-box-debris=)]
   [parent>>die self])
 
+;;; Technetium ore
+
+(defcell technetium 
+  (tile :initform "technetium")
+  (name :initform "Technetium ore"))
+
+(define-method step technetium (stepper)
+  (when [is-player stepper]
+    (let ((weight (1+ (random 15))))
+      [stat-effect stepper :technetium weight]
+      [>>say :narrator (format nil "Obtained ~D ug technetium." weight)])
+    [play-sample self "technetium-sound"]
+    [die self]))
+
 ;;; The ion shield
 
 (defcell ion-shield-wall 

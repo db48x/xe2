@@ -687,11 +687,6 @@ of the record.")
 (defvar *resource-transformations* 
   (list :rotate #'rotate-image))
 
-;; (next-transformation ":rotate 90:red-perceptor")
-;; (next-source (next-source ":rotate 90:red-perceptor"))
-;; (next-transformation ":rotate 90:red-perceptor")
-;; (next-transformation ":rotate 90:red-perceptor")
-
 (defun load-resource (resource)
   "Load the driver-dependent object of RESOURCE into the OBJECT field
 so that it can be fed to the console."

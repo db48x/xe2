@@ -106,17 +106,17 @@
 If a COMPONENT keyword is provided, return that component of the stat
 instead of computing the value."
   (let ((stat (field-value stat-name self)))
-    (if (member component '(:base :min :max :delta))
+    (if (member component '(:base :min :max :delta :unit))
 	(getf stat component)
 	;; compute the value
-	(destructuring-bind (&key base delta min max) stat
+	(destructuring-bind (&key base delta min max unit) stat
 	  (let ((val (+ base (if (numberp delta) delta 0))))
 	    (when clamping 
 	      (when (and (numberp min) (< val min))
 		(setf val min))
 	      (when (and (numberp max) (> val max))
 		(setf val max)))
-	    val)))))
+	    (values val unit))))))
 	   
 (define-method stat-effect cell (stat-name val
 					   &optional (component :base) (clamping t))
@@ -137,9 +137,9 @@ field named by STAT-NAME. The default is to change the :base value."
 	(setf (getf stat component) x)
 	(setf (field-value stat-name self) stat)))))
   
-(defun make-stat (&key base min max delta)
+(defun make-stat (&key base min max delta unit)
   (assert (numberp base))
-  (list :base base :min min :max max :delta delta))
+  (list :base base :min min :max max :delta delta :unit unit))
 
 ;;; Cell categories
 
