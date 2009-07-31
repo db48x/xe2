@@ -66,6 +66,9 @@
 	[drop-cell self (clone =scanner=) (random height) (random width) :loadout t])
       [drop-cell self (clone =launchpad=) (random height) (random width) :loadout t])))
 
+(define-method begin-ambient-loop mining-site ()
+  (rlx:play-music "crisis" :loop t))
+
 (define-prototype mining-site-gateway (:parent =gateway=)
   (tile :initform "pickaxe")
   (address :initform (list '=mining-site= 

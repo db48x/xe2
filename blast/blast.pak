@@ -35,7 +35,7 @@
 
  (:name "gas-poof" :type :sample :file "gas.wav" :properties (:volume 4))
  (:name "technetium-sound" :type :sample :file "technetium.wav" :properties (:volume 10))
- (:name "biosilicate-sound" :type :sample :file "biosilicate-sound.wav" :properties (:volume 40))
+ (:name "biosilicate-sound" :type :sample :file "biosilicate-sound.wav" :properties (:volume 20))
  (:name "worp" :type :sample :file "worp.wav" :properties (:volume 10))
  (:name "bip" :type :sample :file "bip.wav" :properties (:volume 10))
  (:name "pop-ssh" :type :sample :file "pop-ssh.wav" :properties (:volume 30))
@@ -168,6 +168,7 @@
  (:name "tech-blackmetal" :type :image :file "tech-blackmetal")
 
  (:name "technogirl" :type :music :file "technogirl-x.ogg")
+ (:name "crisis" :type :music :file "crisis.ogg" :properties (:volume 8))
  (:name "raid" :type :music :file "raid.ogg" :properties (:volume 20))
  (:name "xiomacs" :type :music :file "xiomacs.ogg")
  (:name "metro" :type :music :file "metro.ogg" :properties (:volume 12))
