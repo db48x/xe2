@@ -1,6 +1,6 @@
 (in-package :blast)
 
-;;; Various terrain tiles. 
+;;; Martian terrain
 
 (defcell mars-flat
   (tile :initform "mars-terrain-flat"))
@@ -61,7 +61,8 @@
       (dotimes (n biosilicate)
 	[drop-cell self (clone =biosilicate=) (random height) (random width)])
       (dotimes (n scanners)
-	[drop-cell self (clone =scanner=) (random height) (random width) :loadout t]))))
+	[drop-cell self (clone =scanner=) (random height) (random width) :loadout t])
+      [drop-cell self (clone =launchpad=) (random height) (random width) :loadout t])))
 
 (define-prototype mining-site-gateway (:parent =gateway=)
   (tile :initform "pickaxe")
@@ -114,6 +115,6 @@
   [create-default-grid self]
   [draw-terrain self])
 
-(define-method start mars ()
-  (play-music "black-thunder" :loop t)
-  [parent>>start self])
+(define-method begin-ambient-loop mars ()
+  (play-music "black-thunder" :loop t))
+

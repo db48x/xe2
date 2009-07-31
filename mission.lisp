@@ -1,4 +1,4 @@
-;;; grammar.lisp --- context-free grammar sentence generator
+;;; mission.lisp --- context-free grammar sentence generator
 
 ;; Copyright (C) 2009  David O'Toole
 
@@ -115,4 +115,4 @@ concatenation.")
 
   
 
-;;; grammar.lisp ends here
+;;; mission.lisp ends here

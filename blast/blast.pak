@@ -35,7 +35,7 @@
 
  (:name "gas-poof" :type :sample :file "gas.wav" :properties (:volume 4))
  (:name "technetium-sound" :type :sample :file "technetium.wav" :properties (:volume 10))
- (:name "biosilicate-sound" :type :sample :file "biosilicate-sound.wav" :properties (:volume 20))
+ (:name "biosilicate-sound" :type :sample :file "biosilicate-sound.wav" :properties (:volume 40))
  (:name "worp" :type :sample :file "worp.wav" :properties (:volume 10))
  (:name "bip" :type :sample :file "bip.wav" :properties (:volume 10))
  (:name "pop-ssh" :type :sample :file "pop-ssh.wav" :properties (:volume 30))

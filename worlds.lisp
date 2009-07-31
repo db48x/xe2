@@ -368,14 +368,13 @@ in a roguelike until the user has pressed a key."
 		   (setf (aref light-grid row column) 1) nil))
 	       (collect-line-point (x y)
 		 (if (array-in-bounds-p light-grid y x)
-		     (prog1 nil (vector-push-extend (list x y) line))
+		     (prog1 nil (vector-push-extend (list  y) line))
 		     t))
 	       (make-line (row column)
 		 (setf (fill-pointer line) 0)
-		 (let ((flipped (> source-column column)))
-		   (trace-line #'collect-line-point 
-			       source-column source-row
-			       column row)
+		 (let ((flipped (trace-line #'collect-line-point 
+					    source-column source-row
+					    column row)))
 		   ;; Bresenham's swaps the input points around when x0 is to the
 		   ;; right of x1. We need to reverse the list of points if this
 		   ;; happens, otherwise shadows will be cast the wrong way.
@@ -397,7 +396,7 @@ in a roguelike until the user has pressed a key."
 			  (when (array-in-bounds-p grid r c)
 			    (light-square r c)
 			    ;; should we stop lighting?
-			    (when [category-at-p self r c :opaque]
+			    (when [category-at-p self r c '(:opaque :obstacle)]
 			      (return-from lighting t)))))))
 	       (collect-octagon-point (r c)
 		 (vector-push-extend (list r c) octagon) nil)
@@ -428,12 +427,16 @@ in a roguelike until the user has pressed a key."
   (declare (ignore sexp))
   nil)
 
+(define-method begin-ambient-loop world ()
+  nil)
+
 (define-method start world ()
   (assert <player>)
   [render-lighting self <player>]
   (with-message-queue <message-queue>
-    [begin-phase <player>]))
-
+    [begin-phase <player>])
+  [begin-ambient-loop self])
+    
 (define-method set-viewport world (viewport)
   (setf <viewport> viewport))
 
@@ -481,6 +484,7 @@ by symbol name. This enables them to be used as hash keys."
     (:documentation "A collection of connected worlds.")
   (worlds :initform (make-hash-table :test 'equal)
 	  :documentation "Address-to-world mapping.")
+  (viewport :initform nil)
   (current-address :initform nil)
   (player :initform nil)
   (stack :initform '()))
@@ -562,7 +566,8 @@ by symbol name. This enables them to be used as hash keys."
 	[drop-player-at-last-location world <player>]
 	[start world]
 	[set-receiver <prompt> world]
-	[set-narrator world <narrator>]))))
+	[set-narrator world <narrator>]
+	[set-viewport world <viewport>]))))
 
 ;;; Gateways and launchpads connect worlds together
 
@@ -583,7 +588,5 @@ by symbol name. This enables them to be used as hash keys."
 
 (define-method drop-entry-point world (row column)
   [replace-cells-at self row column (clone =launchpad=)])
-
-
 
 ;;; worlds.lisp ends here
