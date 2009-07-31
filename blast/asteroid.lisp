@@ -18,7 +18,6 @@
 (define-method die asteroid ()
   (decf *asteroid-count*)
   [>>say :narrator "You destroyed an asteroid!"]
-  [say *billboard* :destroy]
   [play-sample self "bleep"]
   [drop self (if (equal <tile> "asteroid-red")
 		 (random-powerup)
@@ -57,7 +56,6 @@
 (define-method step asteroid (stepper)
   (when [in-category stepper :player]
     [damage stepper 3]
-    [say *billboard* :hit]
     [>>say :narrator "You took a hit!"]
     [die self]))
 
@@ -126,7 +124,6 @@
   (when (= 0 (length <asteroids>))
     [stat-effect [get-player *active-world*] :score 2000]
     [play-sample self "sweep"]
-    [say *billboard* :sweep]
     [>>say :narrator "You get 2000 extra points for wiping the polaris mine clean of asteroids."]))
 
 (define-method explode polaris ()

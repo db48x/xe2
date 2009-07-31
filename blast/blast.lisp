@@ -33,46 +33,6 @@
 
 (in-package :blast)
 
-;;; Billboard shows most recent attention data.
-
-(defvar *billboard*)
-
-(defvar *billboard-strings* '(:go ("GO!" :foreground ".black" :background ".yellow" 
-				   :font "display-font")
-			      :react ("REACT!" :foreground ".red" :background ".navy blue"
-				      :font "display-font")
-			      :extend ("EXTEND!" :foreground ".yellow" :background ".blue"
-				       :font "display-font")
-			      :pulse-ammo ("PULSE +2" :foreground ".red" :background ".black"
-				       :font "display-font")
-			      :bomb-ammo ("BOMB +2" :foreground ".red" :background ".black"
-				       :font "display-font")
-			      :shield ("SHIELD +1" :foreground ".cyan" :background ".blue"
-				       :font "display-font")
-			      :warning ("WARNING!" :foreground ".yellow" :background ".red"
-					:font "display-font")
-			      :hit ("HIT!" :foreground ".yellow" :background ".purple" 
-				    :font "display-font")
-			      :dead ("YOU DIE!" :foreground ".yellow" :background ".red"
-				     :font "display-font")
-			      :destroy ("DESTROY!" :foreground ".white" :background ".red"
-					:font "display-font") 
-			      :probe-kill ("DESTROY!" :foreground ".white" :background ".forestgreen"
-					:font "display-font")
-                             :sweep ("SWEEP!" :foreground ".yellow" :background ".forest green"
-				      :font "display-font")))
-
-(defun billboard-string (key)
-  (getf *billboard-strings* key '("STANDBY")))
-
-(define-prototype billboard (:parent rlx:=formatter=)
-  (font :initform "display-font"))
-
-(define-method say billboard (key)
-  [delete-all-lines self]
-  [print-formatted-string self (billboard-string key)]
-  [newline self])
-
 ;;; Custom bordered viewport
 
 (define-prototype view (:parent rlx:=viewport=))
@@ -440,7 +400,6 @@
   ;; (rlx:set-timer-interval 20)
   ;; (rlx:enable-timer)
   (rlx:enable-held-keys 1 15)
-  (setf *billboard* (clone =billboard=))
   (setf *asteroid-count* 0)
   (setf *level* 0)
   (let* ((prompt (clone =blast-prompt=))
@@ -483,8 +442,6 @@
     (setf *status* status)
     [update status]
     ;;
-    [resize *billboard* :height 20 :width 100]
-    [move *billboard* :x 700 :y 0]
    ;;
     [set-tile-size *view* 16]
     ;; the default is to track the current world:
@@ -508,6 +465,7 @@
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
     [add-page *pager* :main splash-prompt splash]
-    [add-page *pager* :play stack prompt status *view* narrator *billboard*]
+    [add-page *pager* :play stack prompt status *view* narrator]
     [add-page *pager* :help textbox]
     [select *pager* :main]))
+

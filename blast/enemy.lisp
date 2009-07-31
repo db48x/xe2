@@ -163,7 +163,6 @@
 (define-method die probe ()
   [play-sample self "death-alien"]
   [drop self (clone =energy=)]
-  [say *billboard* :destroy]
   [parent>>die self])
 
 ;;; The Canaz ship
@@ -205,7 +204,6 @@
 (define-method die canaz ()
   [play-sample self "death-alien"]
   [drop self (clone =energy=)]
-  [say *billboard* :destroy]
   [parent>>die self])
 
 (define-method loadout canaz ()

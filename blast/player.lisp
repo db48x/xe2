@@ -123,7 +123,6 @@
   (rlx:quit :shutdown))
 
 (define-method initialize skull (player)
-  [say *billboard* :dead]
   [>>say :narrator *death-message*]
   [>>say :narrator *game-over-message*])
 
@@ -310,9 +309,6 @@
   (equipment-slots :initform '(:left-bay :right-bay :center-bay :extension))
   (boost-clock :initform 0))
 
-(define-method initialize ship ()
-  [say *billboard* :go])
-
 (define-method loadout ship ()
   [make-inventory self]
   [make-equipment self]
@@ -375,14 +371,12 @@
 	     "player-ship-invincible"
 	     (if (> 5 [stat-value self :hit-points])
 		 "player-ship-north-dying"
-		 (prog1 "player-ship-north-shield"
-		   [say *billboard* :warning])))))
+		 "player-ship-north-shield"))))
 		 
 (define-method damage ship (points)
   (if (= 0 <invincibility-clock>)
     (progn [play-sample self "warn"]
 	   [parent>>damage self points]
-	   [say *billboard* :react]
 	   (setf <invincibility-clock> 5)
 	   [update-tile self]
 	   [>>say :narrator "React Shield up with 5 turns remaining."])
@@ -393,7 +387,6 @@
   
 (define-method step ship (stepper)
   (when (eq =asteroid= (object-parent stepper))
-    [say *billboard* :hit]
     [damage self 1]
     [>>say :narrator "You were damaged by a floating asteroid!"]))
 
@@ -413,7 +406,6 @@
 	[activate gateway])))
 
 (define-method revive ship ()
-  [say *billboard* :go]
   [drop-cell *active-world* self (random 10) (random 10)]
   [stat-effect self :hit-points 20]	       
   [stat-effect self :energy 40]	       

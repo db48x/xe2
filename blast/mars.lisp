@@ -35,6 +35,7 @@
 					  endurium
 					  biosilicate 
 					  scanners
+					  snowy-p
 					  &allow-other-keys)
   [create-default-grid self]
   (clon:with-field-values (height width) self
@@ -50,9 +51,10 @@
 					 =mars-cracks=)
 				     =mars-dark=))
 		     i j :no-collisions t]
-	  (setf value (aref ice-plasma i j))
-	  (when (< 0 value)
-	    [drop-cell self (clone =mars-icy2=) i j])))
+	  (when snowy-p
+	    (setf value (aref ice-plasma i j))
+	    (when (< 0 value)
+	    [drop-cell self (clone =mars-icy2=) i j]))))
       ;; deposit minerals and stuff
       (dotimes (n technetium)
 	[drop-cell self (clone =technetium=) (random height) (random width)])
@@ -72,6 +74,11 @@
 			   :endurium (random 5)
 			   :biosilicate (random 20)
 			   :scanners (random 5))))
+
+(define-method initialize mining-site-gateway (&key snowy-p)
+  (setf <address> 
+	(append <address>
+		(list :snowy-p snowy-p))))
 
 (define-method step mining-site-gateway (stepper)
   [>>narrateln :narrator "This area looks promising. Press RETURN to land."])
@@ -109,7 +116,12 @@
 	  [drop-cell self (clone =mars-tundra=) (- height n 1) j]))
       ;; deposit mining sites
       (dotimes (n (+ 3 (random 8)))
-	[drop-cell self (clone =mining-site-gateway=) (random height) (random width)]))))
+	(let* ((r (random height))
+	       (c (random width))
+	       (snowy-p (< 0 (aref ice-plasma r c))))
+	  [drop-cell self (clone =mining-site-gateway=
+				 :snowy-p snowy-p) 
+		     (random height) (random width)])))))
 	
 (define-method generate mars (&rest parameters)
   [create-default-grid self]

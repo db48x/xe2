@@ -54,7 +54,6 @@
 (define-method step diamond (stepper)
   (when [is-player stepper]
    [play-sample self "powerup"]
-   [say *billboard* :shield]
    [stat-effect stepper :hit-points 8]
    [stat-effect stepper :score 2000]
    [die self]))
@@ -104,7 +103,6 @@
 (define-method step extender (stepper)
   (when [is-player stepper]
     [play-sample self "powerup"]
-    [say *billboard* :extend]
     [>>say :narrator "Trail extend!"]
     [stat-effect stepper :trail-length 4]
     [stat-effect stepper :score 2000]
@@ -118,7 +116,6 @@
 (define-method step pulse-ammo (stepper)
   (when [is-player stepper]
     [play-sample self "powerup"]
-    [say *billboard* :pulse-ammo]
     [>>say :narrator "PULSE +2!"]
     [stat-effect stepper :pulse-ammo 2]
     [stat-effect stepper :score 2000]
@@ -132,7 +129,6 @@
 (define-method step bomb-ammo (stepper)
   (when [is-player stepper]
     [play-sample self "powerup"]
-    [say *billboard* :bomb-ammo]
     [>>say :narrator "BOMB +2!"]
     [stat-effect stepper :bomb-ammo 2]
     [stat-effect stepper :score 2000]
