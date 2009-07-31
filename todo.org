@@ -5,6 +5,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO 2nd nebula with speedsucking lymphocytes
 ** TODO make freighters less difficult and worth bothering.. perhaps captains?
 *** TODO living crewmembers to rescue? 
 ** TODO more obstacles on Mars

@@ -76,7 +76,7 @@
 			   :technetium (random 15)
 			   :endurium (random 5)
 			   :biosilicate (random 20)
-			   :scanners (random 5))))
+			   :scanners (random 8))))
 
 (define-method initialize mining-site-gateway (&key snowy-p)
   (setf <address> 

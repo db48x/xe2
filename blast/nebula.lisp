@@ -143,7 +143,6 @@
 			     :color (nth (random 4)
 					 '(:red :blue :brown :orange)))
 		 (random height) (random width)])))
-  
-(define-method start nebula-m ()
-  (play-music "xiomacs2" :loop t)
-  [parent>>start self])
+
+(define-method begin-ambient-loop nebula-m ()  
+  (play-music "xiomacs2" :loop t))
