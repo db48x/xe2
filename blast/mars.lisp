@@ -24,7 +24,58 @@
 (define-prototype mars-cracks (:parent =mars-flat=)
   (tile :initform "mars-terrain-cracks"))
 
-;;; Terrain generation.
+;;; Mining sites
+
+(define-prototype mining-site (:parent rlx:=world=)
+  (scale :initform '(1 km))
+  (height :initform 40)
+  (width :initform 40))
+
+(define-method generate mining-site (&key technetium
+					  endurium
+					  biosilicate 
+					  scanners
+					  &allow-other-keys)
+  [create-default-grid self]
+  (clon:with-field-values (height width) self
+    (let ((dust-plasma (rlx:render-plasma height width :graininess 0.7)) 
+	  (ice-plasma (rlx:render-plasma height width :graininess 0.3)) 
+	  (value nil))
+      (dotimes (i height)
+	(dotimes (j width)
+	  (setf value (aref dust-plasma i j))
+	  [drop-cell self (clone (if (< 0 value)
+				     (if (< 0.2 value) 
+					 =mars-tundra=
+					 =mars-cracks=)
+				     =mars-dark=))
+		     i j :no-collisions t]
+	  (setf value (aref ice-plasma i j))
+	  (when (< 0 value)
+	    [drop-cell self (clone =mars-icy2=) i j])))
+      ;; deposit minerals and stuff
+      (dotimes (n technetium)
+	[drop-cell self (clone =technetium=) (random height) (random width)])
+      (dotimes (n endurium)
+	[drop-cell self (clone =crystal=) (random height) (random width)])
+      (dotimes (n biosilicate)
+	[drop-cell self (clone =biosilicate=) (random height) (random width)])
+      (dotimes (n scanners)
+	[drop-cell self (clone =scanner=) (random height) (random width) :loadout t]))))
+
+(define-prototype mining-site-gateway (:parent =gateway=)
+  (tile :initform "pickaxe")
+  (address :initform (list '=mining-site= 
+			   :sequence (genseq)
+			   :technetium (random 15)
+			   :endurium (random 5)
+			   :biosilicate (random 20)
+			   :scanners (random 5))))
+
+(define-method step mining-site-gateway (stepper)
+  [>>narrateln :narrator "This area looks promising. Press RETURN to land."])
+ 
+;;; Planet map.
 
 (define-prototype mars (:parent rlx:=world=)
   (height :initform 20)
@@ -55,9 +106,9 @@
 	  [drop-cell self (clone =mars-tundra=) n j])
 	(dotimes (n (1+ (random 3)))
 	  [drop-cell self (clone =mars-tundra=) (- height n 1) j]))
-      ;; deposit minerals
-      (dotimes (n 9)
-	[drop-cell self (clone =technetium=) (random height) (random width)]))))
+      ;; deposit mining sites
+      (dotimes (n (+ 3 (random 8)))
+	[drop-cell self (clone =mining-site-gateway=) (random height) (random width)]))))
 	
 (define-method generate mars (&rest parameters)
   [create-default-grid self]

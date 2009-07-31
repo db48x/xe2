@@ -92,15 +92,15 @@
   render-formatted-paragraph make-formatted-string draw-string-shaded
   render-formatted-string render-formatted-line resource
   font-text-extents write-sexp-to-file with-message-sender
-  *message-sender* =textbox= read-sexp-from-file write-pak
-  *grammar* one-of left-hand-side right-hand-side expansions generate
+  *message-sender* =textbox= read-sexp-from-file write-pak *grammar*
+  one-of left-hand-side right-hand-side expansions generate
   send-event-to-widgets play-music halt-music seek-music
   draw-resource-image *event-handler-function* *use-sound*
   trace-rectangle trace-row trace-column trace-octagon trace-line
   midpoint =asterisk= =gray-asterisk= self *module-widgets*
   get-some-object-name transform-declaration-field-descriptor
-  show-widgets no-such-field =narrator= find-modules-in-directory
-  =gateway= =launchpad= =environment= directory-is-module-p
+  show-widgets no-such-field =narrator= find-modules-in-directory goal
+  =mission= =gateway= =launchpad= =environment= directory-is-module-p
   find-all-modules *next-module* transform-tree stat-value draw-line
   *default-message-verbosities* *message-verbosities* add-overlay
   set-message-verbosities operation-symbol message-symbol play-sample
@@ -108,7 +108,7 @@
   *user-keyboard-layout* *fullscreen* set-field-option-value =pager=
   =pager-prompt= load-module field-options world set-frame-rate
   *frame-rate* =stack= set-timer-interval *message-logging* overlay
-  set-screen-width =universe= *active-universe* set-screen-height
+  set-screen-width =universe= *active-universe* set-screen-height genseq
   *timer-interval* enable-timer disable-timer while enable-held-keys
   disable-held-keys do-cells draw-box draw-rectangle *quitting* quit
   reset))

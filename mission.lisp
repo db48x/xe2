@@ -33,25 +33,25 @@
     (goal >> (defeat foe) (defend friend) (activate button) (retrieve documents)
      (collect mineral+))
     (mineral+ >> mineral (mineral and mineral+))
-    (mineral >> endurium technetium molybdenum francium iodine)
+    (mineral >> endurium technetium molybdenum francium a-biosilicates)
     (foe >> scanner biclops unique)
     (friend >> transport skiff soldier scientist)
     (unique >> zx-90 xioblade)
-		   (reward >> money part)
+    (reward >> money part)
     (money >> 10000 20000 30000 40000 50000)
     (part >> muon-pistol lepton-cannon ion-shield-belt)))
-
 
 (defvar *grammar* *test-grammar*
   "The current context-free grammar used for sentence generation.
 This is an association list of the form:
 
-    ((VARIABLE . EXPANSIONS)
-     (VARIABLE . EXPANSIONS)
+    ((VARIABLE >> EXPANSIONS)
+     (VARIABLE >> EXPANSIONS)
      ...)
 
-Where EXPANSIONS is a list of alternatives, which may be either (1)
-single symbols or (2) a list of symbols, representing concatenation.")
+Where EXPANSIONS is a list of alternatives, each of which may be
+either (1) single symbols or (2) a list of symbols, representing
+concatenation.")
 
 (defun one-of (set)
   (list (nth (random (length set)) set)))
@@ -73,7 +73,46 @@ single symbols or (2) a list of symbols, representing concatenation.")
 	 (generate (one-of (expansions phrase))))
 	(t (list phrase))))
 
-;; TODO allow :keywords which become (symbol-value :keyword) during expansion
+;; (generate 'mission)
 
-(provide 'grammar)
+;; TODO allow variable substitution
+;; TODO boil down to world addresses
+
+;; Missions are the fundamentally available things, 
+;; Gateways lead to missions, 
+;; Generating the "null" mission starts the game.
+
+(defstruct goal 
+  name 
+  description
+  condition ;; either a symbol or a function
+  state ; one of nil, :achieved, :failed
+  prerequisites)
+
+(defun achieved-p (goal)
+  (or (eq :achieved (goal-state goal))
+      (check-condition goal)))
+
+(defun check-condition (goal)
+  (let ((condition (goal-condition goal))
+	(prerequisites (goal-prerequisites goal)))
+    (when (and (etypecase condition
+		 (symbol (symbol-value condition))
+		 (function (funcall condition)))
+	       (or (null prerequisites)
+		   (every #'achieved-p prerequisites)))
+      (setf (goal-state goal) :achieved))))
+
+(define-prototype mission ()
+  name 
+  grammar
+  description
+  world
+  goals)
+
+;; TODO (defmacro defmission ()
+  
+
+  
+
 ;;; grammar.lisp ends here

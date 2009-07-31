@@ -5,6 +5,8 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+*** New mineral: Biosilicates
+** TODO Missions dag with prereqs and renderer
 ** TODO Mission ideas
 
 A group of operatives of {CORPORATION} took control of our {FACILITY} on

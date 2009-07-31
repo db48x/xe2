@@ -179,6 +179,18 @@
     [play-sample self "technetium-sound"]
     [die self]))
 
+(defcell biosilicate 
+  (tile :initform "biosilicate")
+  (name :initform "Biosilicate resin"))
+
+(define-method step biosilicate (stepper)
+  (when [is-player stepper]
+    (let ((weight (1+ (random 15))))
+      [stat-effect stepper :biosilicate weight]
+      [>>say :narrator (format nil "Obtained ~D ug biosilicate." weight)])
+    [play-sample self "biosilicate-sound"]
+    [die self]))
+
 ;;; The ion shield
 
 (defcell ion-shield-wall 

@@ -20,7 +20,6 @@
 				 :clon)
   :components ((:file "rlx")
 	       (:file "math")
-	       (:file "grammar")
 	       (:file "rgb")
 	       (:file "console")
 	       (:file "widgets")
@@ -29,6 +28,7 @@
 	       (:file "narration")
 	       (:file "browser")
 	       (:file "worlds")
+	       (:file "mission")
 	       (:file "path")))
 	       
 	       

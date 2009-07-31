@@ -45,6 +45,13 @@
     (apply #'format t format-string args)
     (fresh-line)))
 
+;;; Sequence numbers
+
+(defvar *sequence-number* 0)
+
+(defun genseq (&optional (x 0))
+  (+ x (incf *sequence-number*)))
+   
 ;;; Hooks
 
 ;; Hooks are special variables whose names are of the form

@@ -35,31 +35,32 @@
 
 (define-prototype world
     (:documentation "An RLX game world filled with cells.")
-  (name :initform "UNKNOWN")
+  (name :initform "Unknown")
+  (mission-grammar :initform '())
   (scale :initform '(1 m)
 	 :documentation "Scale per square side in the form (N UNIT) where UNIT is m, km, ly etc.")
   (player :documentation "The player cell.")
   (width :documentation "The width of the world map, measured in tiles.")
   (height :documentation "The height of the world map, measured in tiles.")
-  ;; <: cells :>
+  ;; cells 
   (grid :documentation "A two-dimensional array of adjustable vectors of cells.")
-  ;; <: environment :>
+  ;; environment 
   (environment-grid :documentation "A two-dimensional array of environment data cells.")
-  ;; <: lighting :>
+  ;; lighting 
   (light-grid 
    :documentation 
    "A 2d array of integers giving the light level at that point in <grid>.
 At the moment, only 0=off and 1=on are supported.")
   (ambient-light :initform :total :documentation 
 		 "Radius of ambient visibility. :total means that lighting is turned off.")
-  ;; <: action-points :>
+  ;; action-points 
   (phase-number :initform 1 :documentation "Integer number of current phase.")
   (turn-number :initform 1 :documentation "Integer number of elapsed user turns (actions).")
-  ;; <: queueing :>
+  ;; queueing 
   (message-queue :initform (make-queue))
-  ;; <: narration :>
+  ;; narration 
   (narrator :documentation "The narration widget object.")
-  ;; <: browsing :>
+  ;; browsing 
   (browser :documentation "The browser object.")
   ;; space
   (edge-condition :initform :exit
