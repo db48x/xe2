@@ -31,12 +31,28 @@
   [make-equipment self]
   [equip self [add-item self (clone =ray-caster=)]])
 
+(define-method fire laser-drone ()
+  (let* ((world *active-world*)
+	 (viewport (field-value :viewport world))
+	 (player [get-player *active-world*]))
+    (labels ((draw-beam ()
+	       (multiple-value-bind (x0 y0) 
+		   [screen-coordinates self]
+		 (multiple-value-bind (x1 y1)
+		     [screen-coordinates player]
+		   (rlx:draw-line x0 y0 x1 y1 
+				  :destination (field-value :image viewport))))))
+      [damage player 5]
+      [>>add-overlay :viewport #'draw-beam])))
+	     
 (define-method run laser-drone ()
   (clon:with-field-values (row column) self
     (let ((dist [distance-to-player *active-world* row column])
 	  (dir [direction-to-player *active-world* row column]))
       (when (< dist 20)
-	[move self dir]))))
+	(if (< dist 10)
+	    [fire self]
+	    [move self dir])))))
 
 ;;; The ocean world Corva 3.
 
@@ -65,7 +81,7 @@
 				     =ocean= =ocean-dark=))
 		     i j])))))
 
-(define-method generate bay (&rest parameters)
+(define-method generate bay (&key sequence-number)
   [create-default-grid self]
   [drop-ocean self]
   (dotimes (i 180)

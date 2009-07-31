@@ -53,7 +53,7 @@
       [>>say :narrator "You absorb 2 energy points from the gas."]
       [>>stat-effect stepper :energy 2])))
 
-;;; Magnetic space debris will slow movement
+;;; Debris slows movement 
 
 (defcell debris 
 ;  (categories :initform '(:obstacle))
@@ -61,7 +61,7 @@
 
 (define-method step debris (stepper)
   (when [is-player stepper]	
-    [>>say :narrator "Your movement is slowed by the space debris."]
+    [>>say :narrator "Your movement is slowed by the heavy debris."]
     [expend-action-points stepper 5]))
 
 (define-method damage debris (points)

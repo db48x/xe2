@@ -542,8 +542,8 @@ by symbol name. This enables them to be used as hash keys."
     (push world <stack>)
     (setf *active-world* world)
     (setf *active-universe* self)
-    [drop-player-at-entry world player]
     [set-viewport world viewport]
+    [drop-player-at-entry world player]
     [start world]
     [set-receiver <prompt> world]
     [set-narrator world <narrator>]))

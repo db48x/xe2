@@ -35,7 +35,7 @@
 (define-prototype viewport 
     (:parent =widget= :documentation "A map display for RLX worlds.")
   (world :documentation "The world object to be displayed.")
-  (overlays :documentation "Current grid of graphics objects to be overlaid on the viewport.")
+  (overlays :documentation "List of closures.")
   (margin :initform 6 :documentation "Scroll margin.")
   (origin-x :initform 0 
 	    :documentation "The world x-coordinate of the tile at the viewport's origin.")
@@ -54,8 +54,8 @@
 		  (- cell-row <origin-y>)))))
     (values x0 y0)))
 
-(define-method add-overlay viewport (row column overlay)
-  (pushnew overlay (aref <overlays> row column)))
+(define-method add-overlay viewport (overlay)
+  (pushnew overlay <overlays>))
 
 (define-method set-world viewport (world)
   (setf <world> world))
@@ -101,7 +101,11 @@
 				     :destination image))))
       ;; update geometry
       (setf <width> (* tile-size origin-width))
-      (setf <height> (* tile-size origin-height)))))
+      (setf <height> (* tile-size origin-height))
+      ;; render overlays
+      (dolist (overlay <overlays>)
+	(funcall overlay))
+      (setf <overlays> nil))))
 
 (define-method set-origin viewport (&key x y height width)
   (setf <origin-x> x

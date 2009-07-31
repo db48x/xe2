@@ -100,7 +100,7 @@
   get-some-object-name transform-declaration-field-descriptor
   show-widgets no-such-field =narrator= find-modules-in-directory
   =gateway= =launchpad= =environment= directory-is-module-p
-  find-all-modules *next-module* transform-tree stat-value
+  find-all-modules *next-module* transform-tree stat-value draw-line
   *default-message-verbosities* *message-verbosities* add-overlay
   set-message-verbosities operation-symbol message-symbol play-sample
   set-music-volume add-message-verbosities with-message-queue

@@ -95,7 +95,7 @@
 ;;; Death icon.
 
 (defparameter *death-message* "You are dead.")
-(defparameter *game-over-message* "You are dead. GAME OVER.")
+(defparameter *game-over-message* "GAME OVER.")
 
 (define-prototype skull (:parent rlx:=cell=)
   (tile :initform "skull")
@@ -323,12 +323,17 @@
   (rlx:quit :shutdown))
 
 (define-method run ship ()
-  (if (<= [stat-value self :oxygen] 0)
-      (progn [>>narrateln :narrator "Your oxygen runs out, suffocating you."]
-	     [die self])
-      (progn [update-tile self]
-	     [update-react-shield self]
-	     [update *status*])))
+  (cond ((<= [stat-value self :endurium] 0)
+	 [>>say :narrator "You run out of endurium in the deeps of interstellar space."]
+	 [>>say :narrator "Your oxygen runs out, suffocating you."]
+	 [die self])
+	((<= [stat-value self :oxygen] 0)
+	 (progn [>>narrateln :narrator "Your oxygen runs out, suffocating you."]
+		[die self]))
+	(t 
+	 [update-tile self]
+	 [update-react-shield self]
+	 [update *status*])))
 
 (define-method wait ship ()
   [expend-action-points self <action-points>])

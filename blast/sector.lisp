@@ -13,12 +13,7 @@
     [stat-effect stepper :endurium -1]
     [>>say :narrator (format nil "Burned 1 unit of endurium moving to ~D:~D"
 			     (field-value :row stepper)
-			     (field-value :column stepper))]
-    ;; are you doomed? 
-    (when (<= [stat-value stepper :endurium] 0)
-      [>>say :narrator "You run out of endurium in the deeps of interstellar space."]
-      [>>say :narrator "Your oxygen runs out, suffocating you."]
-      [die stepper])))
+			     (field-value :column stepper))]))
 
 (define-prototype starfield (:parent =void=)
   (tile :initform "starfield"))
@@ -84,9 +79,7 @@
 
 (define-prototype ocean-gateway (:parent =gateway=)
   (tile :initform "ocean-gateway")
-  (address :initform (list '=bay= 
-			   :sequence-number 
-			   (incf *freighter-sequence-number*))))
+  (address :initform '(=bay=)))
 
 (define-method step ocean-gateway (stepper)
   [>>narrateln :narrator "The water planet Corva 3. Press ENTER to land."])

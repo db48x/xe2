@@ -825,6 +825,14 @@ found."
 			    (find-resource-object background)
 			    :surface destination :font (find-resource-object font)))
 
+;;; Other primitives
+
+(defun draw-line (x0 y0 x1 y1 
+		     &key 
+		     (color ".white")
+		     destination)
+  (sdl:draw-line-* x0 y0 x1 y1 :surface destination :color (find-resource-object color)))
+
 ;;; Standard colors
 
 ;; The X11 standard colors are loaded by default into the resource
