@@ -5,8 +5,38 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO Mission ideas
+
+A group of operatives of {CORPORATION} took control of our {FACILITY} on
+      {PLANET} yesterday and have taken all our {EMPLOYEE} there hostage.
+
+(at (scientific-facility (client-corporation))
+(do (and (defeat (operatives (enemy-corporation)))
+         (...
+
+<sykopomp> maybe a mission-requirements list with a requirement
+	   prototype/class/whatever
+<sykopomp> and a req-met-p predicate
+<sykopomp> >_>
+<sykopomp> that would be The OO Way™  [02:21]
+<dto> something like that. a mission data "node" that can have prerequisite
+      nodes and a completion trigger
+<dto> with generative grammars to arrange nodes into missions. 
+<dto> nodes==goals really
+<dto> if i really want to get fancy i could get involved in graph grammars. 
+								        [02:22]
+<dto> but i will probably just use generative grammars and make it
+      customizable. 
+
+
+ - Defeat one or more (possibly all) enemies in a world
+ - Flip one or more switches (set a flag)
+ - Things that can trigger mission failure:
+   - Death of one or more friendly/protected units
+   - Destruction of object
+   - Enemy movement into a particular area
+
 ** TODO do laundry
-** TODO fix player not dying on planet surface when out of endurium
 ** TODO record 1-hour rough draft of new song
 ** TODO new sector open, monopoly on resources granted to Xiomacs corp, you work for them, first mission raid base
 ** TODO player heat mechanic and overboost

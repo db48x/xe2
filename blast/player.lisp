@@ -236,7 +236,7 @@
   (categories :initform '(:item :weapon :equipment))
   (equip-for :initform '(:center-bay))
   (weight :initform 7000)
-  (accuracy :initform (make-stat :base 90))
+  (accuracy :initform (make-stat :base 100))
   (attack-power :initform (make-stat :base 12))
   (attack-cost :initform (make-stat :base 10))
   (energy-cost :initform (make-stat :base 1)))

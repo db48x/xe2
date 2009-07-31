@@ -20,6 +20,7 @@
 				 :clon)
   :components ((:file "rlx")
 	       (:file "math")
+	       (:file "grammar")
 	       (:file "rgb")
 	       (:file "console")
 	       (:file "widgets")

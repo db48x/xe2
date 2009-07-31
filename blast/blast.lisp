@@ -398,6 +398,8 @@
     [print self " SCALE:"]
     (destructuring-bind (num unit) (field-value :scale *active-world*)
       [print self (format nil "[~A ~A]" num unit)])
+    [space self]
+    [print-stat self :credits]
     [print self " COORDINATES:"]
     [print self (format nil "[~A ~A] " [player-row *active-world*]
 			[player-column *active-world*])]
@@ -429,12 +431,11 @@
 
 (defun blast ()
   (rlx:message "Initializing Blast Tactics...")
-  (setf clon:*send-parent-depth* 2)
+  (setf clon:*send-parent-depth* 2) 
   (rlx:set-screen-height 600)
   (rlx:set-screen-width 800)
-;  (rlx:set-frame-rate 30)
+  ;; (rlx:set-frame-rate 30)
   ;; (rlx:set-timer-interval 20)
-
   ;; (rlx:enable-timer)
   (rlx:enable-held-keys 1 15)
   (setf *billboard* (clone =billboard=))
