@@ -289,7 +289,7 @@
   (defense :initform (make-stat :base 10))
   (hearing-range :initform 15)
   (energy :initform (make-stat :base 40 :min 0 :max 40 :unit :gj))
-  (endurium :initform (make-stat :base 30 :min 0 :max 50 :unit :kg))
+  (endurium :initform (make-stat :base 50 :min 0 :max 100 :unit :kg))
   (credits :initform (make-stat :base 512 :min 0 :unit :cr))
   (technetium :initform (make-stat :base 0 :min 0 :unit :ug))
   (biosilicate :initform (make-stat :base 0 :min 0 :unit :g))

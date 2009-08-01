@@ -432,7 +432,7 @@
     [set-player universe player]
     (assert *view*)
     [play universe
-	  :address '(=star-sector= :width 80 :height 80 :stars 80 :freighters 12)
+	  :address '(=star-sector= :width 80 :height 80 :stars 80 :freighters 6)
 	  :prompt prompt
 	  :narrator narrator
 	  :viewport *view*]

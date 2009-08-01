@@ -161,7 +161,7 @@
       [drop-cell self (clone =biclops=) (+ 100 (random (- height 80)))
     		 (random width) :loadout t :no-collisions t])
     ;; drop dead crewmembers to ransack
-    (dotimes (i 30) 
+    (dotimes (i 50) 
       [drop-cell self (clone =crew-member=) (random height) (random width) :loadout t :no-collisions t])
     ;; drop other stuff
     (dotimes (i 15)

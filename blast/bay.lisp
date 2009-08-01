@@ -22,11 +22,21 @@
   (defense :initform (make-stat :base 20))
   (categories :initform '(:actor :obstacle :enemy :target)))
 
+(define-method loadout bay-factory ()
+  (incf (field-value :factory-count *active-world*)))
+
+(define-method die bay-factory ()
+  (clon:with-fields (factory-count) *active-world*
+    (decf factory-count)
+    [>>say :narrator (format nil "Factory destroyed. ~d remaining." 
+			    factory-count)])
+  [parent>>die self])
+
 (define-method run bay-factory ()
   [expend-action-points self 20]
   (when (< [distance-to-player self] 25)
     [play-sample self "spawn"]
-    [drop self (clone =laser-drone=)]))
+    [drop-cell *active-world* (clone =laser-drone=) <row> <column> :loadout t]))
 
 ;;; Carrier space
 
@@ -48,6 +58,7 @@
   (categories :initform '(:actor :obstacle :enemy :target)))
 
 (define-method loadout laser-drone ()
+  (incf (field-value :laser-drone-count *active-world*))
   [make-inventory self]
   [make-equipment self]
   [equip self [add-item self (clone =ray-caster=)]])
@@ -79,12 +90,18 @@
 	  [move self (random-direction)]))))
 
 (define-method die laser-drone ()
-  (when (= 0 (random 4))
-    ;; drop something
-    (if (= 0 (random 4))
-	[drop self (clone =diamond=)]
-	[drop self (clone =energy=)]))
-  [parent>>die self])
+  (clon:with-fields (laser-drone-count) *active-world*
+    (decf laser-drone-count)
+    (when (= 0 (random 4))
+      ;; drop something
+      (if (= 0 (random 4))
+	  [drop self (clone =diamond=)]
+	  [drop self (clone =energy=)]))
+    [play-sample self "death-alien-short"]
+    [>>say :narrator (format nil "Drone destroyed. ~d remaining." 
+			    laser-drone-count)]
+    [parent>>die self]))
+
 
 ;;; The ocean world Corva 3.
 
@@ -99,10 +116,16 @@
   (tile :initform "ocean2"))
 
 (define-prototype bay (:parent rlx:=world=)
-  (height :initform 128)
-  (width :initform 128)
+  (laser-drone-count :initform 0)
+  (factory-count :initform 0)
+  (height :initform 80)
+  (width :initform 80)
   (scale :initform '(50 m))
   (edge-condition :initform :exit))
+
+(define-method check-win-condition bay ()
+  (when (= 0 <laser-drone-count> <factory-count>)
+    (prog1 t (message "You Win!"))))
 
 (define-method drop-ocean bay ()
   (clon:with-field-values (height width) self
@@ -120,13 +143,15 @@
     (trace-rectangle #'drop-carrier row column size size :fill))
   [drop-cell self (clone =bay-factory=) 
 	     (+ row (random size))
-	     (+ column (random size))])
+	     (+ column (random size))
+	     :loadout t])
 
 (define-method generate bay (&key sequence-number drones carriers)
   [create-default-grid self]
   [drop-ocean self]
   (dotimes (i drones)
-    [drop-cell self (clone =laser-drone=) (random <height>) (random <width>)])
+    [drop-cell self (clone =laser-drone=) (random <height>) (random <width>) 
+	       :loadout t])
   (dotimes (i carriers)
     [draw-carrier self (random <height>) (random <width>) (+ 3 (random 7))])
   [drop-entry-point self (random <height>) (random <width>)])

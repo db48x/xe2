@@ -166,6 +166,7 @@
  (:name "crunch" :type :sample :file "crunch.wav" :properties (:volume 10))
  (:name "death" :type :sample :file "death.wav" :properties (:volume 50))
  (:name "death-alien" :type :sample :file "death-alien.wav" :properties (:volume 30))
+ (:name "death-alien-short" :type :sample :file "death-alien-short.wav" :properties (:volume 30))
  (:name "powerup" :type :sample :file "powerup.wav" :properties (:volume 40))
 
  (:name "tech-box" :type :image :file "tech-box.png")

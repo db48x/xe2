@@ -516,7 +516,9 @@ by symbol name. This enables them to be used as hash keys."
   (destructuring-bind (prototype &rest parameters) address
     (let ((world (clone (symbol-value prototype))))
       (prog1 world
-	[generate-with world parameters]))))
+	;; make sure any loadouts or intializers get run with the proper world
+	(let ((*active-world* world)) 
+	  [generate-with world parameters])))))
 
 (define-method generate world (&rest parameters)
   "Generate a world, reading generation parameters from the plist

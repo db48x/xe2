@@ -96,7 +96,7 @@
   
 (define-method generate star-sector (&key (height 80)
 					  (width 80)
-					  (freighters 12)
+					  (freighters 5)
 					  (stars 80))
   (setf <height> height <width> width)
   [create-default-grid self]
@@ -109,7 +109,7 @@
   (dotimes (i stars)
     [drop-cell self (clone =star=) (random height) (random width)])
   (dotimes (i freighters)
-    [drop-cell self (clone =freighter-gateway=) (random height) (random width)])
+    [drop-cell self (clone =freighter-gateway=) (random 30) (random 30)])
   [drop-cell self (clone =zeta-base-gateway=) (random 20) (random 20)]
   [drop-cell self (clone =mars-gateway=) (random 20) (random 20)]
   [drop-cell self (clone =ocean-gateway=) (random 20) (random 20)]
