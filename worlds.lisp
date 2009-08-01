@@ -62,6 +62,8 @@ At the moment, only 0=off and 1=on are supported.")
   (narrator :documentation "The narration widget object.")
   ;; browsing 
   (browser :documentation "The browser object.")
+  ;; viewing
+  (viewport :initform nil)
   ;; space
   (edge-condition :initform :exit
 		  :documentation "Either :block the player, :exit the world, or :wrap around.")
@@ -536,6 +538,7 @@ by symbol name. This enables them to be used as hash keys."
   (setf <current-address> address)
   (when prompt (setf <prompt> prompt))
   (when narrator (setf <narrator> narrator))
+  (when viewport (setf <viewport> viewport))
   (assert (and <prompt> <narrator>))
   (let ((world [find-world self address])
 	(player <player>)
@@ -547,7 +550,7 @@ by symbol name. This enables them to be used as hash keys."
     (push world <stack>)
     (setf *active-world* world)
     (setf *active-universe* self)
-    [set-viewport world viewport]
+    [set-viewport world <viewport>]
     [drop-player-at-entry world player]
     [start world]
     [set-receiver <prompt> world]

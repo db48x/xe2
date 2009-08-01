@@ -44,7 +44,7 @@
 		      <height>
 		      :color ".blue" :destination <image>))
 
-(defvar *view*)
+(defvar *view* (clone =view=))
 
 ;;; Controlling the game.
 
@@ -348,7 +348,7 @@
     [print self " "]
     [print-stat self :defense :warn-below 10]
     [print self " "]
-    [print-stat self :speed :warn-below 2]
+    [print-stat self :speed :warn-below 5]
     [print self " "]
     [print-stat self :endurium :warn-below 10]
     [print self " "]
@@ -430,6 +430,7 @@
     [set-verbosity narrator 0]
     ;;
     [set-player universe player]
+    (assert *view*)
     [play universe
 	  :address '(=star-sector= :width 80 :height 80 :stars 80 :freighters 12)
 	  :prompt prompt
