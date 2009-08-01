@@ -28,7 +28,7 @@
 
 (define-prototype mining-site (:parent rlx:=world=)
   (scale :initform '(1 km))
-  (height :initform 40)
+  (height :initform 20)
   (width :initform 40))
 
 (define-method generate mining-site (&key technetium

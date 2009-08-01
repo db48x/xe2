@@ -5,6 +5,9 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO player heat mechanic and boost attack
+
+** TODO biosilicate manufacture of allies?
 ** TODO 2nd nebula with speedsucking lymphocytes
 ** TODO make freighters less difficult and worth bothering.. perhaps captains?
 *** TODO living crewmembers to rescue? 
@@ -12,7 +15,6 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 *** TODO obtain oxygen from ice
 ** TODO do laundry
 ** TODO new sector open, monopoly on resources granted to Xiomacs corp, you work for them, first mission raid base
-** TODO player heat mechanic and overboost
 ** TODO speed-sucking lymphocyte slugs
 *** TODO instant laser lines!!
 ** TODO moving walls that crush you, falling tetris pieces ???
