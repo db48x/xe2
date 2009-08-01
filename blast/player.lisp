@@ -293,7 +293,7 @@
   (credits :initform (make-stat :base 512 :min 0 :unit :cr))
   (technetium :initform (make-stat :base 0 :min 0 :unit :ug))
   (biosilicate :initform (make-stat :base 0 :min 0 :unit :g))
-  (hit-points :initform (make-stat :base 20 :min 0 :max 20))
+  (hit-points :initform (make-stat :base 35 :min 0 :max 35))
   (movement-cost :initform (make-stat :base 10))
   (max-items :initform (make-stat :base 2))
   (trail-length :initform (make-stat :base 12 :min 0))

@@ -53,7 +53,7 @@
   [equip self [add-item self (clone =ray-caster=)]])
 
 (define-method fire laser-drone ()
-  [expend-action-points self 10]
+  [expend-action-points self 15]
   (let* ((world *active-world*)
 	 (viewport (field-value :viewport world))
 	 (player [get-player *active-world*]))
@@ -77,6 +77,14 @@
 	      [fire self]
 	      [move self dir])
 	  [move self (random-direction)]))))
+
+(define-method die laser-drone ()
+  (when (= 0 (random 4))
+    ;; drop something
+    (if (= 0 (random 4))
+	[drop self (clone =diamond=)]
+	[drop self (clone =energy=)]))
+  [parent>>die self])
 
 ;;; The ocean world Corva 3.
 
@@ -123,7 +131,6 @@
     [draw-carrier self (random <height>) (random <width>) (+ 3 (random 7))])
   [drop-entry-point self (random <height>) (random <width>)])
   
-
 (define-method start bay ()
   (play-music "raid" :loop t)
   [parent>>start self])
