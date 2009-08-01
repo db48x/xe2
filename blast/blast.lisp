@@ -406,6 +406,7 @@
 	 (universe (clone =universe=))
 	 (narrator (clone =narrator=))
 	 (status (clone =status=))
+	 (minimap (clone =minimap=))
 	 (player (clone =ship=))
 	 (splash (clone =splash=))
 	 (splash-prompt (clone =splash-prompt=))
@@ -450,6 +451,12 @@
     [resize *view* :height 432 :width 800]
     [set-origin *view* :x 0 :y 0 :height 24 :width 50]
     [adjust *view*]
+    ;;
+    ;;    [set-tile-size minimap 1]
+    [resize minimap :height 100 :width 120]
+    [move minimap :x 600 :y 450]
+    [set-origin minimap :x 0 :y 0 :height 100 :width 120]
+    [adjust minimap]
     ;;
     [resize textbox :height 100 :width 800]
     [move textbox :x 0 :y 0]

@@ -66,6 +66,7 @@
   (setf <tile-size> size))
     
 (define-method render viewport ()
+  (declare (optimize (speed 3)))
   [adjust self] ;; hehe
   (let* ((world (or <world> *active-world*))
 	 (origin-width <origin-width>)
@@ -154,5 +155,57 @@
 		 (min (- world-height origin-height)
 		      (- player-y 
 			 (truncate (/ origin-height 2)))))))))
+
+(define-prototype minimap (:parent =viewport=)
+  (category-map :initform '((:player ".white")
+			    (:enemy ".red")
+			    (:target ".blue")
+			    (:friend ".green")
+			    (:obstacle ".gray20")))
+  (background-color :initform ".black")
+  (border-color :initform ".gray20"))
+		
+(define-method render minimap ()
+  [adjust self] ;; hehe
+  (let* ((world (or <world> *active-world*))
+	 (origin-width <origin-width>)
+	 (origin-height <origin-height>)
+	 (origin-x <origin-x>)
+	 (origin-y <origin-y>)
+	 (category-map <category-map>)
+	 (grid (field-value :grid world))
+	 (image <image>)
+	 objects cell)
+    (with-field-values (grid light-grid environment-grid phase-number
+			     height width
+			     turn-number ambient-light) world
+      ;; blank the display
+      [clear self]
+      ;; draw the border
+      (draw-rectangle 0 0 <width> <height> 
+		      :color <border-color>
+		      :destination <image>)
+      ;; draw the minimap
+      (dotimes (i origin-height)
+	(dotimes (j origin-width)
+	  (when (array-in-bounds-p grid i j)
+	    (setf objects (aref grid 
+				(+ i origin-y)
+				(+ j origin-x)))
+	    (block coloring
+	      (dolist (mapping category-map)
+		(destructuring-bind (category color) mapping
+		  (dotimes (k (fill-pointer objects))
+		    (setf cell (aref objects k))
+		    (when [in-category cell category]
+		      (rlx:draw-pixel j i
+				      :destination image 
+				      :color color)
+		      (return-from coloring))))))))
+	;; update geometry
+	(setf <width> origin-width))
+      (setf <height> origin-height))))
+		  
+
 
 ;;; viewport.lisp ends here

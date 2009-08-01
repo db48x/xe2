@@ -41,7 +41,7 @@
  (:name "pop-ssh" :type :sample :file "pop-ssh.wav" :properties (:volume 30))
 
  (:name "lymphocyte" :type :image :file "lymphocyte.png")
- (:name "lymph" :type :sample :file "lymph.wav" :properties (:volume 30))
+ (:name "lymph" :type :sample :file "lymph.wav" :properties (:volume 12))
 
  (:name "bay-factory" :type :image :file "bay-factory.png")
  (:name "carrier" :type :image :file "carrier.png")
