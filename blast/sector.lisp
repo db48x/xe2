@@ -79,7 +79,10 @@
 
 (define-prototype ocean-gateway (:parent =gateway=)
   (tile :initform "ocean-gateway")
-  (address :initform '(=bay=)))
+  (address :initform (list '=bay= 
+			   :drones (+ 30 (random 40))
+			   :carriers (+ 6 (random 10))
+			   )))
 
 (define-method step ocean-gateway (stepper)
   [>>narrateln :narrator "The water planet Corva 3. Press ENTER to land."])

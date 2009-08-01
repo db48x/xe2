@@ -46,13 +46,14 @@
   (tile-size :initform 16 :documentation "Size in pixels of a tile. They must be square."))
 
 (define-method get-screen-coordinates viewport (cell-row cell-column)
-  (let ((x0 (+ <x> 
-	       (* <tile-size> 
-		  (- cell-column <origin-x>))))
-	(y0 (+ <y>
-	       (* <tile-size>
-		  (- cell-row <origin-y>)))))
-    (values x0 y0)))
+  (let ((size <tile-size>))
+    (let ((x0 (+ (/ size 2)
+		 (* size
+		    (- cell-column <origin-x>))))
+	  (y0 (+ (/ size 2)
+		 (* size
+		    (- cell-row <origin-y>)))))
+      (values x0 y0))))
 
 (define-method add-overlay viewport (overlay)
   (pushnew overlay <overlays>))

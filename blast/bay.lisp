@@ -12,12 +12,33 @@
   (weight :initform 3000)
   (equip-for :initform '(:robotic-arm :left-hand :right-bay :left-bay :right-hand)))
 
+;;; Bases that manufacture said robots at high speed
+
+(defcell bay-factory 
+  (tile :initform "bay-factory")
+  (hit-points :initform (make-stat :base 30 :max 100 :min 0))
+  (speed :initform (make-stat :base 2))
+  (strength :initform (make-stat :base 10))
+  (defense :initform (make-stat :base 20))
+  (categories :initform '(:actor :obstacle :enemy :target)))
+
+(define-method run bay-factory ()
+  [expend-action-points self 20]
+  (when (< [distance-to-player self] 25)
+    [play-sample self "spawn"]
+    [drop self (clone =laser-drone=)]))
+
+;;; Carrier space
+
+(defcell carrier 
+  (tile :initform "carrier"))
+
 ;;; The laser drone robots that just keep coming. 
 
 (defcell laser-drone 
   (tile :initform "solv") 
   (hit-points :initform (make-stat :base 3 :max 3 :min 0))
-  (speed :initform (make-stat :base 3))
+  (speed :initform (make-stat :base 2))
   (strength :initform (make-stat :base 10))
   (defense :initform (make-stat :base 10))
   (stepping :initform nil)
@@ -32,6 +53,7 @@
   [equip self [add-item self (clone =ray-caster=)]])
 
 (define-method fire laser-drone ()
+  [expend-action-points self 10]
   (let* ((world *active-world*)
 	 (viewport (field-value :viewport world))
 	 (player [get-player *active-world*]))
@@ -42,17 +64,19 @@
 		     [screen-coordinates player]
 		   (rlx:draw-line x0 y0 x1 y1 
 				  :destination (field-value :image viewport))))))
-      [damage player 5]
+      [damage player 1]
+      [play-sample self "laser"]
       [>>add-overlay :viewport #'draw-beam])))
 	     
 (define-method run laser-drone ()
   (clon:with-field-values (row column) self
     (let ((dist [distance-to-player *active-world* row column])
 	  (dir [direction-to-player *active-world* row column]))
-      (when (< dist 20)
-	(if (< dist 10)
-	    [fire self]
-	    [move self dir])))))
+      (if (< dist 20)
+	  (if (< dist 6)
+	      [fire self]
+	      [move self dir])
+	  [move self (random-direction)]))))
 
 ;;; The ocean world Corva 3.
 
@@ -81,13 +105,27 @@
 				     =ocean= =ocean-dark=))
 		     i j])))))
 
-(define-method generate bay (&key sequence-number)
+(define-method draw-carrier bay (row column size)
+  (labels ((drop-carrier (r c)
+	     (prog1 nil
+	       [drop-cell self (clone =carrier=) r c])))
+    (trace-rectangle #'drop-carrier row column size size :fill))
+  [drop-cell self (clone =bay-factory=) 
+	     (+ row (random size))
+	     (+ column (random size))])
+
+(define-method generate bay (&key sequence-number drones carriers)
   [create-default-grid self]
   [drop-ocean self]
-  (dotimes (i 180)
+  (dotimes (i drones)
     [drop-cell self (clone =laser-drone=) (random <height>) (random <width>)])
+  (dotimes (i carriers)
+    [draw-carrier self (random <height>) (random <width>) (+ 3 (random 7))])
   [drop-entry-point self (random <height>) (random <width>)])
+  
 
 (define-method start bay ()
   (play-music "raid" :loop t)
   [parent>>start self])
+
+
