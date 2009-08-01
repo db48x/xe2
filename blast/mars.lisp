@@ -34,6 +34,7 @@
 (define-method generate mining-site (&key technetium
 					  endurium
 					  biosilicate 
+					  lymphocytes
 					  scanners
 					  snowy-p
 					  &allow-other-keys)
@@ -64,6 +65,8 @@
 	[drop-cell self (clone =biosilicate=) (random height) (random width)])
       (dotimes (n scanners)
 	[drop-cell self (clone =scanner=) (random height) (random width) :loadout t])
+      (dotimes (n lymphocytes)
+	[drop-cell self (clone =lymphocyte=) (random height) (random width) :loadout t])
       [drop-cell self (clone =launchpad=) (random height) (random width) :loadout t])))
 
 (define-method begin-ambient-loop mining-site ()
@@ -76,7 +79,8 @@
 			   :technetium (random 15)
 			   :endurium (random 5)
 			   :biosilicate (random 20)
-			   :scanners (random 8))))
+			   :scanners (random 8)
+			   :lymphocytes (random 5))))
 
 (define-method initialize mining-site-gateway (&key snowy-p)
   (setf <address> 

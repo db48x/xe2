@@ -36,8 +36,6 @@
 
 ;;; Code:
 
-;; :. widgets >
-
 (in-package :rlx)
 
 (define-prototype widget

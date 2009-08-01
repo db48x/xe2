@@ -40,6 +40,9 @@
  (:name "bip" :type :sample :file "bip.wav" :properties (:volume 10))
  (:name "pop-ssh" :type :sample :file "pop-ssh.wav" :properties (:volume 30))
 
+ (:name "lymphocyte" :type :image :file "lymphocyte.png")
+ (:name "lymph" :type :sample :file "lymph.wav" :properties (:volume 30))
+
  (:name "rook" :type :image :file "rook.png")
  (:name "guardian" :type :image :file "guardian.png")
  (:name "jelly" :type :image :file "jelly.png")

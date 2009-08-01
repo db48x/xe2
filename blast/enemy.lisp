@@ -537,3 +537,33 @@
   [make-equipment self]
   [equip self [add-item self (clone =shock-probe=)]])
 
+;;; The speed-sucking Lymphocytes
+
+(defcell lymphocyte
+ (tile :initform "lymphocyte")
+ (hit-points :initform (make-stat :base 12 :max 12 :min 0))
+ (speed :initform (make-stat :base 4))
+ (strength :initform (make-stat :base 10))
+ (defense :initform (make-stat :base 10))
+ (stepping :initform t)
+ (movement-cost :initform (make-stat :base 10))
+ (max-items :initform (make-stat :base 2))
+ (direction :initform (random-direction))
+ (categories :initform '(:actor :obstacle :enemy :target)))
+
+(define-method speedsuck lymphocyte (victim)
+  [play-sample self "lymph"]
+  [>>say :narrator "The speed-sucking Lymphocyte drains your speed by 2 points!"]
+  [stat-effect victim :speed -2])
+
+(define-method run lymphocyte ()
+  (clon:with-field-values (row column) self
+    (let ((world *active-world*))
+      (if (< [distance-to-player world row column] 8)
+	  (let ((player-dir [direction-to-player world row column]))
+	    (if [adjacent-to-player world row column]
+		[>>speedsuck self [resolve self player-dir]]
+		[>>move self player-dir]))
+	  (progn (when [obstacle-in-direction-p world row column <direction>]
+		   (setf <direction> (rlx:random-direction)))
+		 [>>move self <direction>])))))

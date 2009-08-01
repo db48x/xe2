@@ -283,7 +283,7 @@
   (tile :initform "player-ship-north-shield")
   (name :initform "Olvac 2")
   (last-direction :initform :here)
-  (speed :initform (make-stat :base 10))
+  (speed :initform (make-stat :base 10 :min 0 :max 25))
   (crystals :initform (make-stat :base 0 :min 0))
   (strength :initform (make-stat :base 10))
   (defense :initform (make-stat :base 10))
@@ -326,6 +326,9 @@
 	 [die self])
 	((<= [stat-value self :oxygen] 0)
 	 (progn [>>narrateln :narrator "Your oxygen runs out, suffocating you."]
+		[die self]))
+	((<= [stat-value self :speed] 0)
+	 (progn [>>narrateln :narrator "You are paralyzed. You suffocate and die."]
 		[die self]))
 	(t 
 	 [update-tile self]
