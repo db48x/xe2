@@ -121,7 +121,17 @@
 
 (define-method initialize skull (player)
   [>>say :narrator *death-message*]
-  [>>say :narrator *game-over-message*])
+  [>>say :narrator *game-over-message*]
+  [>>say :narrator "Press Control-BACKSLASH to restart."])
+
+(define-method restart skull ()
+  (let ((new-player (clone =ship=)))
+    [set-character *status* new-player]
+    [play-sample self "go"]
+    [play *active-universe* 
+	  :player new-player
+	  :address '(=star-sector= :width 80 :height 80 :stars 80 :freighters 6)]
+    [loadout new-player]))
 
 ;;; Pulse particle
 
@@ -421,6 +431,11 @@
   [delete-category self :dead]
 ;;  [stat-effect self :trail-length (- (1+ [stat-value self :trail-length]))]
   [set-player *active-world* self])
+
+(define-method restart ship ()
+  nil)
+
+;; see also skull restart
 
 ;;; Lepton Seeker Cannon
 

@@ -953,23 +953,27 @@ The default destination is the main window."
   ;; now play modules until done
   (loop while (and (not *quitting*)
 		   *next-module*)
-     do (sdl:with-init (sdl:SDL-INIT-VIDEO sdl:SDL-INIT-AUDIO)
-	  (load-user-init-file)	
-	  (run-hook '*initialization-hook*)
-	  (initialize-resource-table)
-	  (initialize-colors)
-	  (when *use-sound*
-	    ;; try opening sound
-	    (when (null (sdl-mixer:open-audio :chunksize *audio-chunksize*))
-	      ;; if that didn't work, disable effects/music
-	      (message "Could not open audio. Disabling sound.")
-	      (setf *use-sound* nil)))
-	  (index-module "standard") 
-	  (load-module *next-module*)
-	  (run-main-loop))
-       (setf *quitting* t))
-  (setf *quitting* nil)
-  (when *use-sound* 
+     do (unwind-protect
+	     (sdl:with-init (sdl:SDL-INIT-VIDEO sdl:SDL-INIT-AUDIO)
+	       (load-user-init-file)	
+	       (run-hook '*initialization-hook*)
+	       (initialize-resource-table)
+	       (initialize-colors)
+	       (when *use-sound*
+		 ;; try opening sound
+		 (when (null (sdl-mixer:open-audio :chunksize *audio-chunksize*))
+		   ;; if that didn't work, disable effects/music
+		   (message "Could not open audio. Disabling sound.")
+		   (setf *use-sound* nil)))
+	       (index-module "standard") 
+	       (load-module *next-module*)
+	       (run-main-loop))
+	  ;; close audio if crash
+	  (when *use-sound* 
+	    (sdl-mixer:close-audio t)))
+	  (setf *quitting* t))
+	(setf *quitting* nil)
+	(when *use-sound* 
     (sdl-mixer:close-audio t)))
   ;; ;; free audio
   ;; (maphash #'(lambda (name resource)

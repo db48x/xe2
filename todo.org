@@ -5,6 +5,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO fix nebula multi belt crash in equip/resolve method
 ** TODO implement scrolling textbox for story displays
 ** TODO mars tunneling into bio-infested caves
 ** TODO edge :block on zeta base

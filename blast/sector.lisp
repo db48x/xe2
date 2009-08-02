@@ -96,6 +96,7 @@
   
 (define-method generate star-sector (&key (height 80)
 					  (width 80)
+					  sequence-number
 					  (freighters 5)
 					  (stars 80))
   (setf <height> height <width> width)

@@ -492,6 +492,10 @@ slot."
   (setf (getf <equipment> slot) nil))
 
 (define-method equip cell (&optional reference slot)
+  (unless reference
+    (error "Cannot resolve null reference during equipping."))
+  ;; (unless (keywordp slot)
+  ;;   (error "Cannot equip null slot---you must supply a keyword."))
   (let ((item [resolve self reference]))
     (when item
       (let* ((match [equipment-match self item])

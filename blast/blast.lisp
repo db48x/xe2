@@ -109,6 +109,7 @@
 	    ;;
 	    ("W" nil "wait .")
 ;;	    ("SPACE" nil "respawn .")
+	    ("BACKSLASH" (:control) "restart .")
 	    ("RETURN" nil "enter .")
 	    ("3" nil "activate-extension .")
 	    ("2" nil "activate-pulse-cannon .")
@@ -156,6 +157,7 @@
 	    ("S" nil "wait .")
 	    ("ESCAPE" nil "activate-pulse-cannon .")
 ;;	    ("SPACE" nil "respawn .")
+	    ("BACKSLASH" (:control) "restart .")
 	    ("3" nil "activate-extension .")
 	    ("1" nil "activate-bomb-cannon .")
 	    ("P" (:control) "quit ."))))
@@ -208,6 +210,7 @@
 ;;	    ("SPACE" nil "respawn .")
 	    ("RETURN" nil "enter .")
 	    ("ESCAPE" nil "activate-pulse-cannon .")
+	    ("BACKSLASH" (:control) "restart .")
 	    ("3" nil "activate-extension .")
 	    ("1" nil "activate-bomb-cannon .")
 	    ("Q" (:control) "quit ."))))
@@ -433,7 +436,8 @@
     [set-player universe player]
     (assert *view*)
     [play universe
-	  :address '(=star-sector= :width 80 :height 80 :stars 80 :freighters 6)
+	  :address '(=star-sector= :width 80 :height 80 
+		     :stars 80 :freighters 6 :sequence-number (genseq))
 	  :prompt prompt
 	  :narrator narrator
 	  :viewport *view*]

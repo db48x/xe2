@@ -537,8 +537,9 @@ by symbol name. This enables them to be used as hash keys."
 		   [generate-world self address]]
 	candidate)))
 
-(define-method play universe (&key address prompt narrator viewport)
+(define-method play universe (&key address player prompt narrator viewport)
   (setf <current-address> address)
+  (when player (setf <player> player))
   (when prompt (setf <prompt> prompt))
   (when narrator (setf <narrator> narrator))
   (when viewport (setf <viewport> viewport))
