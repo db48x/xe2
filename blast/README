@@ -13,7 +13,7 @@ Use your numeric keypad to move, or the roguelike movement keys:
 To fire, hold down the CONTROL key and press any direction.
 To wait in place without moving, hit W.
 To quit, press CONTROL-Q.
-To restart after dying, press CONTROL-BACKSLASH.
+To restart after dying, press CONTROL-PERIOD.
 
 TODO: document dvorak and other non-keypad directional controls.
 

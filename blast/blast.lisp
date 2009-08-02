@@ -109,7 +109,7 @@
 	    ;;
 	    ("W" nil "wait .")
 ;;	    ("SPACE" nil "respawn .")
-	    ("BACKSLASH" (:control) "restart .")
+	    ("PERIOD" (:control) "restart .")
 	    ("RETURN" nil "enter .")
 	    ("3" nil "activate-extension .")
 	    ("2" nil "activate-pulse-cannon .")
@@ -157,7 +157,7 @@
 	    ("S" nil "wait .")
 	    ("ESCAPE" nil "activate-pulse-cannon .")
 ;;	    ("SPACE" nil "respawn .")
-	    ("BACKSLASH" (:control) "restart .")
+	    ("PERIOD" (:control) "restart .")
 	    ("3" nil "activate-extension .")
 	    ("1" nil "activate-bomb-cannon .")
 	    ("P" (:control) "quit ."))))
@@ -210,7 +210,7 @@
 ;;	    ("SPACE" nil "respawn .")
 	    ("RETURN" nil "enter .")
 	    ("ESCAPE" nil "activate-pulse-cannon .")
-	    ("BACKSLASH" (:control) "restart .")
+	    ("PERIOD" (:control) "restart .")
 	    ("3" nil "activate-extension .")
 	    ("1" nil "activate-bomb-cannon .")
 	    ("Q" (:control) "quit ."))))
@@ -447,7 +447,6 @@
     [set-character status player]
     (setf *status* status)
     [update status]
-    ;;
    ;;
     [set-tile-size *view* 16]
     ;; the default is to track the current world:
