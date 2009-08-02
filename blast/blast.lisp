@@ -430,7 +430,7 @@
     [hide prompt]
     [install-keybindings prompt]
     ;;
-    [resize narrator :height 120 :width 800]
+    [resize narrator :height 100 :width 800]
     [set-verbosity narrator 0]
     ;;
     [set-player universe player]
@@ -443,7 +443,7 @@
 	  :viewport *view*]
     [loadout player]
     ;;
-    [resize status :height 60 :width 800]
+    [resize status :height 80 :width 800]
     [set-character status player]
     (setf *status* status)
     [update status]
@@ -456,8 +456,8 @@
     [adjust *view*]
     ;;
     ;;    [set-tile-size minimap 1]
-    [resize minimap :height 100 :width 120]
-    [move minimap :x 600 :y 450]
+    [resize minimap :height 80 :width 120]
+    [move minimap :x 600 :y 470]
     [set-origin minimap :x 0 :y 0 :height 100 :width 120]
     [adjust minimap]
     ;;

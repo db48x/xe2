@@ -18,7 +18,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 ** TODO player can acquire laser weapon
 ** TODO prevent planet collisions with [throw-cell ...
 ** TODO CLON: cache method lookups on objects
-** TODO fix nebula multi belt crash in equip/resolve method... runnning out of slots
+** TODO fix nebula multi belt crash in equip/resolve method... runnning out of inventory slots
 ** TODO implement scrolling textbox for story displays
 ** TODO mars tunneling into bio-infested caves
 ** TODO edge :block on zeta base

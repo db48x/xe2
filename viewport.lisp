@@ -176,14 +176,16 @@
 	 (category-map <category-map>)
 	 (grid (field-value :grid world))
 	 (image <image>)
-	 objects cell)
+	 objects 
+	 cell
+	 categories)
     (with-field-values (grid light-grid environment-grid phase-number
 			     height width 
 			     turn-number ambient-light) world
       ;; blank the display
       [clear self]
       ;; draw the border
-      (draw-rectangle 0 0 <width> <height> 
+      (draw-rectangle 0 0 <width> <height>
 		      :color <border-color>
 		      :destination <image>)
       ;; draw the minimap
@@ -198,7 +200,8 @@
 		(destructuring-bind (category color) mapping
 		  (dotimes (k (fill-pointer objects))
 		    (setf cell (aref objects k))
-		    (when [in-category cell category]
+		    (setf categories (field-value :categories cell))
+		    (when (member category categories)
 		      (rlx:draw-pixel j i
 				      :destination image 
 				      :color color)
