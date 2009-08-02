@@ -8,7 +8,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 ** TODO edge :block on zeta base
 ** TODO player drop bomb on current square, NOT last square
 ** TODO move rooks to zeta base from nebula
-** TODO indicate player location on level start
+** TODO indicate player location when key hit
 ** TODO identify and describe last killed enemy and all objects.
 ** TODO fix C-q only working on game screen
 ** TODO balance water planet: more energy back
