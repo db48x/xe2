@@ -5,6 +5,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO edge :block on zeta base
 ** TODO player drop bomb on current square, NOT last square
 ** TODO move rooks to zeta base from nebula
 ** TODO indicate player location on level start

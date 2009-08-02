@@ -66,7 +66,7 @@
   (setf <tile-size> size))
     
 (define-method render viewport ()
-  (declare (optimize (speed 3)))
+;;  (declare (optimize (speed 3)))
   [adjust self] ;; hehe
   (let* ((world (or <world> *active-world*))
 	 (origin-width <origin-width>)
@@ -177,7 +177,7 @@
 	 (image <image>)
 	 objects cell)
     (with-field-values (grid light-grid environment-grid phase-number
-			     height width
+			     height width 
 			     turn-number ambient-light) world
       ;; blank the display
       [clear self]
@@ -186,8 +186,8 @@
 		      :color <border-color>
 		      :destination <image>)
       ;; draw the minimap
-      (dotimes (i origin-height)
-	(dotimes (j origin-width)
+      (dotimes (i height)
+	(dotimes (j width)
 	  (when (array-in-bounds-p grid i j)
 	    (setf objects (aref grid 
 				(+ i origin-y)
