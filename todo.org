@@ -11,6 +11,11 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
                                 :report :flat
                                 :loop nil)
  	 (rlx:play "blast"))
+** TODO fix crash on ENTER when nothing enterable.
+** TODO show terrain underfoot
+** TODO scanners always drop same thing in given game???
+** TODO fix can't see player on white background
+** TODO player can acquire laser weapon
 ** TODO prevent planet collisions with [throw-cell ...
 ** TODO CLON: cache method lookups on objects
 ** TODO fix nebula multi belt crash in equip/resolve method... runnning out of slots
