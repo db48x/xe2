@@ -123,8 +123,7 @@
   (setf <asteroids> (delete asteroid <asteroids>))
   (when (= 0 (length <asteroids>))
     [stat-effect [get-player *active-world*] :score 2000]
-    [play-sample self "sweep"]
-    [>>say :narrator "You get 2000 extra points for wiping the polaris mine clean of asteroids."]))
+    [play-sample self "sweep"]))
 
 (define-method explode polaris ()
   (labels ((boom (r c &optional (probability 50))

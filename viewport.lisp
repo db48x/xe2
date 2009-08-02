@@ -201,10 +201,10 @@
 		      (rlx:draw-pixel j i
 				      :destination image 
 				      :color color)
-		      (return-from coloring))))))))
+		      (return-from coloring)))))))))
 	;; update geometry
 	(setf <width> origin-width))
-      (setf <height> origin-height))))
+      (setf <height> origin-height)))
 		  
 
 

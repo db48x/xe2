@@ -473,7 +473,7 @@
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
     [add-page *pager* :main splash-prompt splash]
-    [add-page *pager* :play stack prompt status *view* narrator]
+    [add-page *pager* :play stack prompt status *view* narrator minimap]
     [add-page *pager* :help textbox]
     [select *pager* :main]))
 

@@ -49,11 +49,8 @@
 
 (define-method activate bomb-cannon ()
   ;; leave bomb behind ship
-  (clon:with-field-values (last-direction row column) <equipper>
-    (multiple-value-bind (r c) 
-	(step-in-direction row column 
-			   (opposite-direction last-direction))
-      [drop-cell *active-world* (clone =bomb=) r c])))
+  (clon:with-field-values (row column) <equipper>
+    [drop-cell *active-world* (clone =bomb=) row column]))
 
 (define-method fire bomb-cannon (direction)
   (clon:with-field-values (last-direction row column) <equipper>

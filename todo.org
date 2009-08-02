@@ -5,6 +5,12 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO player drop bomb on current square, NOT last square
+** TODO move rooks to zeta base from nebula
+** TODO indicate player location on level start
+** TODO identify and describe last killed enemy and all objects.
+** TODO fix C-q only working on game screen
+** TODO balance water planet: more energy back
 ** TODO player heat mechanic and boost attack
 
 ** TODO biosilicate manufacture of allies?
