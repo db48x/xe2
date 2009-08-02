@@ -158,6 +158,7 @@
 
 (define-prototype minimap (:parent =viewport=)
   (category-map :initform '((:player ".white")
+			    (:boss ".yellow")
 			    (:enemy ".red")
 			    (:target ".blue")
 			    (:friend ".green")
@@ -202,6 +203,10 @@
 				      :destination image 
 				      :color color)
 		      (return-from coloring)))))))))
+      ;; draw player indicator
+      (draw-circle [player-column world]
+		   [player-row world] 
+		   4 :destination image)
 	;; update geometry
 	(setf <width> origin-width))
       (setf <height> origin-height)))

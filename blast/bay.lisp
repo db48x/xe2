@@ -20,7 +20,7 @@
   (speed :initform (make-stat :base 2))
   (strength :initform (make-stat :base 10))
   (defense :initform (make-stat :base 20))
-  (categories :initform '(:actor :obstacle :enemy :target)))
+  (categories :initform '(:actor :obstacle :enemy :target :boss)))
 
 (define-method loadout bay-factory ()
   (incf (field-value :factory-count *active-world*)))
