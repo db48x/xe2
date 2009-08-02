@@ -106,7 +106,7 @@
       (setf <height> (* tile-size origin-height))
       ;; render overlays
       (dolist (overlay <overlays>)
-	(funcall overlay))
+	(funcall overlay image))
       (setf <overlays> nil))))
 
 (define-method set-origin viewport (&key x y height width)

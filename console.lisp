@@ -845,6 +845,16 @@ found."
 		   destination)
   (sdl:draw-pixel-* x y :surface destination :color (find-resource-object color)))
 
+(defun draw-pixel (x y &key 
+		   (color ".white")
+		   destination)
+  (sdl:draw-pixel-* x y :surface destination :color (find-resource-object color)))
+
+(defun draw-circle (x y radius &key 
+		   (color ".white")
+		    destination)
+  (sdl:draw-circle-* x y radius :surface destination :color (find-resource-object color)))
+
 ;;; Standard colors
 
 ;; The X11 standard colors are loaded by default into the resource

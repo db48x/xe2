@@ -436,7 +436,8 @@ in a roguelike until the user has pressed a key."
   (assert <player>)
   [render-lighting self <player>]
   (with-message-queue <message-queue>
-    [begin-phase <player>])
+    [begin-phase <player>]
+    [show-location <player>])
   [begin-ambient-loop self])
     
 (define-method set-viewport world (viewport)

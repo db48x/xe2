@@ -405,6 +405,14 @@
 	[>>narrate :narrator "No gateway to enter."]
 	[activate gateway])))
 
+(define-method show-location ship ()
+  (labels ((do-circle (image)
+	     (multiple-value-bind (x y) 
+		 [screen-coordinates self]
+	       (draw-circle x y 30 :destination image)
+	       (draw-circle x y 25 :destination image))))
+    [>>add-overlay :viewport #'do-circle]))
+
 (define-method revive ship ()
   [drop-cell *active-world* self (random 10) (random 10)]
   [stat-effect self :hit-points 20]	       

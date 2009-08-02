@@ -105,7 +105,7 @@
   *default-message-verbosities* *message-verbosities* add-overlay
   set-message-verbosities operation-symbol message-symbol play-sample
   set-music-volume add-message-verbosities with-message-queue
-  =minimap= draw-pixel *user-keyboard-layout* *fullscreen*
+  =minimap= draw-pixel *user-keyboard-layout* *fullscreen* draw-circle
   set-field-option-value =pager= =pager-prompt= load-module
   field-options world set-frame-rate *frame-rate* =stack=
   set-timer-interval *message-logging* overlay set-screen-width

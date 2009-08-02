@@ -66,15 +66,14 @@
 (define-method fire laser-drone ()
   [expend-action-points self 15]
   (let* ((world *active-world*)
-	 (viewport (field-value :viewport world))
 	 (player [get-player *active-world*]))
-    (labels ((draw-beam ()
+    (labels ((draw-beam (image)
 	       (multiple-value-bind (x0 y0) 
 		   [screen-coordinates self]
 		 (multiple-value-bind (x1 y1)
 		     [screen-coordinates player]
 		   (rlx:draw-line x0 y0 x1 y1 
-				  :destination (field-value :image viewport))))))
+				  :destination image)))))
       [damage player 1]
       [play-sample self "laser"]
       [>>add-overlay :viewport #'draw-beam])))
