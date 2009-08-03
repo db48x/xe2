@@ -371,9 +371,10 @@ in a roguelike until the user has pressed a key."
 		 (when (array-in-bounds-p light-grid row column)
 		   (setf (aref light-grid row column) 1) nil))
 	       (collect-line-point (x y)
-		 (if (array-in-bounds-p light-grid x y)
-		     (prog1 nil (vector-push-extend (list x y) line))
-		     t))
+		 (prog1 nil (vector-push-extend (list x y) line)))
+		 ;; (if (array-in-bounds-p light-grid x y)
+		 ;;     (prog1 nil (vector-push-extend (list x y) line))
+		 ;;     t))
 	       (make-line (row column)
 		 (setf (fill-pointer line) 0)
 		 (let ((flipped (trace-line #'collect-line-point 
