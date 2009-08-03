@@ -5,6 +5,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO fix trails showing up as terrain... use :transient category
 ** TODO implement can-see method
 ** TODO implement scrolling textbox for story displays
 ** TODO work on story

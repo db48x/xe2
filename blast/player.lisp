@@ -287,7 +287,7 @@
 ;;; Your ship.
 
 (defcell ship 
-  (tile :initform "player-ship-north-shield")
+  (tile :initform "voidrider-north")
   (name :initform "Olvac 2")
   (last-direction :initform :here)
   (speed :initform (make-stat :base 10 :min 0 :max 25))
@@ -375,13 +375,22 @@
   [update-tile self]
   [update *status*])
 
+(defvar *ship-tiles* '(:north "voidrider-north" 
+		       :east "voidrider-east" 
+		       :south "voidrider-south" 
+		       :west "voidrider-west" 
+		       :northeast "voidrider-northeast"
+		       :southeast "voidrider-southeast"
+		       :southwest "voidrider-southwest"
+		       :northwest "voidrider-northwest"))
+
 (define-method update-tile ship ()
-  (setf <tile> 
-	(if  (plusp <invincibility-clock>)
-	     "player-ship-invincible"
-	     (if (> 5 [stat-value self :hit-points])
-		 "player-ship-north-dying"
-		 "player-ship-north-shield"))))
+  (setf <tile> (getf *ship-tiles* <last-direction>)))
+	;; (if  (plusp <invincibility-clock>)
+	;;      "player-ship-invincible"
+	;;      (if (> 5 [stat-value self :hit-points])
+	;; 	 "player-ship-north-dying"
+	;; 	 "player-ship-north-shield"))))
 
 (define-method scan-terrain ship ()
   [cells-at *active-world* <row> <column>])

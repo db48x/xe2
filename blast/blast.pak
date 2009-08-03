@@ -3,6 +3,16 @@
  (:name	"player-ship-north" :type :image :file "player-ship-north.png")
  (:name	"player-ship-invincible" :type :image :file "ship-invincible.png")
 
+ (:name "voidrider-north" :type :image :file "voidrider-north.png")
+ (:name "voidrider-east" :type :alias :data ":rotate 90:voidrider-north")
+ (:name "voidrider-south" :type :alias :data ":rotate 180:voidrider-north")
+ (:name "voidrider-west" :type :alias :data ":rotate 270:voidrider-north")
+
+ (:name "voidrider-northeast" :type :image :file "voidrider-northeast.png")
+ (:name "voidrider-southeast" :type :alias :data ":rotate 90:voidrider-northeast")
+ (:name "voidrider-southwest" :type :alias :data ":rotate 180:voidrider-northeast")
+ (:name "voidrider-northwest" :type :alias :data ":rotate 270:voidrider-northeast")
+
  (:name "levelup" :type :image :file "levelup.png")
  (:name "speedup" :type :image :file "speedup.png")
  (:name "defenseup" :type :image :file "defenseup.png")
