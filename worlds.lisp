@@ -347,6 +347,8 @@ in a roguelike until the user has pressed a key."
 
 ;; <: lighting :>
 
+(defvar *lighting-hack-function* nil)
+
 (define-method render-lighting world (cell)
   (let* ((light-radius (field-value :light-radius cell))
 	 (ambient <ambient-light>)
@@ -369,8 +371,8 @@ in a roguelike until the user has pressed a key."
 		 (when (array-in-bounds-p light-grid row column)
 		   (setf (aref light-grid row column) 1) nil))
 	       (collect-line-point (x y)
-		 (if (array-in-bounds-p light-grid y x)
-		     (prog1 nil (vector-push-extend (list  y) line))
+		 (if (array-in-bounds-p light-grid x y)
+		     (prog1 nil (vector-push-extend (list x y) line))
 		     t))
 	       (make-line (row column)
 		 (setf (fill-pointer line) 0)
@@ -382,7 +384,7 @@ in a roguelike until the user has pressed a key."
 		   ;; happens, otherwise shadows will be cast the wrong way.
 		   (if flipped
 		       (progn (setf line (nreverse line))
-			      (message "LINE: ~A" line))
+			      (message "LINE: fp:~d ~A" (fill-pointer line) line))
 		       ;; Furthermore, when a non-flipped line is drawn, the endpoint 
 		       ;; isn't actually visited, so we append it to the list. (Maybe this 
 		       ;; is a bug in my implementation?)
@@ -399,6 +401,11 @@ in a roguelike until the user has pressed a key."
 			    (light-square r c)
 			    ;; should we stop lighting?
 			    (when [category-at-p self r c '(:opaque :obstacle)]
+			      ;; HACK
+			      (when *lighting-hack-function*
+			      	(funcall *lighting-hack-function* 
+			      		 source-row source-column
+			      		 r c))
 			      (return-from lighting t)))))))
 	       (collect-octagon-point (r c)
 		 (vector-push-extend (list r c) octagon) nil)
@@ -415,14 +422,19 @@ in a roguelike until the user has pressed a key."
 	       			row column radius :thicken)
 	       	 (dotimes (i (fill-pointer octagon))
 	       	   (destructuring-bind (row column) (aref octagon i)
+		     ;; HACK
+		     ;; (when *lighting-hack-function*
+		     ;;   (funcall *lighting-hack-function* 
+		     ;; 		source-row source-column
+		     ;; 		row column ".red"))
 	       	     (light-line row column)))))
-	(light-rectangle source-row source-column total)))))
+	(light-octagon source-row source-column total)))))
 
 (define-method clear-light-grid world ()
   (let ((light-grid <light-grid>))
     (dotimes (i <height>)
-      (dotimes (j <width>)
-	(setf (aref light-grid i j) 0)))))
+      (dotimes (j <width>)	
+(setf (aref light-grid i j) 0)))))
 
 (define-method deserialize world (sexp)
   "Load a saved world from Lisp data."

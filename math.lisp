@@ -237,9 +237,7 @@ It's an ugly hack, but it helps reduce artifacts."
 
 (defun trace-line (trace-function x0 y0 x1 y1)
   "Trace a line between X0,Y0 and X1,Y1.
-calling TRACE-FUNCTION at each point of the line.
-
-Returns non-nil if tracing was successful, and nil if failed."
+calling TRACE-FUNCTION at each point of the line."
   ;; analyze coordinates and prepare them for bresenham's
   (let ((steep (> (abs (- y1 y0))
 		  (abs (- x1 x0))))

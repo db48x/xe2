@@ -486,6 +486,18 @@
     [move stack :x 0 :y 0]
     [set-children stack (list status *view* narrator)]
     ;;
+    ;; HACK
+    (labels ((light-hack (sr sc r c &optional (color ".white"))
+	       (labels ((hack-overlay (image)
+			  (multiple-value-bind (sx sy)
+			      [get-screen-coordinates *view* sr sc]
+			    (multiple-value-bind (x y)
+				[get-screen-coordinates *view* r c]
+			      (draw-line x y sx sy :destination image
+					 :color color)))))
+		 [add-overlay *view* #'hack-overlay])))
+      (setf rlx::*lighting-hack-function* #'light-hack))
+    ;;
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
     [add-page *pager* :main splash-prompt splash]

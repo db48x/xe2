@@ -5,7 +5,6 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
-** TODO more energy available in bay
 ** TODO implement scrolling textbox for story displays
 ** TODO work on story
 ** TODO PROFILING: 

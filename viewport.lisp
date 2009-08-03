@@ -156,6 +156,8 @@
 		      (- player-y 
 			 (truncate (/ origin-height 2)))))))))
 
+;;; The minimap
+
 (define-prototype minimap (:parent =viewport=)
   (category-map :initform '((:player ".white")
 			    (:boss ".yellow")
