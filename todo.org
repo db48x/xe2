@@ -5,6 +5,9 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO more energy available in bay
+** TODO implement scrolling textbox for story displays
+** TODO work on story
 ** TODO PROFILING: 
 (require :sb-sprof)
 (sb-sprof:with-profiling (:max-samples 1000
@@ -12,13 +15,11 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
                                 :loop nil)
  	 (rlx:play "blast"))
 ** TODO fix crash on ENTER when nothing enterable.
-** TODO show terrain underfoot
 ** TODO scanners always drop same thing in given game???
 ** TODO fix can't see player on white background
-** TODO player can acquire laser weapon
+** TODO make player can acquire laser weapon
 ** TODO prevent planet collisions with [throw-cell ...
 ** TODO fix nebula multi belt crash in equip/resolve method... runnning out of inventory slots
-** TODO implement scrolling textbox for story displays
 ** TODO mars tunneling into bio-infested caves
 ** TODO edge :block on zeta base
 ** TODO player drop bomb on current square, NOT last square

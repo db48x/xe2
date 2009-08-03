@@ -1,0 +1,10 @@
+This is the special README file for GNU/Linux users of precompiled
+binaries of Blast Tactics.
+
+(1) You must have installed your distribution's packages of SDL,
+    SDL_image, and SDL_mixer.
+
+(2) RLX unfortunately needs a config file "~/.rlxrc" in your home dir.
+    The file "example-rlxrc" can be edited and copied there.
+
+(3) Enjoy!

@@ -94,7 +94,7 @@
 (define-method die laser-drone ()
   (clon:with-fields (laser-drone-count) *active-world*
     (decf laser-drone-count)
-    (when (= 0 (random 4))
+    (when (= 0 (random 2))
       ;; drop something
       (if (= 0 (random 4))
 	  [drop self (clone =diamond=)]
