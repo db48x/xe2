@@ -111,6 +111,7 @@
 ;;	    ("SPACE" nil "respawn .")
 	    ("PERIOD" (:control) "restart .")
 	    ("RETURN" nil "enter .")
+	    ("ESCAPE" (:control) "show-location .")
 	    ("3" nil "activate-extension .")
 	    ("2" nil "activate-pulse-cannon .")
 	    ("1" nil "activate-bomb-cannon .")
@@ -155,10 +156,11 @@
 	    ("C" (:control) "fire :southeast .")
 	    ;;
 	    ("S" nil "wait .")
-	    ("ESCAPE" nil "activate-pulse-cannon .")
+	    ("ESCAPE" (:control) "show-location .")
 ;;	    ("SPACE" nil "respawn .")
 	    ("PERIOD" (:control) "restart .")
 	    ("3" nil "activate-extension .")
+	    ("2" nil "activate-pulse-cannon .")
 	    ("1" nil "activate-bomb-cannon .")
 	    ("P" (:control) "quit ."))))
   
@@ -209,9 +211,10 @@
 	    ("S" nil "wait .")
 ;;	    ("SPACE" nil "respawn .")
 	    ("RETURN" nil "enter .")
-	    ("ESCAPE" nil "activate-pulse-cannon .")
+	    ("ESCAPE" (:control) "show-location .")
 	    ("PERIOD" (:control) "restart .")
 	    ("3" nil "activate-extension .")
+	    ("2" nil "activate-pulse-cannon .")
 	    ("1" nil "activate-bomb-cannon .")
 	    ("Q" (:control) "quit ."))))
 

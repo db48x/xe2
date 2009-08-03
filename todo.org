@@ -5,6 +5,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO fix muon trails showing up on top of firer
 ** TODO fix trails showing up as terrain... use :transient category
 ** TODO implement can-see method
 ** TODO implement scrolling textbox for story displays
@@ -17,7 +18,6 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
  	 (rlx:play "blast"))
 ** TODO fix crash on ENTER when nothing enterable.
 ** TODO scanners always drop same thing in given game???
-** TODO fix can't see player on white background
 ** TODO make player can acquire laser weapon
 ** TODO prevent planet collisions with [throw-cell ...
 ** TODO fix nebula multi belt crash in equip/resolve method... runnning out of inventory slots
@@ -25,11 +25,9 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 ** TODO edge :block on zeta base
 ** TODO player drop bomb on current square, NOT last square
 ** TODO move rooks to zeta base from nebula
-** TODO indicate player location when key hit
 ** TODO make mars more difficult, with ruins and useful minerals
 ** TODO identify and describe last killed enemy and all objects.
 ** TODO fix C-q only working on game screen
-** TODO balance water planet: more energy back
 ** TODO player heat mechanic and boost attack
 
 ** TODO biosilicate manufacture of allies?

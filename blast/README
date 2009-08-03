@@ -16,6 +16,7 @@ To fire, hold down the CONTROL key and press any direction.
 To wait in place without moving, hit W.
 To quit, press CONTROL-Q.
 To restart after dying, press CONTROL-PERIOD.
+To highlight the player's location, press CONTROL-ESCAPE.
 
 TODO: document dvorak and other non-keypad directional controls.
 
