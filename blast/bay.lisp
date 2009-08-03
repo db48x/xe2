@@ -120,6 +120,7 @@
   (name :initform "Deep Ocean"))
 
 (define-prototype bay (:parent rlx:=world=)
+  (ambient-light :initform 10)
   (laser-drone-count :initform 0)
   (factory-count :initform 0)
   (height :initform 80)
@@ -165,3 +166,4 @@
   [parent>>start self])
 
 
+\

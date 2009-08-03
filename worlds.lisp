@@ -399,13 +399,13 @@ in a roguelike until the user has pressed a key."
 		     do (destructuring-bind (r c) (aref line i)
 			  (when (array-in-bounds-p grid r c)
 			    (light-square r c)
+			    ;; HACK
+			    (when *lighting-hack-function*
+			      (funcall *lighting-hack-function* 
+				       source-row source-column
+				       r c))
 			    ;; should we stop lighting?
 			    (when [category-at-p self r c '(:opaque :obstacle)]
-			      ;; HACK
-			      (when *lighting-hack-function*
-			      	(funcall *lighting-hack-function* 
-			      		 source-row source-column
-			      		 r c))
 			      (return-from lighting t)))))))
 	       (collect-octagon-point (r c)
 		 (vector-push-extend (list r c) octagon) nil)

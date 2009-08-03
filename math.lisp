@@ -240,46 +240,46 @@ It's an ugly hack, but it helps reduce artifacts."
 calling TRACE-FUNCTION at each point of the line."
   ;; analyze coordinates and prepare them for bresenham's
   (let ((steep (> (abs (- y1 y0))
-		  (abs (- x1 x0))))
-	(flipped (> x0 x1)))
+		  (abs (- x1 x0)))))
     ;; reflect steep lines through line y=x
     (when steep
       (rotatef x0 y0)
       (rotatef x1 y1))
     ;; swap points if line is backwards
-    (when flipped
-      (rotatef x0 x1)
-      (rotatef y0 y1))
-    (prog1 flipped
-      (if (= x1 x0)
-	  ;; just trace a vertical line.
-	  (if flipped
-	      (trace-column trace-function x1 y0 y1)
-	      (trace-column trace-function x1 y1 y0))
-	  ;; ok, use bresenham's
-	  (let* ((delta-x (- x1 x0))
-		 (delta-y (abs (- y1 y0)))
-		 (err 0.0)
-		 (delta-err (/ (float delta-y) (float delta-x)))
-		 (y y0)
-		 (x x0)
-		 (step-y (if (< y0 y1) 1 -1)))
-	    ;; main loop
-	    (block tracing
-	      (loop while (/= x x1) do
-		 ;; call the supplied trace function.
-		 ;; note that trace functions get args in order (row column).
-		 ;; terminate with result = nil if it returns non-nil.
-		   (if (if steep
-			   (funcall trace-function x y)
-			   (funcall trace-function y x))
-		       (return-from tracing))
-		   (incf err delta-err)
-		   (when (>= err 0.5)
-		     (incf y step-y)
-		     (decf err 1.0))
-		 ;; for next iteration
-		   (incf x))))))))
+    (let ((flipped (> x0 x1)))
+      (when flipped
+	(rotatef x0 x1)
+	(rotatef y0 y1))
+      (prog1 flipped
+	(if (= x1 x0)
+	    ;; just trace a vertical line.
+	    (if flipped
+		(trace-column trace-function x1 y0 y1)
+		(trace-column trace-function x1 y1 y0))
+	    ;; ok, use bresenham's
+	    (let* ((delta-x (- x1 x0))
+		   (delta-y (abs (- y1 y0)))
+		   (err 0.0)
+		   (delta-err (/ (float delta-y) (float delta-x)))
+		   (y y0)
+		   (x x0)
+		   (step-y (if (< y0 y1) 1 -1)))
+	      ;; main loop
+	      (block tracing
+		(loop while (/= x x1) do
+		  ;; call the supplied trace function.
+		  ;; note that trace functions get args in order (row column).
+		  ;; terminate with result = nil if it returns non-nil.
+		  (when (if steep
+			    (funcall trace-function x y)
+			    (funcall trace-function y x))
+		    (return-from tracing))
+		  (incf err delta-err)
+		  (when (>= err 0.5)
+		    (incf y step-y)
+		    (decf err 1.0))
+		  ;; for next iteration
+		  (incf x)))))))))
 
 ;;; Tracing macros
 
