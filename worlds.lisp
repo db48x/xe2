@@ -36,6 +36,7 @@
 (define-prototype world
     (:documentation "An RLX game world filled with cells.")
   (name :initform "Unknown")
+  (required-mode :initform nil)
   (mission-grammar :initform '())
   (scale :initform '(1 m)
 	 :documentation "Scale per square side in the form (N UNIT) where UNIT is m, km, ly etc.")
@@ -449,6 +450,7 @@ in a roguelike until the user has pressed a key."
   (assert <player>)
   [render-lighting self <player>]
   (with-message-queue <message-queue>
+    [start <player>]
     [begin-phase <player>]
     [show-location <player>])
   [begin-ambient-loop self])

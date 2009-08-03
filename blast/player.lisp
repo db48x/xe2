@@ -122,7 +122,7 @@
 (define-method initialize skull (player)
   [>>say :narrator *death-message*]
   [>>say :narrator *game-over-message*]
-  [>>say :narrator "Press Control-BACKSLASH to restart."])
+  [>>say :narrator "Press Control-PERIOD (i.e. \".\") to restart."])
 
 (define-method restart skull ()
   (let ((new-player (clone =ship=)))
@@ -288,6 +288,7 @@
 
 (defcell ship 
   (tile :initform "voidrider-north")
+  (mode :initform :vehicle)
   (name :initform "Olvac 2")
   (last-direction :initform :here)
   (speed :initform (make-stat :base 10 :min 0 :max 25))
@@ -368,9 +369,10 @@
 (define-method move ship (direction)
   (setf <last-direction> direction)
   [update-react-shield self]
-  [drop self (clone =trail= 
-		    :direction direction 
-		    :clock [stat-value self :trail-length])]
+  (when (eq :vehicle <mode>)
+    [drop self (clone =trail= 
+		      :direction direction 
+		      :clock [stat-value self :trail-length])])
   [parent>>move self direction]
   [update-tile self]
   [update *status*])
@@ -385,12 +387,10 @@
 		       :northwest "voidrider-northwest"))
 
 (define-method update-tile ship ()
-  (setf <tile> (getf *ship-tiles* <last-direction>)))
-	;; (if  (plusp <invincibility-clock>)
-	;;      "player-ship-invincible"
-	;;      (if (> 5 [stat-value self :hit-points])
-	;; 	 "player-ship-north-dying"
-	;; 	 "player-ship-north-shield"))))
+  (setf <tile> 
+	(ecase <mode>
+	  (:vehicle (getf *ship-tiles* <last-direction> "voidrider-north"))
+	  (:spacesuit "voyager"))))
 
 (define-method scan-terrain ship ()
   [cells-at *active-world* <row> <column>])
@@ -443,6 +443,12 @@
   [delete-category self :dead]
 ;;  [stat-effect self :trail-length (- (1+ [stat-value self :trail-length]))]
   [set-player *active-world* self])
+
+(define-method start ship ()
+  (let ((mode (field-value :required-mode *active-world*)))
+    (setf <mode> (or mode :vehicle))
+    ;; TODO die when no mode required?
+    [update-tile self]))
 
 (define-method restart ship ()
   nil)

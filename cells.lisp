@@ -548,6 +548,13 @@ slot."
 (define-method loadout cell ()
   nil) 
 
+;;;; Starting
+
+;; Player cells get a :start message when entering a new world.
+
+(define-method start cell ()
+  nil)
+
 ;;; Combat
 
 (define-method attack cell (target)

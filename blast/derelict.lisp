@@ -97,6 +97,7 @@
 (define-prototype freighter (:parent =world=)
   (width :initform 48)
   (height :initform 150)
+  (required-mode :initform :spacesuit)
   (name :initform nil)
   (ambient-light :initform 8)
   (pallet-size :initform 13))
