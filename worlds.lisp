@@ -384,8 +384,7 @@ in a roguelike until the user has pressed a key."
 		   ;; right of x1. We need to reverse the list of points if this
 		   ;; happens, otherwise shadows will be cast the wrong way.
 		   (if flipped
-		       (progn (setf line (nreverse line))
-			      (message "LINE: fp:~d ~A" (fill-pointer line) line))
+		       (setf line (nreverse line))
 		       ;; Furthermore, when a non-flipped line is drawn, the endpoint 
 		       ;; isn't actually visited, so we append it to the list. (Maybe this 
 		       ;; is a bug in my implementation?)
@@ -429,7 +428,8 @@ in a roguelike until the user has pressed a key."
 		     ;; 		source-row source-column
 		     ;; 		row column ".red"))
 	       	     (light-line row column)))))
-	(light-octagon source-row source-column total)))))
+	(light-octagon source-row source-column total)
+	(light-octagon source-row source-column (- total 2))))))
 
 (define-method clear-light-grid world ()
   (let ((light-grid <light-grid>))

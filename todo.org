@@ -5,6 +5,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO implement can-see method
 ** TODO implement scrolling textbox for story displays
 ** TODO work on story
 ** TODO PROFILING: 
@@ -100,7 +101,6 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 ** TODO [#A] Portals between worlds
 ** TODO [#A] Make a few different level variations
 ** TODO meatpod manifesto
-** TODO [#A] port lighting and LOS
 ** TODO artifacts
 ** FEATURE [#A] pak :startup type			 :engine:
 ** FEATURE [#A] pak autoload lisp in order		 :engine:
