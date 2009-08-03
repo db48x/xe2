@@ -382,6 +382,9 @@
 	     (if (> 5 [stat-value self :hit-points])
 		 "player-ship-north-dying"
 		 "player-ship-north-shield"))))
+
+(define-method scan-terrain ship ()
+  [cells-at *active-world* <row> <column>])
 		 
 (define-method damage ship (points)
   (if (= 0 <invincibility-clock>)

@@ -3,10 +3,12 @@
 ;;; Stars
 
 (define-prototype star (:parent =gateway=)
-  (tile :initform "star"))
+  (tile :initform "star")
+  (name :initform "Naked star"))
 
 (defcell void
-  (tile :initform "void"))
+  (tile :initform "void")
+  (name :initform "Interstellar space"))
 
 (define-method step void (stepper)
   (when (has-field :endurium stepper)
@@ -16,12 +18,14 @@
 			     (field-value :column stepper))]))
 
 (define-prototype starfield (:parent =void=)
-  (tile :initform "starfield"))
+  (tile :initform "starfield")
+  (name :initform "Interstellar space"))
 
 ;;; Zeta base
 
 (define-prototype zeta-base-gateway (:parent =gateway=)
   (tile :initform "zeta-base")
+  (name :initform "Zeta Base ruins")
   (address :initform '(=zeta-base= 
 		       :width 50
 		       :height 200
@@ -45,6 +49,7 @@
 
 (define-prototype nebula-m-gateway (:parent =gateway=)
   (tile :initform "nebula-m-gateway")
+  (name :initform "Nebula M")
   (address :initform '(=nebula-m=)))
 
 (define-method step nebula-m-gateway (stepper)
@@ -54,10 +59,11 @@
 
 (define-prototype mars-gateway (:parent =gateway=)
   (tile :initform "mars-gateway")
+  (name :initform "Mars-like planet")
   (address :initform '(=mars= :technetium 8)))
 
 (define-method step mars-gateway (stepper)
-  [>>narrateln :narrator "The planet Mars. Press RETURN to enter."])
+  [>>narrateln :narrator "A nameless Mars-like planet. Press RETURN to enter."])
 
 ;;; Infested derelict freighters. 
 
@@ -65,6 +71,7 @@
 
 (define-prototype freighter-gateway (:parent =gateway=)
   (tile :initform "freighter-gateway")
+  (name :initform "Infested derelict freighter")
   (address :initform (list '=freighter= 
 			   ;; ensure all freighters are distinct
 			   :rooms (+ 5 (random 10))
@@ -79,6 +86,7 @@
 
 (define-prototype ocean-gateway (:parent =gateway=)
   (tile :initform "ocean-gateway")
+  (name :initform "The ocean planet Corva 3")
   (address :initform (list '=bay= 
 			   :drones (+ 30 (random 40))
 			   :carriers (+ 6 (random 10))

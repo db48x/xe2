@@ -17,7 +17,6 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 ** TODO fix can't see player on white background
 ** TODO player can acquire laser weapon
 ** TODO prevent planet collisions with [throw-cell ...
-** TODO CLON: cache method lookups on objects
 ** TODO fix nebula multi belt crash in equip/resolve method... runnning out of inventory slots
 ** TODO implement scrolling textbox for story displays
 ** TODO mars tunneling into bio-infested caves
@@ -32,7 +31,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 ** TODO player heat mechanic and boost attack
 
 ** TODO biosilicate manufacture of allies?
-** TODO 2nd nebula with speedsucking lymphocytes
+** TODO 2nd greener nebula
 ** TODO make freighters less difficult and worth bothering.. perhaps captains?
 *** TODO living crewmembers to rescue? 
 ** TODO more obstacles on Mars

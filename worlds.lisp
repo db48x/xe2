@@ -580,6 +580,7 @@ by symbol name. This enables them to be used as hash keys."
 
 (defcell gateway
   (tile :initform "gateway")
+  (name :initform "Gateway")
   (categories :initform '(:gateway))
   (address :initform nil))
 

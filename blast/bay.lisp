@@ -16,6 +16,7 @@
 
 (defcell bay-factory 
   (tile :initform "bay-factory")
+  (name :initform "Drone Factory")
   (hit-points :initform (make-stat :base 30 :max 100 :min 0))
   (speed :initform (make-stat :base 2))
   (strength :initform (make-stat :base 10))
@@ -41,12 +42,14 @@
 ;;; Carrier space
 
 (defcell carrier 
-  (tile :initform "carrier"))
+  (tile :initform "carrier")
+  (name :initform "Aircraft Carrier"))
 
 ;;; The laser drone robots that just keep coming. 
 
 (defcell laser-drone 
   (tile :initform "solv") 
+  (name :initform "Laser Drone")
   (hit-points :initform (make-stat :base 3 :max 3 :min 0))
   (speed :initform (make-stat :base 2))
   (strength :initform (make-stat :base 10))
@@ -105,14 +108,16 @@
 ;;; The ocean world Corva 3.
 
 (defcell ocean
-  (tile :initform "ocean"))
+  (tile :initform "ocean")
+  (name :initform "Ocean"))
 
 (define-method step ocean (stepper)
   (when (clon:has-field :endurium stepper)
     [stat-effect stepper :endurium -0.002]))
 
 (define-prototype ocean-dark (:parent =ocean=)
-  (tile :initform "ocean2"))
+  (tile :initform "ocean2")
+  (name :initform "Deep Ocean"))
 
 (define-prototype bay (:parent rlx:=world=)
   (laser-drone-count :initform 0)

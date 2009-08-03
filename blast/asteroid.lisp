@@ -5,6 +5,7 @@
 (defvar *asteroid-count* 0)
 
 (defcell asteroid
+  (name :initform "Asteroid")
   (categories :initform '(:actor :sticky :target))
   (hit-points :initform (make-stat :base 1 :min 0))
   (movement-cost :initform (make-stat :base 10))
@@ -63,6 +64,7 @@
 
 (defcell polaris
   (tile :initform "polaris")
+  (name :initform "Polaris Mine")
   (asteroids :initform '())
   (stepping :initform t)
   (categories :initform '(:actor :target))

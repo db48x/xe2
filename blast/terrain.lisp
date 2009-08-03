@@ -3,17 +3,20 @@
 ;;; Empty space.
 
 (defcell space 
-  (tile :initform "space"))
+  (tile :initform "space")
+  (name :initform "Base floor"))
 
 ;;; Colored space.
 
 (defcell space2
-  (tile :initform "space2"))
+  (tile :initform "space2")
+  (name :initform "Base floor"))
 
 ;;; Radioactive gas
 
 (defcell gas
   (tile :initform "rad")
+  (name :initform "Radioactive Gas")
   (clock :initform 8)
   (categories :initform '(:actor)))
 
@@ -38,13 +41,15 @@
   
 (defcell wall
   (tile :initform "wall")
+  (name :initform "Wall")
   (categories :initform '(:obstacle))
   (hit-points :initform (make-stat :base 20 :min 0)))
 
 ;;; Energy gas
 
 (defcell energy-gas
-  (tile :initform "energy-gas"))
+  (tile :initform "energy-gas")
+  (name :initform "Energy Gas"))
 
 (define-method step energy-gas (stepper)
   (when [is-player stepper]
@@ -57,7 +62,8 @@
 
 (defcell debris 
 ;  (categories :initform '(:obstacle))
-  (tile :initform "debris"))
+  (tile :initform "debris")
+  (name :initform "Debris"))
 
 (define-method step debris (stepper)
   (when [is-player stepper]	

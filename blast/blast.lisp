@@ -266,6 +266,13 @@
 	  [print self "  "])
 	[print self "EMPTY  "])))
 
+(define-method print-object-tag status (object)
+  (clon:with-field-values (name tile) object
+    [print self nil :image tile]
+    [print self " "]
+    [print self name]
+    [print self "  "]))
+  
 (define-method print-inventory-slot status (slot-number)
   [print self (format nil "[~D]: " slot-number)]
   (let ((item [item-at <character> slot-number]))
@@ -329,7 +336,7 @@
 			     ".cyan"
 			     ".gray20")])
     [newline self]
-    [print self " PULSE "]
+    [print self "PULSE "]
     (dotimes (i 6)
       [print self *status-bar-character* 
 	     :foreground ".red"
@@ -337,7 +344,7 @@
 			     ".yellow"
 			     ".gray20")])
     [space self]
-    [print self "  BOMBS "]
+    [print self " BOMBS "]
     (dotimes (i 10)
       [print self *status-bar-character* 
 	     :foreground ".red"
@@ -356,7 +363,7 @@
     [print-stat self :endurium :warn-below 10]
     [print self " "]
     [newline self]
-    [print self "  LOCATION: "]
+    [print self "LOCATION: "]
     [print self (format nil "[~A]" [location-name *active-world*])]
     [print self " SCALE:"]
     (destructuring-bind (num unit) (field-value :scale *active-world*)
@@ -369,7 +376,13 @@
     [print self (format nil "[~A ~A] " [player-row *active-world*]
 			[player-column *active-world*])]
     [print-stat self :technetium]
+    [newline self]
+    [print self "TERRAIN: "]
+    (do-cells (cell [scan-terrain char])
+      (unless [is-player cell]
+	[print-object-tag self cell]))
     [newline self]))
+    
 
 (defvar *status*)
 

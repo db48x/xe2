@@ -3,7 +3,7 @@
 ;;; Infested oxygenless ships 
 
 (defcell bulkhead
-  (name :initform "Wall")
+  (name :initform "Bulkhead")
   (tile :initform "grayplate")
   (categories :initform '(:obstacle)))
 
@@ -34,6 +34,7 @@
 
 (defcell crew-member 
   (tile :initform "crew")
+  (name :initform "Dead Crewmember")
   (categories :initform '(:item :target)))
 
 (define-method step crew-member (stepper)
@@ -77,11 +78,11 @@
   [parent>>die self])
 
 (defcell tech-box-special 
-  (name :initform "Storage crate")
+  (name :initform "Interesting storage crate")
   (categories :initform '(:obstacle :opaque :pushable :destructible :target))
   (hit-points :initform (make-stat :base 10 :min 0))
   (tile :initform "tech-box-special"))
-
+  
 (define-method die tech-box-special ()
   [>>drop self (clone (ecase (random 5)
 			(0 =level-up=)

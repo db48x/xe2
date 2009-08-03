@@ -72,13 +72,16 @@
 	[defend guardian (drop-base row column)]))))
 
 (defcell nebula-space 
-  (tile :initform "nebula"))
+  (tile :initform "nebula")
+  (name :initform "Diffuse gas"))
 
 (defcell red-plasma
-  (tile :initform "red-plasma"))
+  (tile :initform "red-plasma")
+  (name :initform "Red plasma"))
 
 (defcell charged-nebula-space
-  (tile :initform "nebula2"))
+  (tile :initform "nebula2")
+  (name :initform "Charged plasma"))
 
 (defcell protostar
   (tile :initform "protostar"))

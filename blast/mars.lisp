@@ -3,26 +3,32 @@
 ;;; Martian terrain
 
 (defcell mars-flat
-  (tile :initform "mars-terrain-flat"))
+  (tile :initform "mars-terrain-flat")
+  (name :initform "Flat red dusty plain"))
 
 (define-method step mars-flat (stepper)
   (when (has-field :endurium stepper)
     [>>stat-effect stepper :endurium -0.01]))
 
 (define-prototype mars-icy (:parent =mars-flat=)
-  (tile :initform "mars-terrain-icy"))
+  (tile :initform "mars-terrain-icy")
+  (name :initform "Icy surface"))
 
 (define-prototype mars-icy2 (:parent =mars-flat=)
-  (tile :initform "mars-terrain-icy2"))
+  (tile :initform "mars-terrain-icy2")
+  (name :initform "Very icy, rocky surface"))
 
 (define-prototype mars-tundra (:parent =mars-flat=)
-  (tile :initform "mars-tundra"))
+  (tile :initform "mars-tundra")
+  (name :initform "Tundra-like conditions"))
 
 (define-prototype mars-dark (:parent =mars-flat=)
-  (tile :initform "mars-terrain-dark"))
+  (tile :initform "mars-terrain-dark")
+  (name :initform "Dark silt"))
 
 (define-prototype mars-cracks (:parent =mars-flat=)
-  (tile :initform "mars-terrain-cracks"))
+  (tile :initform "mars-terrain-cracks")
+  (name :initform "Cracked surface"))
 
 ;;; Mining sites
 
@@ -74,6 +80,8 @@
 
 (define-prototype mining-site-gateway (:parent =gateway=)
   (tile :initform "pickaxe")
+  (name :initform "Mining site")
+
   (address :initform (list '=mining-site= 
 			   :sequence (genseq)
 			   :technetium (random 15)
