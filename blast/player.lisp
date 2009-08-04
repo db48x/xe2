@@ -202,7 +202,7 @@
 
 (defcell muon-particle 
   (categories :initform '(:actor))
-  (speed :initform (make-stat :base 15))
+  (speed :initform (make-stat :base 20))
   (default-cost :initform (make-stat :base 5))
   (tile :initform "muon")
   (direction :initform :here)

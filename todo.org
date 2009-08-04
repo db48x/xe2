@@ -5,6 +5,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+
 ** TODO Implement vehicles to deal with scale problems? 
 ** TODO fix muon trails showing up on top of firer
 ** TODO fix trails showing up as terrain... use :transient category
@@ -19,7 +20,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
  	 (rlx:play "blast"))
 ** TODO fix crash on ENTER when nothing enterable.
 ** TODO scanners always drop same thing in given game???
-** TODO [#C] Free fonts? http://en.wikipedia.org/wiki/Category:Open_source_typefaces
+** TODO [#C] Free fonts? http://en.wikipedia.org/wiki/Category:Open_source_typefaces, http://proggyfonts.com/
 ** TODO make player can acquire laser weapon
 ** TODO prevent planet collisions with [throw-cell ...
 ** TODO fix nebula multi belt crash in equip/resolve method... runnning out of inventory slots
