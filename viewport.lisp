@@ -191,8 +191,8 @@
 		      :color <border-color>
 		      :destination <image>)
       ;; draw the minimap
-      (dotimes (i height)
-	(dotimes (j width)
+      (dotimes (i origin-height)
+	(dotimes (j origin-width)
 	  (when (array-in-bounds-p grid i j)
 	    (setf objects (aref grid 
 				(+ i origin-y)

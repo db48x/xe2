@@ -1,3 +1,4 @@
+
 (in-package :blast)
 
 ;;; The instantaneous-fire laser weapon
@@ -29,13 +30,14 @@
 (define-method die bay-factory ()
   (clon:with-fields (factory-count) *active-world*
     (decf factory-count)
+    [drop self (clone =explosion=)]
     [>>say :narrator (format nil "Factory destroyed. ~d remaining." 
 			    factory-count)])
   [parent>>die self])
 
 (define-method run bay-factory ()
   [expend-action-points self 20]
-  (when (< [distance-to-player self] 25)
+  (when (< [distance-to-player self] 20)
     [play-sample self "spawn"]
     [drop-cell *active-world* (clone =laser-drone=) <row> <column> :loadout t]))
 
@@ -85,7 +87,7 @@
   (clon:with-field-values (row column) self
     (let ((dist [distance-to-player *active-world* row column])
 	  (dir [direction-to-player *active-world* row column]))
-      (if (< dist 20)
+      (if (< dist 15)
 	  (if (< dist 6)
 	      [fire self]
 	      [move self dir])
@@ -103,7 +105,6 @@
     [>>say :narrator (format nil "Drone destroyed. ~d remaining." 
 			    laser-drone-count)]
     [parent>>die self]))
-
 
 ;;; The ocean world Corva 3.
 

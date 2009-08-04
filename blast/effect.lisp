@@ -34,7 +34,7 @@
 
 (defcell explosion 
   (name :initform "Explosion")
-  (categories :initform '(:actor))
+  (categories :initform '(:actor :opaque))
   (tile :initform "explosion")
   (speed :initform (make-stat :base 10))
   (damage-per-turn :initform 5)
