@@ -2,7 +2,7 @@
 
 ;;; Stars
 
-(define-prototype star (:parent =gateway=)
+(defcell star
   (tile :initform "star")
   (name :initform "Naked star"))
 

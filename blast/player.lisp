@@ -424,7 +424,7 @@
 (define-method enter ship ()
   (let ((gateway [category-at-p *active-world* <row> <column> :gateway]))
     (if (null gateway)
-	[>>narrate :narrator "No gateway to enter."]
+	[>>say :narrator "No gateway to enter."]
 	[activate gateway])))
 
 (define-method show-location ship ()
