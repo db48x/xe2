@@ -127,10 +127,11 @@
 (define-method restart skull ()
   (let ((new-player (clone =ship=)))
     [set-character *status* new-player]
-    [play-sample self "go"]
+    [destroy *active-universe*]
     [play *active-universe* 
 	  :player new-player
 	  :address '(=star-sector= :width 80 :height 80 :stars 80 :freighters 6)]
+    [play-sample self "go"]
     [loadout new-player]))
 
 ;;; Pulse particle

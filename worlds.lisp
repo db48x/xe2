@@ -536,6 +536,11 @@ by symbol name. This enables them to be used as hash keys."
 (define-method get-current-address universe ()
   <current-address>)
 
+(define-method destroy universe ()
+  (setf <worlds> (make-hash-table :test 'equal))
+  (setf <stack> nil)
+  (setf <current-address> nil))
+
 (define-method generate-world universe (address)
   (destructuring-bind (prototype &rest parameters) address
     (let ((world (clone (symbol-value prototype))))

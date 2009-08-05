@@ -5,11 +5,13 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO 
 ** TODO remove no-derivs clause from CC license
 ** TODO i'm forgetting to annihilate the universe's hashtable of worlds
 ** TODO Implement vehicles to deal with scale problems? 
 ** TODO fix muon trails showing up on top of firer
-** TODO fix trails showing up as terrain... use :transient category
+** TODO fix circles not showing up until first move at beginning
+** TODO fix trails showing up as terrain... use :ephemeral category
 ** TODO implement can-see method
 ** TODO implement scrolling textbox for story displays
 ** TODO work on story
