@@ -56,7 +56,7 @@
   (speed :initform (make-stat :base 2))
   (strength :initform (make-stat :base 10))
   (defense :initform (make-stat :base 10))
-  (stepping :initform nil)
+  (stepping :initform t)
   (movement-cost :initform (make-stat :base 10))
   (max-items :initform (make-stat :base 2))
   (direction :initform (random-direction))

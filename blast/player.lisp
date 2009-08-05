@@ -223,6 +223,11 @@
 	(progn 
 	  [queue>>drop self (clone =muon-trail= <direction>)]
 	  [queue>>move self <direction>]))))
+
+(define-method step muon-particle (stepper)
+  (message "Muon particle stepped on!")
+  [damage stepper 5]
+  [die self])
   
 (define-method run muon-particle ()
   (setf <tile> (getf *muon-tiles* <direction>))

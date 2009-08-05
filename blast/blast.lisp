@@ -244,7 +244,7 @@
       (let ((color (if (and (numberp warn-below)
 			    (< value warn-below))
 		       ".red"
-		       ".gray20")))
+		       ".gray40")))
 	[print self (symbol-name stat-name)
 	       :foreground ".white"]
 	[print self ":["]
@@ -328,7 +328,7 @@
 	     :foreground ".yellow"
 	     :background (if (< i hits)
 			     ".red"
-			     ".gray20")])
+			     ".gray40")])
     [newline self]
     ;; energy display
     [print-stat self :energy :warn-below 10]
@@ -337,7 +337,7 @@
 	     :foreground ".red"
 	     :background (if (< i energy)
 			     ".cyan"
-			     ".gray20")])
+			     ".gray40")])
     [newline self]
     [print self "PULSE "]
     (dotimes (i 6)
@@ -345,7 +345,7 @@
 	     :foreground ".red"
 	     :background (if (< i pulse-ammo)
 			     ".yellow"
-			     ".gray20")])
+			     ".gray40")])
     [space self]
     [print self " BOMBS "]
     (dotimes (i 10)
@@ -353,7 +353,7 @@
 	     :foreground ".red"
 	     :background (if (< i bomb-ammo)
 			     ".green"
-			     ".gray20")])
+			     ".gray40")])
     [space self]
     [print-stat self :oxygen :warn-below 50]
     [print self " "]

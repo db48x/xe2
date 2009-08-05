@@ -9,6 +9,7 @@
   (attack-power :initform (make-stat :base 5))
   (attack-cost :initform (make-stat :base 6))
   (accuracy :initform (make-stat :base 90))
+  (stepping :initform t)
   (weight :initform 3000)
   (equip-for :initform '(:robotic-arm :left-hand :right-hand)))
 
@@ -563,7 +564,8 @@
 	  (let ((player-dir [direction-to-player world row column]))
 	    (if [adjacent-to-player world row column]
 		[>>speedsuck self [resolve self player-dir]]
-		[>>move self player-dir]))
+		[>>move self player
+-dir]))
 	  (progn (when [obstacle-in-direction-p world row column <direction>]
 		   (setf <direction> (rlx:random-direction)))
 		 [>>move self <direction>])))))
