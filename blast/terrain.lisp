@@ -78,6 +78,7 @@
 
 (define-prototype zeta-base (:parent rlx:=world=)
   (name :initform "Zeta Base Ruins")
+  (edge-condition :initform :block)
   (ambient-light :initform :total))
 
 (define-method generate zeta-base (&key   

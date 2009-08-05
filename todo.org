@@ -5,6 +5,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO remove no-derivs clause from CC license
 ** TODO i'm forgetting to annihilate the universe's hashtable of worlds
 ** TODO Implement vehicles to deal with scale problems? 
 ** TODO fix muon trails showing up on top of firer

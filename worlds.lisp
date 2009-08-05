@@ -166,6 +166,14 @@ dropped on top of an obstacle."
 	(when loadout
 	  [loadout cell])))))
 
+(define-method replace-cell world (cell new-cell row column
+					&optional &key loadout no-collisions)
+  (let* ((cells [cells-at self row column])
+	 (pos (position cell cells)))
+    (if (numberp pos)
+	(setf (aref cells pos) new-cell)
+	(error "Could not find cell to replace."))))
+
 (define-method drop-player-at-entry world (player)
   (with-field-values (width height grid) self
     (multiple-value-bind (dest-row dest-column)

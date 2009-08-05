@@ -79,7 +79,10 @@
   (inventory :documentation "The contents (if any) of the cell.")
   (max-weight :documentation "Maximum weight this container can hold.")
   (max-items :documentation "Maximum number of items this container can hold.")
-  (parent-container :documentation "Link to containing cell, if any."))
+  (parent-container :documentation "Link to containing cell, if any.")
+  ;; proxying
+  (occupant :documentation "Occupant cell, used to implement drivable vehicles.")
+  (proxy :documentation "Link to the proxying cell for this occupant cell."))
 
 ;; Convenience macro for defining cells:
 
@@ -162,10 +165,12 @@ field named by STAT-NAME. The default is to change the :base value."
 	   ;; Actor cells participate in the Action Points system.
     :target ;; This cell is susceptible to targeting.
     :proxy ;; This cell is a proxy for another cell.
+    :proxied ;; This cell is an occupant of a proxy.
     :dead  ;; This cell is no longer receiving run messages.
     :player ;; Only one cell (your player avatar) has this category.
     :enemy ;; This cell is playing against you.
     :obstacle ;; Blocks <: movement :>
+    :ephemeral ;; This cell is not preserved when exiting a world.
     ;; <: lighting :>
     :light-source ;; This object casts light. 
     :opaque ;; Blocks line-of-sight, casts shadows. 
@@ -175,7 +180,7 @@ field named by STAT-NAME. The default is to change the :base value."
     :item ;; A potential inventory item. 
     ;; <: equipment :>
     :equipper ;; Uses equipment. 
-    :equipped ;; This item is currently equipped
+    :equipped ;; This item is currently equipped.
     :equipment ;; This item can be equipped. 
     ))   
 
@@ -280,6 +285,41 @@ action during PHASE."
 
 (define-method adjacent-to-player cell ()
   [adjacent-to-player *active-world* <row> <column>])
+
+;;; Proxying
+
+(define-method proxy cell (occupant)
+  "Make this cell a proxy for OCCUPANT."
+  (let ((world *active-world*))
+    (when <occupant> 
+      (error "Attempt to overwrite existing occupant cell in proxying."))
+    (setf <occupant> occupant)
+    [add-category occupant :proxied]
+    (setf (field-value :proxy occupant) self)
+    [delete-cell world occupant <row> <column>]
+    (when [is-player occupant]
+      [add-category self :obstacle]
+      [add-category self :player]
+      [set-player world self])))
+
+(define-method unproxy cell ()
+  "Remove the occupant from this cell, dropping it on top."  
+  (let ((world *active-world*)
+	(occupant <occupant>))
+    (when (null occupant)
+      (error "Attempt to unproxy empty cell."))
+    [drop-cell world occupant <row> <column>]
+    [delete-category occupant :proxied]
+    (setf (field-value :proxy occupant) nil)
+    (when [is-player occupant]
+      [delete-category self :player]
+      [delete-category self :obstacle]
+      [set-player world occupant])
+    (setf <occupant> nil)))
+
+(define-method forward cell (method &rest args)
+  (assert <occupant>)
+  (apply #'send self method <occupant> args))
 
 ;;; Cell movement
 
