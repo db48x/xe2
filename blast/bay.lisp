@@ -1,6 +1,53 @@
 
 (in-package :blast)
 
+;;; The exploding mine
+
+(defcell mine 
+  (name :initform "Proximity mine")
+  (categories :initform '(:item :target :actor))
+  (tile :initform "mine"))
+
+(defvar *mine-warning-sensitivity* 4)
+(defvar *mine-explosion-sensitivity* 3)
+
+(define-method run mine ()
+  (let ((distance [distance-to-player *active-world* <row> <column>]))
+    (if (< distance *mine-warning-sensitivity*)
+	(progn
+	  (when (string= <tile> "mine")
+	    [>>say :narrator "You see a mine nearby!"])
+	  (setf <tile> "mine-warn")
+	  (when (< distance *mine-explosion-sensitivity*)
+	    (when (< (random 8) 1)
+	      [explode self])))
+	(setf <tile> "mine"))))
+
+(define-method explode mine ()
+  (labels ((boom (r c &optional (probability 50))
+	     (prog1 nil
+	       (when (and (< (random 100) probability)
+			  [in-bounds-p *active-world* r c])
+		 [drop-cell *active-world* (clone =explosion=) r c :no-collisions nil]))))
+    (dolist (dir rlx:*compass-directions*)
+      (multiple-value-bind (r c)
+	  (step-in-direction <row> <column> dir)
+	(boom r c 100)))
+    ;; randomly sprinkle some fire around edges
+    (trace-rectangle #'boom 
+		     (- <row> 2) 
+		     (- <column> 2) 
+		     5 5)
+    [die self]))
+
+(define-method step mine (stepper)
+  (when [is-player stepper]	      
+    [explode self]))
+
+(define-method damage mine (damage-points)
+  (declare (ignore damage-points))
+  [explode self])
+
 ;;; The instantaneous-fire laser weapon
 
 (defcell ray-caster
@@ -143,14 +190,26 @@
 		     i j])))))
 
 (define-method draw-carrier bay (row column size)
-  (labels ((drop-carrier (r c)
-	     (prog1 nil
-	       [drop-cell self (clone =carrier=) r c])))
-    (trace-rectangle #'drop-carrier row column size size :fill))
-  [drop-cell self (clone =bay-factory=) 
-	     (+ row (random size))
-	     (+ column (random size))
-	     :loadout t])
+  (let ((mine-locations nil))
+    (labels ((drop-carrier (r c)
+	       (prog1 nil
+		 [drop-cell self (clone =carrier=) r c]))
+	     (collect (&rest loc)
+	       (push loc mine-locations)))
+      (trace-rectangle #'drop-carrier row column size size :fill)
+      (trace-rectangle #'collect 
+		       (- row size)
+		       (- column size)
+		       (* size 2) (* size 2))
+      (message "~A" mine-locations)
+      (dotimes (i 20)
+	(let ((loc (nth (random (length mine-locations))
+			mine-locations)))
+	  [drop-cell self (clone =mine=) (first loc) (second loc)]))
+      [drop-cell self (clone =bay-factory=) 
+		 (+ row (random size))
+		 (+ column (random size))
+		 :loadout t])))
 
 (define-method generate bay (&key sequence-number drones carriers)
   [create-default-grid self]

@@ -1,6 +1,9 @@
 (
  (:name ".default-font" :type :font :properties (:height 14 :width 7) :data "7x14b")
 
+ (:name "mine" :type :image :file "mine.png")
+ (:name "mine-warn" :type :image :file "mine-warn.png")
+
  (:name "player-ship-north-dying" :type :image :file "player-ship-north-dying.png")
  (:name	"player-ship-north" :type :image :file "player-ship-north.png")
  (:name	"player-ship-invincible" :type :image :file "ship-invincible.png")

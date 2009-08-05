@@ -948,6 +948,7 @@ The default destination is the main window."
 (defparameter *audio-chunksize* 512)
 
 (defun play (&optional (module-name "standard"))
+  (setf *random-state* (make-random-state t))
   ;; override module to play?
   (setf *next-module* module-name)
   ;; now play modules until done
