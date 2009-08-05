@@ -515,6 +515,7 @@
 (define-prototype lepton-particle (:parent rlx:=cell=)
   (categories :initform '(:actor :target))
   (speed :initform (make-stat :base 14))
+  (stepping :initform t)
   (hit-damage :initform (make-stat :base 7))
   (default-cost :initform (make-stat :base 2))
   (hit-points :initform (make-stat :base 5))

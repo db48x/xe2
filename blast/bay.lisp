@@ -204,12 +204,11 @@
 		 [drop-cell self (clone =carrier=) r c]))
 	     (collect-point (&rest loc)
 	       (push loc mine-locations)))
-      (trace-rectangle #'drop-carrier row column size size :fill)
       (trace-octagon #'collect-point 
 		     (+ row (truncate (/ size 2)))
 		     (+ column (truncate (/ size 2)))
 		     (* 2 size))
-      (message "~A" mine-locations)
+      (trace-rectangle #'drop-carrier row column size size :fill)
       (dotimes (i 5)
 	(let ((loc (nth (random (length mine-locations))
 			mine-locations)))

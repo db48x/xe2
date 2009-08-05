@@ -250,7 +250,7 @@ calling TRACE-FUNCTION at each point of the line."
       (when flipped
 	(rotatef x0 x1)
 	(rotatef y0 y1))
-      (prog1 flipped
+      (values flipped 
 	(if (= x1 x0)
 	    ;; just trace a vertical line.
 	    (if flipped
@@ -273,7 +273,7 @@ calling TRACE-FUNCTION at each point of the line."
 		  (when (if steep
 			    (funcall trace-function x y)
 			    (funcall trace-function y x))
-		    (return-from tracing))
+		    (return-from tracing t))
 		  (incf err delta-err)
 		  (when (>= err 0.5)
 		    (incf y step-y)
