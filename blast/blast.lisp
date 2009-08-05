@@ -426,7 +426,7 @@
 	 (narrator (clone =narrator=))
 	 (status (clone =status=))
 	 (minimap (clone =minimap=))
-	 (player (clone =ship=))
+	 (player (clone =olvac=))
 	 (splash (clone =splash=))
 	 (splash-prompt (clone =splash-prompt=))
 	 (textbox (clone =textbox=))

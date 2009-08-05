@@ -36,7 +36,7 @@
 (define-prototype world
     (:documentation "An RLX game world filled with cells.")
   (name :initform "Unknown")
-  (required-mode :initform nil)
+  (required-modes :initform nil)
   (mission-grammar :initform '())
   (scale :initform '(1 m)
 	 :documentation "Scale per square side in the form (N UNIT) where UNIT is m, km, ly etc.")

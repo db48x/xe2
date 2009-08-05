@@ -48,7 +48,7 @@
   (equip-for :initform '(:right-bay :robotic-arm)))
 
 (define-method activate bomb-cannon ()
-  ;; leave bomb behind ship
+  ;; leave bomb on top of ship
   (clon:with-field-values (row column) <equipper>
     [drop-cell *active-world* (clone =bomb=) row column]))
 
@@ -292,7 +292,7 @@
 
 ;;; Your ship.
 
-(defcell ship 
+(defcell olvac 
   (tile :initform "voidrider-north")
   (mode :initform :vehicle)
   (name :initform "Olvac 2")
@@ -323,17 +323,17 @@
   (equipment-slots :initform '(:left-bay :right-bay :center-bay :extension))
   (boost-clock :initform 0))
 
-(define-method loadout ship ()
+(define-method loadout olvac ()
   [make-inventory self]
   [make-equipment self]
   [equip self [add-item self (clone =muon-cannon=)]]
   [equip self [add-item self (clone =pulse-cannon=)]]
   [equip self [add-item self (clone =bomb-cannon=)]])
 
-(define-method quit ship ()
+(define-method quit olvac ()
   (rlx:quit :shutdown))
 
-(define-method run ship ()
+(define-method run olvac ()
   (cond ((<= [stat-value self :endurium] 0)
 	 [>>say :narrator "You run out of endurium in the deeps of interstellar space."]
 	 [>>say :narrator "Your oxygen runs out, suffocating you."]
@@ -349,41 +349,44 @@
 	 [update-react-shield self]
 	 [update *status*])))
 
-(define-method wait ship ()
+(define-method wait olvac ()
   [expend-action-points self <action-points>])
 
-(define-method activate-pulse-cannon ship ()
+(define-method activate-pulse-cannon olvac ()
   (when (plusp [stat-value self :pulse-ammo])
     [activate [equipment-slot self :left-bay]]
     [stat-effect self :pulse-ammo -1]))
 
-(define-method activate-bomb-cannon ship ()
+(define-method activate-bomb-cannon olvac ()
   (when (plusp [stat-value self :bomb-ammo])
     [activate [equipment-slot self :right-bay]]
     [stat-effect self :bomb-ammo -1]))
 
-(define-method activate-extension ship ()
+(define-method activate-extension olvac ()
   (if [equipment-slot self :extension]
       [>>activate [equipment-slot self :extension]]
       [>>say :narrator "No extension part equipped."]))
 
-(define-method update-react-shield ship ()
+(define-method update-react-shield olvac ()
   (when (not (<= <invincibility-clock> 0))
     (decf <invincibility-clock>)
     [>>say :narrator "React shield up with ~D turns remaining." <invincibility-clock>]))
 
-(define-method move ship (direction)
-  (setf <last-direction> direction)
-  [update-react-shield self]
-  (when (eq :vehicle <mode>)
-    [drop self (clone =trail= 
-		      :direction direction 
-		      :clock [stat-value self :trail-length])])
-  [parent>>move self direction]
-  [update-tile self]
-  [update *status*])
+(define-method move olvac (direction)
+  (let ((modes (field-value :required-modes *active-world*)))
+    (if (and modes (not (member <mode> modes)))
+      [>>say :narrator "Your Olvac-3 Void Rider is docked, and cannot move. Press RETURN to launch."]
+      (progn 
+	(setf <last-direction> direction)
+	[update-react-shield self]
+	[drop self (clone =trail= 
+			  :direction direction 
+			  :clock [stat-value self :trail-length])]
+	[parent>>move self direction]
+	[update-tile self]
+	[update *status*]))))
 
-(defvar *ship-tiles* '(:north "voidrider-north" 
+(defvar *olvac-tiles* '(:north "voidrider-north" 
 		       :east "voidrider-east" 
 		       :south "voidrider-south" 
 		       :west "voidrider-west" 
@@ -392,16 +395,14 @@
 		       :southwest "voidrider-southwest"
 		       :northwest "voidrider-northwest"))
 
-(define-method update-tile ship ()
+(define-method update-tile olvac ()
   (setf <tile> 
-	(ecase <mode>
-	  (:vehicle (getf *ship-tiles* <last-direction> "voidrider-north"))
-	  (:spacesuit "voyager"))))
+	(getf *olvac-tiles* <last-direction> "voidrider-north")))
 
-(define-method scan-terrain ship ()
+(define-method scan-terrain olvac ()
   [cells-at *active-world* <row> <column>])
 		 
-(define-method damage ship (points)
+(define-method damage olvac (points)
   (if (= 0 <invincibility-clock>)
     (progn [play-sample self "warn"]
 	   [parent>>damage self points]
@@ -413,12 +414,12 @@
       (decf <invincibility-clock>)
       [update-tile self])))
   
-(define-method step ship (stepper)
+(define-method step olvac (stepper)
   (when (eq =asteroid= (object-parent stepper))
     [damage self 1]
     [>>say :narrator "You were damaged by a floating asteroid!"]))
 
-(define-method die ship ()
+(define-method die olvac ()
   [play-sample self "death"]
   (let ((skull (clone =skull= self)))
     [drop-cell *active-world* skull <row> <column> :loadout t :no-collisions nil]
@@ -427,13 +428,13 @@
     [>>delete-from-world self]
     [set-player *active-world* skull]))
 
-(define-method enter ship ()
+(define-method enter olvac ()
   (let ((gateway [category-at-p *active-world* <row> <column> :gateway]))
     (if (null gateway)
 	[>>say :narrator "No gateway to enter."]
 	[activate gateway])))
 
-(define-method show-location ship ()
+(define-method show-location olvac ()
   (labels ((do-circle (image)
 	     (multiple-value-bind (x y) 
 		 [screen-coordinates self]
@@ -441,7 +442,7 @@
 	       (draw-circle x y 25 :destination image))))
     [>>add-overlay :viewport #'do-circle]))
 
-(define-method revive ship ()
+(define-method revive olvac ()
   [drop-cell *active-world* self (random 10) (random 10)]
   [stat-effect self :hit-points 20]	       
   [stat-effect self :energy 40]	       
@@ -450,13 +451,10 @@
 ;;  [stat-effect self :trail-length (- (1+ [stat-value self :trail-length]))]
   [set-player *active-world* self])
 
-(define-method start ship ()
-  (let ((mode (field-value :required-mode *active-world*)))
-    (setf <mode> (or mode :vehicle))
-    ;; TODO die when no mode required?
-    [update-tile self]))
+(define-method start olvac ()
+  [update-tile self])
 
-(define-method restart ship ()
+(define-method restart olvac ()
   nil)
 
 ;; see also skull restart
