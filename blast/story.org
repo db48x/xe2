@@ -1,0 +1,53 @@
+#+TITLE: Blast Tactics Setting and Story Bible
+
+* Setting
+
+It's 2061. If only there were enough endurium!
+
+It's been known for decades that Humanity's reach within the Milky Way
+is limited only by the supply of Endurium, its rare and precious fuel.
+As Endurium was first brought to Earth at the advent of the present
+Droid Plague, its discovery came indeed at the cost of billions of
+human lives. But the living space and vast resources of the Milky Way,
+and indeed possibly those of the Universe itself, beckon to us with
+their promise of the permanent expansion and survival of the human
+species.
+
+Early attempts at control and regulation of Endurium met with initial
+success. The space-faring nations---Russia, China, India, Japan, and
+the United States---along with the ESA (European Space Agency), could
+quite naturally claim Endurium for themselves. But economies of scale
+and espionage in spaceflight technology eventually brought smaller
+deposits and Endurium dust streams throughout the interstellar
+neighborhood within the reach of multinational corporations and
+various non-state actors. The largest of these formed what they called
+a "sovereign" but otherwise open and successful market in Endurium,
+spaceflight technology, and various otherwise-controlled
+materials. The split between the Spacefaring Nations on the one hand,
+and the United Nations on the other, threatens to break into
+full-scale interstellar war; as Earth's environment continues to
+decay, and as the Droid Plague appears to be with us for the long run,
+the demand for Endurium has reached a critical point.
+
+* Story 
+
+You are an independent contractor serving Rogue Nexus. Officially in
+the business of "data services", Rogue Nexus has its hands in many
+pockets, and conducts various for-hire espionage and combat missions.
+
+Our client Arch Gamma has a big problem in the Antares system. Xiomacs
+Corporation has been systematically taking control of nearby
+way-stations with an eye toward dominating Antares and its resources.
+Early probe reports detect a significant droid presence (rated 0.071
+by International Analysis LLC) but also Endurium ores, a nearby
+nebula, biosilicates, and quite a bit more.
+
+You'll be provided with a custom stealth Olvac-3 Void Rider ship, a
+quantity of Endurium, supplies, and basic EVA (Extra-Vehicular
+Activity) gear for penetrating derelict freighters.
+
+After we drop you outside the Antares region, travel to the former
+Zeta Base and eliminate the droids who have overrun it.
+
+
+
