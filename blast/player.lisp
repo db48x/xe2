@@ -535,9 +535,12 @@
 	(progn 
 	  [queue>>drop self (clone =lepton-trail= <direction>)]
 	  [queue>>move self <direction>]))))
+
+(define-method update-tile lepton-particle ()
+  (setf <tile> (getf *lepton-tiles* <direction>)))
   
 (define-method run lepton-particle ()
-  (setf <tile> (getf *lepton-tiles* <direction>))
+  [update-tile self]
   (clon:with-field-values (row column) self
     (let* ((world *active-world*)
 	   (direction [direction-to-player *active-world* row column]))
@@ -578,4 +581,41 @@
 	[queue>>impel lepton direction]
 	[expend-action-points <equipper> [stat-value self :attack-cost]]
       (message "Not enough energy to fire."))))
+
+;;; An exploding missile.
+
+(defvar *missile-trail-tile-map* (list *lepton-trail-end-tiles* *lepton-trail-middle-tiles* *lepton-trail-middle-tiles*))
+
+(defvar *missile-tiles* '(:north "missile-north"
+		       :south "missile-south"
+		       :east "missile-east"
+		       :west "missile-west"
+		       :northeast "missile-northeast"
+		       :southeast "missile-southeast"
+		       :southwest "missile-southwest"
+		       :northwest "missile-northwest"))
+
+(define-prototype missile (:parent =lepton-particle=)
+  (speed :initform (make-stat :base 25))
+  (hit-damage :initform (make-stat :base 10))
+  (hit-points :initform (make-stat :base 10))
+  (tile :initform "missile-north")
+  (clock :initform 20))
+
+(define-method update-tile missile ()
+  (setf <tile> (getf *missile-tiles* <direction>)))
+
+(define-method die missile ()
+  [drop self (clone =explosion=)]
+  [parent>>die self])
+
+(define-prototype missile-launcher (:parent =lepton-cannon=))
+
+(define-method fire missile-launcher (direction)
+  (let ((missile (clone =missile=)))
+	[play-sample <equipper> "bloup"]
+	[queue>>drop <equipper> missile]
+	[queue>>impel missile direction]
+	[expend-action-points missile [stat-value self :attack-cost]]))
+
 

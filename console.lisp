@@ -964,7 +964,7 @@ The default destination is the main window."
 		 ;; try opening sound
 		 (when (null (sdl-mixer:open-audio :chunksize *audio-chunksize*))
 		   ;; if that didn't work, disable effects/music
-		   (message "Could not open audio. Disabling sound.")
+		   (message "Could not open audio driver. Disabling sound effects and music.")
 		   (setf *use-sound* nil)))
 	       (index-module "standard") 
 	       (load-module *next-module*)

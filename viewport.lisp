@@ -159,7 +159,8 @@
 ;;; The minimap
 
 (define-prototype minimap (:parent =viewport=)
-  (category-map :initform '((:player ".white")
+  (category-map :initform '((:hidden ".black")
+			    (:player ".white")
 			    (:boss ".yellow")
 			    (:enemy ".red")
 			    (:target ".blue")

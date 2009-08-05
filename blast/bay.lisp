@@ -5,7 +5,7 @@
 
 (defcell mine 
   (name :initform "Proximity mine")
-  (categories :initform '(:item :target :actor))
+  (categories :initform '(:item :target :actor :hidden))
   (tile :initform "mine"))
 
 (defvar *mine-warning-sensitivity* 4)
@@ -65,13 +65,19 @@
 (defcell bay-factory 
   (tile :initform "bay-factory")
   (name :initform "Drone Factory")
+  (equipment-slots :initform '(:robotic-arm))
+  (firing-with :initform :robotic-arm)
   (hit-points :initform (make-stat :base 30 :max 100 :min 0))
   (speed :initform (make-stat :base 2))
   (strength :initform (make-stat :base 10))
   (defense :initform (make-stat :base 20))
+  (max-items :initform (make-stat :base 10))
   (categories :initform '(:actor :obstacle :enemy :target :boss)))
 
 (define-method loadout bay-factory ()
+  [make-inventory self]
+  [make-equipment self]
+  [equip self [add-item self (clone =missile-launcher=)]]
   (incf (field-value :factory-count *active-world*)))
 
 (define-method die bay-factory ()
@@ -83,10 +89,12 @@
   [parent>>die self])
 
 (define-method run bay-factory ()
-  [expend-action-points self 20]
-  (when (< [distance-to-player self] 20)
+  [expend-action-points self 15]
+  (when (< 5 [distance-to-player self] 20)
     [play-sample self "spawn"]
-    [drop-cell *active-world* (clone =laser-drone=) <row> <column> :loadout t]))
+    [drop-cell *active-world* (clone =laser-drone=) <row> <column> :loadout t])
+  (when (< [distance-to-player self] 20)
+    [fire self [direction-to-player self]]))
 
 ;;; Carrier space
 
@@ -194,15 +202,15 @@
     (labels ((drop-carrier (r c)
 	       (prog1 nil
 		 [drop-cell self (clone =carrier=) r c]))
-	     (collect (&rest loc)
+	     (collect-point (&rest loc)
 	       (push loc mine-locations)))
       (trace-rectangle #'drop-carrier row column size size :fill)
-      (trace-rectangle #'collect 
-		       (- row size)
-		       (- column size)
-		       (* size 2) (* size 2))
+      (trace-octagon #'collect-point 
+		     (+ row (truncate (/ size 2)))
+		     (+ column (truncate (/ size 2)))
+		     (* 2 size))
       (message "~A" mine-locations)
-      (dotimes (i 20)
+      (dotimes (i 5)
 	(let ((loc (nth (random (length mine-locations))
 			mine-locations)))
 	  [drop-cell self (clone =mine=) (first loc) (second loc)]))
