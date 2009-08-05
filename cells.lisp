@@ -294,11 +294,15 @@ action during PHASE."
     (when <occupant> 
       (error "Attempt to overwrite existing occupant cell in proxying."))
     (setf <occupant> occupant)
+    ;; The cell should know when it is proxied, and who its proxy is.
     [add-category occupant :proxied]
     (setf (field-value :proxy occupant) self)
+    ;; Hide the proxy.
     [delete-cell world occupant <row> <column>]
+    ;; Don't let anyone step on occupied vehicle.
+    [add-category self :obstacle]
+    ;; If it's the player, register self as player.
     (when [is-player occupant]
-      [add-category self :obstacle]
       [add-category self :player]
       [set-player world self])))
 
