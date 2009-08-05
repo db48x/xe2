@@ -67,7 +67,25 @@
     ("KP6" (:control) "fire :east .")
     ("KP1" (:control) "fire :southwest .")
     ("KP2" (:control) "fire :south .")
-    ("KP3" (:control) "fire :southeast .")))
+    ("KP3" (:control) "fire :southeast .")
+    ;;
+    ("KP7" (:alt) "attack :northwest .")
+    ("KP8" (:alt) "attack :north .")
+    ("KP9" (:alt) "attack :northeast .")
+    ("KP4" (:alt) "attack :west .")
+    ("KP6" (:alt) "attack :east .")
+    ("KP1" (:alt) "attack :southwest .")
+    ("KP2" (:alt) "attack :south .")
+    ("KP3" (:alt) "attack :southeast .")
+    ;;
+    ("KP7" (:meta) "attack :northwest .")
+    ("KP8" (:meta) "attack :north .")
+    ("KP9" (:meta) "attack :northeast .")
+    ("KP4" (:meta) "attack :west .")
+    ("KP6" (:meta) "attack :east .")
+    ("KP1" (:meta) "attack :southwest .")
+    ("KP2" (:meta) "attack :south .")
+    ("KP3" (:meta) "attack :southeast .")))
 
 (defparameter *qwerty-keybindings*
   (append *numpad-keybindings*
@@ -80,23 +98,23 @@
 	    ("J" nil "move :south .")
 	    ("N" nil "move :southeast .")
 	    ;;
-	    ;; ("Y" (:alt) "attack :northwest .")
-	    ;; ("K" (:alt) "attack :north .")
-	    ;; ("U" (:alt) "attack :northeast .")
-	    ;; ("H" (:alt) "attack :west .")
-	    ;; ("L" (:alt) "attack :east .")
-	    ;; ("B" (:alt) "attack :southwest .")
-	    ;; ("J" (:alt) "attack :south .")
-	    ;; ("N" (:alt) "attack :southeast .")
-	    ;; ;;
-	    ;; ("Y" (:meta) "attack :northwest .")
-	    ;; ("K" (:meta) "attack :north .")
-	    ;; ("U" (:meta) "attack :northeast .")
-	    ;; ("H" (:meta) "attack :west .")
-	    ;; ("L" (:meta) "attack :east .")
-	    ;; ("B" (:meta) "attack :southwest .")
-	    ;; ("J" (:meta) "attack :south .")
-	    ;; ("N" (:meta) "attack :southeast .")
+	    ("Y" (:alt) "attack :northwest .")
+	    ("K" (:alt) "attack :north .")
+	    ("U" (:alt) "attack :northeast .")
+	    ("H" (:alt) "attack :west .")
+	    ("L" (:alt) "attack :east .")
+	    ("B" (:alt) "attack :southwest .")
+	    ("J" (:alt) "attack :south .")
+	    ("N" (:alt) "attack :southeast .")
+	    ;;
+	    ("Y" (:meta) "attack :northwest .")
+	    ("K" (:meta) "attack :north .")
+	    ("U" (:meta) "attack :northeast .")
+	    ("H" (:meta) "attack :west .")
+	    ("L" (:meta) "attack :east .")
+	    ("B" (:meta) "attack :southwest .")
+	    ("J" (:meta) "attack :south .")
+	    ("N" (:meta) "attack :southeast .")
 	    ;;
 	    ("Y" (:control) "fire :northwest .")
 	    ("K" (:control) "fire :north .")
@@ -115,6 +133,8 @@
 	    ("3" nil "activate-extension .")
 	    ("2" nil "activate-pulse-cannon .")
 	    ("1" nil "activate-bomb-cannon .")
+	    ("P" (:control) "disembark .")
+	    ("P" nil "embark .")
 	    ("Q" (:control) "quit ."))))
   
 (defparameter *alternate-qwerty-keybindings*
@@ -128,23 +148,23 @@
 	    ("X" nil "move :south .")
 	    ("C" nil "move :southeast .")
 	    ;;
-	    ;; ("Q" (:alt) "attack :northwest .")
-	    ;; ("W" (:alt) "attack :north .")
-	    ;; ("E" (:alt) "attack :northeast .")
-	    ;; ("A" (:alt) "attack :west .")
-	    ;; ("D" (:alt) "attack :east .")
-	    ;; ("Z" (:alt) "attack :southwest .")
-	    ;; ("X" (:alt) "attack :south .")
-	    ;; ("C" (:alt) "attack :southeast .")
-	    ;; ;;
-	    ;; ("Q" (:meta) "attack :northwest .")
-	    ;; ("W" (:meta) "attack :north .")
-	    ;; ("E" (:meta) "attack :northeast .")
-	    ;; ("A" (:meta) "attack :west .")
-	    ;; ("D" (:meta) "attack :east .")
-	    ;; ("Z" (:meta) "attack :southwest .")
-	    ;; ("X" (:meta) "attack :south .")
-	    ;; ("C" (:meta) "attack :southeast .")
+	    ("Q" (:alt) "attack :northwest .")
+	    ("W" (:alt) "attack :north .")
+	    ("E" (:alt) "attack :northeast .")
+	    ("A" (:alt) "attack :west .")
+	    ("D" (:alt) "attack :east .")
+	    ("Z" (:alt) "attack :southwest .")
+	    ("X" (:alt) "attack :south .")
+	    ("C" (:alt) "attack :southeast .")
+	    ;;
+	    ("Q" (:meta) "attack :northwest .")
+	    ("W" (:meta) "attack :north .")
+	    ("E" (:meta) "attack :northeast .")
+	    ("A" (:meta) "attack :west .")
+	    ("D" (:meta) "attack :east .")
+	    ("Z" (:meta) "attack :southwest .")
+	    ("X" (:meta) "attack :south .")
+	    ("C" (:meta) "attack :southeast .")
 	    ;;
 	    ("Q" (:control) "fire :northwest .")
 	    ("W" (:control) "fire :north .")
@@ -216,6 +236,8 @@
 	    ("3" nil "activate-extension .")
 	    ("2" nil "activate-pulse-cannon .")
 	    ("1" nil "activate-bomb-cannon .")
+	    ("P" (:control) "disembark .")
+	    ("P" nil "embark .")
 	    ("Q" (:control) "quit ."))))
 
 (define-method install-keybindings blast-prompt ()
@@ -287,73 +309,37 @@
 				[print self "  "])
 	[print self "EMPTY  "])))
 
-;; (define-method update status ()
-;;   [delete-all-lines self]
-;;   (let ((char <character>))
-;;     [print self "  Statistics:  "]
-;;     [print-stat self :hit-points :warn-below 40]
-;;     [print self " "]
-;;     [print-stat self :oxygen :warn-below 40]
-;;     [print self " "]
-;;     [print-stat self :energy :warn-below 50]
-;;     [print self " "]
-;;     [print-stat self :strength :warn-below 10]
-;;     [print self " "]
-;;     [print-stat self :defense :warn-below 10]
-;;     [print self " "]
-;;     [print-stat self :speed :warn-below 2]
-;;     [println self " "]
-;;     [print self "  Equipment:  "]
-;;     [print-equipment-slot self :right-hand]
-;;     [print-equipment-slot self :left-hand]
-;;     [print-equipment-slot self :belt]
-;;     [newline self]
-;;     [print self "  Inventory:  "]
-;;     [print-inventory-slot self 0]
-;;     [print-inventory-slot self 1]
-;;     [newline self]))
-
 (defparameter *status-bar-character* " ")
+
+(define-method print-stat-bar status (stat &key 
+					   (color ".yellow")
+					   (background-color ".gray40"))
+  (let ((value (truncate [stat-value <character> stat]))
+	(max (truncate [stat-value <character> stat :max])))
+    (dotimes (i max)
+      [print self *status-bar-character*
+	     :foreground ".yellow"
+	     :background (if (< i value)
+			     color
+			   background-color)])))
 
 (define-method update status ()
   [delete-all-lines self]
   (let* ((char <character>)
+	 (proxy (field-value :proxy char))
+	 (is-vehicle [in-category char :vehicle])
 	 (hits [stat-value char :hit-points])
-	 (energy [stat-value char :energy])
-	 (pulse-ammo [stat-value char :pulse-ammo])
-	 (bomb-ammo [stat-value char :bomb-ammo]))
+	 (energy [stat-value char :energy]))
     [print-stat self :hit-points :warn-below 10]
-    (dotimes (i [stat-value char :hit-points :max])
-      [print self *status-bar-character* 
-	     :foreground ".yellow"
-	     :background (if (< i hits)
-			     ".red"
-			     ".gray40")])
+    [print-stat-bar self :hit-points :color ".red"]
     [newline self]
     ;; energy display
     [print-stat self :energy :warn-below 10]
-    (dotimes (i 40)
-      [print self *status-bar-character* 
-	     :foreground ".red"
-	     :background (if (< i energy)
-			     ".cyan"
-			     ".gray40")])
+    [print-stat-bar self :energy :color ".cyan"]
     [newline self]
-    [print self "PULSE "]
-    (dotimes (i 6)
-      [print self *status-bar-character* 
-	     :foreground ".red"
-	     :background (if (< i pulse-ammo)
-			     ".yellow"
-			     ".gray40")])
-    [space self]
-    [print self " BOMBS "]
-    (dotimes (i 10)
-      [print self *status-bar-character* 
-	     :foreground ".red"
-	     :background (if (< i bomb-ammo)
-			     ".green"
-			     ".gray40")])
+    (when is-vehicle
+      [print-stat self :bomb-ammo :warn-below 2]
+      [print-stat-bar self :bomb-ammo :color ".green"])
     [space self]
     [print-stat self :oxygen :warn-below 50]
     [print self " "]
@@ -372,8 +358,6 @@
     (destructuring-bind (num unit) (field-value :scale *active-world*)
       [print self (format nil "[~A ~A]" num unit)])
     [space self]
-    [print-stat self :credits] 
-    [space self]
     [print-stat self :biosilicate]
     [print self " COORDINATES:"]
     [print self (format nil "[~A ~A] " [player-row *active-world*]
@@ -381,9 +365,12 @@
     [print-stat self :technetium]
     [newline self]
     [print self "TERRAIN: "]
-    (do-cells (cell [scan-terrain char])
-      (unless [is-player cell]
-	[print-object-tag self cell]))
+    (when (field-value :row char)
+      (do-cells (cell [cells-at *active-world* 
+				(field-value :row char)
+				(field-value :column char)])
+	(unless [is-player cell]
+	  [print-object-tag self cell])))
     [newline self]))
     
 
@@ -426,7 +413,8 @@
 	 (narrator (clone =narrator=))
 	 (status (clone =status=))
 	 (minimap (clone =minimap=))
-	 (player (clone =olvac=))
+	 (ship (clone =olvac=))
+	 (dude (clone =contractor=))
 	 (splash (clone =splash=))
 	 (splash-prompt (clone =splash-prompt=))
 	 (textbox (clone =textbox=))
@@ -449,18 +437,19 @@
     [resize narrator :height 100 :width 800]
     [set-verbosity narrator 0]
     ;;
-    [set-player universe player]
-    (assert *view*)
+    [set-player universe ship]
     [play universe
 	  :address '(=star-sector= :width 80 :height 80 
 		     :stars 80 :freighters 6 :sequence-number (genseq))
 	  :prompt prompt
 	  :narrator narrator
 	  :viewport *view*]
-    [loadout player]
+    [proxy ship dude]
+    [loadout dude]
+    [loadout ship]
     ;;
     [resize status :height 80 :width 800]
-    [set-character status player]
+    [set-character status ship]
     (setf *status* status)
     [update status]
    ;;

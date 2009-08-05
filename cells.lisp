@@ -286,7 +286,7 @@ action during PHASE."
 (define-method adjacent-to-player cell ()
   [adjacent-to-player *active-world* <row> <column>])
 
-;;; Proxying
+;;; Proxying and vehicles
 
 (define-method proxy cell (occupant)
   "Make this cell a proxy for OCCUPANT."
@@ -297,8 +297,9 @@ action during PHASE."
     ;; The cell should know when it is proxied, and who its proxy is.
     [add-category occupant :proxied]
     (setf (field-value :proxy occupant) self)
-    ;; Hide the proxy.
-    [delete-cell world occupant <row> <column>]
+    ;; Hide the proxy if it's in a world already.
+    (when (numberp (field-value :row occupant))
+      [delete-cell world occupant <row> <column>])
     ;; Don't let anyone step on occupied vehicle.
     [add-category self :obstacle]
     ;; If it's the player, register self as player.
@@ -322,8 +323,22 @@ action during PHASE."
     (setf <occupant> nil)))
 
 (define-method forward cell (method &rest args)
-  (assert <occupant>)
+  (when (null <occupant>)
+    (error "Cannot forward message without an occupant cell to send it to."))
   (apply #'send self method <occupant> args))
+
+(define-method embark cell ()
+  (let ((vehicle [category-at-p *active-world* <row> <column> :vehicle]))
+    (if (null vehicle)
+	[>>say :narrator "No vehicle to embark."]
+	(progn 
+	  [>>say :narrator "Entering vehicle."]
+	  [proxy vehicle self]))))
+
+(define-method disembark cell ()
+  (if (null [in-category self :proxied])
+      [unproxy self]
+      [>>say :narrator "Cannot disembark without a vehicle."]))
 
 ;;; Cell movement
 
@@ -337,7 +352,7 @@ action during PHASE."
 	     (when [is-player self]
 	       (ecase (field-value :edge-condition world)
 		 (:block nil)
-		 (:wrap nil) ;; TODO implement this
+		 (:wrap nil) ;; TODO implement this for planet maps
 		 (:exit [exit *active-universe*]))))
 	    ([obstacle-at-p *active-world* r c] nil)
 	    (t 
@@ -602,34 +617,36 @@ slot."
 ;;; Combat
 
 (define-method attack cell (target)
-  (let* ((weapon [equipment-slot self <attacking-with>])
-	 (target-cell [resolve self target])
-	 (target-name (field-value :name target-cell)))
-    (if (null weapon)
-	(when [is-player self]
-	  [>>say :narrator "Cannot attack without a weapon in ~A." 
-		 <attacking-with>])
-	(let* ((attack-cost [stat-value weapon :attack-cost])
-	       (accuracy [stat-value weapon :accuracy])
-	       (dexterity [stat-value self :dexterity])
-	       (strength [stat-value self :strength])
-	       (to-hit (< (random 100)
-			  (+ accuracy (* (random 10) (/ dexterity 2))))))
-	  (if to-hit
-	      ;; calculate and send damage
-	      (let ((damage (+ (truncate (/ strength 3))
-			       [stat-value weapon :attack-power])))
-		[>>expend-action-points self attack-cost]
-		(when [is-player self]
-		  [>>say :narrator "You do ~D points of damage on the ~A."
-			 damage
-			 (get-some-object-name target-cell)])
-		[>>damage target-cell damage])
-	      (progn 
-		[>>expend-default-action-points self]
-		(when [is-player self]
-		  [>>narrateln :narrator "You missed."])))))))
-      
+  (if (null <attacking-with>)
+      [>>say :narrator"No attack method specified."]
+      (let* ((weapon [equipment-slot self <attacking-with>])
+	     (target-cell [resolve self target])
+	     (target-name (field-value :name target-cell)))
+	(if (null weapon)
+	    (when [is-player self]
+	      [>>say :narrator "Cannot attack without a weapon in ~A." 
+		     <attacking-with>])
+	    (let* ((attack-cost [stat-value weapon :attack-cost])
+		   (accuracy [stat-value weapon :accuracy])
+		   (dexterity [stat-value self :dexterity])
+		   (strength [stat-value self :strength])
+		   (to-hit (< (random 100)
+			      (+ accuracy (* (random 10) (/ dexterity 2))))))
+	      (if to-hit
+		  ;; calculate and send damage
+		  (let ((damage (+ (truncate (/ strength 3))
+				   [stat-value weapon :attack-power])))
+		    [>>expend-action-points self attack-cost]
+		    (when [is-player self]
+		      [>>say :narrator "You do ~D points of damage on the ~A."
+			     damage
+			     (get-some-object-name target-cell)])
+		    [>>damage target-cell damage])
+		  (progn 
+		    [>>expend-default-action-points self]
+		    (when [is-player self]
+		      [>>narrateln :narrator "You missed."]))))))))
+  
 (define-method fire cell (direction)
   (let ((weapon [equipment-slot self <firing-with>]))
     (if weapon

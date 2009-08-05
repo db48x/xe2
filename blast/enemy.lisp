@@ -1,18 +1,5 @@
 (in-package :blast)
 
-;;; A melee weapon for enemy robots: the Shock Probe
-
-(defcell shock-probe 
-  (name :initform "Shock probe")
-  (categories :initform '(:item :weapon :equipment))
-  (tile :initform "shock-probe")
-  (attack-power :initform (make-stat :base 5))
-  (attack-cost :initform (make-stat :base 6))
-  (accuracy :initform (make-stat :base 90))
-  (stepping :initform t)
-  (weight :initform 3000)
-  (equip-for :initform '(:robotic-arm :left-hand :right-hand)))
-
 ;;; Radiation graviceptors leave energy behind when you kill them
 
 (defcell graviceptor
@@ -119,9 +106,8 @@
   [parent>>die self])
 
 (define-method step radiation (stepper)
-  (when (eq =ship= (object-parent stepper))
-    [drop self (clone =explosion=)]	       
-    [damage stepper 1]))
+  [drop self (clone =explosion=)]	       
+  [damage stepper 1])
 	   
 (defcell probe 
   (tile :initform "probe")
@@ -470,7 +456,7 @@
   (equipment-slots :initform '(:robotic-arm :shoulder-mount))
   (attacking-with :initform :robotic-arm)
   (firing-with :initform :robotic-arm)
-  (dexterity :initform (make-stat :base 20))
+  (dexterity :initform (make-stat :base 14))
   (max-items :initform (make-stat :base 1))
   (speed :initform (make-stat :base 12))
   (stepping :initform t)
@@ -479,11 +465,11 @@
   (clock-reset-value :initform 8)
   (scouting-direction :initform :north)
   (attack-distance :initform 10)
-  (strength :initform (make-stat :base 19))
+  (strength :initform (make-stat :base 12))
   (movement-cost :initform (make-stat :base 7))
   (tile :initform "guardian")
   (defended-cell :initform nil)
-  (hit-points :initform (make-stat :base 25 :min 0 :max 60)))
+  (hit-points :initform (make-stat :base 16 :min 0 :max 60)))
 
 (define-method defend guardian (defended-cell)
   (setf <defended-cell> defended-cell))

@@ -1,5 +1,34 @@
 (in-package :blast)
 
+;;; The rusty wrench; basic melee weapon
+
+(define-prototype wrench (:parent rlx:=cell=)
+  (name :initform "Rusty wrench")
+  (categories :initform '(:item :weapon :equipment))
+  (tile :initform "rusty-wrench")
+  (attack-power :initform (make-stat :base 4)) ;; points of raw damage
+  (attack-cost :initform (make-stat :base 5))
+  (accuracy :initform (make-stat :base 80 :unit :percent))
+  (weight :initform 10000) ;; grams
+  (equip-for :initform '(:left-hand :right-hand)))
+
+(define-method step wrench (stepper)
+  (when [is-player stepper]
+    [>>take stepper :direction :here :category :item]))
+
+;;; A melee weapon: the Shock Probe
+
+(defcell shock-probe 
+  (name :initform "Shock probe")
+  (categories :initform '(:item :weapon :equipment))
+  (tile :initform "shock-probe")
+  (attack-power :initform (make-stat :base 5))
+  (attack-cost :initform (make-stat :base 6))
+  (accuracy :initform (make-stat :base 90))
+  (stepping :initform t)
+  (weight :initform 3000)
+  (equip-for :initform '(:robotic-arm :left-hand :right-hand)))
+
 ;;; A bomb with countdown display.
 
 (defvar *bomb-tiles* '("bomb-1" "bomb-2" "bomb-3" "bomb-4"))
@@ -100,21 +129,24 @@
   (categories :initform '(:dead :player :actor))
   (action-points :initform 0))
 
+(define-method run skull ()
+  (rlx:show-widgets))
+
 (define-method forward skull (&rest args)
   (declare (ignore args))
-  [queue>>narrateln :narrator *death-message*])
+  [queue>>say :narrator *death-message*])
   
 (define-method move skull (&rest args)
   (declare (ignore args))
- [queue>>narrateln :narrator *death-message*])
+ [queue>>say :narrator *death-message*])
 
 (define-method attack skull (&rest args)
   (declare (ignore args))
- [queue>>narrateln :narrator *death-message*])
+ [queue>>say :narrator *death-message*])
 
 (define-method fire skull (&rest args)
   (declare (ignore args))
- [queue>>narrateln :narrator *death-message*])
+ [queue>>say :narrator *death-message*])
 
 (define-method quit skull ()
   (rlx:quit :shutdown))
@@ -125,14 +157,18 @@
   [>>say :narrator "Press Control-PERIOD (i.e. \".\") to restart."])
 
 (define-method restart skull ()
-  (let ((new-player (clone =ship=)))
-    [set-character *status* new-player]
+  (let ((dude (clone =contractor=))
+	(ship (clone =olvac=)))
     [destroy *active-universe*]
-    [play *active-universe* 
-	  :player new-player
-	  :address '(=star-sector= :width 80 :height 80 :stars 80 :freighters 6)]
-    [play-sample self "go"]
-    [loadout new-player]))
+    [set-character *status* ship]
+    [set-player *active-universe* ship]
+    [play *active-universe*
+	  :address '(=star-sector= :width 80 :height 80 
+		     :stars 80 :freighters 6 :sequence-number (genseq))]
+    [proxy ship dude]
+    [loadout dude]
+    [loadout ship]
+    [play-sample self "go"]))
 
 ;;; Pulse particle
 
@@ -290,6 +326,84 @@
 			     5 5 :fill)))
 	[>>say :narrator "Out of pulse ammo."])))
 
+;;; The Contractor.
+
+(defcell contractor 
+  (tile :initform "voyager")
+  (mode :initform :spacesuit)
+  (name :initform "Contractor")
+  (speed :initform (make-stat :base 10 :min 0 :max 25))
+  (strength :initform (make-stat :base 11))
+  (dexterity :initform (make-stat :base 12))
+  (defense :initform (make-stat :base 14))
+  (equipment-slots :initform '(:left-hand :right-hand :belt :extension))
+  (hearing-range :initform 15)
+  (energy :initform (make-stat :base 5.0 :min 0.0 :max 8.0 :unit :gj))
+  (endurium :initform (make-stat :base 0 :min 0 :max 20 :unit :kg))
+  (credits :initform (make-stat :base 512 :min 0 :unit :cr))
+  (technetium :initform (make-stat :base 0 :min 0 :unit :ug))
+  (biosilicate :initform (make-stat :base 0 :min 0 :unit :g))
+  (hit-points :initform (make-stat :base 25 :min 0 :max 15))
+  (movement-cost :initform (make-stat :base 10))
+  (max-items :initform (make-stat :base 20))
+  (oxygen :initform (make-stat :base 200 :min 0 :max 200))
+  (invincibility-clock :initform 0)
+  (stepping :initform t)
+  (experience-points :initform 0)
+  (attacking-with :initform :right-hand)
+  (firing-with :initform :left-hand)
+  (categories :initform '(:actor :player :target :container :light-source)))
+
+(define-method activate-extension contractor ()
+  (if [equipment-slot self :extension]
+      [>>activate [equipment-slot self :extension]]
+      [>>say :narrator "No extension part equipped."]))
+
+(define-method enter contractor ()
+  (let ((gateway [category-at-p *active-world* <row> <column> :gateway]))
+    (if (null gateway)
+	[>>say :narrator "No gateway to enter."]
+	[activate gateway])))
+
+(define-method loadout contractor ()
+  [make-inventory self]
+  [make-equipment self]
+  [equip self [add-item self (clone =wrench=)]])
+
+(define-method quit contractor ()
+  (rlx:quit :shutdown))
+
+(define-method run contractor ()
+  (cond ((not (member :spacesuit (field-value :required-modes *active-world*)))
+	 [>>say :narrator "You step out of your ship and are sucked into the deeps of space."]
+	 [die self])
+	((<= [stat-value self :oxygen] 0)
+	 [>>say :narrator "Your oxygen runs out, suffocating you."]
+	 [die self])
+	((<= [stat-value self :speed] 0)
+	 [>>say :narrator "You are paralyzed. You suffocate and die."]
+	 [die self])))
+
+(define-method die contractor ()
+  [play-sample self "death"]
+  (let ((skull (clone =skull= self)))
+    [drop-cell *active-world* skull <row> <column> :loadout t :no-collisions nil]
+    (setf <action-points> 0)
+    [add-category self :dead]
+    [>>delete-from-world self]
+    [set-player *active-world* skull]))
+
+(define-method embark contractor ()
+  (let ((vehicle [category-at-p *active-world* <row> <column> :vehicle]))
+    (when vehicle
+      [set-character *status* vehicle]
+      [parent>>embark self])))
+
+(define-method attack contractor (target)
+  (rlx:play-sample "knock")
+  [>>stat-effect self :oxygen -2]
+  [parent>>attack self target])
+
 ;;; Your ship.
 
 (defcell olvac 
@@ -304,10 +418,9 @@
   (hearing-range :initform 15)
   (energy :initform (make-stat :base 40 :min 0 :max 40 :unit :gj))
   (endurium :initform (make-stat :base 50 :min 0 :max 100 :unit :kg))
-  (credits :initform (make-stat :base 512 :min 0 :unit :cr))
   (technetium :initform (make-stat :base 0 :min 0 :unit :ug))
   (biosilicate :initform (make-stat :base 0 :min 0 :unit :g))
-  (hit-points :initform (make-stat :base 35 :min 0 :max 35))
+  (hit-points :initform (make-stat :base 45 :min 0 :max 45))
   (movement-cost :initform (make-stat :base 10))
   (max-items :initform (make-stat :base 2))
   (trail-length :initform (make-stat :base 12 :min 0))
@@ -316,10 +429,9 @@
   (oxygen :initform (make-stat :base 200 :min 0 :max 200))
   (invincibility-clock :initform 0)
   (stepping :initform t)
-  (score :initform (make-stat :base 0))
-  (attacking-with :initform :right-bay)
+  (attacking-with :initform nil)
   (firing-with :initform :center-bay)
-  (categories :initform '(:actor :player :target :container :light-source))
+  (categories :initform '(:actor :player :target :container :light-source :vehicle))
   (equipment-slots :initform '(:left-bay :right-bay :center-bay :extension))
   (boost-clock :initform 0))
 
@@ -330,8 +442,9 @@
   [equip self [add-item self (clone =pulse-cannon=)]]
   [equip self [add-item self (clone =bomb-cannon=)]])
 
-(define-method quit olvac ()
-  (rlx:quit :shutdown))
+(define-method disembark olvac ()
+  [set-character *status* <occupant>]
+  [parent>>disembark self])
 
 (define-method run olvac ()
   (cond ((<= [stat-value self :endurium] 0)
@@ -339,10 +452,10 @@
 	 [>>say :narrator "Your oxygen runs out, suffocating you."]
 	 [die self])
 	((<= [stat-value self :oxygen] 0)
-	 (progn [>>narrateln :narrator "Your oxygen runs out, suffocating you."]
+	 (progn [>>say :narrator "Your oxygen runs out, suffocating you."]
 		[die self]))
 	((<= [stat-value self :speed] 0)
-	 (progn [>>narrateln :narrator "You are paralyzed. You suffocate and die."]
+	 (progn [>>say :narrator "You are paralyzed. You suffocate and die."]
 		[die self]))
 	(t 
 	 [update-tile self]
@@ -428,12 +541,6 @@
     [>>delete-from-world self]
     [set-player *active-world* skull]))
 
-(define-method enter olvac ()
-  (let ((gateway [category-at-p *active-world* <row> <column> :gateway]))
-    (if (null gateway)
-	[>>say :narrator "No gateway to enter."]
-	[activate gateway])))
-
 (define-method show-location olvac ()
   (labels ((do-circle (image)
 	     (multiple-value-bind (x y) 
@@ -456,6 +563,12 @@
 
 (define-method restart olvac ()
   nil)
+
+(define-method enter olvac()
+  (let ((gateway [category-at-p *active-world* <row> <column> :gateway]))
+    (if (null gateway)
+	[>>say :narrator "No gateway to enter."]
+	[activate gateway])))
 
 ;; see also skull restart
 
