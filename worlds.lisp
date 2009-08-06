@@ -341,7 +341,7 @@ in a roguelike until the user has pressed a key."
 	  (dotimes (z (fill-pointer cells))
 	    (setf cell (aref cells z))
 	    ;; <: lighting :>
-	    (when (or (eq player cell)
+	    (when (or [is-player cell]
 		      [is-light-source cell])
 	      [render-lighting self cell])
 	    (when (and (not (eq player cell))
