@@ -331,9 +331,10 @@ action during PHASE."
   (let ((vehicle [category-at-p *active-world* <row> <column> :vehicle]))
     (if (null vehicle)
 	[>>say :narrator "No vehicle to embark."]
-	(progn 
-	  [>>say :narrator "Entering vehicle."]
-	  [proxy vehicle self]))))
+	(if (null (field-value :occupant vehicle))
+	    (progn [>>say :narrator "Entering vehicle."]
+		   [proxy vehicle self])
+	    [>>say :narrator "Already in vehicle."]))))
 
 (define-method disembark cell ()
   (if (and <occupant> [in-category self :proxy])

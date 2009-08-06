@@ -5,6 +5,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
+** TODO fix bomb dropping keys when in dude mode
 ** TODO BETA REQUIREMENTS
 ** TODO BOOK IDEAS 
 *** procedural generation is a hot topic
