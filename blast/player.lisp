@@ -404,6 +404,14 @@
   [>>stat-effect self :oxygen -2]
   [parent>>attack self target])
 
+(define-method show-location contractor ()
+  (labels ((do-circle (image)
+	     (multiple-value-bind (x y) 
+		 [screen-coordinates self]
+	       (draw-circle x y 30 :destination image)
+	       (draw-circle x y 25 :destination image))))
+    [>>add-overlay :viewport #'do-circle]))
+
 ;;; Your ship.
 
 (defcell olvac 
@@ -448,10 +456,10 @@
 
 (define-method disembark olvac ()
   [set-character *status* <occupant>]
-  ;; TODO fix this nth-parent problem
   (if (null [in-category self :proxied])
       [unproxy self]
-      [>>say :narrator "Cannot disembark without a vehicle."]))
+      [>>say :narrator "Cannot disembark without a vehicle."])
+  [parent>>disembark self])
 
 (define-method run olvac ()
   (cond ((<= [stat-value self :endurium] 0)

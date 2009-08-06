@@ -302,7 +302,7 @@ action during PHASE."
       [delete-cell world occupant <row> <column>])
     ;; Don't let anyone step on occupied vehicle.
     [add-category self :obstacle]
-    ;; If it's the player, register self as player.
+    ;; If it's the player register self as player.
     (when [is-player occupant]
       [add-category self :player]
       [set-player world self])))
@@ -336,9 +336,9 @@ action during PHASE."
 	  [proxy vehicle self]))))
 
 (define-method disembark cell ()
-  (if (null [in-category self :proxied])
+  (if (and <occupant> [in-category self :proxy])
       [unproxy self]
-      [>>say :narrator "Cannot disembark without a vehicle."]))
+      [>>say :narrator "Cannot disembark."]))
 
 ;;; Cell movement
 

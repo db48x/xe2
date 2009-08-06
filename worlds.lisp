@@ -588,7 +588,8 @@ by symbol name. This enables them to be used as hash keys."
     [set-receiver <prompt> world]
     [set-narrator world <narrator>]))
 
-(define-method exit universe ()
+(define-method exit universe (&key player)
+  (when player (setf <player> player))
   (with-fields (stack) self
     ;; exit and discard current world
     [exit (pop stack)]
@@ -602,6 +603,7 @@ by symbol name. This enables them to be used as hash keys."
 	[start world]
 	[set-receiver <prompt> world]
 	[set-narrator world <narrator>]
+	[set-player world <player>]
 	[set-viewport world <viewport>]))))
 
 ;;; Gateways and launchpads connect worlds together
@@ -613,14 +615,14 @@ by symbol name. This enables them to be used as hash keys."
   (address :initform nil))
 
 (define-method activate gateway ()
-  [play *active-universe* :address <address>])
+  [play *active-universe* :address <address> :player [get-player *active-world*]])
 
 (define-prototype launchpad (:parent =gateway=)
   (tile :initform "launchpad")
   (categories :initform '(:gateway :player-entry-point)))
 
 (define-method activate launchpad ()
-  [exit *active-universe*])
+  [exit *active-universe* :player [get-player *active-world*]])
 
 (define-method drop-entry-point world (row column)
   [replace-cells-at self row column (clone =launchpad=)])
