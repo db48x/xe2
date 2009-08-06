@@ -550,8 +550,7 @@
 	  (let ((player-dir [direction-to-player world row column]))
 	    (if [adjacent-to-player world row column]
 		[>>speedsuck self [resolve self player-dir]]
-		[>>move self player
--dir]))
+		[>>move self player-dir]))
 	  (progn (when [obstacle-in-direction-p world row column <direction>]
 		   (setf <direction> (rlx:random-direction)))
 		 [>>move self <direction>])))))

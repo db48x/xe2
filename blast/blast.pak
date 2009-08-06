@@ -10,6 +10,7 @@
  (:name	"player-ship-north" :type :image :file "player-ship-north.png")
  (:name	"player-ship-invincible" :type :image :file "ship-invincible.png")
 
+ (:name "voidrider-disabled" :type :image :file "voidrider-disabled.png")
  (:name "voidrider-north" :type :image :file "voidrider-north.png")
  (:name "voidrider-east" :type :alias :data ":rotate 90:voidrider-north")
  (:name "voidrider-south" :type :alias :data ":rotate 180:voidrider-north")
@@ -59,6 +60,7 @@
  (:name "yellow-tech-brick" :type :image :file "yellow-tech-brick.png")
 
  (:name "gas-poof" :type :sample :file "gas.wav" :properties (:volume 4))
+ (:name "powerdown" :type :sample :file "powerdown.wav" :properties (:volume 10))
  (:name "technetium-sound" :type :sample :file "technetium.wav" :properties (:volume 10))
  (:name "biosilicate-sound" :type :sample :file "biosilicate-sound.wav" :properties (:volume 10))
  (:name "worp" :type :sample :file "worp.wav" :properties (:volume 10))

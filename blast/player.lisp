@@ -435,6 +435,10 @@
   (equipment-slots :initform '(:left-bay :right-bay :center-bay :extension))
   (boost-clock :initform 0))
 
+(define-method is-disabled olvac ()
+  (< [stat-value self :hit-points]
+     8))
+
 (define-method loadout olvac ()
   [make-inventory self]
   [make-equipment self]
@@ -444,7 +448,10 @@
 
 (define-method disembark olvac ()
   [set-character *status* <occupant>]
-  [parent>>disembark self])
+  ;; TODO fix this nth-parent problem
+  (if (null [in-category self :proxied])
+      [unproxy self]
+      [>>say :narrator "Cannot disembark without a vehicle."]))
 
 (define-method run olvac ()
   (cond ((<= [stat-value self :endurium] 0)
@@ -486,21 +493,23 @@
     [>>say :narrator "React shield up with ~D turns remaining." <invincibility-clock>]))
 
 (define-method move olvac (direction)
-  (let ((modes (field-value :required-modes *active-world*)))
-    (if (and modes (not (member <mode> modes)))
-      [>>say :narrator "Your Olvac-3 Void Rider is docked, and cannot move. Press RETURN to launch."]
-      (progn 
-	(setf <last-direction> direction)
-	[update-react-shield self]
-	[drop self (clone =trail= 
-			  :direction direction 
-			  :clock [stat-value self :trail-length])]
-	[parent>>move self direction]
-	[update-tile self]
-	[update *status*]))))
+  (if [is-disabled self]
+      [>>say :narrator "Your Olvac-3 Void Rider is disabled, and cannot move."]
+      (let ((modes (field-value :required-modes *active-world*)))
+	(if (and modes (not (member <mode> modes)))
+	    [>>say :narrator "Your Olvac-3 Void Rider is docked, and cannot move. Press RETURN to launch."]
+	    (progn 
+	      (setf <last-direction> direction)
+	      [update-react-shield self]
+	      [drop self (clone =trail= 
+				:direction direction 
+				:clock [stat-value self :trail-length])]
+	      [parent>>move self direction]
+	      [update-tile self]
+	      [update *status*])))))
 
 (defvar *olvac-tiles* '(:north "voidrider-north" 
-		       :east "voidrider-east" 
+			:east "voidrider-east" 
 		       :south "voidrider-south" 
 		       :west "voidrider-west" 
 		       :northeast "voidrider-northeast"
@@ -510,36 +519,56 @@
 
 (define-method update-tile olvac ()
   (setf <tile> 
-	(getf *olvac-tiles* <last-direction> "voidrider-north")))
+	(if [is-disabled self]
+	    "voidrider-disabled"
+	    (getf *olvac-tiles* <last-direction> "voidrider-north"))))
 
 (define-method scan-terrain olvac ()
   [cells-at *active-world* <row> <column>])
 		 
 (define-method damage olvac (points)
-  (if (= 0 <invincibility-clock>)
-    (progn [play-sample self "warn"]
-	   [parent>>damage self points]
-	   (setf <invincibility-clock> 5)
-	   [update-tile self]
-	   [>>say :narrator "React Shield up with 5 turns remaining."])
-    (progn 
-      [>>say :narrator "React shield blocks 1 damage."]
-      (decf <invincibility-clock>)
-      [update-tile self])))
+  (let ((was-disabled [is-disabled self]))
+    (if (= 0 <invincibility-clock>)
+	(progn [play-sample self "warn"]
+	       [parent>>damage self points]
+	       (when (and (null was-disabled)
+			  [is-disabled self])
+		 [do-disable self])
+	       (setf <invincibility-clock> 5)
+	       [update-tile self]
+	       [>>say :narrator "React Shield up with 5 turns remaining."])
+	(progn 
+	  [>>say :narrator "React shield blocks 1 damage."]
+	  (decf <invincibility-clock>)
+	  [update-tile self]))))
   
+(define-method do-disable olvac ()
+  [play-sample self "powerdown"]
+  (when (and <occupant> [is-player <occupant>])
+    [>>say :narrator "Your Olvac-3 Void Rider is now disabled."]))
+
 (define-method step olvac (stepper)
   (when (eq =asteroid= (object-parent stepper))
     [damage self 1]
     [>>say :narrator "You were damaged by a floating asteroid!"]))
 
 (define-method die olvac ()
-  [play-sample self "death"]
-  (let ((skull (clone =skull= self)))
-    [drop-cell *active-world* skull <row> <column> :loadout t :no-collisions nil]
-    (setf <action-points> 0)
-    [add-category self :dead]
-    [>>delete-from-world self]
-    [set-player *active-world* skull]))
+  (let ((occupant <occupant>))
+    (if (and occupant [is-player occupant])
+	(progn 
+	  [disembark self]
+	  [die occupant])
+	(progn 
+	  [drop self (clone =explosion=)]
+	  [>>delete-from-world self]))))
+
+  ;; [play-sample self "death"]
+  ;; (let ((skull (clone =skull= self)))
+  ;;   [drop-cell *active-world* skull <row> <column> :loadout t :no-collisions nil]
+  ;;   (setf <action-points> 0)
+  ;;   [add-category self :dead]
+  ;;   [>>delete-from-world self]
+  ;;   [set-player *active-world* skull]))
 
 (define-method show-location olvac ()
   (labels ((do-circle (image)
