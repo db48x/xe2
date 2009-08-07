@@ -337,9 +337,13 @@ action during PHASE."
 	    [>>say :narrator "Already in vehicle."]))))
 
 (define-method disembark cell ()
-  (if (and <occupant> [in-category self :proxy])
-      [unproxy self]
-      [>>say :narrator "Cannot disembark."]))
+  (let ((occupant <occupant>))
+    (if (and occupant [in-category self :proxy])
+	(progn
+	  [unproxy self]
+	  ;; ensure any death checks are run
+	  [run occupant])
+	[>>say :narrator "Cannot disembark."])))
 
 ;;; Cell movement
 
