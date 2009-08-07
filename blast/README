@@ -12,6 +12,9 @@ Use your numeric keypad to move, or the roguelike movement keys:
   BJN        2 = pulse cannon
    v         3 = activate shield (if any)
 
+To enter a location or gateway, press ENTER.
+To leave most screens, move off the edge of the map,
+   or press RET on the blue-and-white launchpad.
 To fire, hold down the CONTROL key and press any direction.
 To wait in place without moving, hit W.
 To quit, press CONTROL-Q.
