@@ -340,6 +340,7 @@ in a roguelike until the user has pressed a key."
 	  (player <player>)
 	  (grid <grid>))
       [run player]
+      [clear-light-grid self]
       (dotimes (i <height>)
 	(dotimes (j <width>)
 	  (setf cells (aref grid i j))
@@ -376,7 +377,6 @@ in a roguelike until the user has pressed a key."
 	 (line (make-array 100 :initial-element nil :adjustable t :fill-pointer 0)))
     ;; don't bother lighting if everything is lit.
     (when (not (eq :total ambient))
-      [clear-light-grid self]
       ;; draw only odd-radius octagons that have a center pixel
       (when (evenp total)
 	(incf total))

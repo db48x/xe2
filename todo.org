@@ -5,20 +5,8 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * Tasks
 
-** TODO fix raycasting sometimes switching to ship perspective
-** TODO fix bomb dropping keys when in dude mode
-** TODO fix dude dies too easy
 
-** TODO BETA REQUIREMENTS
-** TODO BOOK IDEAS 
-*** procedural generation is a hot topic
-*** RLX as a game design laboratory 
-*** 2600 Combat example
-*** Surround example
-*** Space Invaders example
-*** Soccer example
-** TODO [#C] drop turrets for additional defense
-** TODO [#B] remove no-derivs clause from CC license
+** TODO Separate status displays for ship and dude
 ** TODO [#C] fix muon trails showing up on top of firer
 ** TODO [#C] fix circles not showing up until first move at beginning
 ** TODO [#C] fix trails showing up as terrain... use :ephemeral category

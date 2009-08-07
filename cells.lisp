@@ -302,6 +302,8 @@ action during PHASE."
       [delete-cell world occupant <row> <column>])
     ;; Don't let anyone step on occupied vehicle.
     [add-category self :obstacle]
+    ;; Don't light up the map 
+    [add-category self :light-source]
     ;; If it's the player register self as player.
     (when [is-player occupant]
       [add-category self :player]
@@ -317,16 +319,23 @@ action during PHASE."
     [delete-category occupant :proxied]
     (setf (field-value :proxy occupant) nil)
     (when [is-player occupant]
+      [delete-category self :light-source]
       [delete-category self :player]
       [delete-category self :obstacle]
       [set-player world occupant])
     (setf <occupant> nil)))
 
 (define-method forward cell (method &rest args)
-  (when (null <occupant>)
-    (error "Cannot forward message without an occupant cell to send it to."))
-  (apply #'send self method <occupant> args))
-
+  (if (and [is-player self]
+	   (not (has-method method self))
+	   (null <occupant>))
+      [say self "Command not applicable."]
+      ;; otherwise maybe we're a vehicle
+      (let ((occupant <occupant>))
+	(when (null occupant)
+	  (error "Cannot forward message without an occupant cell to send it to."))
+	(apply #'send self method occupant args))))
+  
 (define-method embark cell ()
   (let ((vehicle [category-at-p *active-world* <row> <column> :vehicle]))
     (if (null vehicle)
@@ -344,6 +353,11 @@ action during PHASE."
 	  ;; ensure any death checks are run
 	  [run occupant])
 	[>>say :narrator "Cannot disembark."])))
+
+;;; Narrator
+
+(define-method say cell (format-string &rest args)
+  (apply #'send-queue self :say :narrator format-string args))
 
 ;;; Cell movement
 
