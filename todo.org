@@ -6,6 +6,11 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 * Tasks
 
 
+
+** TODO experience points
+** TODO missile launcher that can be used by player; <target>-ing system
+** TODO better missile partial pathfinding that can nav around other missiles
+** TODO vehicle piloting skill will help make vehicles more disposable
 ** TODO Separate status displays for ship and dude
 ** TODO [#C] fix muon trails showing up on top of firer
 ** TODO [#C] fix circles not showing up until first move at beginning

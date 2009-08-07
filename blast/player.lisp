@@ -703,8 +703,8 @@
 
 (define-method damage lepton-particle (points)
   (declare (ignore points))
-  [>>drop self (clone =sparkle=)]
-  [>>die self])
+  [drop self (clone =sparkle=)]
+  [die self])
       
 (define-method impel lepton-particle (direction)
   (assert (member direction *compass-directions*))
@@ -753,19 +753,67 @@
   (clock :initform 20))
 
 (define-method update-tile missile ()
-  (setf <tile> (getf *missile-tiles* <direction>)))
+  (setf <tile> (or (getf *missile-tiles* <direction>)
+		   "missile-north")))
 
 (define-method die missile ()
   [drop self (clone =explosion=)]
   [parent>>die self])
 
-(define-prototype missile-launcher (:parent =lepton-cannon=))
+;;; Multi-warhead missile
+
+(defvar *multi-missile-tiles* '(:north "multi-missile-north"
+		       :south "multi-missile-south"
+		       :east "multi-missile-east"
+		       :west "multi-missile-west"
+		       :northeast "multi-missile-northeast"
+		       :southeast "multi-missile-southeast"
+		       :southwest "multi-missile-southwest"
+		       :northwest "multi-missile-northwest"))
+
+(define-prototype multi-missile (:parent =missile=)
+  (tile :initform "multi-missile-north")
+  (clock :initform 12)
+  (hit-damage :initform (make-stat :base 18))
+  (hit-points :initform (make-stat :base 20)))
+
+(define-method update-tile multi-missile ()
+  (setf <tile> (or (getf *multi-missile-tiles* <direction>)
+		   "multi-missile-north")))
+
+(define-method run multi-missile ()
+  [update-tile self]
+  (if (or (= 0 <clock>)
+	  (> 7 [distance-to-player self]))
+      ;; release warheads
+      (progn 
+	(dolist (dir (list :northeast :southeast :northwest :southwest))
+	  (multiple-value-bind (r c) 
+	      (step-in-direction <row> <column> dir)
+	    [drop-cell *active-world* (clone =missile=) r c]))
+	[die self])
+      ;; move toward player
+      (progn (decf <clock>)
+	     [parent>>run self])))
+
+(define-method die multi-missile ()
+  [drop self (clone =flash=)]
+  [parent>>die self])
+  
+;;; Missile launchers
+
+(define-prototype missile-launcher (:parent =lepton-cannon=)
+  (ammo :initform =missile=)
+  (attack-cost :initform (make-stat :base 20)))
 
 (define-method fire missile-launcher (direction)
-  (let ((missile (clone =missile=)))
-	[play-sample <equipper> "bloup"]
-	[queue>>drop <equipper> missile]
-	[queue>>impel missile direction]
-	[expend-action-points missile [stat-value self :attack-cost]]))
+  (let ((missile (clone <ammo>)))
+    [play-sample <equipper> "bloup"]
+    [queue>>drop <equipper> missile]
+    [queue>>impel missile direction]
+    [expend-action-points <equipper> [stat-value self :attack-cost]]))
 
+(define-prototype multi-missile-launcher (:parent =missile-launcher=)
+  (ammo :initform =multi-missile=)
+  (attack-cost :initform (make-stat :base 80)))
 

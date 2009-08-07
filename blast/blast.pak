@@ -20,6 +20,8 @@
  (:name "voidrider-southwest" :type :alias :data ":rotate 180:voidrider-northeast")
  (:name "voidrider-northwest" :type :alias :data ":rotate 270:voidrider-northeast")
 
+ (:name "gond" :type :image :file "gond.png")
+
  (:name "missile-north" :type :image :file "missile-north.png")
  (:name "missile-east" :type :alias :data ":rotate 90:missile-north")
  (:name "missile-south" :type :alias :data ":rotate 180:missile-north")
@@ -28,6 +30,15 @@
  (:name "missile-southeast" :type :alias :data ":rotate 90:missile-northeast")
  (:name "missile-southwest" :type :alias :data ":rotate 180:missile-northeast")
  (:name "missile-northwest" :type :alias :data ":rotate 270:missile-northeast")
+
+ (:name "multi-missile-north" :type :image :file "multi-missile-north.png")
+ (:name "multi-missile-east" :type :alias :data ":rotate 90:multi-missile-north")
+ (:name "multi-missile-south" :type :alias :data ":rotate 180:multi-missile-north")
+ (:name "multi-missile-west" :type :alias :data ":rotate 270:multi-missile-north")
+ (:name "multi-missile-northeast" :type :image :file "multi-missile-northeast.png")
+ (:name "multi-missile-southeast" :type :alias :data ":rotate 90:multi-missile-northeast")
+ (:name "multi-missile-southwest" :type :alias :data ":rotate 180:multi-missile-northeast")
+ (:name "multi-missile-northwest" :type :alias :data ":rotate 270:multi-missile-northeast")
 
  (:name "levelup" :type :image :file "levelup.png")
  (:name "speedup" :type :image :file "speedup.png")

@@ -524,6 +524,38 @@
   [make-equipment self]
   [equip self [add-item self (clone =shock-probe=)]])
 
+;;; The GOND is a multi-warhead-launching superguardian
+
+(define-prototype gond (:parent =guardian=)
+  (tile :initform "gond")
+  (attack-distance :initform 14)
+  (strength :initform (make-stat :base 14))
+  (hit-points :initform (make-stat :base 20 :min 0 :max 60)))
+
+(define-method loadout gond ()
+  [make-inventory self]
+  [make-equipment self]
+  [equip self [add-item self (clone =multi-missile-launcher=)]])
+
+(define-method home gond ()
+  (decf <clock>)
+  (clon:with-field-values (row column) self
+    (if (< [distance-to-player self] <attack-distance>)
+	[fire self [direction-to-player self]]
+	;; otherwise, move toward the defended cell until clock runs out
+	(let* ((cell <defended-cell>)
+	       (r0 (field-value :row cell))
+	       (c0 (field-value :column cell)))
+	  (if [obstacle-in-direction-p *active-world* row column 
+				       (direction-to row column r0 c0)]
+	      (progn (setf <direction> (random-direction))
+		     [move self <direction>])
+	      [move self (direction-to row column r0 c0)])
+	  (when (<= <clock> 0)
+	    (setf <scouting-direction> (random-direction))
+	    (setf <clock> <clock-reset-value>)
+	    (setf <behavior> :scouting))))))
+
 ;;; The speed-sucking Lymphocytes
 
 (defcell lymphocyte

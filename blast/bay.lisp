@@ -8,7 +8,7 @@
   (categories :initform '(:item :target :actor :hidden))
   (tile :initform "mine"))
 
-(defvar *mine-warning-sensitivity* 4)
+(defvar *mine-warning-sensitivity* 5)
 (defvar *mine-explosion-sensitivity* 3)
 
 (define-method run mine ()
@@ -213,10 +213,14 @@
 	(let ((loc (nth (random (length mine-locations))
 			mine-locations)))
 	  [drop-cell self (clone =mine=) (first loc) (second loc)]))
-      [drop-cell self (clone =bay-factory=) 
-		 (+ row (random size))
-		 (+ column (random size))
-		 :loadout t])))
+      (let* ((factory (clone =bay-factory=))
+	     (gond (clone =gond=))
+	     (r (+ row (random size)))
+	     (c (+ column (random size))))
+	[drop-cell self factory r c :loadout t]
+	(when (= 0 (random 3) )
+	  [defend gond factory]
+	  [drop-cell self gond (1+ r) (1+ c) :loadout t])))))
 
 (define-method generate bay (&key sequence-number drones carriers)
   [create-default-grid self]

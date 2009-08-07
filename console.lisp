@@ -969,7 +969,7 @@ The default destination is the main window."
 	       (index-module "standard") 
 	       (load-module *next-module*)
 	       (run-main-loop))
-	  ;; close audio if crash
+ 	  ;; close audio if crash
 	  (when *use-sound* 
 	    (sdl-mixer:close-audio t)))
 	  (setf *quitting* t))
