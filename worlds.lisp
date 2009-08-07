@@ -68,6 +68,8 @@ At the moment, only 0=off and 1=on are supported.")
   ;; space
   (edge-condition :initform :exit
 		  :documentation "Either :block the player, :exit the world, or :wrap around.")
+  (exited :initform nil
+	  :documentation "Non-nil when the player has exited. See also `forward'.")
   (player-exit-row :initform 0)
   (player-exit-column :initform 0))
 
@@ -128,7 +130,7 @@ At the moment, only 0=off and 1=on are supported.")
 		     (aref <environment-grid> row column))
 	value))
 
-;; <: narration :>
+;;; Narration
 
 (define-method set-narrator world (narrator)
   (setf <narrator> narrator))
@@ -203,6 +205,7 @@ dropped on top of an obstacle."
   (field-value :column <player>))
 
 (define-method exit world ()
+  (setf <exited> t) ;; see also `forward' method
   ;; record current location so we can exit back to it
   (setf <player-exit-row> (field-value :row <player>))
   (setf <player-exit-column> (field-value :column <player>))
@@ -298,6 +301,8 @@ so on, until no more messages are generated."
 This is where most world computations start, because nothing happens
 in a roguelike until the user has pressed a key."
   (assert <player>)
+  (message "FORWARDWORLD: ~S ~S" <phase-number> 
+	   (field-value :phase-number <player>))
   (prog1 nil
     (let ((player <player>)
 	  (phase-number <phase-number>))
@@ -315,11 +320,11 @@ in a roguelike until the user has pressed a key."
 	;; <: action-points :>
 	(unless [can-act player phase-number]
 	  [end-phase player]
-	  (incf <turn-number>)
-	  (when (not [in-category <player> :dead])
-	    [run-cpu-phase self])
-	  (incf <phase-number>)
-	  [begin-phase player])))))
+	  (unless <exited>
+	    (incf <phase-number>)
+	    (when (not [in-category <player> :dead])
+	      [run-cpu-phase self])
+	    [begin-phase player]))))))
         
 (define-method get-phase-number world ()
   <phase-number>)
@@ -363,7 +368,6 @@ in a roguelike until the user has pressed a key."
 	 (ambient <ambient-light>)
 	 (light-grid <light-grid>)
 	 (grid <grid>)
-	 (turn-number <turn-number>)
 	 (source-row (field-value :row cell))
 	 (source-column (field-value :column cell))
 	 (total (+ light-radius 
@@ -456,8 +460,25 @@ in a roguelike until the user has pressed a key."
 
 (define-method start world ()
   (assert <player>)
+  ;; start player at same phase (avoid free catch-up turns)
+  (message "STARTWORLD: ~S ~S" <phase-number> (field-value :phase-number <player>))
+  ;; get everyone on the same turn.
+  (setf <phase-number> (+ 1 (field-value :phase-number <player>)))
+  (let ((grid <grid>)
+	(phase-number <phase-number>))
+    (dotimes (i <height>)
+      (dotimes (j <width>)
+	(do-cells (cell (aref grid i j))
+	  (setf (field-value :phase-number cell) phase-number)))))
+  ;; mark the world as entered
+  (setf <exited> nil)
+  ;; light up the world
   [render-lighting self <player>]
+  ;; clear out any pending messages
+  (setf <message-queue> (make-queue))
   (with-message-queue <message-queue>
+    [run-cpu-phase self]
+    (incf <phase-number>)
     [start <player>]
     [begin-phase <player>]
     [show-location <player>])
