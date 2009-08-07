@@ -253,6 +253,8 @@
 
 ;;; A ship status widget.
 
+(defvar *status* nil)
+
 (define-prototype status (:parent rlx:=formatter=)
   (character :documentation "The character cell."))
 
@@ -325,59 +327,57 @@
 
 (define-method update status ()
   [delete-all-lines self]
-  (let* ((char <character>)
-	 (proxy (field-value :proxy char))
-	 (is-vehicle [in-category char :vehicle])
-	 (hits [stat-value char :hit-points])
-	 (energy [stat-value char :energy]))
-    [print-stat self :hit-points :warn-below 10]
-    [print-stat-bar self :hit-points :color ".red"]
-    [newline self]
-    ;; energy display
-    [print-stat self :energy :warn-below 10]
-    [print-stat-bar self :energy :color ".cyan"]
-    [newline self]
-    (when is-vehicle
-      [print-stat self :bomb-ammo :warn-below 2]
-      [print-stat-bar self :bomb-ammo :color ".green"])
-    [space self]
-    [print-stat self :oxygen :warn-below 50]
-    [print self " "]
-    [print-stat self :strength :warn-below 10]
-    [print self " "]
-    [print-stat self :defense :warn-below 10]
-    [print self " "]
-    [print-stat self :speed :warn-below 5]
-    [print self " "]
-    [print-stat self :endurium :warn-below 10]
-    [print self " "]
-    [newline self]
-    [print self "LOCATION: "]
-    [print self (format nil "[~A]" [location-name *active-world*])]
-    [print self " SCALE:"]
-    (destructuring-bind (num unit) (field-value :scale *active-world*)
-      [print self (format nil "[~A ~A]" num unit)])
-    [space self]
-    [print-stat self :biosilicate]
-    [print self " COORDINATES:"]
-    [print self (format nil "[~A ~A] " [player-row *active-world*]
-			[player-column *active-world*])]
-    [print-stat self :technetium]
-    [newline self]
-    [print self "TERRAIN: "]
-    (when (field-value :row char)
-      (do-cells (cell [cells-at *active-world* 
-				(field-value :row char)
-				(field-value :column char)])
-	(unless [is-player cell]
-	  [print-object-tag self cell])))
-    [newline self]))
-    
-
-(defvar *status*)
-
+  (when <character>
+    (let* ((char <character>)
+	   (proxy (field-value :proxy char))
+	   (is-vehicle [in-category char :vehicle])
+	   (hits [stat-value char :hit-points])
+	   (energy [stat-value char :energy]))
+      [print-stat self :hit-points :warn-below 10]
+      [print-stat-bar self :hit-points :color ".red"]
+      [newline self]
+      ;; energy display
+      [print-stat self :energy :warn-below 10]
+      [print-stat-bar self :energy :color ".cyan"]
+      [newline self]
+      (when is-vehicle
+	[print-stat self :bomb-ammo :warn-below 2]
+	[print-stat-bar self :bomb-ammo :color ".green"])
+      [space self]
+      [print-stat self :oxygen :warn-below 50]
+      [print self " "]
+      [print-stat self :strength :warn-below 10]
+      [print self " "]
+      [print-stat self :defense :warn-below 10]
+      [print self " "]
+      [print-stat self :speed :warn-below 5]
+      [print self " "]
+      [print-stat self :endurium :warn-below 10]
+      [print self " "]
+      [newline self]
+      [print self "LOCATION: "]
+      [print self (format nil "[~A]" [location-name *active-world*])]
+      [print self " SCALE:"]
+      (destructuring-bind (num unit) (field-value :scale *active-world*)
+	[print self (format nil "[~A ~A]" num unit)])
+      [space self]
+      [print-stat self :biosilicate]
+      [print self " COORDINATES:"]
+      [print self (format nil "[~A ~A] " [player-row *active-world*]
+			  [player-column *active-world*])]
+      [print-stat self :technetium]
+      [newline self]
+      [print self "TERRAIN: "]
+      (when (field-value :row char)
+	(do-cells (cell [cells-at *active-world* 
+				  (field-value :row char)
+				  (field-value :column char)])
+	  (unless [is-player cell]
+	    [print-object-tag self cell])))
+      [newline self])))
+  
 ;;; Splash screen
-
+  
 (defvar *pager* nil)
 
 (define-prototype splash (:parent =widget=))
@@ -437,6 +437,7 @@
     [resize narrator :height 100 :width 800]
     [set-verbosity narrator 0]
     ;;
+    (setf *status* status)
     [set-player universe ship]
     [play universe
 	  :address '(=star-sector= :width 80 :height 80 
@@ -450,7 +451,6 @@
     ;;
     [resize status :height 80 :width 800]
     [set-character status ship]
-    (setf *status* status)
     [update status]
    ;;
     [set-tile-size *view* 16]

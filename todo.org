@@ -17,7 +17,6 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 *** Surround example
 *** Space Invaders example
 *** Soccer example
-** TODO fix having to move off the vehicle before death from decompression occurs
 ** TODO [#C] drop turrets for additional defense
 ** TODO [#B] remove no-derivs clause from CC license
 ** TODO [#C] fix muon trails showing up on top of firer
