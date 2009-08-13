@@ -174,6 +174,17 @@ else.")
 	     (funcall *event-handler-function* event))
       (error "No event handler registered.")))
 
+(defun hit-widgets (x y &optional (widgets *active-widgets*))
+  "Hit test the WIDGETS to find the clicked widget."
+  (block testing 
+    (if (rest widgets)
+	;; hit widget list in reverse order because the
+	;; painter's algorithm is used onscreen
+	(hit-widgets x y (rest widgets))
+	(let ((result [hit (first widgets) x y]))
+	  (when result 
+	    (return-from testing result))))))
+
 ;;; Translating SDL key events into RLX event lists
 
 (defun make-key-modifier-symbol (sdl-mod)
@@ -319,7 +330,12 @@ window. Set this in the game startup file.")
     (:mouse-motion-event (:state state :x x :y y :x-rel x-rel :y-rel y-rel)
 			 nil)
     (:mouse-button-down-event (:button button :state state :x x :y y)
-			      nil)
+			      (let ((widget (hit-widgets x y *active-widgets*)))
+				(if (null widget)
+				    (message "Unhandled mouse click at ~S, ~S" x y)
+				    (progn 
+				      (message "Received mouse click at ~S ~S for widget ~S "
+					       x y (some-name-of widget))))))
     (:mouse-button-up-event (:button button :state state :x x :y y)
 			    nil)
     (:video-expose-event () (sdl:update-display))
