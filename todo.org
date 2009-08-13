@@ -3,10 +3,49 @@
 
 http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
+* Naive User Testing Results
+CLOSED: <2009-08-12 Wed>
+** TODO integrate help text and mouse/key actions (RET, ESC) into widgets.lisp
+** TODO Highlight critical messages in eye-catching red/yellow 
+** TODO Should say "press C-p to disembark" when trying to move as docked ship
+** TODO Remove erroneous "deeps of space" message---give specific feedback on what makes you die
+** TODO Centered blue/white modal dialog boxes that give important messages. 
+*** TODO Message log. 
+** TODO Somehow communicate to the player why each oxygen unit is used (melee combat vs movement, etc)
+*** TODO Do same for energy, specify what uses energy. 
+** TODO Perhaps the gauge should show last drain and what drained it? I.e. weapon vs shield
+** TODO switch to 16:9 "HDTV" format, reserve right side for 40-column text?
+** TODO Make corva 3 a little easier
+** TODO Fix "command not applicable" when trying to W=wait while playing as dude
+** TODO Draw and implement nanorepair modules for ships, which restore ship hit points
+*** TODO Health boxes should not repair the ship's hit points
+*** TODO Change print-stat method to accept an optional string to print instead of the slot name
+** TODO Label each widget group in a Stack with a clear title bar
+*** MINIMAP NARRATOR 
+** TODO Property-value displayer 
+** TODO List of which properties to display? 
+** TODO make center 5 on keypad be another key for "wait"
+** TODO Add explanation that makes it clear why you have to shoot the ? box (make it an obstacle?)
+** TODO Add message saying "press 3 to equip" when you get shield
+** TODO Show occupied equipment slots across top in status bar
+** TODO Game help should explain that you press Alt-direction for melee combat when you enter a freighter
+** TODO [say self foo p1 v1 p2 v2]
+
 * Tasks
 
-
-
+** TODO fix numlock must be on
+** TODO basic mouse event support in console.lisp
+** TODO mouse hit testing on widgets
+** TODO help popups on arbitrary strings, and hit-testing of formatters!
+** TODO popup help
+** TODO whodunit?
+** TODO joypad support 
+** TODO add "leaving area" warninig
+** TODO fix bug where circles-position not shown until after first move
+** TODO re-browse AI book
+** TODO fix erroneous "cannot disembark" message
+** TODO LOOK command and mouse interaction
+** TODO fix lepton cannon (and derivatives) firing bunches of times
 ** TODO experience points
 ** TODO missile launcher that can be used by player; <target>-ing system
 ** TODO better missile partial pathfinding that can nav around other missiles
