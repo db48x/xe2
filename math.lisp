@@ -24,6 +24,8 @@
 
 (in-package :rlx)
 
+;;; Probability
+
 (defmacro percent-of-time (percent &body body)
   `(when (< (random 100) ,percent)
      ,@body))
@@ -35,6 +37,8 @@ So 2d6+2 would be (roll 2 6 2)."
     (+ adds
        (dotimes (r rolls total)
 	 (incf total (+ 1 (random sides)))))))
+
+;;; Space
 
 (defun distance (x1 y1 x2 y2)
   "Compute the distance between the points X1,Y1 and X2,Y2."
@@ -102,6 +106,12 @@ DIRECTION."
 	      (if (< c1 c2)
 		  :east
 		  :west)))))
+
+(defun within-extents (x y x0 y0 x1 y1)
+  (and (>= x x0) 
+       (<= x x1)
+       (>= y y0)
+       (<= y y1)))
 
 ;;; Functions that trace out shapes
 

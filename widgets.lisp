@@ -1,4 +1,4 @@
-;;; widgets.lisp --- interactive graphical elements with offscreen drawing
+-;;; widgets.lisp --- interactive graphical elements with offscreen drawing
 
 ;; Copyright (C) 2008  David O'Toole
 
@@ -91,11 +91,30 @@ if a binding was found, nil otherwise."
       (prog1 t
 	(funcall func)))))
 
+;;; Hit testing for mouse cursor support
+
+(define-method hit widget (x y)
+  "Find a widget by screen position. The default implementation
+returns itself when the widget's own onscreen image is clicked.  Child
+implementations may do subsequent hit-testing on child widgets, and
+possibly return one of them."
+  (let ((x0 <x>)
+	(y0 <y>)) self
+    (when (within-extents x y 
+			  x0 y0 
+			  (+ x0 <width>)
+			  (+ y0 <height>))
+      (message "~S" (object-name (object-parent self)))
+      self)))
+
 ;;; Stack layout
 
 (define-prototype stack 
     (:parent =widget= :documentation "Stack all the child widgets on top of one another in a column.")
   (children :initform nil :documentation "The widgets in the stack."))
+
+(define-method initialize stack (&rest children)
+  (setf <children> children))
 
 (define-method render stack ()
   (let ((y <y>)
@@ -107,7 +126,8 @@ if a binding was found, nil otherwise."
 (define-method set-children stack (children)
   (setf <children> children))
 
-;; TODO define-method 
+(define-method hit stack (x y)
+  (hit-widgets x y <children>))
 
 ;;; Formatted display widget
 

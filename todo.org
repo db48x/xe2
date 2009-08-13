@@ -3,8 +3,11 @@
 
 http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
-* Naive User Testing Results
-CLOSED: <2009-08-12 Wed>
+* TASKS
+
+** TODO fix numlock having to be on 
+** TODO help popups on arbitrary strings, and hit-testing of formatters!
+** TODO popup help
 ** TODO integrate help text and mouse/key actions (RET, ESC) into widgets.lisp
 ** TODO Highlight critical messages in eye-catching red/yellow 
 ** TODO Should say "press C-p to disembark" when trying to move as docked ship
@@ -30,14 +33,6 @@ CLOSED: <2009-08-12 Wed>
 ** TODO Show occupied equipment slots across top in status bar
 ** TODO Game help should explain that you press Alt-direction for melee combat when you enter a freighter
 ** TODO [say self foo p1 v1 p2 v2]
-
-* Tasks
-
-** TODO fix numlock must be on
-** TODO basic mouse event support in console.lisp
-** TODO mouse hit testing on widgets
-** TODO help popups on arbitrary strings, and hit-testing of formatters!
-** TODO popup help
 ** TODO whodunit?
 ** TODO joypad support 
 ** TODO add "leaving area" warninig

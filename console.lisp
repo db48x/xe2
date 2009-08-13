@@ -176,14 +176,9 @@ else.")
 
 (defun hit-widgets (x y &optional (widgets *active-widgets*))
   "Hit test the WIDGETS to find the clicked widget."
-  (block testing 
-    (if (rest widgets)
-	;; hit widget list in reverse order because the
-	;; painter's algorithm is used onscreen
-	(hit-widgets x y (rest widgets))
-	(let ((result [hit (first widgets) x y]))
-	  (when result 
-	    (return-from testing result))))))
+  (some #'(lambda (widget)
+	    [hit widget x y])
+	(reverse widgets)))
 
 ;;; Translating SDL key events into RLX event lists
 

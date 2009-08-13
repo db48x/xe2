@@ -532,15 +532,16 @@ slot."
 
 ;;; Knowledge of objects
 
-;; <: knowledge :>
-;; TODO port and document this
+;; TODO port and document knowledge code
 
-(define-method name-of cell ()
-  (let ((name <name>))
+(defun some-name-of (ob)
+  (let ((name (if (has-field :name ob)
+		  (field-value :name ob)
+		  nil)))
     (if (stringp name)
 	name
 	(progn
-	  (setf name (symbol-name (object-parent self)))
+	  (setf name (symbol-name (object-name (object-parent ob))))
 	  (subseq name (1+ (search "=" name))
 		  (search "=" name :from-end t))))))
 
