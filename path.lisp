@@ -345,9 +345,9 @@ the goal."
 
 (defun path-to (grid from to)
   (find-path grid 
-	     (getf from :row)
-	     (getf from :column)
-	     (getf to :row)
-	     (getf to :column)))
+	     (field-value :row from)
+	     (field-value :column from)
+	     (field-value :row to)
+	     (field-value :column to)))
 
 ;;; path.lisp ends here
