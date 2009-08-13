@@ -376,7 +376,7 @@
 
 (define-method run contractor ()
   (cond ((not (member :spacesuit (field-value :required-modes *active-world*)))
-	 [>>say :narrator "You step out of your ship and are sucked into the deeps of space."]
+	 [>>say :narrator "You cannot survive in this environment! You die."]
 	 [die self])
 	((<= [stat-value self :oxygen] 0)
 	 [>>say :narrator "Your oxygen runs out, suffocating you."]
@@ -392,13 +392,22 @@
     (setf <action-points> 0)
     [add-category self :dead]
     [>>delete-from-world self]
-    [set-player *active-world* skull]))
+    [set-player *active-world* skull])
+  (let ((textbox (clone =textbox=)))
+    [resize textbox :height 400 :width 200]
+    [auto-center textbox]
+    [set-buffer textbox '("You are dead! Press RET to close.")]
+    [do-modal-dialog textbox]))
 
 (define-method embark contractor ()
   (let ((vehicle [category-at-p *active-world* <row> <column> :vehicle]))
     (when vehicle
       [set-character *status* vehicle]
       [parent>>embark self])))
+
+(define-method do-post-unproxied contractor ()
+  [say self "Commencing EVA (extra-vehicular activity)."]
+  [say self "Use ALT-<direction> to melee attack with the wrench."])
 
 (define-method attack contractor (target)
   (rlx:play-sample "knock")
@@ -464,14 +473,14 @@
 
 (define-method run olvac ()
   (cond ((<= [stat-value self :endurium] 0)
-	 [>>say :narrator "You run out of endurium in the deeps of interstellar space."]
-	 [>>say :narrator "Your oxygen runs out, suffocating you."]
+	 [say self "You run out of endurium in the deeps of interstellar space."]
+	 [say self "Your oxygen runs out, suffocating you."]
 	 [die self])
 	((<= [stat-value self :oxygen] 0)
-	 (progn [>>say :narrator "Your oxygen runs out, suffocating you."]
+	 (progn [say self "Your oxygen runs out, suffocating you."]
 		[die self]))
 	((<= [stat-value self :speed] 0)
-	 (progn [>>say :narrator "You are paralyzed. You suffocate and die."]
+	 (progn [say self "You are paralyzed. You suffocate and die."]
 		[die self]))
 	(t 
 	 [update-tile self]
@@ -503,10 +512,12 @@
 
 (define-method move olvac (direction)
   (if [is-disabled self]
-      [>>say :narrator "Your Olvac-3 Void Rider is disabled, and cannot move."]
+      [say self "Your Olvac-3 Void Rider is disabled, and cannot move."]
       (let ((modes (field-value :required-modes *active-world*)))
 	(if (and modes (not (member <mode> modes)))
-	    [>>say :narrator "Your Olvac-3 Void Rider is docked, and cannot move. Press RETURN to launch."]
+	    (progn 
+	      [say self "Your Olvac-3 Void Rider is docked, and cannot move."]
+	      [say self "Press Control-P to disembark, or RETURN to launch."])
 	    (progn 
 	      (setf <last-direction> direction)
 	      [update-react-shield self]

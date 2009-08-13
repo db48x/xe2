@@ -575,6 +575,36 @@ normally."
 (define-method hide textbox ()
   (setf <visible> nil))
 
+(define-method set-buffer textbox (buffer)
+  (setf <buffer> buffer))
+
+(define-method auto-center textbox ()
+  (clon:with-field-values (x y width height) self
+    (let ((center-x (truncate (/ *screen-width* 2)))
+	  (center-y (truncate (/ *screen-height* 2))))
+      (setf <x> (- center-x (truncate (/ width 2)))
+	    <y> (- center-y (truncate (/ height 2)))))))
+
+(define-method auto-resize textbox ()
+  ;; measure text
+  (let* ((buffer <buffer>)
+	 (line-height (font-height <font>))
+	 (line-lengths (mapcar #'(lambda (s)
+				   (font-text-extents s <font>))
+			       buffer)))
+    ;; update geometry
+    (let ((width0 (max *textbox-minimum-width*
+		       (+ (* 2 *textbox-margin*)
+			  (if (null line-lengths)
+			      0 
+			      (apply #'max line-lengths)))))
+	  (height0 (+ (* 2 *textbox-margin*)
+		      (* line-height (max 1 (length buffer))))))
+      (when (or (not (equal <width> width0))
+		(not (equal <height> height0)))
+	(message "resizing textbox H:~S W:~S" height0 width0)
+	[resize self :height height0 :width width0]))))
+
 (define-method render textbox ()
   (when <visible>
     [clear self]
@@ -585,40 +615,30 @@ normally."
 	       (line-lengths (mapcar #'(lambda (s)
 					 (font-text-extents s font))
 				     buffer)))
-	  ;; update geometry
-	  (let ((width0 (max *textbox-minimum-width*
-			     (+ (* 2 *textbox-margin*)
-				(if (null line-lengths)
-				    0 
-				    (apply #'max line-lengths)))))
-		(height0 (+ (* 2 *textbox-margin*)
-			    (* line-height (max 1 (length buffer))))))
-	    (when (or (not (equal width width0))
-		      (not (equal height height0)))
-	      [resize self :height height0 :width width0])
-	    ;; draw background
-	    (draw-box x y width height :destination image
-		      :stroke-color <foreground-color>
-		      :color <background-color>)
-	    ;; draw text
-	    (let ((x0 (+ x *textbox-margin*))
-		  (y0 (+ y *textbox-margin*)))
-	      (dolist (line buffer)
-		(draw-string-solid line x0 y0 :destination image
-				   :font font :color <foreground-color>)
-		(incf y0 line-height))
-	      ;; draw cursor
-	      (let* ((current-line (nth <point-row> buffer))
-		     (cursor-width (font-width font))
-		     (x1 (+ x *textbox-margin*
-			    (font-text-extents (subseq current-line 0 <point-column>)
-					       font)))
-		     (y1 (+ 2 y *textbox-margin*
-			    (* line-height <point-row>))))
-		(draw-rectangle x1 y1 cursor-width line-height 
-				:color ".yellow"
-				:destination image)))))))))
- 
+	  [auto-resize self]
+	  ;; draw background
+	  (draw-box x y width height :destination image
+		    :stroke-color <foreground-color>
+		    :color <background-color>)
+	  ;; draw text
+	  (let ((x0 (+ x *textbox-margin*))
+		(y0 (+ y *textbox-margin*)))
+	    (dolist (line buffer)
+	      (draw-string-solid line x0 y0 :destination image
+				 :font font :color <foreground-color>)
+	      (incf y0 line-height))
+	    ;; draw cursor
+	    (let* ((current-line (nth <point-row> buffer))
+		   (cursor-width (font-width font))
+		   (x1 (+ x *textbox-margin*
+			  (font-text-extents (subseq current-line 0 <point-column>)
+					     font)))
+		   (y1 (+ 2 y *textbox-margin*
+			  (* line-height <point-row>))))
+	      (draw-rectangle x1 y1 cursor-width line-height 
+			      :color ".yellow"
+			      :destination image))))))))
+
 ;;; The pager switches between different visible groups of widgets
 
 (define-prototype pager (:parent =widget=)

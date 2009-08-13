@@ -120,7 +120,7 @@ instead of computing the value."
 	      (when (and (numberp max) (> val max))
 		(setf val max)))
 	    (values val unit))))))
-	   
+
 (define-method stat-effect cell (stat-name val
 					   &optional (component :base) (clamping t))
   "Add VAL, which may be negative, to the COMPONENT part of the stat
@@ -323,7 +323,13 @@ action during PHASE."
       [delete-category self :player]
       [delete-category self :obstacle]
       [set-player world occupant])
-    (setf <occupant> nil)))
+    (setf <occupant> nil)
+    [do-post-unproxied occupant]))
+
+(define-method do-post-unproxied cell ()
+  "This method is invoked on the unproxied former occupant cell after
+unproxying. By default, it does nothing."
+  nil)
 
 (define-method forward cell (method &rest args)
   (if (and [is-player self]
@@ -347,12 +353,10 @@ action during PHASE."
 
 (define-method disembark cell ()
   (let ((occupant <occupant>))
-    (if (and occupant [in-category self :proxy])
-	(progn
+    (when (and occupant [in-category self :proxy])
 	  [unproxy self]
 	  ;; ensure any death checks are run
-	  [run occupant])
-	[>>say :narrator "Cannot disembark."])))
+	  [run occupant])))
 
 ;;; Narrator
 

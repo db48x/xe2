@@ -418,7 +418,9 @@
 	 (splash (clone =splash=))
 	 (splash-prompt (clone =splash-prompt=))
 	 (textbox (clone =textbox=))
-	 (stack (clone =stack=)))
+	 (message-box (clone =textbox=))
+	 (stack (clone =stack=))
+	 (stack2 (clone =stack=)))
     ;;
     (setf *view* (clone =view=))
     ;;
@@ -468,8 +470,8 @@
     ;;
     [resize textbox :height 100 :width 800]
     [move textbox :x 0 :y 0]
-    (setf (field-value :buffer textbox)
-	  (find-resource-object "help-message"))
+    [set-buffer textbox
+		(find-resource-object "help-message")]
     ;;
     (play-music "xiomacs" :loop t)
     (set-music-volume 255)	       
@@ -477,6 +479,14 @@
     [resize stack :width 800 :height 580]
     [move stack :x 0 :y 0]
     [set-children stack (list status *view* narrator)]
+    ;;
+    [resize message-box :height 100 :width 800]
+    [move message-box :x (- 1100 470) :y 0]
+    [set-buffer message-box
+		(find-resource-object "help-message")]
+    [move stack2 :x (- 1100 470) :y 0]
+    [resize stack2 :width 800 :height 580]
+    [set-children stack2 (list message-box)]
     ;;
     ;; HACK
     ;; (labels ((light-hack (sr sc r c &optional (color ".white"))
@@ -493,7 +503,7 @@
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
     [add-page *pager* :main splash-prompt splash]
-    [add-page *pager* :play stack prompt status *view* narrator minimap]
+    [add-page *pager* :play stack prompt status *view* narrator minimap];; stack2 message-box]
     [add-page *pager* :help textbox]
     [select *pager* :main]))
 
