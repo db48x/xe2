@@ -373,6 +373,8 @@
 
 (define-method wait contractor ()
   [say self "Skipped one turn."]
+  (when (not [in-category self :proxied])
+    [stat-effect self :oxygen -1])
   [expend-action-points self <action-points>])
 
 (define-method quit contractor ()

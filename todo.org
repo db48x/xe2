@@ -21,7 +21,6 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 *** TODO Override stat-effect method
 ** TODO Perhaps the gauge should show last drain and what drained it? I.e. weapon vs shield
 ** TODO Make corva 3 a little easier
-
 ** TODO Draw and implement nanorepair modules for ships, which restore ship hit points
 *** TODO Health boxes should not repair the ship's hit points
 *** TODO Change print-stat method to accept an optional string to print instead of the slot name
