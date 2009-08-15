@@ -481,7 +481,8 @@ in a roguelike until the user has pressed a key."
     (incf <phase-number>)
     [start <player>]
     [begin-phase <player>]
-    [show-location <player>])
+    [show-location <player>]
+    [process-messages self])
   [begin-ambient-loop self])
     
 (define-method set-viewport world (viewport)

@@ -391,13 +391,12 @@
     [drop-cell *active-world* skull <row> <column> :loadout t :no-collisions nil]
     (setf <action-points> 0)
     [add-category self :dead]
-    [>>delete-from-world self]
+    [delete-from-world self]
     [set-player *active-world* skull])
   (let ((textbox (clone =textbox=)))
     [resize textbox :height 400 :width 200]
     [auto-center textbox]
-    [set-buffer textbox '("You are dead! Press RET to close.")]
-    [do-modal-dialog textbox]))
+    [set-buffer textbox '("You are dead! Press RET to close.")]))
 
 (define-method embark contractor ()
   (let ((vehicle [category-at-p *active-world* <row> <column> :vehicle]))

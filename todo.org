@@ -5,11 +5,11 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
 
-** TODO Make textbox able to resize itself
-** TODO make pager not always resize to screenwidth
-** TODO fix death messages not showing up until additional keypresses
-** TODO fix numlock having to be on 
-** TODO help popups on arbitrary strings, and hit-testing of formatters!
+** TODO [#A] Make textbox able to resize itself
+** TODO [#A] make pager not always resize to screenwidth
+** TODO [#A] help popups on arbitrary strings, and hit-testing of formatters!
+** TODO [#B] fix death messages not showing up until additional keypresses
+** TODO [#A] fix numlock having to be on 
 ** TODO popup help
 ** TODO integrate help text and mouse/key actions (RET, ESC) into widgets.lisp
 ** TODO Highlight critical messages in eye-catching red/yellow 
@@ -17,6 +17,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 *** TODO Message log. 
 ** TODO Somehow communicate to the player why each oxygen unit is used (melee combat vs movement, etc)
 *** TODO Do same for energy, specify what uses energy. 
+*** TODO Override stat-effect method
 ** TODO Perhaps the gauge should show last drain and what drained it? I.e. weapon vs shield
 ** TODO Make corva 3 a little easier
 ** TODO Fix "command not applicable" when trying to W=wait while playing as dude
