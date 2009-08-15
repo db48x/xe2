@@ -371,6 +371,10 @@
   [make-equipment self]
   [equip self [add-item self (clone =wrench=)]])
 
+(define-method wait contractor ()
+  [say self "Skipped one turn."]
+  [expend-action-points self <action-points>])
+
 (define-method quit contractor ()
   (rlx:quit :shutdown))
 
@@ -487,6 +491,7 @@
 	 [update *status*])))
 
 (define-method wait olvac ()
+  [say self "Skipped one turn."]
   [expend-action-points self <action-points>])
 
 (define-method activate-pulse-cannon olvac ()

@@ -4,7 +4,8 @@
 http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
-
+ 
+** TODO Fix WAIT command not using oxygen in dude mode
 ** TODO [#A] Make textbox able to resize itself
 ** TODO [#A] make pager not always resize to screenwidth
 ** TODO [#A] help popups on arbitrary strings, and hit-testing of formatters!
@@ -20,12 +21,13 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 *** TODO Override stat-effect method
 ** TODO Perhaps the gauge should show last drain and what drained it? I.e. weapon vs shield
 ** TODO Make corva 3 a little easier
-** TODO Fix "command not applicable" when trying to W=wait while playing as dude
+
 ** TODO Draw and implement nanorepair modules for ships, which restore ship hit points
 *** TODO Health boxes should not repair the ship's hit points
 *** TODO Change print-stat method to accept an optional string to print instead of the slot name
 ** TODO Label each widget group in a Stack with a clear title bar
 *** MINIMAP NARRATOR 
+** TODO vehicle piloting skill will help make vehicles more disposable
 ** TODO Property-value displayer 
 ** TODO List of which properties to display? 
 ** TODO make center 5 on keypad be another key for "wait"
@@ -44,7 +46,6 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 ** TODO experience points
 ** TODO missile launcher that can be used by player; <target>-ing system
 ** TODO better missile partial pathfinding that can nav around other missiles
-** TODO vehicle piloting skill will help make vehicles more disposable
 ** TODO Separate status displays for ship and dude
 ** TODO [#C] fix muon trails showing up on top of firer
 ** TODO [#C] fix circles not showing up until first move at beginning
