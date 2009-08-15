@@ -1,4 +1,4 @@
--;;; widgets.lisp --- interactive graphical elements with offscreen drawing
+;;; widgets.lisp --- interactive graphical elements with offscreen drawing
 
 ;; Copyright (C) 2008  David O'Toole
 

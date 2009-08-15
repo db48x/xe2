@@ -6,6 +6,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 * TASKS
 
 ** TODO Make textbox able to resize itself
+** TODO make pager not always resize to screenwidth
 ** TODO fix death messages not showing up until additional keypresses
 ** TODO fix numlock having to be on 
 ** TODO help popups on arbitrary strings, and hit-testing of formatters!
@@ -17,7 +18,6 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 ** TODO Somehow communicate to the player why each oxygen unit is used (melee combat vs movement, etc)
 *** TODO Do same for energy, specify what uses energy. 
 ** TODO Perhaps the gauge should show last drain and what drained it? I.e. weapon vs shield
-** TODO switch to 16:9 "HDTV" format, reserve right side for 40-column text?
 ** TODO Make corva 3 a little easier
 ** TODO Fix "command not applicable" when trying to W=wait while playing as dude
 ** TODO Draw and implement nanorepair modules for ships, which restore ship hit points

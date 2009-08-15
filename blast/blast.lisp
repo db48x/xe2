@@ -401,7 +401,7 @@
   (rlx:message "Initializing Blast Tactics...")
   (setf clon:*send-parent-depth* 2) 
   (rlx:set-screen-height 600)
-  (rlx:set-screen-width 1100)
+  (rlx:set-screen-width 800)
   ;; (rlx:set-frame-rate 30)
   ;; (rlx:set-timer-interval 20)
   ;; (rlx:enable-timer)
@@ -503,7 +503,7 @@
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
     [add-page *pager* :main splash-prompt splash]
-    [add-page *pager* :play stack prompt status *view* narrator minimap];; stack2 message-box]
+    [add-page *pager* :play stack prompt status *view* narrator minimap] ;; stack2 message-box]
     [add-page *pager* :help textbox]
     [select *pager* :main]))
 
