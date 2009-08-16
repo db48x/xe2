@@ -134,27 +134,27 @@
 
 (define-method forward skull (&rest args)
   (declare (ignore args))
-  [queue>>say :narrator *death-message*])
+  [say self *death-message*])
   
 (define-method move skull (&rest args)
   (declare (ignore args))
- [queue>>say :narrator *death-message*])
+ [say self *death-message*])
 
 (define-method attack skull (&rest args)
   (declare (ignore args))
- [queue>>say :narrator *death-message*])
+ [say self *death-message*])
 
 (define-method fire skull (&rest args)
   (declare (ignore args))
- [queue>>say :narrator *death-message*])
+ [say self *death-message*])
 
 (define-method quit skull ()
   (rlx:quit :shutdown))
 
 (define-method initialize skull (player)
-  [>>say :narrator *death-message*]
-  [>>say :narrator *game-over-message*]
-  [>>say :narrator "Press Control-PERIOD (i.e. \".\") to restart."])
+  [say self *death-message*]
+  [say self *game-over-message*]
+  [say self "Press Control-PERIOD (i.e. \".\") to restart."])
 
 (define-method restart skull ()
   (let ((dude (clone =contractor=))
@@ -251,14 +251,14 @@
 					 '(:obstacle :target)]))
     (if target
 	(progn
-	  [queue>>move self <direction>]
-	  [queue>>expend-default-action-points self]
-	  [queue>>drop target (clone =flash=)]
-	  [queue>>damage target 5]
-	  [queue>>die self])
+	  [>>move self <direction>]
+	  [>>expend-default-action-points self]
+	  [>>drop target (clone =flash=)]
+	  [>>damage target 5]
+	  [>>die self])
 	(progn 
-	  [queue>>drop self (clone =muon-trail= <direction>)]
-	  [queue>>move self <direction>]))))
+	  [>>drop self (clone =muon-trail= <direction>)]
+	  [>>move self <direction>]))))
 
 (define-method step muon-particle (stepper)
   (message "Muon particle stepped on!")
@@ -270,7 +270,7 @@
   [find-target self]
   (decf <clock>)
   (when (zerop <clock>)
-    [queue>>die self]))
+    [>>die self]))
 
 (define-method impel muon-particle (direction)
   (assert (member direction *compass-directions*))
@@ -395,14 +395,12 @@
   [play-sample self "death"]
   (let ((skull (clone =skull= self)))
     [drop-cell *active-world* skull <row> <column> :loadout t :no-collisions nil]
-    (setf <action-points> 0)
-    [add-category self :dead]
-    [delete-from-world self]
-    [set-player *active-world* skull])
-  (let ((textbox (clone =textbox=)))
-    [resize textbox :height 400 :width 200]
-    [auto-center textbox]
-    [set-buffer textbox '("You are dead! Press RET to close.")]))
+    [set-player *active-world* skull]
+    [parent>>die self]))
+  ;; (let ((textbox (clone =textbox=)))
+  ;;   [resize textbox :height 400 :width 200]
+  ;;   [auto-center textbox]
+  ;;   [set-buffer textbox '("You are dead! Press RET to close.")]))
 
 (define-method embark contractor ()
   (let ((vehicle [category-at-p *active-world* <row> <column> :vehicle]))
@@ -696,12 +694,12 @@
 					 '(:obstacle :target)]))
     (if target
 	(progn	
-	  [queue>>drop target (clone =flash=)]
-	  [queue>>damage target [stat-value self :hit-damage]]
-	  [queue>>die self])
+	  [>>drop target (clone =flash=)]
+	  [>>damage target [stat-value self :hit-damage]]
+	  [>>die self])
 	(progn 
-	  [queue>>drop self (clone =lepton-trail= <direction>)]
-	  [queue>>move self <direction>]))))
+	  [>>drop self (clone =lepton-trail= <direction>)]
+	  [>>move self <direction>]))))
 
 (define-method update-tile lepton-particle ()
   (setf <tile> (getf *lepton-tiles* <direction>)))
@@ -716,7 +714,7 @@
     (decf <clock>)
     (when (and (zerop <clock>) 
 	       (not [in-category self :dead]))
-      [queue>>die self])))
+      [>>die self])))
 
 (define-method damage lepton-particle (points)
   (declare (ignore points))
@@ -744,8 +742,8 @@
   (if [expend-energy <equipper> [stat-value self :energy-cost]]
       (let ((lepton (clone =lepton-particle=)))
 	[play-sample <equipper> "bloup"]
-	[queue>>drop <equipper> lepton]
-	[queue>>impel lepton direction]
+	[>>drop <equipper> lepton]
+	[>>impel lepton direction]
 	[expend-action-points <equipper> [stat-value self :attack-cost]]
       (message "Not enough energy to fire."))))
 
@@ -826,8 +824,8 @@
 (define-method fire missile-launcher (direction)
   (let ((missile (clone <ammo>)))
     [play-sample <equipper> "bloup"]
-    [queue>>drop <equipper> missile]
-    [queue>>impel missile direction]
+    [>>drop <equipper> missile]
+    [>>impel missile direction]
     [expend-action-points <equipper> [stat-value self :attack-cost]]))
 
 (define-prototype multi-missile-launcher (:parent =missile-launcher=)

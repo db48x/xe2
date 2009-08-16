@@ -28,7 +28,6 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 *** TODO living crewmembers to rescue? 
 ** TODO [#A] dynamic keybinding help display
 ** TODO [#A] better message narration.
-** TODO [#B] fix death messages not showing up until additional keypresses
 ** TODO [#B] popup help tooltips
 ** TODO [#B] Highlight critical messages in eye-catching red/yellow 
 ** TODO [#B] Somehow communicate to the player why each oxygen unit is used (melee combat vs movement, etc)
@@ -171,7 +170,6 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 ** FEATURE [#B] better Dungeon generation: connected rooms w/or/w/o corridors a la meritous
 ** FEATURE [#B] console.lisp: animation events (somehow!)
 ** FEATURE [#B] enemies avoid debris?
-** BUG [#B] fix oxygen death duplicate body problem
 ** FEATURE [#B] inventory throw?
 ** FEATURE [#B] powerups inside rooms
 ** TUNE [#B] too many crewmembers?

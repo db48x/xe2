@@ -318,13 +318,14 @@ action during PHASE."
     [drop-cell world occupant <row> <column>]
     [delete-category occupant :proxied]
     (setf (field-value :proxy occupant) nil)
+    [do-post-unproxied occupant]
     (when [is-player occupant]
       [delete-category self :light-source]
       [delete-category self :player]
       [delete-category self :obstacle]
-      [set-player world occupant])
-    (setf <occupant> nil)
-    [do-post-unproxied occupant]))
+      [set-player world occupant]
+      [run occupant])
+    (setf <occupant> nil)))
 
 (define-method do-post-unproxied cell ()
   "This method is invoked on the unproxied former occupant cell after
@@ -354,9 +355,7 @@ unproxying. By default, it does nothing."
 (define-method disembark cell ()
   (let ((occupant <occupant>))
     (when (and occupant [in-category self :proxy])
-	  [unproxy self]
-	  ;; ensure any death checks are run
-	  [run occupant])))
+	  [unproxy self])))
 
 ;;; Narrator
 
@@ -380,11 +379,11 @@ unproxying. By default, it does nothing."
 	    ([obstacle-at-p *active-world* r c] nil)
 	    (t 
 	     (progn
-	       [>>expend-action-points self [stat-value self :movement-cost]]
-	       [>>move-cell :world self r c]
+	       [expend-action-points self [stat-value self :movement-cost]]
+	       [move-cell world self r c]
 	       (when <stepping>
 		 (do-cells (cell [cells-at world r c])
-		   [>>step cell self]))))))))
+		   [step cell self]))))))))
 	     	     
 (define-method drop cell (cell)
   [drop-cell *active-world* cell <row> <column>])
@@ -694,7 +693,7 @@ slot."
       (progn
 	(setf <action-points> 0)
 	[add-category self :dead]
-	[>>delete-from-world self])))
+	[delete-from-world self])))
 
 (define-method expend-energy cell (amount)
   (when (< amount [stat-value self :energy])
