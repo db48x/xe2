@@ -4,7 +4,7 @@
 http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
- 
+
 ** TODO [#A] Make textbox able to resize itself
 ** TODO [#A] make pager not always resize to screenwidth
 ** TODO [#A] help popups on arbitrary strings, and hit-testing of formatters!
@@ -23,6 +23,10 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 ** TODO [#A] Separate status displays for ship and dude
 ** TODO [#A] implement can-see method
 ** TODO [#A] player heat mechanic and boost attack
+** TODO BETA RELEASE FOR WIN/MAC/LINUX
+*** TODO character development
+*** TODO help/tutorial
+*** TODO all systems prototype
 
 ** TODO [#A] make freighters less difficult and worth bothering.. perhaps captains?
 *** TODO living crewmembers to rescue? 

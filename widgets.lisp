@@ -46,7 +46,7 @@
   (height :documentation "The current allocated image height of the widget, in pixels.")
   (x :documentation "The screen x-coordinate of the left side of the widget's display area.")
   (y :documentation "The screen y-coordinate of the top of the widget's display area."))
-   
+
 (define-method initialize widget ()
   (setf <keymap> (make-hash-table :test 'equal)))
 
