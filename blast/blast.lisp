@@ -386,9 +386,13 @@
   (rlx:draw-resource-image "splash" 0 0 
 			   :destination <image>))
 
+(defvar *space-bar-function*)
+
 (define-method dismiss splash ()
   (play-sample "go")
   [select *pager* :play]
+  (when (functionp *space-bar-function*)
+    (funcall *space-bar-function*))
   ;; TODO ugh this is a hack!
   (rlx:show-widgets))
 
@@ -439,21 +443,23 @@
     [resize narrator :height 100 :width 800]
     [set-verbosity narrator 0]
     ;;
-    (setf *status* status)
-    [set-player universe ship]
-    [play universe
-	  :address '(=star-sector= :width 80 :height 80 
-		     :stars 80 :freighters 6 :sequence-number (genseq))
-	  :prompt prompt
-	  :narrator narrator
-	  :viewport *view*]
-    [proxy ship dude]
-    [loadout dude]
-    [loadout ship]
-    ;;
-    [resize status :height 80 :width 800]
-    [set-character status ship]
-    [update status]
+    (labels ((spacebar ()
+	       (setf *status* status)
+	       [set-player universe ship]
+	       [play universe
+		     :address '(=star-sector= :width 80 :height 80 
+				:stars 80 :freighters 6 :sequence-number (genseq))
+		     :prompt prompt
+		     :narrator narrator
+		     :viewport *view*]
+	       [proxy ship dude]
+	       [loadout dude]
+	       [loadout ship]
+	       ;;
+	       [resize status :height 80 :width 800]
+	       [set-character status ship]
+	       [update status]))
+      (setf *space-bar-function* #'spacebar))
    ;;
     [set-tile-size *view* 16]
     ;; the default is to track the current world:
@@ -473,7 +479,7 @@
     [set-buffer textbox
 		(find-resource-object "help-message")]
     ;;
-    (play-music "xiomacs" :loop t)
+    (play-music "theme" :loop t)
     (set-music-volume 255)	       
     ;;
     [resize stack :width 800 :height 580]

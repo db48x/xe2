@@ -102,6 +102,9 @@
   (required-modes :initform '(:vehicle))
   (scale :initform '(1 ly))
   (edge-condition :initform :block))
+
+(define-method begin-ambient-loop star-sector ()
+  (play-music "xiomacs" :loop t))
   
 (define-method generate star-sector (&key (height 80)
 					  (width 80)

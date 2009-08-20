@@ -561,7 +561,7 @@ normally."
 (define-prototype textbox (:parent =widget=)
   (font :initform ".default-font")
   (buffer :initform nil)
-  (max-displayed-rows :initform nil)
+  (max-displayed-rows :initform nil :documentation "An integer when scrolling is enabled.")
   (max-displayed-columns :initform nil)
   (background-color :initform ".blue")
   (foreground-color :initform ".white")
@@ -578,14 +578,44 @@ normally."
 (define-method set-buffer textbox (buffer)
   (setf <buffer> buffer))
 
+(defparameter *next-screen-context-lines* 3)
+
+(define-method page-up textbox (buffer)
+  "Scroll up one page, only when <max-displayed-rows> is set."
+  (clon:with-field-values (max-displayed-rows) self
+    (when (integerp max-displayed-rows)
+      (setf <point-row> (max 0
+			   (- <point-row> (- max-displayed-rows
+					     *next-screen-context-lines*)))))))
+
+(define-method page-down textbox (buffer)
+  "Scroll down one page, only when <max-displayed-rows> is set."
+  (clon:with-field-values (max-displayed-rows) self
+    (when (integerp max-displayed-rows)
+      (setf <point-row> (min (- (length <buffer>) max-displayed-rows)
+			     (+ <point-row> (- max-displayed-rows
+					     *next-screen-context-lines*)))))))
+
 (define-method auto-center textbox ()
+  "Automatically center the textbox on the screen."
   (clon:with-field-values (x y width height) self
     (let ((center-x (truncate (/ *screen-width* 2)))
 	  (center-y (truncate (/ *screen-height* 2))))
       (setf <x> (- center-x (truncate (/ width 2)))
 	    <y> (- center-y (truncate (/ height 2)))))))
 
-(define-method auto-resize textbox ()
+(define-method resize-to-scroll textbox (&key width height)
+  "Resize the textbox to WIDTH * HEIGHT and enable scrolling of contents.
+This method allocates a new SDL surface."
+  (assert (and (numberp width) (numberp height)))
+  [resize self :height height :width width]
+  (setf <max-displayed-rows> (truncate (/ height (font-height <font>)))))
+
+(define-method resize-to-fit textbox ()
+  "Automatically resize the textbox to fit the text, and disable scrolling.
+This method allocates a new SDL surface when necessary."
+  ;; disable scrolling
+  (setf <max-displayed-rows> nil)
   ;; measure text
   (let* ((buffer <buffer>)
 	 (line-height (font-height <font>))
@@ -615,7 +645,7 @@ normally."
 	       (line-lengths (mapcar #'(lambda (s)
 					 (font-text-extents s font))
 				     buffer)))
-	  [auto-resize self]
+	  [resize-to-fit self]
 	  ;; draw background
 	  (draw-box x y width height :destination image
 		    :stroke-color <foreground-color>
@@ -623,11 +653,12 @@ normally."
 	  ;; draw text
 	  (let ((x0 (+ x *textbox-margin*))
 		(y0 (+ y *textbox-margin*)))
-	    (dolist (line buffer)
+	    (dolist (line (nthcdr <point-row> buffer))
 	      (draw-string-solid line x0 y0 :destination image
 				 :font font :color <foreground-color>)
 	      (incf y0 line-height))
 	    ;; draw cursor
+	    ;; TODO fix <point-row> to be drawn relative pos in scrolling
 	    (let* ((current-line (nth <point-row> buffer))
 		   (cursor-width (font-width font))
 		   (x1 (+ x *textbox-margin*

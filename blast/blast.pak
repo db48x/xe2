@@ -217,6 +217,7 @@
  (:name "tech-blackmetal" :type :image :file "tech-blackmetal")
 
  (:name "technogirl" :type :music :file "technogirl-x.ogg")
+ (:name "theme" :type :music :file "theme.ogg":properties (:volume 10))
  (:name "crisis" :type :music :file "crisis.ogg" :properties (:volume 30))
  (:name "raid" :type :music :file "raid.ogg" :properties (:volume 8))
  (:name "xiomacs" :type :music :file "xiomacs.ogg")

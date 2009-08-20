@@ -5,8 +5,13 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
 
-** TODO [#A] Make textbox able to resize itself
+** TODO keys for pageup/pagedown
+** TODO render scrolled contents
+** TODO [#A] Indicate buffer pos/scrolling with scrollbar
+** TODO textbox modeline showing point-row/total lines, plus percentage
+** TODO [#A] Mouse scrolling (wheel?)
 ** TODO [#A] make pager not always resize to screenwidth
+** TODO [#A] TEST TEXTBOX WITH GPL TEXT
 ** TODO [#A] help popups on arbitrary strings, and hit-testing of formatters!
 ** TODO [#A] fix numlock having to be on 
 ** TODO [#A] integrate help text and mouse/key actions (RET, ESC) into widgets.lisp
@@ -23,10 +28,6 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 ** TODO [#A] Separate status displays for ship and dude
 ** TODO [#A] implement can-see method
 ** TODO [#A] player heat mechanic and boost attack
-** TODO BETA RELEASE FOR WIN/MAC/LINUX
-*** TODO character development
-*** TODO help/tutorial
-*** TODO all systems prototype
 
 ** TODO [#A] make freighters less difficult and worth bothering.. perhaps captains?
 *** TODO living crewmembers to rescue? 
@@ -76,7 +77,10 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 ** TODO [#B] message scrollback, on f4
 ** TODO [#C] joypad support 
 ** TODO [#C] fix muon trails showing up on top of firer
-** TODO [#C] fix circles not showing up until first move at beginning
+** TODO BETA RELEASE FOR WIN/MAC/LINUX
+*** TODO character development
+*** TODO help/tutorial
+*** TODO all systems prototype
 ** TODO [#C] fix trails showing up as terrain... use :ephemeral category
 ** TODO [#C] Free fonts? http://en.wikipedia.org/wiki/Category:Open_source_typefaces, http://proggyfonts.com/
 ** TODO [#C] move rooks to zeta base from nebula
