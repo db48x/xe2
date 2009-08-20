@@ -458,21 +458,21 @@
 	       ;;
 	       [resize status :height 80 :width 800]
 	       [set-character status ship]
-	       [update status]))
+	       [update status]
+	       [set-tile-size *view* 16]
+	       ;; the default is to track the current world:
+	       ;; [set-world *view* world] 
+	       [resize *view* :height 432 :width 800]
+	       [set-origin *view* :x 0 :y 0 :height 24 :width 50]
+	       [adjust *view*]
+	       ;;
+	       ;;    [set-tile-size minimap 1]
+	       [resize minimap :height 80 :width 120]
+	       [move minimap :x 600 :y 470]
+	       [set-origin minimap :x 0 :y 0 :height 100 :width 120]
+	       [adjust minimap]))
       (setf *space-bar-function* #'spacebar))
    ;;
-    [set-tile-size *view* 16]
-    ;; the default is to track the current world:
-    ;; [set-world *view* world] 
-    [resize *view* :height 432 :width 800]
-    [set-origin *view* :x 0 :y 0 :height 24 :width 50]
-    [adjust *view*]
-    ;;
-    ;;    [set-tile-size minimap 1]
-    [resize minimap :height 80 :width 120]
-    [move minimap :x 600 :y 470]
-    [set-origin minimap :x 0 :y 0 :height 100 :width 120]
-    [adjust minimap]
     ;;
     [resize textbox :height 100 :width 800]
     [move textbox :x 0 :y 0]
@@ -511,5 +511,4 @@
     (rlx:install-widgets splash-prompt splash)
     [add-page *pager* :play stack prompt status *view* narrator minimap] ;; stack2 message-box]
     [add-page *pager* :help textbox]))
-
 
