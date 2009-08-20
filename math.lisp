@@ -417,4 +417,8 @@ rectangles, or NIL if they would be smaller than one pixel."
 	     (setf (aref grid (second M) (first M)) V))))
     grid))
 
+;;; Cellular automata
+
+
+
 ;;; math.lisp ends here

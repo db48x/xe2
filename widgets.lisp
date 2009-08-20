@@ -561,6 +561,7 @@ normally."
 (define-prototype textbox (:parent =widget=)
   (font :initform ".default-font")
   (buffer :initform nil)
+  (bordered :initform nil)
   (max-displayed-rows :initform nil :documentation "An integer when scrolling is enabled.")
   (max-displayed-columns :initform nil)
   (background-color :initform ".blue")
@@ -645,30 +646,31 @@ This method allocates a new SDL surface when necessary."
 	       (line-lengths (mapcar #'(lambda (s)
 					 (font-text-extents s font))
 				     buffer)))
-	  [resize-to-fit self]
 	  ;; draw background
-	  (draw-box x y width height :destination image
-		    :stroke-color <foreground-color>
+	  (draw-box 0 0 width height :destination image
+		    :stroke-color (if <bordered>
+				      <foreground-color>
+				      <background-color>)
 		    :color <background-color>)
 	  ;; draw text
-	  (let ((x0 (+ x *textbox-margin*))
-		(y0 (+ y *textbox-margin*)))
+	  (let ((x0 (+ 0 *textbox-margin*))
+		(y0 (+ 0 *textbox-margin*)))
 	    (dolist (line (nthcdr <point-row> buffer))
 	      (draw-string-solid line x0 y0 :destination image
 				 :font font :color <foreground-color>)
-	      (incf y0 line-height))
-	    ;; draw cursor
-	    ;; TODO fix <point-row> to be drawn relative pos in scrolling
-	    (let* ((current-line (nth <point-row> buffer))
-		   (cursor-width (font-width font))
-		   (x1 (+ x *textbox-margin*
-			  (font-text-extents (subseq current-line 0 <point-column>)
-					     font)))
-		   (y1 (+ 2 y *textbox-margin*
-			  (* line-height <point-row>))))
-	      (draw-rectangle x1 y1 cursor-width line-height 
-			      :color ".yellow"
-			      :destination image))))))))
+	      (incf y0 line-height))))))))
+	    ;; ;; draw cursor
+	    ;; ;; TODO fix <point-row> to be drawn relative pos in scrolling
+	    ;; (let* ((current-line (nth <point-row> buffer))
+	    ;; 	   (cursor-width (font-width font))
+	    ;; 	   (x1 (+ 0 *textbox-margin*
+	    ;; 		  (font-text-extents (subseq current-line 0 <point-column>)
+	    ;; 				     font)))
+	    ;; 	   (y1 (+ 2 0 *textbox-margin*
+	    ;; 		  (* line-height <point-row>))))
+	    ;;   (draw-rectangle x1 y1 cursor-width line-height 
+	    ;; 		      :color ".yellow"
+	    ;; 		      :destination image))))))))
 
 ;;; The pager switches between different visible groups of widgets
 
@@ -701,14 +703,14 @@ This method allocates a new SDL surface when necessary."
 		   (number (car (nth (- page 1) <pages>)))
 		   (keyword page))))
     (if (null newpage)
-	(error "Cannot find page.")
+	(message "WARNING: Cannot find page.")
 	(progn 
 	  (setf <current-page> newpage)
 	  ;; insert self always as first widget
 	  (apply #'rlx:install-widgets self (cdr (assoc newpage <pages>)))))))
 
-(define-method auto-position pager ()
-  [resize self :width rlx:*screen-width* :height <pager-height>]
+(define-method auto-position pager (&key (width rlx:*screen-width*))
+  [resize self :width width :height <pager-height>]
   [move self :x 0 :y (- rlx:*screen-height* <pager-height>)])
 
 (define-method add-page pager (keyword &rest widgets)
@@ -739,7 +741,5 @@ This method allocates a new SDL surface when necessary."
     ;; draw the string
     (render-formatted-line (nreverse line) 0 0 :destination <image>)))
     
-    
-				  
 
 ;;; widgets.lisp ends here

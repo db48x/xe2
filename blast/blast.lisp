@@ -401,11 +401,19 @@
 
 ;;; Main program. 
 
+(defparameter *blast-window-width* 1100)
+(defparameter *blast-window-height* 600)
+
+(defparameter *right-column-width* 470)
+(defparameter *left-column-width* (- *blast-window-width* 
+				     *right-column-width*))
+
+
 (defun blast ()
   (rlx:message "Initializing Blast Tactics...")
   (setf clon:*send-parent-depth* 2) 
-  (rlx:set-screen-height 600)
-  (rlx:set-screen-width 800)
+  (rlx:set-screen-height *blast-window-height*)
+  (rlx:set-screen-width 1100)
   ;; (rlx:set-frame-rate 30)
   ;; (rlx:set-timer-interval 20)
   ;; (rlx:enable-timer)
@@ -422,14 +430,14 @@
 	 (splash (clone =splash=))
 	 (splash-prompt (clone =splash-prompt=))
 	 (textbox (clone =textbox=))
-	 (message-box (clone =textbox=))
+	 (terminal (clone =narrator=))
 	 (stack (clone =stack=))
 	 (stack2 (clone =stack=)))
     ;;
     (setf *view* (clone =view=))
     ;;
-    [resize splash :height 580 :width 800]
-    [move splash :x 0 :y 0]
+    [resize splash :height 580 :width *blast-window-width*]
+    [move splash :x 200 :y 0]
     [resize splash-prompt :width 10 :height 10]
     [move splash-prompt :x 0 :y 0]
     [hide splash-prompt]
@@ -440,7 +448,7 @@
     [hide prompt]
     [install-keybindings prompt]
     ;;
-    [resize narrator :height 100 :width 800]
+    [resize narrator :height 100 :width *left-column-width*]
     [set-verbosity narrator 0]
     ;;
     (labels ((spacebar ()
@@ -450,49 +458,48 @@
 		     :address '(=star-sector= :width 80 :height 80 
 				:stars 80 :freighters 6 :sequence-number (genseq))
 		     :prompt prompt
-		     :narrator narrator
+		     :narrator terminal
 		     :viewport *view*]
 	       [proxy ship dude]
 	       [loadout dude]
 	       [loadout ship]
 	       ;;
-	       [resize status :height 80 :width 800]
+	       [resize status :height 80 :width *left-column-width*]
 	       [set-character status ship]
 	       [update status]
 	       [set-tile-size *view* 16]
 	       ;; the default is to track the current world:
 	       ;; [set-world *view* world] 
-	       [resize *view* :height 432 :width 800]
-	       [set-origin *view* :x 0 :y 0 :height 24 :width 50]
+	       [resize *view* :height 432 :width *left-column-width*]
+	       [set-origin *view* :x 0 :y 0 :height 24 :width (truncate (/ *left-column-width*
+									   16))]
 	       [adjust *view*]
 	       ;;
 	       ;;    [set-tile-size minimap 1]
 	       [resize minimap :height 80 :width 120]
-	       [move minimap :x 600 :y 470]
+	       [move minimap :x 500 :y 470]
 	       [set-origin minimap :x 0 :y 0 :height 100 :width 120]
 	       [adjust minimap]))
       (setf *space-bar-function* #'spacebar))
    ;;
     ;;
-    [resize textbox :height 100 :width 800]
-    [move textbox :x 0 :y 0]
     [set-buffer textbox
 		(find-resource-object "help-message")]
+    [resize-to-fit textbox] 
+    [move textbox :x 0 :y 0]
     ;;
     (play-music "theme" :loop t)
     (set-music-volume 255)	       
     ;;
-    [resize stack :width 800 :height 580]
+    [resize stack :width *left-column-width* :height 580]
     [move stack :x 0 :y 0]
-    [set-children stack (list status *view* narrator)]
+    [set-children stack (list status *view*)]
     ;;
-    [resize message-box :height 100 :width 800]
-    [move message-box :x (- 1100 470) :y 0]
-    [set-buffer message-box
-		(find-resource-object "help-message")]
-    [move stack2 :x (- 1100 470) :y 0]
-    [resize stack2 :width 800 :height 580]
-    [set-children stack2 (list message-box)]
+    [resize terminal :height (- *blast-window-height* 20) :width *right-column-width*]
+    [move terminal :x *left-column-width* :y 0]
+    ;; [move stack2 :x *left-column-width* :y 0]
+    ;; [resize stack2 :width *right-column-width* :height 580]
+    ;; [set-children stack2 (list terminal)]
     ;;
     ;; HACK
     ;; (labels ((light-hack (sr sc r c &optional (color ".white"))
@@ -507,8 +514,8 @@
     ;;   (setf rlx::*lighting-hack-function* #'light-hack))
     ;;
     (setf *pager* (clone =pager=))
-    [auto-position *pager*]
+    [auto-position *pager*]; :width *left-column-width*]
     (rlx:install-widgets splash-prompt splash)
-    [add-page *pager* :play stack prompt status *view* narrator minimap] ;; stack2 message-box]
+    [add-page *pager* :play stack prompt status *view* minimap terminal]
     [add-page *pager* :help textbox]))
 

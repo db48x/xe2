@@ -5,13 +5,15 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
 
-** TODO crystal forest
-** TODO Add fixed-size 40-column text widget on right
+** TODO Display basic click help on objects and such.
 ** TODO keys for pageup/pagedown
 ** TODO render scrolled contents
 ** TODO [#A] Indicate buffer pos/scrolling with scrollbar
 ** TODO textbox modeline showing point-row/total lines, plus percentage
 ** TODO [#A] Mouse scrolling (wheel?)
+** TODO crystal forest
+** TODO cellular automata caves
+** TODO put something interesting in the nebula centerq
 ** TODO [#A] make pager not always resize to screenwidth
 ** TODO [#A] TEST TEXTBOX WITH GPL TEXT
 ** TODO [#A] help popups on arbitrary strings, and hit-testing of formatters!
@@ -112,33 +114,13 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 ** TODO Alien info display
 ** TODO scrolling message popup / interaction widget
 ** TODO print line number of current view
-** TODO f1 for help
-** TODO "f1 for help" notice onscreen
-** TODO Tabbed interface. press TAB to switch views.
-** TODO CLON speedups: cache 4 most recently used methods
 ** TODO assign set of required fields/types to each cell category and do sanity checks
-** TODO solve bidirectional nav problem
-** TODO escape ruins by edges of map
 ** TODO gun upgrade??!?
-** TODO 2-way portals between worlds in a universe
-** TODO define-method win-condition world
-** TODO world map edge conditions (wrap, block).
 ** TODO yellow text map overlay tooltips a la Ultima7?
 ** TODO rooms with guns/bases that must be destroyed, plus guardians
 ** TODO rook should check for obstructions before selecting a place to move to
-** TODO fix biclops not digging
 ** TODO make there be a point to destroying boxes
-** TODO Ion shield
-** TODO [#A] Tone down "asteroids" vibe... more exploration
-** TODO [#B] Implement multiple lisp files loading for startup
-** TODO [#C] Fix trail length not resetting on respawn
 ** TODO [#A] add weapon powerup firing particles?
-** TODO [#C] look into clbuild
-** TODO [#B] Non-dangerous explore area in blast <- collect minerals and get info help
-** TODO [#A] Portals between worlds
-** TODO [#A] Make a few different level variations
-** TODO meatpod manifesto
-** TODO artifacts
 ** FEATURE [#A] pak :startup type			 :engine:
 ** FEATURE [#A] pak autoload lisp in order		 :engine:
 ** FEATURE [#A] numpad support 				 :engine:
