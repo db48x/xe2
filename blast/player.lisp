@@ -511,8 +511,8 @@
 
 (define-method update-react-shield olvac ()
   (when (not (<= <invincibility-clock> 0))
-    (decf <invincibility-clock>)
-    [>>say :narrator "React shield up with ~D turns remaining." <invincibility-clock>]))
+    (decf <invincibility-clock>)))
+;;    [>>say :narrator "React shield up with ~D turns remaining." <invincibility-clock>]))
 
 (define-method move olvac (direction)
   (if [is-disabled self]

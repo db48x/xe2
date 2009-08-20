@@ -5,6 +5,8 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
 
+** TODO fix excessive react shield messages
+** TODO Character stats on top, vehicle/inventory on bottom of map
 ** TODO Display basic click help on objects and such.
 ** TODO keys for pageup/pagedown
 ** TODO render scrolled contents
