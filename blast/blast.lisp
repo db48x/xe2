@@ -508,8 +508,8 @@
     ;;
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
-    [add-page *pager* :main splash-prompt splash]
+    (rlx:install-widgets splash-prompt splash)
     [add-page *pager* :play stack prompt status *view* narrator minimap] ;; stack2 message-box]
-    [add-page *pager* :help textbox]
-    [select *pager* :main]))
+    [add-page *pager* :help textbox]))
+
 

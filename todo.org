@@ -5,6 +5,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
 
+** TODO fix crash on f2 if spacebar not pressed yet
 ** TODO keys for pageup/pagedown
 ** TODO render scrolled contents
 ** TODO [#A] Indicate buffer pos/scrolling with scrollbar
