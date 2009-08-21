@@ -10,12 +10,12 @@
   (tile :initform "pollen")
   (categories :initform '(:item :sprout-food)))
 
-(define-prototype pollen2 (:parent =pollen=)
+(defcell pollen2 
   (name :initform "Type 2 biosilicate pollen")
   (categories :initform '(:item :sprout-food))
   (tile :initform "pollen2"))
 
-(define-prototype pollen3a (:parent =pollen=)
+(defcell pollen3a
   (name :initform "Type 3A biosilicate pollen")
   (categories :initform '(:item :sprout-food))
   (tile :initform "pollen3a"))
