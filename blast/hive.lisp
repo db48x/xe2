@@ -17,7 +17,7 @@
 
 (defcell pollen3a
   (name :initform "Type 3A biosilicate pollen")
-  (categories :initform '(:item :sprout-food))
+  (categories :initform '(:item))
   (tile :initform "pollen3a"))
 
 (define-method step pollen3a (stepper)
@@ -35,7 +35,7 @@
 (defcell sprout 
   (tile :initform "sprout")
   (generation :initform 0)
-  (hit-points :initform (make-stat :base 3 :max 3 :min 0))
+  (hit-points :initform (make-stat :base 4 :max 7 :min 0))
   (speed :initform (make-stat :base 3))
   (strength :initform (make-stat :base 10))
   (defense :initform (make-stat :base 10))
@@ -46,10 +46,15 @@
 
 (define-method divide sprout ()
   [play-sample self "munch1"]
-  [drop self (clone =sprout=)])
+  [stat-effect self :hit-points 3]
+  (dotimes (i (if (zerop (random 17))
+		  2 1))
+    [drop self (clone =sprout=)]))
 
 (define-method die sprout ()
   [play-sample self "biodeath"]
+  (when (= 0 (random 20))
+    [drop self (clone =energy=)])
   [parent>>die self])
 
 (define-method grow sprout ()
@@ -153,6 +158,10 @@
 		    (random 12))
 		 (+ (truncate (/ width 2))
 		    (random 12))])
+    (dotimes (r 2)
+      [drop-cell self (clone =rook=) 
+		 (truncate (/ height 2))
+		 (truncate (/ width 2)) :loadout t])
     ;; drop clusters
     (dotimes (c clusters)
       [drop-cluster self (random height) (random width)])
