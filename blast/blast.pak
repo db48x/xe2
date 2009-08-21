@@ -79,6 +79,7 @@
  (:name "munch2" :type :sample :file "munch2.wav" :properties (:volume 10))
  (:name "slurp1" :type :sample :file "slurp1.wav" :properties (:volume 10))
  (:name "slurp2" :type :sample :file "slurp2.wav" :properties (:volume 10))
+ (:name "biodeath" :type :sample :file "biodeath.wav" :properties (:volume 30))
  (:name "bip" :type :sample :file "bip.wav" :properties (:volume 10))
  (:name "pop-ssh" :type :sample :file "pop-ssh.wav" :properties (:volume 30))
 

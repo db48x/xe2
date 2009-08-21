@@ -5,6 +5,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
 
+** TODO upon entering world, give its description in the terminal
 ** TODO don't model commodities as stats; instead use plist of "pile" objects
 ** TODO update linux kernel and ardour
 ** TODO MENU SYSTEM

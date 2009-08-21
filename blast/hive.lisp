@@ -48,6 +48,10 @@
   [play-sample self "munch1"]
   [drop self (clone =sprout=)])
 
+(define-method die sprout ()
+  [play-sample self "biodeath"]
+  [parent>>die self])
+
 (define-method grow sprout ()
   (incf <generation>)
   (when (= 3 <generation>)
@@ -68,11 +72,22 @@
 
 (define-method run sprout ()
   [move self (random-direction)]
-  (block searching
-    (dolist (dir rlx:*compass-directions*)
-      (when (or [in-category self :dead]
-		[find-food self dir])
-	(return-from searching)))))
+  (if (< [distance-to-player self] 6)
+      (progn [move self [direction-to-player self]]
+	     (if [adjacent-to-player self]
+		 [attack self [direction-to-player self]]))
+      ;; otherwise look for food
+      (block searching
+	(dolist (dir rlx:*compass-directions*)
+	  (when (or [in-category self :dead]
+		    [find-food self dir])
+	    (return-from searching))))))
+  
+(define-method attack sprout (direction)
+  (let ((player [get-player *active-world*]))
+    [play-sample self "munch2"]
+    [damage player 4]
+    [say self "The sprout hits you."]))
 
 (define-prototype biome (:parent rlx:=world=)
   (name :initform "Biosilicate Hive Biome")
