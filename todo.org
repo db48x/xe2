@@ -5,7 +5,15 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
 
-** TODO fix excessive react shield messages
+** TODO MENU SYSTEM
+** TODO Freighter should say how to exit C-p
+** TODO fix lag
+** TODO fix bullets not destroying adjacent graviceptors
+** TODO Spacesuit ok in zeta
+** TODO silicate bioform trees
+** TODO biosilicate manufacture
+** TODO color coded messages
+** TODO pinnk electric boxes in the center of the nebula with fuel and other cool shit
 ** TODO Character stats on top, vehicle/inventory on bottom of map
 ** TODO Display basic click help on objects and such.
 ** TODO keys for pageup/pagedown
@@ -86,7 +94,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 ** TODO BETA RELEASE FOR WIN/MAC/LINUX
 *** TODO character development
 *** TODO help/tutorial
-*** TODO all systems prototype
+*** TODO all systems prototyped
 ** TODO [#C] fix trails showing up as terrain... use :ephemeral category
 ** TODO [#C] Free fonts? http://en.wikipedia.org/wiki/Category:Open_source_typefaces, http://proggyfonts.com/
 ** TODO [#C] move rooks to zeta base from nebula

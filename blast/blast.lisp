@@ -497,6 +497,7 @@
     ;;
     [resize terminal :height (- *blast-window-height* 20) :width *right-column-width*]
     [move terminal :x *left-column-width* :y 0]
+    [set-verbosity terminal 0]
     ;; [move stack2 :x *left-column-width* :y 0]
     ;; [resize stack2 :width *right-column-width* :height 580]
     ;; [set-children stack2 (list terminal)]

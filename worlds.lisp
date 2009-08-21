@@ -286,15 +286,16 @@ so on, until no more messages are generated."
 	       (unqueue-message)
 	     (let ((rec (or [resolve-receiver self receiver] 
 			    receiver)))
-	       (when (and <narrator> 
-			  ;; only narrate player-related messages
-			  (or (eq player sender)
-			      (eq player rec)))
-		 ;; now print message
-		 [narrate-message <narrator> sender method-key rec args])
+	       ;; (when (and <narrator> 
+	       ;; 		  ;; only narrate player-related messages
+	       ;; 		  (or (eq player sender)
+	       ;; 		      (eq player rec)))
+	       ;; 	 ;; now print message
+	       ;; 	 (when (not (zerop (field-value :verbosity <narrator>)))
+	       ;; 	   [narrate-message <narrator> sender method-key rec args]))
 	       ;; stop everything if player dies
-	       ;(when (not [in-category player :dead])
-		 (apply #'send sender method-key rec args)))))))
+					;(when (not [in-category player :dead])
+	       (apply #'send sender method-key rec args)))))))
 
 (define-method forward world (method-key &rest args)
   "Send unhandled messages to the player object.
