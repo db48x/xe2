@@ -45,6 +45,7 @@
   (categories :initform '(:actor :obstacle :enemy :target)))
 
 (define-method divide sprout ()
+  [play-sample self "munch1"]
   [drop self (clone =sprout=)])
 
 (define-method grow sprout ()
@@ -59,6 +60,8 @@
   (let ((food [category-in-direction-p *active-world* <row> <column> direction :sprout-food]))
     (when food
       (prog1 food
+	[play-sample self (if (= 0 (random 1))
+			      "slurp1" "slurp2")]
 	[delete-from-world food]
 	[move self direction]
 	[grow self]))))
@@ -124,7 +127,7 @@
       (dotimes (i height)
     	(dotimes (j width)
     	  (setf value (aref plasma i j))
-    	  (when (< 0.7 value)
+    	  (when (< 0.9 value)
     	    [drop-cell self 
     		       =pollen2=
     		       i j]))))

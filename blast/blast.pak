@@ -75,6 +75,10 @@
  (:name "technetium-sound" :type :sample :file "technetium.wav" :properties (:volume 10))
  (:name "biosilicate-sound" :type :sample :file "biosilicate-sound.wav" :properties (:volume 10))
  (:name "worp" :type :sample :file "worp.wav" :properties (:volume 10))
+ (:name "munch1" :type :sample :file "munch1.wav" :properties (:volume 10))
+ (:name "munch2" :type :sample :file "munch2.wav" :properties (:volume 10))
+ (:name "slurp1" :type :sample :file "slurp1.wav" :properties (:volume 10))
+ (:name "slurp2" :type :sample :file "slurp2.wav" :properties (:volume 10))
  (:name "bip" :type :sample :file "bip.wav" :properties (:volume 10))
  (:name "pop-ssh" :type :sample :file "pop-ssh.wav" :properties (:volume 30))
 
