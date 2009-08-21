@@ -229,6 +229,17 @@
  (:name "muon" :type :image :file "muon.png")
 
  (:name "mystery-box" :type :image :file "mystery-box.png")
+ 
+ (:name "pollen" :type :image :file "pollen.png")
+ (:name "pollen2" :type :image :file "pollen2.png")
+ (:name "hive-gateway" :type :image :file "hive-gateway.png")
+ (:name "sprout" :type :image :file "sprout.png")
+ (:name "sprout2" :type :image :file "sprout2.png")
+ (:name "sprout3" :type :image :file "sprout3.png")
+ (:name "sprout4" :type :image :file "sprout4.png")
+ (:name "sprout5" :type :image :file "sprout5.png")
+ (:name "sprout6" :type :image :file "sprout6.png")
+ (:name "sprout-ground" :type :image :file "sprout-ground.png")
 
  (:name "muon-north" :type :image :file "muon-north.png")
  (:name "muon-east" :type :alias :data ":rotate 90:muon-north")
@@ -322,6 +333,7 @@
  (:name "derelict-lisp" :type :lisp :file "derelict.lisp" :properties (:autoload t))
  (:name "mars-lisp" :type :lisp :file "mars.lisp" :properties (:autoload t))
  (:name "bay-lisp" :type :lisp :file "bay.lisp" :properties (:autoload t))
+ (:name "hive-lisp" :type :lisp :file "hive.lisp" :properties (:autoload t))
  (:name ".startup" :type :lisp :file "startup.lisp" :properties (:autoload t))
 
 )
