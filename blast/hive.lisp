@@ -12,7 +12,22 @@
 
 (define-prototype pollen2 (:parent =pollen=)
   (name :initform "Type 2 biosilicate pollen")
+  (categories :initform '(:item :sprout-food))
   (tile :initform "pollen2"))
+
+(define-prototype pollen3a (:parent =pollen=)
+  (name :initform "Type 3A biosilicate pollen")
+  (categories :initform '(:item :sprout-food))
+  (tile :initform "pollen3a"))
+
+(define-method step pollen3a (stepper)
+  (when (and [is-player stepper]
+	     (has-field :pollen3a stepper))
+    (let ((amount (random 0.1)))
+      [stat-effect stepper :pollen3a amount]
+      [say self "Obtained ~d kg Type 3A biosilicate pollen." amount]
+      [play-sample self "biosilicate-sound"]
+      [die self])))
 
 (defparameter *sprout-tiles*
   '("sprout" "sprout2" "sprout3" "sprout4" "sprout5" "sprout6"))
@@ -44,29 +59,32 @@
   (let ((food [category-in-direction-p *active-world* <row> <column> direction :sprout-food]))
     (when food
       (prog1 food
+	[delete-from-world food]
 	[move self direction]
-	[grow self]
-	[die food]))))
+	[grow self]))))
 
 (define-method run sprout ()
   [move self (random-direction)]
   (block searching
     (dolist (dir rlx:*compass-directions*)
-      (when [find-food self dir]
+      (when (or [in-category self :dead]
+		[find-food self dir])
 	(return-from searching)))))
 
 (define-prototype biome (:parent rlx:=world=)
   (name :initform "Biosilicate Hive Biome")
   (ambient-light :initform :total)
+  (size :initform 10)
   (required-modes :initform '(:vehicle :spacesuit))
-  (clusters :initform 30)
+  (clusters :initform 10)
   ;;  (factory-count :initform 0) ;; some enemy
-  (height :initform 80)
-  (width :initform 80)
+  (height :initform 20)
+  (width :initform 20)
   (scale :initform '(1 m))
   (edge-condition :initform :block))
 
-;; (define-method begin-ambient-loop biome
+(define-method begin-ambient-loop biome ()
+  (play-music "hive-music" :loop t)) 
 
 (define-method drop-cluster biome (row column)
   (labels ((drop-pollen (r c &optional (type 1))
@@ -87,10 +105,13 @@
 		 (+ (- column 3)
 		    (random 5))])))
 
-(define-method generate biome (&key (height 80)
-				    (width 80)
+(define-method generate biome (&key height width clusters
 				    (sequence-number (random 32768))
-				    (clusters 10))
+				    (size 10)
+				    (pollen3a 30))
+  (setf <height> (or height (+ 20 (* size (random 8)))))
+  (setf <width> (or width (+ 30 (* size (random 8)))))
+  (setf <clusters> (or clusters (+ 5 (* size 2))))
   [create-default-grid self]
   (clon:with-field-values (height width clusters) self
     ;; drop floor
@@ -99,14 +120,21 @@
 	[drop-cell self (clone =hive-floor=) i j]))
     ;; drop plasma pollen
     (let ((plasma (rlx:render-plasma height width :graininess 0.3))
-	  (value nil))
+    	  (value nil))
       (dotimes (i height)
-	(dotimes (j width)
-	  (setf value (aref plasma i j))
-	  (when (< 0.7 value)
-	    [drop-cell self 
-		       =pollen2=
-		       i j]))))
+    	(dotimes (j width)
+    	  (setf value (aref plasma i j))
+    	  (when (< 0.7 value)
+    	    [drop-cell self 
+    		       =pollen2=
+    		       i j]))))
+    ;; drop precious pollen3a
+    (dotimes (p pollen3a)
+      [drop-cell self (clone =pollen3a=) 
+		 (+ (truncate (/ height 2))
+		    (random 12))
+		 (+ (truncate (/ width 2))
+		    (random 12))])
     ;; drop clusters
     (dotimes (c clusters)
       [drop-cluster self (random height) (random width)])

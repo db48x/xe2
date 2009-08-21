@@ -217,7 +217,7 @@
  (:name "tech-blackmetal" :type :image :file "tech-blackmetal")
 
  (:name "technogirl" :type :music :file "technogirl-x.ogg")
- (:name "theme" :type :music :file "theme3.ogg":properties (:volume 10))
+ (:name "theme" :type :music :file "theme3.ogg":properties (:volume 7))
  (:name "crisis" :type :music :file "crisis.ogg" :properties (:volume 30))
  (:name "raid" :type :music :file "raid.ogg" :properties (:volume 8))
  (:name "xiomacs" :type :music :file "xiomacs.ogg")
@@ -232,6 +232,7 @@
  
  (:name "pollen" :type :image :file "pollen.png")
  (:name "pollen2" :type :image :file "pollen2.png")
+ (:name "pollen3a" :type :image :file "pollen3a.png")
  (:name "hive-gateway" :type :image :file "hive-gateway.png")
  (:name "sprout" :type :image :file "sprout.png")
  (:name "sprout2" :type :image :file "sprout2.png")
@@ -310,6 +311,7 @@
  (:name "red-plasma" :type :image :file "red-plasma.png")
  (:name "nebula-m-gateway" :type :image :file "nebula-m-gateway.png")
  (:name "black-thunder" :type :music :file "black0999.ogg")
+ (:name "hive-music" :type :music :file "hive.ogg" :properties (:volume 10))
  (:name "basswarp" :type :music :file "basswarp.ogg")
 
  (:name "freighter-gateway" :type :image :file "freighter-gateway.png")

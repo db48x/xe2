@@ -373,7 +373,7 @@ unproxying. By default, it does nothing."
 	     ;; edge conditions only affect player for now
 	     (when [is-player self]
 	       (ecase (field-value :edge-condition world)
-		 (:block nil)
+		 (:block [say self "You cannot move in that direction."])
 		 (:wrap nil) ;; TODO implement this for planet maps
 		 (:exit [exit *active-universe*]))))
 	    ([obstacle-at-p *active-world* r c] nil)
