@@ -98,19 +98,20 @@
 
 (defcell toxic-hazard
   (name :initform "Toxic hazard")
-  (clock :initform 8)
+  (clock :initform 15)
   (tile :initform "toxic-hazard")
-  (categories :initform '(:target :actor :item))
+  (categories :initform '(:target :actor :item :opaque))
   (hit-points :initform (make-stat :base 4 :min 0)))
 
 (define-method step toxic-hazard (stepper)
   (when [is-player stepper]
     [say self "TOXIC HAZARD!"]
-    [damage stepper 4]
-    [add-category stepper :toxic]))
+    [damage stepper 4]))
+;;    [add-category stepper :toxic]))
 
 (define-method run toxic-hazard ()
   (decf <clock>)
+  [expend-default-action-points self]
   (when (zerop <clock>)
     [die self]))
 
@@ -131,6 +132,7 @@
 (define-method run excretor ()
   (when (< [distance-to-player self] 15)
     [drop self (clone =toxic-hazard=)]
+
     (setf <direction> [direction-to-player self])
     (when [obstacle-in-direction-p *active-world* <row> <column> <direction>]
       (setf <direction> (random-direction)))

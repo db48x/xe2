@@ -494,6 +494,7 @@
 	 [update-react-shield self]
 	 [update *status*])))
 
+
 (define-method wait olvac ()
   [say self "Skipped one turn."]
   [expend-action-points self <action-points>])

@@ -5,6 +5,8 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
 
+** TODO REVIEW AND PRIORITIZE TODO LIST
+** TODO player missile launcher
 ** TODO pheromones
 ** TODO guy uses oxygen whenever outside vehicle?
 ** TODO commodities trading consortium
