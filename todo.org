@@ -5,7 +5,12 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
 
+** TODO pheromones
+** TODO guy uses oxygen whenever outside vehicle?
+** TODO commodities trading consortium
 ** TODO upon entering world, give its description in the terminal
+** TODO evasive and neutral entities
+** TODO vines that surround you
 ** TODO don't model commodities as stats; instead use plist of "pile" objects
 ** TODO update linux kernel and ardour
 ** TODO MENU SYSTEM

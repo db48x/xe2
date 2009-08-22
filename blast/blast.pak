@@ -70,6 +70,9 @@
  (:name "tech-stone-moss" :type :image :file "tech-stone-moss.png")
  (:name "yellow-tech-brick" :type :image :file "yellow-tech-brick.png")
 
+ (:name "excretor" :type :image :file "excretor.png")
+ (:name "toxic-hazard" :type :image :file "toxic-hazard.png")
+
  (:name "gas-poof" :type :sample :file "gas.wav" :properties (:volume 4))
  (:name "powerdown" :type :sample :file "powerdown.wav" :properties (:volume 10))
  (:name "technetium-sound" :type :sample :file "technetium.wav" :properties (:volume 10))

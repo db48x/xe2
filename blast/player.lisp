@@ -486,6 +486,9 @@
 	((<= [stat-value self :speed] 0)
 	 (progn [say self "You are paralyzed. You suffocate and die."]
 		[die self]))
+	([in-category self :toxic]
+	 [say self "You suffer toxic hazard damage. You must find a tox hypo."]
+	 [damage self 1])
 	(t 
 	 [update-tile self]
 	 [update-react-shield self]

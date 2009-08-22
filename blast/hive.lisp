@@ -94,6 +94,50 @@
     [damage player 4]
     [say self "The sprout hits you."]))
 
+;;; Poison cells that harm the player
+
+(defcell toxic-hazard
+  (name :initform "Toxic hazard")
+  (clock :initform 8)
+  (tile :initform "toxic-hazard")
+  (categories :initform '(:target :actor :item))
+  (hit-points :initform (make-stat :base 4 :min 0)))
+
+(define-method step toxic-hazard (stepper)
+  (when [is-player stepper]
+    [say self "TOXIC HAZARD!"]
+    [damage stepper 4]
+    [add-category stepper :toxic]))
+
+(define-method run toxic-hazard ()
+  (decf <clock>)
+  (when (zerop <clock>)
+    [die self]))
+
+;;; The excretors
+
+(defcell excretor 
+  (tile :initform "excretor")
+  (generation :initform 0)
+  (hit-points :initform (make-stat :base 12 :max 12 :min 0))
+  (speed :initform (make-stat :base 2))
+  (strength :initform (make-stat :base 10))
+  (defense :initform (make-stat :base 10))
+  (stepping :initform t)
+  (movement-cost :initform (make-stat :base 10))
+  (direction :initform (random-direction))
+  (categories :initform '(:actor :obstacle :enemy :target)))
+
+(define-method run excretor ()
+  (when (< [distance-to-player self] 15)
+    [drop self (clone =toxic-hazard=)]
+    (setf <direction> [direction-to-player self])
+    (when [obstacle-in-direction-p *active-world* <row> <column> <direction>]
+      (setf <direction> (random-direction)))
+    [move self <direction>]))
+
+;;; The Biome
+
 (define-prototype biome (:parent rlx:=world=)
   (name :initform "Biosilicate Hive Biome")
   (ambient-light :initform :total)
@@ -131,7 +175,8 @@
 (define-method generate biome (&key height width clusters
 				    (sequence-number (random 32768))
 				    (size 10)
-				    (pollen3a 30))
+				    (pollen3a 30)
+				    (excretors 10))
   (setf <height> (or height (+ 20 (* size (random 8)))))
   (setf <width> (or width (+ 30 (* size (random 8)))))
   (setf <clusters> (or clusters (+ 5 (* size 2))))
@@ -165,6 +210,9 @@
     ;; drop clusters
     (dotimes (c clusters)
       [drop-cluster self (random height) (random width)])
+    ;; drop excretors
+    (dotimes (ex excretors)
+      [drop-cell self (clone =excretor=) (random height) (random width)])
     ;; player 
     [drop-cell self (clone =launchpad=) (random 16) (random 16)]))
 
