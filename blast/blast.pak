@@ -73,6 +73,8 @@
  (:name "excretor" :type :image :file "excretor.png")
  (:name "toxic-hazard" :type :image :file "toxic-hazard.png")
  (:name "repair" :type :image :file "repair.png")
+ (:name "leech" :type :image :file "leech.png")
+ (:name "leech-slime" :type :image :file "leech-slime.png")
 
  (:name "gas-poof" :type :sample :file "gas.wav" :properties (:volume 4))
  (:name "powerdown" :type :sample :file "powerdown.wav" :properties (:volume 10))

@@ -115,6 +115,61 @@
   (when (zerop <clock>)
     [die self]))
 
+;;; The leeches
+
+(defcell leech-slime
+  (name :initform "Caustic leech slime trail")
+  (clock :initform 15)
+  (tile :initform "leech-slime")
+  (categories :initform '(:target :actor :item :opaque))
+  (hit-points :initform (make-stat :base 4 :min 0)))
+
+(define-method step leech-slime (stepper)
+  (when [is-player stepper]
+    [say self "TOXIC HAZARD!"]
+    [damage stepper 4]))
+;;    [add-category stepper :toxic]))
+
+(define-method run leech-slime ()
+  (decf <clock>)
+  [expend-default-action-points self]
+  (when (zerop <clock>)
+    [die self]))
+
+(defcell leech 
+  (tile :initform "leech")
+  (generation :initform 0)
+  (hit-points :initform (make-stat :base 12 :max 30 :min 0))
+  (speed :initform (make-stat :base 2))
+  (strength :initform (make-stat :base 10))
+  (defense :initform (make-stat :base 10))
+  (stepping :initform t)
+  (movement-cost :initform (make-stat :base 10))
+  (direction :initform (random-direction))
+
+(define-method run leech ()
+  (if (< [distance-to-player self] 10)
+
+(defcell toxic-hazard
+  (name :initform "Caustic leech slime")
+  (clock :initform 15)
+  (tile :initform "leech-slime")
+  (categories :initform '(:target :actor :item :opaque))
+  (hit-points :initform (make-stat :base 4 :min 0)))
+
+(define-method step toxic-hazard (stepper)
+  (when [is-player stepper]
+    [say self "TOXIC HAZARD!"]
+    [damage stepper 4]))
+;;    [add-category stepper :toxic]))
+
+\(define-method run toxic-hazard ()
+  (decf <clock>)
+  [expend-default-action-points self]
+  (when (zerop <clock>)
+    [die self]))
+     
+
 ;;; The excretors
 
 (defcell excretor 
