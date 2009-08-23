@@ -381,6 +381,9 @@
     (:seeking [seek self])
     (:fleeing [flee self])))
 
+(define-method die rook ()
+  [drop self (clone =repair-module=)])
+
 (define-method seek rook ()
   (clon:with-field-values (row column) self
     (when (< [distance-to-player *active-world* row column] 10)

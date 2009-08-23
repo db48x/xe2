@@ -101,7 +101,7 @@
   (clock :initform 15)
   (tile :initform "toxic-hazard")
   (categories :initform '(:target :actor :item :opaque))
-  (hit-points :initform (make-stat :base 4 :min 0)))
+  (hit-points :initform (make-stat :base 6 :min 0)))
 
 (define-method step toxic-hazard (stepper)
   (when [is-player stepper]
@@ -135,35 +135,44 @@
   [expend-default-action-points self]
   (when (zerop <clock>)
     [die self]))
-
-(defcell leech 
+ 
+(defcell leech
   (tile :initform "leech")
+  (name :initform "Lithoform Leech")
   (generation :initform 0)
+  (categories initform '(:enemy :target :actor))
   (hit-points :initform (make-stat :base 12 :max 30 :min 0))
-  (speed :initform (make-stat :base 2))
+  (speed :initform (make-stat :base 12))
   (strength :initform (make-stat :base 10))
   (defense :initform (make-stat :base 10))
   (stepping :initform t)
-  (movement-cost :initform (make-stat :base 10))
-  (direction :initform (random-direction))
+  (movement-cost :initform (make-stat :base 6))
+  (direction :initform (random-direction)))
 
 (define-method run leech ()
-  (if (< [distance-to-player self] 10)
+  [move self (random-direction)]
+  ;; (if (< [distance-to-player self] 13)	
+  [drop self (clone =leech-slime=)]
+  (progn [move self [direction-to-player self]]
+	 (when [adjacent-to-player self]
+	   [drop self (clone =leech-slime=)]
+	   [move self (random-direction)])))
 
-(defcell toxic-hazard
+(defcell leech-slime
   (name :initform "Caustic leech slime")
   (clock :initform 15)
   (tile :initform "leech-slime")
   (categories :initform '(:target :actor :item :opaque))
   (hit-points :initform (make-stat :base 4 :min 0)))
 
-(define-method step toxic-hazard (stepper)
+(define-method step leech-slime (stepper)
   (when [is-player stepper]
-    [say self "TOXIC HAZARD!"]
-    [damage stepper 4]))
+    [say self "You lose 2 speed points by becoming coated leech slime.!"]
+    [stat-effect stepper :speed -2]
+    [damage stepper 1]))
 ;;    [add-category stepper :toxic]))
 
-\(define-method run toxic-hazard ()
+(define-method run leech-slime ()
   (decf <clock>)
   [expend-default-action-points self]
   (when (zerop <clock>)
@@ -238,6 +247,7 @@
 				    (sequence-number (random 32768))
 				    (size 10)
 				    (pollen3a 30)
+				    (leeches 10)
 				    (excretors 10))
   (setf <height> (or height (+ 20 (* size (random 8)))))
   (setf <width> (or width (+ 30 (* size (random 8)))))
@@ -268,7 +278,9 @@
     (dotimes (r 2)
       [drop-cell self (clone =rook=) 
 		 (truncate (/ height 2))
-		 (truncate (/ width 2)) :loadout t])
+		 (truncate (/ width 2)) :loadout t])    ;;
+    (dotimes (l leeches)
+      [drop-cell self (clone =leech=) (random height) (random width)])
     ;; drop clusters
     (dotimes (c clusters)
       [drop-cluster self (random height) (random width)])
