@@ -52,11 +52,13 @@
   (tile :initform "diamond"))
 
 (define-method step diamond (stepper)
-  (when [is-player stepper]
-   [play-sample self "powerup"]
-   [stat-effect stepper :hit-points 8]
-   [stat-effect stepper :score 2000]
-   [die self]))
+  (if (and [is-player stepper]
+	   (eq :spacesuit (field-value :mode stepper)))
+      (progn [say self "You recover some health from the health-pak."]
+	     [play-sample self "powerup"]
+	     [stat-effect stepper :hit-points 8]
+	     [die self])
+      [say self "You cannot use this health-pak while in a vehicle."]))
 
 ;;; Endurium crystals to collect.
 

@@ -425,6 +425,23 @@
 	       (draw-circle x y 25 :destination image))))
     [>>add-overlay :viewport #'do-circle]))
 
+;;; Ship repair modules
+
+(defcell repair-module
+  (name :initform "Nanorepair module")
+  (tile :initform "repair")
+  (description :initform "This nanorepair module can restore hit points to machines and other repairable items."))
+
+(define-method step repair-module (stepper)
+  (when [is-player stepper]
+    (if (eq :vehicle (field-value :mode stepper))
+	(progn 
+	  [play-sample self "technetium-sound"]
+	  [stat-effect stepper :hit-points 5]
+	  [say self "The nanorepair module restores some structural integrity to your vehicle."]
+	  [die self])
+	[say self "You cannot use nano-repairs on a spacesuit."])))
+
 ;;; Your ship.
 
 (defcell olvac 
@@ -453,13 +470,13 @@
   (stepping :initform t)
   (attacking-with :initform nil)
   (firing-with :initform :center-bay)
-  (categories :initform '(:actor :player :target :container :light-source :vehicle))
+  (categories :initform '(:actor :player :target :container :light-source :vehicle :repairable))
   (equipment-slots :initform '(:left-bay :right-bay :center-bay :extension))
   (boost-clock :initform 0))
 
 (define-method is-disabled olvac ()
   (< [stat-value self :hit-points]
-     8))
+     6))
 
 (define-method loadout olvac ()
   [make-inventory self]
@@ -493,8 +510,7 @@
 	 [update-tile self]
 	 [update-react-shield self]
 	 [update *status*])))
-
-
+\
 (define-method wait olvac ()
   [say self "Skipped one turn."]
   [expend-action-points self <action-points>])

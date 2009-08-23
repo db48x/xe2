@@ -138,6 +138,11 @@
       (setf <direction> (random-direction)))
     [move self <direction>]))
 
+(define-method die excretor ()
+  [play-sample self "death-alien"]
+  [drop self (clone =repair-module=)]
+  [parent>>die self])
+
 ;;; The Biome
 
 (define-prototype biome (:parent rlx:=world=)
