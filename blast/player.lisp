@@ -438,7 +438,7 @@
 	(progn 
 	  [play-sample self "technetium-sound"]
 	  [stat-effect stepper :hit-points 5]
-	  [say self "The nanorepair module restores some structural integrity to your vehicle."]
+	  [say self "The nanorepair module fixed some damage to your vehicle."]
 	  [die self])
 	[say self "You cannot use nano-repairs on a spacesuit."])))
 

@@ -1,3 +1,4 @@
+
 (in-package :blast)
 
 ;;; Radiation graviceptors leave energy behind when you kill them

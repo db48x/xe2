@@ -78,7 +78,7 @@
 
  (:name "gas-poof" :type :sample :file "gas.wav" :properties (:volume 4))
  (:name "powerdown" :type :sample :file "powerdown.wav" :properties (:volume 10))
- (:name "technetium-sound" :type :sample :file "technetium.wav" :properties (:volume 10))
+ (:name "technetium-sound" :type :sample :file "technetium.wav" :properties (:volume 7))
  (:name "biosilicate-sound" :type :sample :file "biosilicate-sound.wav" :properties (:volume 10))
  (:name "worp" :type :sample :file "worp.wav" :properties (:volume 10))
  (:name "munch1" :type :sample :file "munch1.wav" :properties (:volume 10))
