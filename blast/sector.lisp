@@ -98,6 +98,21 @@
 (define-method step hive-gateway (stepper)
   [>>narrateln :narrator "A free-floating biosilicate hive sac. Press RETURN to enter."])
 
+;;; cavves
+
+(defvar *cave-sequence-number* 0)
+
+(define-prototype cavern-gateway (:parent =gateway=)
+  (tile :initform "cave-gateway")
+  (name :initform "Asteroid cave")
+  (address :initform (list '=cavern=
+			   ;; ensure all caves are distinct
+			   :sequence-number 
+			   (incf *cave-sequence-number*))))
+
+(define-method step cavern-gateway (stepper)
+  [say self "A free-floating cave. Press RETURN to enter."])
+
 ;;; The first mission: the ocean planet bombing run! 
 
 (define-prototype ocean-gateway (:parent =gateway=)
@@ -126,7 +141,8 @@
 					  (width 80)
 					  sequence-number
 					  (freighters 5)
-					  (hives 10)
+					  (hives 4)
+					  (caves 5)
 					  (stars 80))
   (setf <height> height <width> width)
   [create-default-grid self]
@@ -142,6 +158,8 @@
     [drop-cell self (clone =freighter-gateway=) (random 30) (random 30)])
   (dotimes (i hives)
     [drop-cell self (clone =hive-gateway=) (random 30) (random 30)])
+  (dotimes (i caves)
+    [drop-cell self (clone =cavern-gateway=) (random 30) (random 30)])
   [drop-cell self (clone =zeta-base-gateway=) (random 20) (random 20)]
   [drop-cell self (clone =mars-gateway=) (random 20) (random 20)]
   [drop-cell self (clone =ocean-gateway=) (random 20) (random 20)]

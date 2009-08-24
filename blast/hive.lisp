@@ -81,7 +81,8 @@
       (progn [move self [direction-to-player self]]
 	     (if [adjacent-to-player self]
 		 [attack self [direction-to-player self]]))
-      ;; otherwise look for food
+
+    ;; otherwise look for food
       (block searching
 	(dolist (dir rlx:*compass-directions*)
 	  (when (or [in-category self :dead]
@@ -115,54 +116,6 @@
   (when (zerop <clock>)
     [die self]))
 
-;;; The slime the leeches leave behind
-
-(defcell leech-slime
-  (name :initform "Caustic leech slime")
-  (clock :initform 15)
-  (tile :initform "leech-slime")
-  (categories :initform '(:target :actor :item :opaque))
-  (hit-points :initform (make-stat :base 4 :min 0)))
-
-(define-method step leech-slime (stepper)
-  (when [is-player stepper]
-    [say self "You lose 2 speed points by becoming coated in leech slime!"]
-    [stat-effect stepper :speed -2]
-    [damage stepper 1]))
-;;    [add-category stepper :toxic]))
-
-(define-method run leech-slime ()
-  (decf <clock>)
-  [expend-default-action-points self]
-  (when (zerop <clock>)
-    [die self]))
-
-;;; The leeches
-
-(defcell leech
-  (tile :initform "leech")
-  (name :initform "Lithoform Leech")
-  (categories :initform '(:actor :enemy :target :opaque :obstacle))
-  (hit-points :initform (make-stat :base 12 :max 30 :min 0))
-  (speed :initform (make-stat :base 40))
-  (strength :initform (make-stat :base 10))
-  (defense :initform (make-stat :base 10))
-  (stepping :initform t)
-  (movement-cost :initform (make-stat :base 6))
-  (direction :initform (random-direction)))
- 
-(define-method run leech ()
-  [drop self (clone =leech-slime=)]
-  [move self (random-direction)])
-
-  ;; (if (< [distance-to-player self] 13)	
-  ;;     [drop self (clone =leech-slime=)]
-  ;;     (progn [move self [direction-to-player self]]
-  ;; 	     (when [adjacent-to-player self]
-  ;; 	       [play-sample "self" "speedsuck"]
-  ;; 	       [drop self (clone =leech-slime=)]
-  ;; 	       [move self (random-direction)]))))
- 
 ;;; The excretors
 
 (defcell excretor 
@@ -178,23 +131,23 @@
   (categories :initform '(:actor :obstacle :enemy :target)))
 
 (define-method run excretor ()
-  (when (< [distance-to-player self] 15)
+  (when (< [distance-to-player self] 12)
     [drop self (clone =toxic-hazard=)]
     (setf <direction> [direction-to-player self])
     (when [obstacle-in-direction-p *active-world* <row> <column> <direction>]
       (setf <direction> (random-direction)))
     [move self <direction>]))
 
+
 (defun hive-random-powerup ()
   (clone (ecase (random 3)
-	   (1 =repair-module=)
-	   (2 =diamond=)
-	   (3 =energy-tank=))))
+	   (0 =repair-module=)
+	   (1 =diamond=)
+	   (2 =energy=))))
 	      
-
 (define-method die excretor ()
   [play-sample self "death-alien"]
-  [drop self (clone =repair-module=)]
+  [drop self (hive-random-powerup)]
   [parent>>die self])
 
 ;;; The Biome
@@ -269,8 +222,6 @@
       [drop-cell self (clone =rook=) 
 		 (truncate (/ height 2))
 		 (truncate (/ width 2)) :loadout t])    ;;
-    (dotimes (l leeches)
-      [drop-cell self (clone =leech=) (random height) (random width) :loadout t])
     ;; drop clusters
     (dotimes (c clusters)
       [drop-cluster self (random height) (random width)])
@@ -287,4 +238,4 @@
 
 
   
-bz
+
