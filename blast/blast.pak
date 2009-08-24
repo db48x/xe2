@@ -248,7 +248,7 @@
  (:name "hive-gateway" :type :image :file "hive-gateway.png")
  (:name "cave-gateway" :type :image :file "cave-gateway.png")
  (:name "cave-floor" :type :image :file "cave-floor.png")
- (:name "cave-floor-gold" :type :image :file "cave-floor-gold.png")
+ (:name "cave-floor2" :type :image :file "cave-floor2.png")
 
  (:name "sprout" :type :image :file "sprout.png")
  (:name "sprout2" :type :image :file "sprout2.png")

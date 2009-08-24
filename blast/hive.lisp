@@ -103,7 +103,7 @@
 
 (defcell toxic-hazard
   (name :initform "Toxic hazard")
-  (clock :initform 15)
+  (clock :initform 20)
   (tile :initform "toxic-hazard")
   (categories :initform '(:target :actor :item :opaque))
   (hit-points :initform (make-stat :base 6 :min 0)))
@@ -143,9 +143,10 @@
     [move self <direction>]))
 
 (defun hive-random-powerup ()
-  (clone (ecase (random 3)
+  (clone (ecase (random 4)
 	   (0 =repair-module=)
 	   (1 =diamond=)
+	   (3 =bomb-ammo=)
 	   (2 =energy=))))
 	      
 (define-method die excretor ()
