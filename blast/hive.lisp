@@ -47,12 +47,14 @@
 (define-method divide sprout ()
   [play-sample self "munch1"]
   [stat-effect self :hit-points 3]
+  [say self "The sprout divides into two, gaining strength in the process."]
   (dotimes (i (if (zerop (random 17))
 		  2 1))
     [drop self (clone =sprout=)]))
 
 (define-method die sprout ()
   [play-sample self "biodeath"]
+  [say self "The sprout dies."]
   (when (= 0 (random 20))
     [drop self (clone =energy=)])
   [parent>>die self])
@@ -62,6 +64,7 @@
   (when (= 3 <generation>)
     [divide self])
   (when (> <generation> 5)
+    [say self "The sprout becomes overage."]
     [die self])
   (setf <tile> (nth <generation> *sprout-tiles*)))
 
@@ -71,6 +74,7 @@
       (prog1 food
 	[play-sample self (if (= 0 (random 1))
 			      "slurp1" "slurp2")]
+	[say self "The sprout eats pollen."]
 	[delete-from-world food]
 	[move self direction]
 	[grow self]))))
@@ -137,7 +141,6 @@
     (when [obstacle-in-direction-p *active-world* <row> <column> <direction>]
       (setf <direction> (random-direction)))
     [move self <direction>]))
-
 
 (defun hive-random-powerup ()
   (clone (ecase (random 3)
@@ -225,7 +228,7 @@
     ;; drop clusters
     (dotimes (c clusters)
       [drop-cluster self (random height) (random width)])
-    ;; drop excretors
+     ;; drop excretors
     (dotimes (ex excretors)
       [drop-cell self (clone =excretor=) (random height) (random width)])
     ;; player 

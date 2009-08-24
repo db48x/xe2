@@ -383,7 +383,8 @@
     (:fleeing [flee self])))
 
 (define-method die rook ()
-  [drop self (clone =repair-module=)])
+  [drop self (clone =repair-module=)]
+  [parent>>die self])
 
 (define-method seek rook ()
   (clon:with-field-values (row column) self

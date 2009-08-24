@@ -360,7 +360,15 @@ unproxying. By default, it does nothing."
 ;;; Narrator
 
 (define-method say cell (format-string &rest args)
-  (apply #'send-queue self :say :narrator format-string args))
+  (unless [in-category self :dead]
+    (let ((range (if (clon:has-field :hearing-range self)
+		     <hearing-range>
+		     *default-sample-hearing-range*))
+	  (dist (distance <column> <row> 
+			  [player-column *active-world*]
+			  [player-row *active-world*])))
+      (when (> range dist)
+	(apply #'send-queue self :say :narrator format-string args)))))
 
 ;;; Cell movement
 
