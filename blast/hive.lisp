@@ -52,14 +52,22 @@
 		  2 1))
     [drop self (clone =sprout=)]))
 
+(define-method damage sprout (points)
+  (let ((r <row>)
+	(c <column>))
+    [parent>>damage self points]
+    (when [in-category self :dead]
+      (percent-of-time 33
+	[drop-cell *active-world*
+		   (case (random 3)
+		     (0 (clone =energy=))
+		     (1 (clone =biosilicate=))
+		     (2 (clone =repair-module=)))
+		   r c]))))
+
 (define-method die sprout ()
   [play-sample self "biodeath"]
   [say self "The sprout dies."]
-  (percent-of-time 12
-    [drop self (case (random 3)
-		 (0 (clone =energy=))
-		 (1 (clone =biosilicate=))
-		 (2 (clone =repair=)))])
   [parent>>die self])
 
 (define-method grow sprout ()
