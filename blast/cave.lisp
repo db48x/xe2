@@ -62,7 +62,7 @@
   (height :initform 50)
   (width :initform 50)
   (scale :initform '(5 m))
-  (edge-condition :initform :block))
+  (edge-condition :initform :exit))
 
 (define-method drop-water cavern ()
   (clon:with-field-values (height width) self
