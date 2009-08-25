@@ -31,13 +31,13 @@
 
 (define-prototype vomac (:parent =olvac=)
   (tile :initform "vomac")
-  (mode :initform :vomac)
+  (mode :initform :vehicle)
   (name :initform "Vomac XLUX Fighter")
   (last-direction :initform :here)
   (speed :initform (make-stat :base 9 :min 0 :max 25))
   (strength :initform (make-stat :base 12))
   (defense :initform (make-stat :base 15))
-  (hearing-range :initform 18)
+  (hearing-range :initform 15)
   (energy :initform (make-stat :base 70 :min 0 :max 70 :unit :gj))
   (pollen3a :initform (make-stat :base 0 :min 0 :max 30 :unit :kg))
   (endurium :initform (make-stat :base 70 :min 0 :max 140 :unit :kg))
@@ -57,11 +57,11 @@
   (equipment-slots :initform '(:left-bay :right-bay :center-bay :extension))
   (boost-clock :initform 0))
 
-(define-method damage vomac (points)
-  [stat-effect self :hit-points (- points)]
-  (when (zerop [stat-value self :hit-points])
-    [play-sample self "aagh"]
-    [die self]))
+;; (define-method damage vomac (points)
+;;   [stat-effect self :hit-points (- points)]
+;;   (when (zerop [stat-value self :hit-points])
+;;     [play-sample self "aagh"]
+;;     [die self]))
 
 (define-method update-tile vomac ()
   nil)
@@ -92,8 +92,13 @@
 (define-method update-tile defleptor-wave ()
   (setf <tile> (case <direction> 
 		 (:north "defleptorwave")
+		 (:south "defleptorwave-south")
+		 (:west "defleptorwave-west")
+		 (:east "defleptorwave-east")
 		 (:northeast "defleptorwave-northeast")
 		 (:northwest "defleptorwave-northwest")
+		 (:southeast "defleptorwave-southeast")
+		 (:southwest "defleptorwave-southwest")
 		 (otherwise ".gear"))))
   
 (define-method drop-trail defleptor-wave (direction)
@@ -106,24 +111,57 @@
 
 (define-method fire vomac-cannon (direction)
   (if [expend-energy <equipper> [stat-value self :energy-cost]]
-      (let ((wave1 (clone =defleptor-wave=))
-	    (wave2 (clone =defleptor-wave=))
-	    (wave3 (clone =defleptor-wave=)))
-	[play-sample <equipper> "dtmf1"]
-	[drop <equipper> wave1]
-	[drop <equipper> wave2]
-	[drop <equipper> wave3]
-	[impel wave1 :north]
-	[impel wave2 :northeast]
-	[impel wave3 :northwest]
+      (let (wave)
+	(dolist (dir (delete :here rlx:*compass-directions*))
+	  (setf wave (clone =defleptor-wave=))
+	  [drop <equipper> wave]
+	  [impel wave dir])
 	[expend-default-action-points self])
-      [say self "Not enough energy to fire!"]))
+      [say <equipper> "Not enough energy to fire!"]))
 
 (define-method loadout vomac ()
   [make-inventory self]
   [make-equipment self]
   [equip self [add-item self (clone =vomac-cannon=)]])
+
+;;; The vaxodrones
+
+(defcell vaxodrone 
+  (name :initform "VAXodrone")
+  (categories :initform '(:actor :target :obstacle :opaque :enemy :equipper))
+  (equipment-slots :initform '(:robotic-arm))
+  (speed :initform (make-stat :base 7 :min 7))
+  (max-items :initform (make-stat :base 3))
+  (movement-cost :initform (make-stat :base 3))
+  (tile :initform "vaxodrone")
+  (stepping :initform t)
+  (attacking-with :initform :robotic-arm)
+  (max-weight :initform (make-stat :base 25))
+  (direction :initform (rlx:random-direction))
+  (strength :initform (make-stat :base 4 :min 0 :max 30))
+  (dexterity :initform (make-stat :base 5 :min 0 :max 30))
+  (intelligence :initform (make-stat :base 11 :min 0 :max 30))
+  (hit-points :initform (make-stat :base 10 :min 0 :max 10)))
  
+(define-method run vaxodrone ()
+  (when (< [distance-to-player self] 18)
+    (let ((dir [direction-to-player self]))
+      (if (= 0 (random 2))
+	  [move self dir]
+	  [move self (random-direction)])
+      (when [adjacent-to-player self]
+	[play-sample self "scree"]
+	[attack self dir]))))
+
+(define-method die vaxodrone ()
+  [play-sample self "aagh2"]
+  [parent>>die self])
+
+(define-method loadout vaxodrone ()
+  [make-inventory self]
+  [make-equipment self]
+  [equip self [add-item self (clone =shock-probe=)]])
+
 ;;; an arena for vomac combat
 
 (defcell vomac-starfield 
@@ -136,7 +174,7 @@
 
 (define-prototype star-corridor (:parent rlx:=world=)
   (ambient-light :initform :total)
-  (required-modes :initform '(:vomac :spacesuit))
+  (required-modes :initform '(:vomac :vehicle :spacesuit))
   (scale :initform '(100 m))
   (edge-condition :initform :block))
 
@@ -158,9 +196,13 @@
     [drop-cell self (clone =star=) (random height) (random width)])
   (dotimes (i 20)
     (let ((gond (clone =gond=))
-	  (xr7 (clone =xr7=)))
-      [drop-cell self xr7 (random height) (random width) :loadout t]
-      [drop-cell self gond (random (truncate (/ height 2))) (random width) :loadout t]
+	  (xr7 (clone =xr7=))
+	  (row (random height))
+	  (column (random width)))
+      [drop-cell self xr7 row column :loadout t]
+      [drop-cell self gond (+ 1 row) (+ 1 column) :loadout t]
+      (dotimes (i 5)
+	[drop-cell self (clone =vaxodrone=) row column])
       [defend gond xr7]))
   [drop-cell self (clone =vomac=) (- height 5) 2 :loadout t]
   [drop-cell self (clone =launchpad=) (- height 8) 5])

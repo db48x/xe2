@@ -9,6 +9,13 @@
  (:name "defleptorwave" :type :image :file "defleptorwave.png")
  (:name "defleptorwave-northwest" :type :image :file "defleptorwave-northwest.png")
  (:name "defleptorwave-northeast" :type :image :file "defleptorwave-northeast.png")
+ (:name "defleptorwave-southwest" :type :image :file "defleptorwave-southwest.png")
+ (:name "defleptorwave-southeast" :type :image :file "defleptorwave-southeast.png")
+
+ (:name "defleptorwave-west" :type :image :file "defleptorwave-west.png")
+ (:name "defleptorwave-east" :type :image :file "defleptorwave-east.png")
+ (:name "defleptorwave-south" :type :image :file "defleptorwave-south.png")
+
  (:name "defleptor-trail" :type :image :file "defleptor-trail.png")
  (:name "vaxodrone" :type :image :file "vaxodrone.png")
  (:name "vomac-starfield" :type :image :file "starfield-vomac.png")
@@ -67,6 +74,10 @@
 
  (:name "xr7" :type :image :file "xr7.png")
  (:name "laser2" :type :sample :file "laser2.wav" :properties (:volume 10))
+ (:name "scree" :type :sample :file "scree.wav" :properties (:volume 20))
+
+ (:name "aagh2" :type :sample :file "aagh2.wav" :properties (:volume 20))
+
 
  (:name "welcome-message" :type :text :file "welcome.txt")
  (:name "help-message" :type :text :file "README")

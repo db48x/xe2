@@ -5,6 +5,8 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
 
+** TODO fix being able to enter vehicle while in vehicle!
+** TODO fix not being able to exit
 ** TODO rear southwest/southeast firing gun upgrade on Vomac corridors
 ** TODO think of places to drop repair modules
 ** TODO REVIEW AND PRIORITIZE TODO LIST

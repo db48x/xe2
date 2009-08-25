@@ -143,7 +143,7 @@
 
 (define-prototype star-sector (:parent rlx:=world=)
   (ambient-light :initform :total)
-  (required-modes :initform '(:vehicle))
+  (required-modes :initform '(:vehicle :vomac))
   (scale :initform '(1 ly))
   (edge-condition :initform :block))
 

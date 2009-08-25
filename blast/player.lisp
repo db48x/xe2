@@ -589,7 +589,7 @@
   (let ((was-disabled [is-disabled self]))
     (if (= 0 <invincibility-clock>)
 	(progn [play-sample self "warn"]
-	       [parent>>damage self points]
+	       [stat-effect self :hit-points (- points)]
 	       (when (and (null was-disabled)
 			  [is-disabled self])
 		 [do-disable self])
