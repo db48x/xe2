@@ -57,11 +57,9 @@
   (equipment-slots :initform '(:left-bay :right-bay :center-bay :extension))
   (boost-clock :initform 0))
 
-;; (define-method damage vomac (points)
-;;   [stat-effect self :hit-points (- points)]
-;;   (when (zerop [stat-value self :hit-points])
-;;     [play-sample self "aagh"]
-;;     [die self]))
+(define-method damage vomac (points)
+  [play-sample self "vomac-damage"]
+  [parent>>damage self points])
 
 (define-method update-tile vomac ()
   nil)

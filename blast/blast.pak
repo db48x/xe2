@@ -2,6 +2,7 @@
  (:name ".default-font" :type :font :properties (:height 14 :width 7) :data "7x14b")
 
  (:name "knock" :type :sample :file "knock.wav" :properties (:volume 30))
+ (:name "vomac-damage" :type :sample :file "vomac-damage.wav" :properties (:volume 30))
 
  (:name "mine" :type :image :file "mine.png")
  (:name "mine-warn" :type :image :file "mine-warn.png")
@@ -366,7 +367,6 @@
  (:name "blast-lisp" :type :lisp :file "blast.lisp" :properties (:autoload t))
  (:name "effect-lisp" :type :lisp :file "effect.lisp" :properties (:autoload t))
  (:name "terrain-lisp" :type :lisp :file "terrain.lisp" :properties (:autoload t)) 
- (:name "cave-lisp" :type :lisp :file "cave.lisp" :properties (:autoload t))
  (:name "sector-lisp" :type :lisp :file "sector.lisp" :properties (:autoload t))
  (:name "player-lisp" :type :lisp :file "player.lisp" :properties (:autoload t))
  (:name "asteroid-lisp" :type :lisp :file "asteroid.lisp" :properties (:autoload t))
@@ -378,6 +378,7 @@
  (:name "bay-lisp" :type :lisp :file "bay.lisp" :properties (:autoload t))
  (:name "hive-lisp" :type :lisp :file "hive.lisp" :properties (:autoload t))
  (:name "vomac-lisp" :type :lisp :file "vomac.lisp" :properties (:autoload t))
+ (:name "cave-lisp" :type :lisp :file "cave.lisp" :properties (:autoload t))
  (:name ".startup" :type :lisp :file "startup.lisp" :properties (:autoload t))
 
 )

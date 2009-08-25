@@ -84,6 +84,9 @@
 		     i j])))
     ;; drop water
     [drop-water self]
+    ;; drop vax
+    (dotimes (i 40)
+      [drop-cell self (clone =vaxodrone=) (random height) (random width)])
     ;; drop leeches
     (dotimes (i (+ 10 (random 20)))
       [drop-cell self (clone =leech=) (random height) (random width)])))
