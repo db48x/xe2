@@ -442,13 +442,13 @@
 
 (define-method step repair-module (stepper)
   (when [is-player stepper]
-    (if (eq :vehicle (field-value :mode stepper))
+    (if (member (field-value :mode stepper) '(:vehicle :vomac))
 	(progn 
 	  [play-sample self "technetium-sound"]
 	  [stat-effect stepper :hit-points 5]
 	  [say self "The nanorepair module fixed some damage to your vehicle."]
 	  [die self])
-	[say self "You cannot use nano-repairs on a spacesuit."])))
+	[say self "You cannot use nano-repairs on your current transport mode."])))
 
 ;;; Your ship.
 
@@ -543,20 +543,25 @@
     (decf <invincibility-clock>)))
 ;;    [>>say :narrator "React shield up with ~D turns remaining." <invincibility-clock>]))
 
+(define-method drop-trail olvac ()
+  [drop self (clone =trail= 
+		    :direction <last-direction> 
+		    :clock [stat-value self :trail-length])])
+
 (define-method move olvac (direction)
   (if [is-disabled self]
-      [say self "Your Olvac-3 Void Rider is disabled, and cannot move."]
+      (progn
+	[say self "Your vehicle is disabled, and cannot move."]
+	[say self "Press Control-P to disembark, but this may kill you."])
       (let ((modes (field-value :required-modes *active-world*)))
 	(if (and modes (not (member <mode> modes)))
 	    (progn 
-	      [say self "Your Olvac-3 Void Rider is docked, and cannot move."]
+	      [say self "Your vehicle is docked, and cannot move."]
 	      [say self "Press Control-P to disembark, or RETURN to launch."])
 	    (progn 
 	      (setf <last-direction> direction)
 	      [update-react-shield self]
-	      [drop self (clone =trail= 
-				:direction direction 
-				:clock [stat-value self :trail-length])]
+	      [drop-trail self]
 	      [parent>>move self direction]
 	      [update-tile self]
 	      [update *status*])))))

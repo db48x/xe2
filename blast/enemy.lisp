@@ -367,6 +367,7 @@
   (dexterity :initform (make-stat :base 20))
   (max-items :initform (make-stat :base 1))
   (speed :initform (make-stat :base 12))
+  (chase-distance :initform 10)
   (stepping :initform t)
   (behavior :initform :seeking)
   (clock :initform 0)
@@ -388,7 +389,7 @@
 
 (define-method seek rook ()
   (clon:with-field-values (row column) self
-    (when (< [distance-to-player *active-world* row column] 10)
+    (when (< [distance-to-player *active-world* row column] <chase-distance>)
       (let ((direction [direction-to-player *active-world* row column])
 	    (world *active-world*))
 	(if [adjacent-to-player world row column]

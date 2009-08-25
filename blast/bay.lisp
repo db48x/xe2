@@ -137,7 +137,7 @@
       [damage player 1]
       [play-sample self "laser"]
       [>>add-overlay :viewport #'draw-beam])))
-	     
+     
 (define-method run laser-drone ()
   (clon:with-field-values (row column) self
     (let ((dist [distance-to-player *active-world* row column])

@@ -9,7 +9,7 @@
  (:name "defleptorwave" :type :image :file "defleptorwave.png")
  (:name "defleptor-trail" :type :image :file "defleptor-trail.png")
  (:name "vomac-starfield" :type :image :file "starfield-vomac.png")
- (:name "vomac-starfield2" :type :image :file "starfield-vomac.png")
+ (:name "vomac-starfield2" :type :image :file "starfield-vomac2.png")
  (:name "vomac-gateway" :type :image :file "vomac-gateway.png")
  
  (:name "player-ship-north-dying" :type :image :file "player-ship-north-dying.png")
@@ -61,6 +61,9 @@
  (:name "slate-terrain-light" :type :image :file "slate-terrain-light.png")
  (:name "slate-terrain-dark" :type :image :file "slate-terrain-dark.png")
  (:name "slate-terrain-cracks" :type :image :file "slate-terrain-cracks.png")
+
+ (:name "xr7" :type :image :file "xr7.png")
+ (:name "laser2" :type :sample :file "laser2.wav" :properties (:volume 10))
 
  (:name "welcome-message" :type :text :file "welcome.txt")
  (:name "help-message" :type :text :file "README")
