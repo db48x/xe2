@@ -55,8 +55,11 @@
 (define-method die sprout ()
   [play-sample self "biodeath"]
   [say self "The sprout dies."]
-  (when (= 0 (random 20))
-    [drop self (clone =energy=)])
+  (percent-of-time 12
+    [drop self (case (random 3)
+		 (0 (clone =energy=))
+		 (1 (clone =biosilicate=))
+		 (2 (clone =repair=)))])
   [parent>>die self])
 
 (define-method grow sprout ()
