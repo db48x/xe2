@@ -284,6 +284,7 @@
   (assert (member direction *compass-directions*))
   (setf <direction> direction)
   ;; don't hit the player
+  [move self direction]
   [find-target self])
 
 (defcell muon-cannon
