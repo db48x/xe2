@@ -266,7 +266,6 @@ action during PHASE."
 	     (plusp <action-points>))
     (incf <phase-number>)))
   
-
 (define-method expend-action-points cell (points)
   "Expend POINTS action points, possibly going into the negative."
   (decf <action-points> points))

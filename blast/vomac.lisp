@@ -4,7 +4,8 @@
 
 (define-prototype xr7 (:parent =rook=)
   (name :initform "XR-7 Phalanx Interdictor")
-  (tile :initform "xr7"))
+  (tile :initform "xr7")
+  (speed :initform (make-stat :base 5)))
 
 (define-method fire xr7 (direction)
   [expend-action-points self 15]
@@ -23,9 +24,30 @@
       [>>add-overlay :viewport #'draw-beam])))
 
 (define-method die xr7 ()
-  [drop self (clone (if (= 0 (random 4))
-			=energy= =small-crystal=))]
+  [drop self (clone (if (= 0 (random 2))
+			=energy= =crystal=))]
   [delete-from-world self])
+
+(define-method seek xr7 ()
+  (clon:with-field-values (row column) self
+    (when (< [distance-to-player *active-world* row column] <chase-distance>)
+      (let ((direction [direction-to-player *active-world* row column])
+	    (world *active-world*))
+	(if (< [distance-to-player self] 8)
+	    (progn
+	      [>>fire self direction]
+	      (setf <clock> 6
+		    <behavior> :fleeing))
+	    (if [obstacle-in-direction-p world row column direction]
+		(let ((target [target-in-direction-p world row column direction]))
+		  (if (and target (not [in-category target :enemy]))
+		      (progn nil)
+;;			[>>attack self direction]
+		      (progn (setf <direction> (random-direction))
+			     [>>move self direction])))
+		(progn (when (< 7 (random 10))
+			 (setf <direction> (random-direction)))
+		       [>>move self direction])))))))
 
 ;;; the vomac ship
 
