@@ -22,6 +22,11 @@
       [play-sample self "laser2"]
       [>>add-overlay :viewport #'draw-beam])))
 
+(define-method die xr7 ()
+  [drop self (clone (if (= 0 (random 4))
+			=energy= =small-crystal=))]
+  [delete-from-world self])
+
 ;;; the vomac ship
 
 (define-prototype vomac (:parent =olvac=)
@@ -57,7 +62,6 @@
   (when (zerop [stat-value self :hit-points])
     [play-sample self "aagh"]
     [die self]))
-    
 
 (define-method update-tile vomac ()
   nil)
@@ -88,8 +92,8 @@
 (define-method update-tile defleptor-wave ()
   (setf <tile> (case <direction> 
 		 (:north "defleptorwave")
-		 (:southwest "defleptorwave-southwest")
-		 (:southeast "defleptorwave-southeast")
+		 (:northeast "defleptorwave-northeast")
+		 (:northwest "defleptorwave-northwest")
 		 (otherwise ".gear"))))
   
 (define-method drop-trail defleptor-wave (direction)
@@ -110,8 +114,8 @@
 	[drop <equipper> wave2]
 	[drop <equipper> wave3]
 	[impel wave1 :north]
-	[impel wave2 :southeast]
-	[impel wave3 :southwest]
+	[impel wave2 :northeast]
+	[impel wave3 :northwest]
 	[expend-default-action-points self])
       [say self "Not enough energy to fire!"]))
 
