@@ -113,6 +113,19 @@
 (define-method step cavern-gateway (stepper)
   [say self "A free-floating cave. Press RETURN to enter."])
 
+(defvar *vomac-sequence-number* 0)
+
+(define-prototype vomac-gateway (:parent =gateway=)
+  (tile :initform "vomac-gateway")
+  (name :initform "Vomac combat corridor")
+  (address :initform (list '=star-corridor=
+			   ;; ensure all vomacs are distinct
+			   :sequence-number 
+			   (incf *vomac-sequence-number*))))
+
+(define-method step vomac-gateway (stepper)
+  [say self "A vomac star corridor. RETURN to enter."])
+
 ;;; The first mission: the ocean planet bombing run! 
 
 (define-prototype ocean-gateway (:parent =gateway=)
@@ -160,6 +173,8 @@
     [drop-cell self (clone =hive-gateway=) (random 30) (random 30)])
   (dotimes (i caves)
     [drop-cell self (clone =cavern-gateway=) (random 30) (random 30)])
+  (dotimes (i 5)
+    [drop-cell self (clone =vomac-gateway=) (+ 20 (random 30)) (+ 20 (random 30))])
   [drop-cell self (clone =zeta-base-gateway=) (random 20) (random 20)]
   [drop-cell self (clone =mars-gateway=) (random 20) (random 20)]
   [drop-cell self (clone =ocean-gateway=) (random 20) (random 20)]

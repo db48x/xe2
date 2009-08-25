@@ -225,7 +225,7 @@
   (tile :initform ".gear")
   (direction :initform :north))
 
-(define-method initialize muon-trail (direction)
+(define-method orient muon-trail (direction)
   (setf <direction> direction)
   (setf <tile> (getf *trail-middle-tiles* direction)))
 
@@ -245,6 +245,11 @@
   (direction :initform :here)
   (clock :initform 12))
 
+(define-method drop-trail muon-particle (direction)
+  (let ((trail (clone =muon-trail=)))
+    [orient trail direction]
+    [drop self trail]))
+
 (define-method find-target muon-particle ()
   (let ((target [category-in-direction-p *active-world* 
 					 <row> <column> <direction>
@@ -257,7 +262,7 @@
 	  [>>damage target 5]
 	  [>>die self])
 	(progn 
-	  [>>drop self (clone =muon-trail= <direction>)]
+	  [drop-trail self <direction>]
 	  [>>move self <direction>]))))
 
 (define-method step muon-particle (stepper)
@@ -265,8 +270,11 @@
   [damage stepper 5]
   [die self])
   
+(define-method update-tile muon-particle ()
+  (setf <tile> (getf *muon-tiles* <direction>)))
+
 (define-method run muon-particle ()
-  (setf <tile> (getf *muon-tiles* <direction>))
+  [update-tile self]
   [find-target self]
   (decf <clock>)
   (when (zerop <clock>)
@@ -643,8 +651,6 @@
     (if (null gateway)
 	[>>say :narrator "No gateway to enter."]
 	[activate gateway])))
-
-;; see also skull restart
 
 ;;; Lepton Seeker Cannon
 

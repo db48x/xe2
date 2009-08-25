@@ -5,7 +5,13 @@
 
  (:name "mine" :type :image :file "mine.png")
  (:name "mine-warn" :type :image :file "mine-warn.png")
-
+ (:name "vomac" :type :image :file "vomac.png")
+ (:name "defleptorwave" :type :image :file "defleptorwave.png")
+ (:name "defleptor-trail" :type :image :file "defleptor-trail.png")
+ (:name "vomac-starfield" :type :image :file "starfield-vomac.png")
+ (:name "vomac-starfield2" :type :image :file "starfield-vomac.png")
+ (:name "vomac-gateway" :type :image :file "vomac-gateway.png")
+ 
  (:name "player-ship-north-dying" :type :image :file "player-ship-north-dying.png")
  (:name	"player-ship-north" :type :image :file "player-ship-north.png")
  (:name	"player-ship-invincible" :type :image :file "ship-invincible.png")
@@ -353,6 +359,7 @@
  (:name "mars-lisp" :type :lisp :file "mars.lisp" :properties (:autoload t))
  (:name "bay-lisp" :type :lisp :file "bay.lisp" :properties (:autoload t))
  (:name "hive-lisp" :type :lisp :file "hive.lisp" :properties (:autoload t))
+ (:name "vomac-lisp" :type :lisp :file "vomac.lisp" :properties (:autoload t))
  (:name ".startup" :type :lisp :file "startup.lisp" :properties (:autoload t))
 
 )
