@@ -29,6 +29,12 @@
   (weight :initform 3000)
   (equip-for :initform '(:robotic-arm :left-hand :right-hand)))
 
+(define-prototype shock-prod (:parent =shock-probe=)
+  (name :initform "Shock prod")
+  (attack-power :initform (make-stat :base 7))
+  (attack-cost :initform (make-stat :base 12))
+  (accuracy :initform (make-stat :base 80)))
+
 ;;; A bomb with countdown display.
 
 (defvar *bomb-tiles* '("bomb-1" "bomb-2" "bomb-3" "bomb-4"))
@@ -261,9 +267,12 @@
 	  [>>drop target (clone =flash=)]
 	  [>>damage target 5]
 	  [>>die self])
-	(progn 
-	  [drop-trail self <direction>]
-	  [>>move self <direction>]))))
+	(multiple-value-bind (r c) 
+	    (step-in-direction <row> <column> <direction>)
+	  (if (not (array-in-bounds-p (field-value :grid *active-world*) r c))
+	      [die self]
+	      (progn [drop-trail self <direction>]
+		     [>>move self <direction>]))))))
 
 (define-method step muon-particle (stepper)
   (message "Muon particle stepped on!")
@@ -304,7 +313,7 @@
 	[play-sample <equipper> "dtmf2"]
 	[>>drop <equipper> muon]
 	[>>impel muon direction])
-      [>>say :narrator "Not enough energy to fire!"]))
+      [say self "Not enough energy to fire!"]))
 
 (define-method step muon-cannon (stepper)
   (when [is-player stepper]
@@ -327,13 +336,13 @@
 	 (column [player-column world]))
     (if (plusp [stat-value <equipper> :pulse-ammo])
 	(progn 
-	  [>>say :narrator "Activating pulse cannon."]
+	  [say self "Activating pulse cannon."]
 	  (labels ((drop-pulse (r c)
 		     (prog1 nil 
 		       [drop-cell world (clone =pulse=) r c])))
 	    (trace-rectangle #'drop-pulse (- row 2) (- column 2)
 			     5 5 :fill)))
-	[>>say :narrator "Out of pulse ammo."])))
+	[say self "Out of pulse ammo."])))
 
 ;;; The Contractor.
 
@@ -498,10 +507,11 @@
   [set-character *status* <occupant>]
   (if (null [in-category self :proxied])
       [unproxy self]
-      [>>say :narrator "Cannot disembark without a vehicle."])
-  [parent>>disembark self])
+      [>>say :narrator "Cannot disembark without a vehicle."]))
 
 (define-method run olvac ()
+  ;; (when <occupant> 
+  ;;   (setf (field-value :phase-number <occupant>) <phase-number>))
   (cond ((<= [stat-value self :endurium] 0)
 	 [say self "You run out of endurium in the deeps of interstellar space."]
 	 [say self "Your oxygen runs out, suffocating you."]
@@ -592,7 +602,9 @@
 	       [stat-effect self :hit-points (- points)]
 	       (when (and (null was-disabled)
 			  [is-disabled self])
-		 [do-disable self])
+		 [do-disable self]
+		 (when (= 0 [stat-value self :hit-points])
+		     [die self]))
 	       (setf <invincibility-clock> 5)
 	       [update-tile self]
 	       [>>say :narrator "React Shield up with 5 turns remaining."])

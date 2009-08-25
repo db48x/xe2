@@ -261,9 +261,11 @@ negative, then you'll come up that much short."
 (define-method can-act cell (phase)
   "Determine whether the cell has enough action points to take some
 action during PHASE."
-  (and (not [in-category self :dead])
-       (< <phase-number> phase)
-       (plusp <action-points>)))
+  (when (and (not [in-category self :dead])
+	     (< <phase-number> phase)
+	     (plusp <action-points>))
+    (incf <phase-number>)))
+  
 
 (define-method expend-action-points cell (points)
   "Expend POINTS action points, possibly going into the negative."
@@ -306,8 +308,10 @@ action during PHASE."
     [add-category self :light-source]
     ;; If it's the player register self as player.
     (when [is-player occupant]
+      (message "OCCPU")
       [add-category self :player]
-      [set-player world self])))
+      [set-player world self]
+      (setf <phase-number> (1- [get-phase-number world])))))
 
 (define-method unproxy cell ()
   "Remove the occupant from this cell, dropping it on top."  
@@ -364,7 +368,7 @@ unproxying. By default, it does nothing."
     (let ((range (if (clon:has-field :hearing-range self)
 		     <hearing-range>
 		     *default-sample-hearing-range*))
-	  (dist (distance <column> <row> 
+	  (dist (distance (or <column> 0) (or <row> 0)
 			  [player-column *active-world*]
 			  [player-row *active-world*])))
       (when (> range dist)
