@@ -373,6 +373,12 @@
   (light-radius :initform 1)
   (categories :initform '(:actor :player :target :container :light-source)))
 
+(defparameter *pain-sounds* '("unh1" "unh2" "unh3" "oghh"))
+
+(define-method damage contractor (points)
+  [play-sample self (nth (random (length *pain-sounds*)) *pain-sounds*)]
+  [parent>>damage self points])
+
 (define-method activate-extension contractor ()
   (if [equipment-slot self :extension]
       [>>activate [equipment-slot self :extension]]
@@ -398,7 +404,13 @@
 (define-method quit contractor ()
   (rlx:quit :shutdown))
 
+(defparameter *contractor-energy-warning-level* 20)
+
 (define-method run contractor ()
+  (when (< [stat-value self :oxygen] *contractor-energy-warning-level*)
+    [>>narrateln :narrator "OXYGEN SUPPLY CRITICAL!" :foreground ".yellow" :background ".red"]
+    [play-sample self (if (= 0 (random 2))
+			  "breath1" "breath2")])
   (cond ((not (member :spacesuit (field-value :required-modes *active-world*)))
 	 [>>say :narrator "You cannot survive in this environment! You die."]
 	 [die self])

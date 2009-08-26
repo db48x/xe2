@@ -2,8 +2,20 @@
  (:name ".default-font" :type :font :properties (:height 14 :width 7) :data "7x14b")
 
  (:name "knock" :type :sample :file "knock.wav" :properties (:volume 30))
+ (:name "blaagh2" :type :sample :file "blaagh2.wav" :properties (:volume 30))
+ (:name "blaagh3" :type :sample :file "blaagh3.wav" :properties (:volume 30))
+ (:name "blaagh4" :type :sample :file "blaagh4.wav" :properties (:volume 30))
+ (:name "blaagh" :type :sample :file "blaagh5.wav" :properties (:volume 30))
+ (:name "breath1" :type :sample :file "breath1.wav" :properties (:volume 30))
+ (:name "breath2" :type :sample :file "breath2.wav" :properties (:volume 30))
+ (:name "cough" :type :sample :file "cought.wav" :properties (:volume 30))
+ (:name "knock" :type :sample :file "knock.wav" :properties (:volume 30))
+ (:name "oghh" :type :sample :file "oghh.wav" :properties (:volume 30))
+ (:name "unh1" :type :sample :file "unh1.wav" :properties (:volume 30))
+ (:name "unh2" :type :sample :file "unh2.wav" :properties (:volume 30))
+ (:name "unh3" :type :sample :file "unh3.wav" :properties (:volume 30))
  (:name "vomac-damage" :type :sample :file "vomac-damage.wav" :properties (:volume 30))
-
+ 
  (:name "techblackmetal" :type :image :file "tech-blackmetal.png")
  (:name "minesweeper" :type :image :file "minesweeper.png")
  (:name "ring" :type :image :file "ring.png")
