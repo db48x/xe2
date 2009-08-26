@@ -5,7 +5,7 @@
  (:name "blaagh2" :type :sample :file "blaagh2.wav" :properties (:volume 30))
  (:name "blaagh3" :type :sample :file "blaagh3.wav" :properties (:volume 30))
  (:name "blaagh4" :type :sample :file "blaagh4.wav" :properties (:volume 30))
- (:name "blaagh" :type :sample :file "blaagh5.wav" :properties (:volume 30))
+ (:name "blaagh" :type :sample :file "blaagh.wav" :properties (:volume 30))
  (:name "breath1" :type :sample :file "breath1.wav" :properties (:volume 30))
  (:name "breath2" :type :sample :file "breath2.wav" :properties (:volume 30))
  (:name "cough" :type :sample :file "cought.wav" :properties (:volume 30))

@@ -404,11 +404,11 @@
 (define-method quit contractor ()
   (rlx:quit :shutdown))
 
-(defparameter *contractor-energy-warning-level* 20)
+(defparameter *contractor-energy-warning-level* 15)
 
 (define-method run contractor ()
   (when (< [stat-value self :oxygen] *contractor-energy-warning-level*)
-    [>>narrateln :narrator "OXYGEN SUPPLY CRITICAL!" :foreground ".yellow" :background ".red"]
+    [>>println :narrator "OXYGEN SUPPLY CRITICAL!" :foreground ".yellow" :background ".red"]
     [play-sample self (if (= 0 (random 2))
 			  "breath1" "breath2")])
   (cond ((not (member :spacesuit (field-value :required-modes *active-world*)))

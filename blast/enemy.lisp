@@ -241,6 +241,7 @@
 (define-method die berserker ()
   (when (> 5 (random 10))
     [drop self (clone (random-powerup))])
+  [play-sample self "blaagh"]
   [parent>>die self])
 
 (define-method loadout berserker ()
@@ -385,6 +386,7 @@
 
 (define-method die rook ()
   [drop self (clone =repair-module=)]
+  [play-sample self "blaagh2"]
   [parent>>die self])
 
 (define-method seek rook ()
@@ -561,6 +563,10 @@
 	    (setf <scouting-direction> (random-direction))
 	    (setf <clock> <clock-reset-value>)
 	    (setf <behavior> :scouting))))))
+
+(define-method die gond ()
+  [play-sample self "blaagh3"]
+  [parent>>die self])
 
 ;;; The speed-sucking Lymphocytes
 

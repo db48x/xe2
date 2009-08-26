@@ -161,7 +161,7 @@
 	   (2 =energy=))))
 	      
 (define-method die excretor ()
-  [play-sample self "death-alien"]
+  [play-sample self "blaagh4"]
   [drop self (hive-random-powerup)]
   [parent>>die self])
 
