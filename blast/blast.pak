@@ -4,6 +4,7 @@
  (:name "knock" :type :sample :file "knock.wav" :properties (:volume 30))
  (:name "vomac-damage" :type :sample :file "vomac-damage.wav" :properties (:volume 30))
 
+ (:name "minesweeper" :type :image :file "minesweeper.png")
  (:name "mine" :type :image :file "mine.png")
  (:name "mine-warn" :type :image :file "mine-warn.png")
  (:name "vomac" :type :image :file "vomac.png")

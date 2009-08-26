@@ -128,10 +128,20 @@
 	       (random height) (random width)])
   (dotimes (i room-count)
       [drop-room self 
-		 (random height)
-		 (random width)
+		 (* room-size i)
+		 (random (truncate (/ width 2)))
+		 ;; (random height)
+		 ;; (random width)
 		 (+ room-size (random 3))
 		 (+ room-size (random 4))])
+  (dotimes (i 13)
+    [drop-room self
+	       (random height)
+	       (random width)
+	       (+ room-size (random 5))
+	       (+ room-size (random 2))
+	       (symbol-value (if (= 0 (random 2))
+			       '=contact-mine= '=crystal=))])
   (dotimes (i box-cluster-count)
     (let ((r (random height))
 	  (c (random width)))
@@ -140,6 +150,19 @@
     (let ((r (random height))
 	  (c (random width)))
       [drop-energy-gas-cluster self r c]))
+  ;; drop ship resupply room
+  (labels ((drop-ship (r c)
+	     [drop-cell self (clone (if (= 0 (random 2))
+					(symbol-value '=olvac=)
+					(symbol-value '=vomac=)))
+			r c :loadout t]))
+    (let ((r0 (random 20))
+	  (c0 (random width)))
+      [drop-box-cluster self r0 c0]
+      (trace-line #'drop-ship 
+		  r0 c0 
+		  (+ r0 (1+ (random 3))) 
+		  (+ c0 (1+ (random 2))))))
   ;; spawn point
   [drop-cell self (clone =launchpad=) (random 16) (random 16)])
    
@@ -165,7 +188,7 @@
 				     =space= =space2=))
 		     i j])))))
 
-(define-method drop-room zeta-base (row column height width)
+(define-method drop-room zeta-base (row column height width &optional (material =wall=))
   (let (rectangle)
     (labels ((collect-point (&rest args)
 	       (prog1 nil (push args rectangle))))
@@ -176,7 +199,7 @@
 	  (delete (nth n rectangle) rectangle)))
       (dolist (point rectangle)
 	(destructuring-bind (r c) point
-	  [drop-cell self (clone =wall=) r c :no-collisions t])))
+	  [drop-cell self (clone material) r c :no-collisions t])))
     (when (> 4 (random 10))
       (dotimes (i (+ 2 (random 10)))
 	[drop-cell self (clone =crystal=) 

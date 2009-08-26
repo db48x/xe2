@@ -5,9 +5,10 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
 
-** TODO fix being able to enter vehicle while in vehicle!
-** TODO fix not being able to exit
-** TODO rear southwest/southeast firing gun upgrade on Vomac corridors
+** TODO boss creature red eyes for corridor! only vulnerable when open
+** TODO incremental lighting in starmap
+** TODO play and actuallly try to stay alive and develop character
+** TODO fix hitting own bullets when moving/shooting same dir
 ** TODO think of places to drop repair modules
 ** TODO REVIEW AND PRIORITIZE TODO LIST
 ** TODO player missile launcher
@@ -17,7 +18,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 ** TODO upon entering world, give its description in the terminal
 ** TODO evasive and neutral entities
 ** TODO vines that surround you
-** TODO don't model commodities as stats; instead use plist of "pile" objects
+** TODO don't model commodities as stats; instead use auto-aggregate  "pile" objects
 ** TODO update linux kernel and ardour
 ** TODO MENU SYSTEM
 ** TODO Freighter should say how to exit C-p
