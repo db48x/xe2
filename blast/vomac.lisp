@@ -49,6 +49,155 @@
 			 (setf <direction> (random-direction)))
 		       [>>move self direction])))))))
 
+;;; bresenham's rail gun
+
+(defcell rail-trail 
+  (tile :initform "ring")
+  (categories :initform '(:ephemeral :actor))
+  (clock :initform 6))
+
+(define-method run rail-trail ()
+  (decf <clock>)
+  (when (minusp <clock>)
+    [die self]))
+
+(define-prototype rail-particle (:parent =muon-particle=)
+  (path :initform nil)
+  (clock :initform 60)
+  (speed :initform (make-stat :base 6))
+  (categories :initform '(:actor :target))
+  (tile :initform "rail-particle"))
+
+(define-method orient rail-particle ()
+  (if <path>
+      (destructuring-bind (row column) (pop <path>)
+	(setf <direction> (rlx:direction-to <row> <column> row column)))
+      [die self]))
+
+(define-method impel rail-particle (row column)
+  (let (path)
+    (labels ((collect-point (x y)
+	       (prog1 nil (push (list y x) path))))
+      ;; (trace-line #'collect-point <row> <column> row column)
+      ;; (when (equal (list row column) (first path))
+      ;; 	(setf path (nreverse path)))
+      ;; (setf <path> path)
+      ;; [orient self]
+      (setf <direction> (direction-to <row> <column> row column))
+      [move self <direction>]
+      [drop-trail self nil]
+      [find-target self])))
+
+(define-method run rail-particle ()
+  [find-target self]
+  (decf <clock>)
+  (when (zerop <clock>)
+    [die self])
+  (setf <direction> (direction-to <row> <column> [player-row *active-world*]
+				  [player-column *active-world*]))
+  [drop-trail self nil]
+  [move self <direction>])
+
+(define-method drop-trail rail-particle (direction)
+  (declare (ignore direction))
+  [drop self (clone =rail-trail=)])
+
+(defcell rail-cannon
+  (name :initform "Rail gun cannon")
+  (tile :initform "gun")
+  (categories :initform '(:item :weapon :equipment))
+  (equip-for :initform '(:center-bay))
+  (weight :initform 7000)
+  (accuracy :initform (make-stat :base 100))
+  (attack-power :initform (make-stat :base 18))
+  (attack-cost :initform (make-stat :base 40))
+  (energy-cost :initform (make-stat :base 1)))
+
+(define-method fire rail-cannon (row column)
+  [expend-action-points <equipper> [stat-value self :attack-cost]]
+  (if [expend-energy <equipper> [stat-value self :energy-cost]]
+      (let ((particle (clone =rail-particle=)))
+	[play-sample <equipper> "bip"]
+	[drop <equipper> particle]
+	[impel particle row column])
+      [say self "Not enough energy to fire!"]))
+
+;;; the eyeboss
+
+(defparameter *guardic-eye-open-time* 10)
+(defparameter *guardic-eye-closed-time* 15)
+
+(defcell guardic-eye
+  (name :initform "Guardic eye")
+  (tile :initform "guardic")
+  (hit-points :initform (make-stat :base 4 :max 4 :min 0))
+  (open :initform nil)
+  (clock :initform (random *guardic-eye-closed-time*))
+  (speed :initform (make-stat :base 6))
+  (strength :initform (make-stat :base 10))
+  (defense :initform (make-stat :base 10))
+  (energy :initform (make-stat :base 100 :min 0 :max 100))
+  (stepping :initform t)
+  (movement-cost :initform (make-stat :base 6))
+  (equipment-slots :initform '(:center-bay))
+  (firing-with :initform :center-bay)
+  (max-items :initform (make-stat :base 2))
+  (categories :initform '(:actor :obstacle :enemy :target)))
+
+(define-method loadout guardic-eye ()
+  [make-inventory self]
+  [make-equipment self]
+  [equip self [add-item self (clone =rail-cannon=)]])
+
+(define-method run guardic-eye ()
+  ;; open or close eye
+  (decf <clock>)
+  (if (zerop <clock>)
+      (if <open>
+	  (progn
+	    (setf <open> nil)
+	    (setf <tile> "guardic")
+	    (setf <clock> *guardic-eye-closed-time*))
+	  (progn
+	    (setf <open> t)
+	    (setf <tile> "guardic-open")
+	    (setf <clock> *guardic-eye-open-time*))))
+  ;; attack!
+  (if (< [distance-to-player self] 20)
+      (let ((cannon [equipment-slot self :center-bay]))
+	[expend-default-action-points self]
+	[fire cannon [player-row *active-world*]
+	      [player-column *active-world*]])))
+					  
+(define-method damage guardic-eye (points)
+  ;; only damage when open
+  (if <open>
+    [parent>>damage self points]
+    [say self "Cannot damage closed eye."]))
+
+(defcell guardic 
+  (name :initform "Electric eye")
+  (tile :initform "godseye"))
+  
+;;; the bases
+
+(defcell vomac-base 
+  (tile :initform "vomac-base"))
+
+(define-method explode vomac-base ()
+  [drop self (clone =explosion=)]
+  [die self])
+
+(defcell vomac-wires 
+  (tile :initform "vomac-wires"))
+
+(define-method step vomac-wires (stepper)
+  (when [is-player stepper]
+    [play-sample self "spawn"]
+    [damage stepper 5]
+    [say self "You are shocked by the guard wires!"]))
+
+
 ;;; the vomac ship
 
 (define-prototype vomac (:parent =olvac=)
@@ -201,6 +350,17 @@
 (define-method begin-ambient-loop star-corridor ()
   (play-music "corridor-music" :loop t))
 
+(define-method drop-base star-corridor (row column &optional (size 5))
+  (labels ((drop-panel (r c)
+	     (prog1 nil [drop-cell self (clone =vomac-base=) r c])))
+    (trace-rectangle #'drop-panel row column size size :fill)
+    (dotimes (i 8)
+      [drop-cell self (clone =guardic-eye=) 
+		 (+ row (random size)) (+ column (random size)) :loadout t])
+    (dotimes (i (* 2 size))
+      [drop-cell self (clone =vomac-wires=)
+		 (+ row (random size)) (+ column (random size))])))
+
 (define-method generate star-corridor (&key (height 200)
 					    (width 30)
 					    sequence-number)
@@ -213,7 +373,8 @@
 				 =vomac-starfield=))
 		 i j]))
   (dotimes (i 20)
-    [drop-cell self (clone =star=) (random height) (random width)])
+    [drop-cell self (clone =star=) (random height) (random width)]
+    [drop-base self (random height) (random width) (+ 5 (random 10))])
   (dotimes (i 20)
     (let ((gond (clone =gond=))
 	  (xr7 (clone =xr7=))

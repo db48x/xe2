@@ -251,6 +251,7 @@
   (direction :initform :here)
   (clock :initform 12))
 
+
 (define-method drop-trail muon-particle (direction)
   (let ((trail (clone =muon-trail=)))
     [orient trail direction]
@@ -275,7 +276,6 @@
 		     [>>move self <direction>]))))))
 
 (define-method step muon-particle (stepper)
-  (message "Muon particle stepped on!")
   [damage stepper 5]
   [die self])
   
@@ -512,7 +512,9 @@
 (define-method run olvac ()
   ;; (when <occupant> 
   ;;   (setf (field-value :phase-number <occupant>) <phase-number>))
-  (cond ((<= [stat-value self :endurium] 0)
+  (cond ((<= [stat-value self :hit-points] 0)
+	 [die self])
+	((<= [stat-value self :endurium] 0)
 	 [say self "You run out of endurium in the deeps of interstellar space."]
 	 [say self "Your oxygen runs out, suffocating you."]
 	 [die self])

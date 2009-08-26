@@ -48,6 +48,7 @@
   ;; environment 
   (environment-grid :documentation "A two-dimensional array of environment data cells.")
   ;; lighting 
+  (automapped :initform nil :documentation "Show all previously lit squares.")
   (light-grid 
    :documentation 
    "A 2d array of integers giving the light level at that point in <grid>.
@@ -419,7 +420,7 @@ in a roguelike until the user has pressed a key."
 				       source-row source-column
 				       r c))
 			    ;; should we stop lighting?
-			    (when [category-at-p self r c '(:opaque :obstacle)]
+			    (when [category-at-p self r c :opaque] ;;'(:opaque :obstacle)]
 			      (return-from lighting t)))))))
 	       (collect-octagon-point (r c)
 		 (vector-push-extend (list r c) octagon) nil)
@@ -446,10 +447,11 @@ in a roguelike until the user has pressed a key."
 	(light-octagon source-row source-column (- total 2))))))
 
 (define-method clear-light-grid world ()
-  (let ((light-grid <light-grid>))
-    (dotimes (i <height>)
-      (dotimes (j <width>)	
-(setf (aref light-grid i j) 0)))))
+  (unless <automapped>
+    (let ((light-grid <light-grid>))
+      (dotimes (i <height>)
+	(dotimes (j <width>)	
+	  (setf (aref light-grid i j) 0))))))
 
 (define-method deserialize world (sexp)
   "Load a saved world from Lisp data."

@@ -193,7 +193,7 @@
 
 (defcell ion-shield-wall 
   (tile :initform "ion-shield-wall")
-  (categories :initform '(:obstacle :actor :target))
+  (categories :initform '(:obstacle :opaque :actor :target))
   (hit-points :initform (make-stat :base 10 :min 0))
   (clock :initform (+ 12 (random 4))))
 

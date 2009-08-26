@@ -42,7 +42,7 @@
 (defcell wall
   (tile :initform "wall")
   (name :initform "Wall")
-  (categories :initform '(:obstacle))
+  (categories :initform '(:obstacle :opaque))
   (hit-points :initform (make-stat :base 20 :min 0)))
 
 ;;; Energy gas

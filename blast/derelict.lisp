@@ -5,7 +5,7 @@
 (defcell bulkhead
   (name :initform "Bulkhead")
   (tile :initform "grayplate")
-  (categories :initform '(:obstacle)))
+  (categories :initform '(:opaque :obstacle)))
 
 (defcell corridor
   (name :initform "Airless Corridor")

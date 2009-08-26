@@ -5,8 +5,16 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
 
-** TODO boss creature red eyes for corridor! only vulnerable when open
-** TODO incremental lighting in starmap
+** TODO Dossier topics
+*** zeta base
+*** nebula m
+*** star systems
+*** biosilicate hives
+*** mars
+*** corva 3
+*** cavern
+*** vomac
+** TODO hit the central eye and destroy the whole platform
 ** TODO play and actuallly try to stay alive and develop character
 ** TODO fix hitting own bullets when moving/shooting same dir
 ** TODO think of places to drop repair modules

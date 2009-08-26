@@ -142,7 +142,8 @@
 ;;; The local cluster
 
 (define-prototype star-sector (:parent rlx:=world=)
-  (ambient-light :initform :total)
+  (ambient-light :initform 4)
+  (automapped :initform t)
   (required-modes :initform '(:vehicle :vomac))
   (scale :initform '(1 ly))
   (edge-condition :initform :block))
