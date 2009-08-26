@@ -5,6 +5,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
 
+** TODO fix diamond guys not attacking
 ** TODO piloting skill
 ** TODO fix troublesome item stacking in hive
 ** TODO don't model commodities as stats; instead use auto-aggregate  "pile" objects
