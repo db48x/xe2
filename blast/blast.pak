@@ -4,6 +4,7 @@
  (:name "knock" :type :sample :file "knock.wav" :properties (:volume 30))
  (:name "vomac-damage" :type :sample :file "vomac-damage.wav" :properties (:volume 30))
 
+ (:name "techblackmetal" :type :image :file "tech-blackmetal.png")
  (:name "minesweeper" :type :image :file "minesweeper.png")
  (:name "ring" :type :image :file "ring.png")
  (:name "vomac-base" :type :image :file "vomac-base.png")
@@ -35,6 +36,8 @@
  (:name	"player-ship-north" :type :image :file "player-ship-north.png")
  (:name	"player-ship-invincible" :type :image :file "ship-invincible.png")
 
+ (:name "disk-blue" :type :image :file "disk-blue.png")
+ 
  (:name "voidrider-disabled" :type :image :file "voidrider-disabled.png")
  (:name "voidrider-north" :type :image :file "voidrider-north.png")
  (:name "voidrider-east" :type :alias :data ":rotate 90:voidrider-north")
@@ -260,6 +263,7 @@
  (:name "solv" :type :image :file "solv.png")
  (:name "boid" :type :image :file "boid.png")
  (:name "tech-blackmetal" :type :image :file "tech-blackmetal")
+ (:name "tech-orangemetal" :type :image :file "techorangemetal.png")
 
  (:name "technogirl" :type :music :file "technogirl-x.ogg")
  (:name "theme" :type :music :file "theme3.ogg":properties (:volume 7))

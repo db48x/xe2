@@ -276,6 +276,7 @@
 
 (define-prototype vomac-cannon (:parent =muon-cannon=)
   (name :initform "Vomac defleptor wave cannon")
+  (energy-cost :initform (make-stat :base 10))
   (tile :initform "defleptorwave"))
 
 (define-method fire vomac-cannon (direction)

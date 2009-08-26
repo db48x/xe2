@@ -92,6 +92,53 @@
 			(4 =diamond=)))]
   [parent>>die self])
 
+;;; The obelix patrollers
+
+(defcell obelix 
+  (tile :initform "techblackmetal")
+  (categories :initform '(:actor :obstacle :target :enemy :opaque))
+  (direction :initform (car (one-of '(:south :west))))
+  (name :initform "Obelix"))
+
+(define-method get-nasty obelix ()
+  [damage [get-player *active-world*] 3]
+  [say self "The Obelix hits you."])
+
+(define-method run obelix ()
+  (if [obstacle-in-direction-p *active-world* <row> <column> <direction>]
+      (setf <direction> (opposite-direction <direction>))
+      (progn [move self <direction>]
+	     (when [adjacent-to-player self]
+	       [get-nasty self]))))
+
+(define-prototype boom-obelix (:parent =obelix=)
+  (name :initform "Exploding obelix")
+  (tile :initform "tech-orangemetal"))
+
+(define-method get-nasty boom-obelix ()
+  (labels ((boom (r c &optional (probability 50))
+	     (prog1 nil
+	       (when (and (< (random 100) probability)
+			  [in-bounds-p *active-world* r c])
+		 [drop-cell *active-world* (clone =explosion=) r c :no-collisions nil]))))
+    (dolist (dir rlx:*compass-directions*)
+      (multiple-value-bind (r c)
+	  (step-in-direction <row> <column> dir)
+	(boom r c 100)))
+    ;; randomly sprinkle some fire around edges
+    (trace-rectangle #'boom 
+		     (- <row> 3) 
+		     (- <column> 3) 
+		     6 6)
+    (trace-rectangle #'boom 
+		     (- <row> 2) 
+		     (- <column> 2) 
+		     5 5)
+    [die self]))
+
+(define-method damage boom-obelix (points)
+  [get-nasty self])
+
 ;;; The derelict freighter.
 
 (define-prototype freighter (:parent =world=)
@@ -162,8 +209,14 @@
     (dotimes (i 50) 
       [drop-cell self (clone =biclops=) (+ 100 (random (- height 80)))
     		 (random width) :loadout t :no-collisions t])
+    (dotimes (i 40)
+      [drop-cell self (clone =obelix=) (random height) (random width)
+		 :loadout t :no-collisions t])
+    (dotimes (i 40)
+      [drop-cell self (clone =boom-obelix=) (random height) (random width)
+		 :loadout t :no-collisions t])
     ;; drop dead crewmembers to ransack
-    (dotimes (i 50) 
+    (dotimes (i 65) 
       [drop-cell self (clone =crew-member=) (random height) (random width) :loadout t :no-collisions t])
     ;; drop other stuff
     (dotimes (i 15)

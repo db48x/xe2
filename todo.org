@@ -5,6 +5,10 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
 
+** TODO piloting skill
+** TODO fix troublesome item stacking in hive
+** TODO don't model commodities as stats; instead use auto-aggregate  "pile" objects
+** TODO SPLIT VEHICLE AND DUDE STATUS DISPLAYS
 ** TODO Dossier topics
 *** zeta base
 *** nebula m
@@ -26,7 +30,6 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 ** TODO upon entering world, give its description in the terminal
 ** TODO evasive and neutral entities
 ** TODO vines that surround you
-** TODO don't model commodities as stats; instead use auto-aggregate  "pile" objects
 ** TODO update linux kernel and ardour
 ** TODO MENU SYSTEM
 ** TODO Freighter should say how to exit C-p

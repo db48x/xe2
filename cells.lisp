@@ -82,7 +82,11 @@
   (parent-container :documentation "Link to containing cell, if any.")
   ;; proxying
   (occupant :documentation "Occupant cell, used to implement drivable vehicles.")
-  (proxy :documentation "Link to the proxying cell for this occupant cell."))
+  (proxy :documentation "Link to the proxying cell for this occupant cell.")
+  ;; other
+  (combination-amount :initform 0 :documentation "Amount of item this cell represents.")
+  (combination-key :initform nil :documentation "Only items matching this key will be combined."))
+    
 
 ;; Convenience macro for defining cells:
 
@@ -171,6 +175,7 @@ field named by STAT-NAME. The default is to change the :base value."
     :enemy ;; This cell is playing against you.
     :obstacle ;; Blocks <: movement :>
     :ephemeral ;; This cell is not preserved when exiting a world.
+    :combining ;; This cell automatically combines units with other cells in a container.
     ;; <: lighting :>
     :light-source ;; This object casts light. 
     :opaque ;; Blocks line-of-sight, casts shadows. 
@@ -443,6 +448,7 @@ unproxying. By default, it does nothing."
 (define-method add-item cell (item)
   "Add the ITEM to the cell's <inventory>.
 Return the new position if successful, nil otherwise."
+  ;; TODO check whether we can combine items
   (let ((pos [first-open-slot self]))
     (when (and (numberp pos) [in-category item :item])
       (prog1 pos
