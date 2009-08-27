@@ -395,7 +395,7 @@ unproxying. By default, it does nothing."
 
 ;;; Cell movement
 
-(define-method move cell (direction)
+(define-method move cell (direction &optional ignore-obstacles)
   (let ((world *active-world*))
     (multiple-value-bind (r c) 
 	(step-in-direction <row> <column> direction)
@@ -407,9 +407,9 @@ unproxying. By default, it does nothing."
 		 (:block [say self "You cannot move in that direction."])
 		 (:wrap nil) ;; TODO implement this for planet maps
 		 (:exit [exit *active-universe*]))))
-	    ([obstacle-at-p *active-world* r c] nil)
-	    (t 
-	     (progn
+	    (t
+	     (when (or ignore-obstacles 
+		       (not [obstacle-at-p *active-world* r c]))
 	       [expend-action-points self [stat-value self :movement-cost]]
 	       [move-cell world self r c]
 	       (when <stepping>

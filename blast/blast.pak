@@ -23,7 +23,15 @@
  (:name "cube-floor" :type :image :file "cube-floor.png")
  (:name "cube-wall" :type :image :file "cube-wall.png")
  (:name "yellow-cube" :type :image :file "yellow-cube.png")
+
+ (:name "red-arrowbox" :type :image :file "red-arrowbox.png")
  (:name "blue-arrowbox" :type :image :file "blue-arrowbox.png")
+ (:name "turquoise-arrowbox" :type :image :file "turquoise-arrowbox.png")
+
+ (:name "red-arrowbox-receptacle" :type :image :file "red-arrowbox-receptacle.png")
+ (:name "blue-arrowbox-receptacle" :type :image :file "blue-arrowbox-receptacle.png")
+ (:name "turquoise-arrowbox-receptacle" :type :image :file "turquoise-arrowbox-receptacle.png")
+
  (:name "vomac-base" :type :image :file "vomac-base.png")
  (:name "vomac-wires" :type :image :file "vomac-wires.png")
  (:name "mine" :type :image :file "mine.png")
@@ -211,9 +219,9 @@
  (:name "bullet" :type :image :file "bullet.png")
  (:name "ship-destroyed" :type :image :file "ship-destroyed.png")
  (:name "void" :type :music :file "void.xm")
- (:name "corridor-music" :type :music :file "corridor.ogg" :properties (:volume 10))
- (:name "conspiracy" :type :music :file "conspiracy.ogg" :properties (:volume 20)) 
- (:name "ancients" :type :music :file "ancients.ogg" :properties (:volume 20))
+ (:name "corridor-music" :type :music :file "corridor.ogg" :properties (:volume 13))
+ (:name "conspiracy" :type :music :file "conspiracy.ogg" :properties (:volume 30)) 
+ (:name "ancients" :type :music :file "ancients.ogg" :properties (:volume 30))
  (:name "greenworld" :type :music :file "greenworld.ogg" :properties (:volume 20))
  (:name "voyager" :type :image :file "voyager.png")
  (:name "probe" :type :image :file "probe.png")
