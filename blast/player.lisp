@@ -251,7 +251,6 @@
   (direction :initform :here)
   (clock :initform 12))
 
-
 (define-method drop-trail muon-particle (direction)
   (let ((trail (clone =muon-trail=)))
     [orient trail direction]
@@ -266,6 +265,7 @@
 	  [>>move self <direction>]
 	  [>>expend-default-action-points self]
 	  [>>drop target (clone =flash=)]
+	  [>>push target <direction>]
 	  [>>damage target 5]
 	  [>>die self])
 	(multiple-value-bind (r c) 

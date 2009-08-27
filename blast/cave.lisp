@@ -33,7 +33,7 @@
 ;;; The leeches
 
 (defcell leech
-  (tile :initform "jelly")
+  (tile :initform "leech")
   (name :initform "Lithoform Leech")
   (categories :initform '(:actor :enemy :target :opaque :obstacle))
   (hit-points :initform (make-stat :base 12 :max 30 :min 0))

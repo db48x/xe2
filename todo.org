@@ -5,9 +5,12 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
 
-** TODO left click = target and describe
+** TODO REVIEW AND PRIORITIZE TODO LIST
+
+** TODO FIX left click = target and describe
 ** TODO right click = activate (must be adjacent)
 ** TODO info disks to explain story
+
 ** TODO piloting skill
 ** TODO fix troublesome item stacking in hive
 ** TODO don't model commodities as stats; instead use auto-aggregate  "pile" objects
@@ -25,7 +28,6 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 ** TODO play and actuallly try to stay alive and develop character
 ** TODO fix hitting own bullets when moving/shooting same dir
 ** TODO think of places to drop repair modules
-** TODO REVIEW AND PRIORITIZE TODO LIST
 ** TODO player missile launcher
 ** TODO pheromones
 ** TODO guy uses oxygen whenever outside vehicle?

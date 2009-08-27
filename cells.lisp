@@ -157,6 +157,11 @@ field named by STAT-NAME. The default is to change the :base value."
   (assert (numberp base))
   (list :base base :min min :max max :delta delta :unit unit))
 
+;;; Pushing stuff; let the cell decide whether to move
+
+(define-method push cell (direction)
+  nil)
+
 ;;; Cell categories
 
 ;; <: categories :>
@@ -183,6 +188,7 @@ field named by STAT-NAME. The default is to change the :base value."
     :player ;; Only one cell (your player avatar) has this category.
     :enemy ;; This cell is playing against you.
     :obstacle ;; Blocks <: movement :>
+    :pushable ;; Can be pushed by impacts.
     :ephemeral ;; This cell is not preserved when exiting a world.
     :combining ;; This cell automatically combines units with other cells in a container.
     ;; <: lighting :>

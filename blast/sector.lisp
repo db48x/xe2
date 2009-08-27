@@ -109,7 +109,7 @@ murdered, but valuable resources may be left inside."))
 (define-method step hive-gateway (stepper)
   [>>narrateln :narrator "A free-floating biosilicate hive sac. Press RETURN to enter."])
 
-;;; cavves
+;;; caves
 
 (defvar *cave-sequence-number* 0)
 
@@ -124,6 +124,8 @@ murdered, but valuable resources may be left inside."))
 (define-method step cavern-gateway (stepper)
   [say self "A free-floating cave. Press RETURN to enter."])
 
+;;; star corridors
+
 (defvar *vomac-sequence-number* 0)
 
 (define-prototype vomac-gateway (:parent =gateway=)
@@ -137,6 +139,11 @@ murdered, but valuable resources may be left inside."))
 (define-method step vomac-gateway (stepper)
   [say self "A vomac star corridor. RETURN to enter."])
 
+(defcell antares 
+  (name :initform "Antares")
+  (description :initform "The star Antares.")
+  (tile :initform "antares"))
+
 ;;; The first mission: the ocean planet bombing run! 
 
 (define-prototype ocean-gateway (:parent =gateway=)
@@ -149,6 +156,15 @@ murdered, but valuable resources may be left inside."))
 
 (define-method step ocean-gateway (stepper)
   [>>narrateln :narrator "The water planet Corva 3. Press ENTER to land."])
+
+;;; Ancient cube
+
+(define-prototype yellow-cube (:parent =gateway=)
+  (tile :initform "yellow-cube")
+  (name :initform "Yellow cube")
+  (description :initform 
+"A strange, featureless yellow cube about a kilometer wide.")
+  (address :initform (list '=cube= :sequence-number (genseq))))
 
 ;;; The local cluster
 
@@ -179,6 +195,7 @@ murdered, but valuable resources may be left inside."))
 		 i j]))
   (dotimes (i stars)
     [drop-cell self (clone =star=) (random height) (random width)])
+  [drop-cell self (clone =antares=) (random 30) (random 30)]
   (dotimes (i freighters)
     [drop-cell self (clone =freighter-gateway=) (random 30) (random 30)])
   (dotimes (i hives)
@@ -187,6 +204,8 @@ murdered, but valuable resources may be left inside."))
     [drop-cell self (clone =cavern-gateway=) (random 30) (random 30)])
   (dotimes (i 5)
     [drop-cell self (clone =vomac-gateway=) (+ 20 (random 30)) (+ 20 (random 30))])
+  (dotimes (i 2)
+    [drop-cell self (clone =yellow-cube=) (+ 30 (random 10)) (+ 30 (random 10))])
   [drop-cell self (clone =zeta-base-gateway=) (random 20) (random 20)]
   [drop-cell self (clone =mars-gateway=) (random 20) (random 20)]
   [drop-cell self (clone =ocean-gateway=) (random 20) (random 20)]

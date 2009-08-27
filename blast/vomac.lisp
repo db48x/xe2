@@ -94,8 +94,8 @@
   (decf <clock>)
   (when (zerop <clock>)
     [die self])
-  (setf <direction> (direction-to <row> <column> [player-row *active-world*]
-				  [player-column *active-world*]))
+  ;; (setf <direction> (direction-to <row> <column> [player-row *active-world*]
+  ;; 				  [player-column *active-world*]))
   [drop-trail self nil]
   [move self <direction>])
 
@@ -125,8 +125,8 @@
 
 ;;; the eyeboss
 
-(defparameter *guardic-eye-open-time* 10)
-(defparameter *guardic-eye-closed-time* 15)
+(defparameter *guardic-eye-open-time* 5)
+(defparameter *guardic-eye-closed-time* 8)
 
 (defcell guardic-eye
   (name :initform "Guardic eye")
@@ -291,6 +291,7 @@ with 8-way fire and heavy armor."))
 	(dolist (dir (delete :here rlx:*compass-directions*))
 	  (setf wave (clone =defleptor-wave=))
 	  [drop <equipper> wave]
+	  [play-sample <equipper> "defleptor3"]
 	  [impel wave dir])
 	[expend-default-action-points self])
       [say <equipper> "Not enough energy to fire!"]))
