@@ -64,6 +64,9 @@
   (scale :initform '(5 m))
   (edge-condition :initform :exit))
 
+(define-method begin-ambient-loop cavern ()
+  (play-music "greenworld" :loop t))
+
 (define-method drop-water cavern ()
   (clon:with-field-values (height width) self
     (let ((plasma (rlx:render-plasma height width :graininess 0.8)))
