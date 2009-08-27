@@ -6,7 +6,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 * TASKS
 
 ** TODO REVIEW AND PRIORITIZE TODO LIST
-
+** TODO find document in cube that goes (::.:.:)()((;::.)
 ** TODO FIX left click = target and describe
 ** TODO right click = activate (must be adjacent)
 ** TODO info disks to explain story
