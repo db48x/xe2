@@ -336,7 +336,7 @@ window. Set this in the game startup file.")
 					  (1 [select object])
 					  (2 [activate object])))
 				      [process-messages *active-world*]
-				      (dispatch-event *timer-event*)
+;				      (dispatch-event *timer-event*)
 				      (show-widgets)
 				      (sdl:update-display)))))
     (:mouse-button-up-event (:button button :state state :x x :y y)
