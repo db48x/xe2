@@ -43,7 +43,7 @@ Corporation has been systematically taking control of nearby
 way-stations with an eye toward dominating Antares and its resources.
 Early probe reports detect a significant droid presence (rated 0.071
 by International Analysis LLC) but also endurium ores, a nearby
-nebula, biosilicates, and quite a bit more. 
+nebula, biosilicate resins, and quite a bit more. 
 
 You'll be provided with a custom stealth Olvac-3 Void Rider ship, a
 quantity of endurium, supplies, and basic EVA (Extra-Vehicular
@@ -51,6 +51,90 @@ Activity) gear for penetrating derelict freighters.
 
 After we drop you outside the Antares region, travel to the former
 Zeta Base and eliminate the droids who have overrun it.
+
+* Biosilicates
+
+The Biosilicates are silicon-based lifeforms who have assimilated
+human microprocessor technology in an attempt to amplify their
+species' intelligence. But the result of this fusion is less than
+organized; a hive's vast mentality is the sum of thousands or even
+millions of conflicting sprout minds, each with many gigaflops of
+computing power. Still, hives have been seen to act with more
+intelligence, even working in concert on some occasions. Some
+researchers believe that the biosilicates are adapting to their new
+symbiotic environment. 
+
+These hives grow raw biosilicate plant material from pollen
+deposited by drones. When encountering these gargantuan, gelatinous
+hive sacs in space, one must puncture the outer membrane to gain access to
+the putrid world within.
+
+The green sprouts in grow for 6 generations, and then die. The
+generation number is incremented whenever the wandering sprout finds
+food (in this case, Biosilicate pollen.) At generation 3, the sprout
+becomes stronger (more HP) and also spawns a baby sprout. The result
+is a busy, but not explosive growth and propagation of cells as they
+consume food and move on. Places with plentiful food tend to form
+dense clumps of material, masses of plants which emergently extend
+tendrils of plant matter toward the player whenever he approaches.
+
+* The Droid Plague
+
+On December 23, 2012, a Chinese probe in lunar orbit observes an
+irregular black spot on the side of the Moon that permanently faces
+away from the Earth. As the probe was designed for high-resolution
+multi-wavelength imaging of the Moon's surface, scientists debate in
+secret whether the material is natural or artificial in
+origin. Although rivers and eddies of this coal-black, smooth material
+are visible, shifting geometric patterns are observed, with some
+groups of triangular features persisting for days or weeks. The black
+spot grows rapidly, prompting the NASA/ESA/Chinese working group to
+attempt lowering the satellite's orbit in order to take a closer look.
+
+The rest is history; the satellite's approach is interpreted as a
+threat, and before telemetry is lost, millions of pyramid-shaped
+drones are seen emerging from the blackness. A year later, humanity
+had shrunk to an estimated 1 billion people. The Lunar Black Spot is
+eventually destroyed by carpet-bombing it with nuclear warheads, and
+the immediate droid presence around Earth is brought under control,
+but the planet is decimated and the species on the verge of real
+decline. The manufacture of an estimated 4 billion drones during the
+war consumed 0.0002 percent of the Moon's mass and altered its
+rotation and orbit, wreaking havoc on Earth's climate.
+
+* New opportunities
+
+The mineral Endurium is used as fuel by the Black Metal and by the
+drones it manufactures. The discovery of this vital energy source, and
+the faster-than-light travel made possible by Droid technology, have
+utterly transformed the prospects of the human species. The entire
+universe is now ours to explore, populate, and exploit---if the Black
+Metal can be contained in the long term.
+
+* Origins of the blackness
+
+Thus far the droid plague has not been connected with any known
+purpose, but researchers believe that the Black Metal is artificial in
+origin and may in fact be a kind of liquid supercomputer. Radio decay
+dating techniques show that some deposits of the metal are as old as
+ten million years. The artificial nature of this computing substrate
+taken together with its extreme age led scientists to postulate a race
+of "Ancients" who created the Black Metal and either fled or were
+wiped out by it. It is unknown whether any other species have
+inherited the technology left behind by the Ancients.
+
+* Making contact
+
+Researchers believe the Black Metal is dispersed throughout the
+galaxy, and it is believed that some larger deposits harbor a form of
+consciousness.
+
+* The Black Sun
+
+Eventually the player discovers a supermassive star encased in a shell
+of Black Metal. The sheer volume of the black metal and the star's
+incredible energy output combine to create a terrifyingly vast
+intelligence that has observed the universe for 11 billion years.
 
 
 
