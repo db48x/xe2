@@ -5,7 +5,8 @@
 (defcell level-up 
   (categories :initform '(:item))
   (tile :initform "levelup")
-  (name :initform "Strength power-up"))
+  (name :initform "Strength power-up")
+  (description :initform "Permanently boost your strength."))
 
 (define-method step level-up (stepper)
   (when [is-player stepper] 
@@ -20,7 +21,8 @@
 (defcell speed-up 
   (categories :initform '(:item))
   (tile :initform "speedup")
-  (name :initform "Speed power-up"))
+  (name :initform "Speed power-up")
+  (description :initform "Permanently boost your speed.")) 
 
 (define-method step speed-up (stepper)
   (when [is-player stepper]
@@ -37,7 +39,9 @@
 ;;; There are also energy tanks for replenishing ammo.
 
 (defcell energy 
-  (tile :initform "energy"))
+  (tile :initform "energy")
+  (description :initform 
+"Refills part of your energy store, for energy ammo weapons."))
 
 (define-method step energy (stepper)
   (when [is-player stepper]
@@ -49,7 +53,8 @@
 ;;; A life powerup.
 
 (defcell diamond
-  (tile :initform "diamond"))
+  (tile :initform "diamond")
+  (description :initform "Restore some hit points to a human."))
 
 (define-method step diamond (stepper)
   (if (and [is-player stepper]
@@ -65,7 +70,8 @@
 (defcell crystal
   (tile :initform "crystal")
   (categories :initform '(:target :endurium))
-  (hit-points :initform (make-stat :base 1 :min 0)))
+  (hit-points :initform (make-stat :base 1 :min 0))
+  (description :initform "A one-kilogram chunk of endurium. Highly fragile."))
 
 (define-method step crystal (stepper)
   (when [is-player stepper]
@@ -77,7 +83,8 @@
 (defcell big-crystal
   (tile :initform "big-crystal")
   (categories :initform '(:endurium))
-  (hit-points :initform (make-stat :base 2 :min 0)))
+  (hit-points :initform (make-stat :base 2 :min 0))
+  (description :initform "A massive chunk of endurium. Highly fragile."))
 
 (define-method step big-crystal (stepper)
   (when [is-player stepper]
@@ -88,7 +95,8 @@
 
 (defcell small-crystal 
   (tile :initform "small-crystal")
-  (categories :initform '(:endurium)))
+  (categories :initform '(:endurium))
+  (description :initform "Fragments of valuable endurium."))
 
 (define-method step small-crystal (stepper)
   (when [is-player stepper]
@@ -100,7 +108,8 @@
 ;;; A trail extender powerup.
 
 (defcell extender 
-  (tile :initform "plus"))
+  (tile :initform "plus")
+  (description :initform "Extends Olvac-3 trail."))
 
 (define-method step extender (stepper)
   (when [is-player stepper]
@@ -113,7 +122,8 @@
 ;;; Extra ammo for pulse protector
 
 (defcell pulse-ammo 
-  (tile :initform "pulse-ammo"))
+  (tile :initform "pulse-ammo")
+  (description :initform "Ammunition for pulse wave. Press 2 to fire."))
 
 (define-method step pulse-ammo (stepper)
   (when [is-player stepper]
@@ -126,14 +136,14 @@
 ;;; Extra bomb ammo
 
 (defcell bomb-ammo
-  (tile :initform "bomb-ammo"))
+  (tile :initform "bomb-ammo")
+  (description :initform "Bomb ammunition, 2 pack."))
 
 (define-method step bomb-ammo (stepper)
   (when [is-player stepper]
     [play-sample self "powerup"]
     [>>say :narrator "BOMB +2!"]
     [stat-effect stepper :bomb-ammo 2]
-    [stat-effect stepper :score 2000]
     [die self]))
 
 ;;; Random powerup function
@@ -167,7 +177,9 @@
 
 (defcell technetium 
   (tile :initform "technetium")
-  (name :initform "Technetium ore"))
+  (name :initform "Technetium ore")
+  (description :initform 
+"This precious mineral is used in the manufacture of metaprocessors."))
 
 (define-method step technetium (stepper)
   (when [is-player stepper]
@@ -179,7 +191,12 @@
 
 (defcell biosilicate 
   (tile :initform "biosilicate")
-  (name :initform "Biosilicate resin"))
+  (name :initform "Biosilicate resin")
+  (description :initform 
+"This resin is harvested from the fruiting bodies and decaying forms
+of the Biosilicate races. Thousands of industrial chemical compounds
+and materials can be extracted from raw biosilicate resin of various
+types."))
 
 (define-method step biosilicate (stepper)
   (when [is-player stepper]
@@ -195,7 +212,8 @@
   (tile :initform "ion-shield-wall")
   (categories :initform '(:obstacle :opaque :actor :target))
   (hit-points :initform (make-stat :base 10 :min 0))
-  (clock :initform (+ 12 (random 4))))
+  (clock :initform (+ 12 (random 4)))
+  (description :initform "Part of the ion shield wall."))
 
 (define-method die ion-shield-wall ()
   [queue>>drop-cell *active-world* (clone =flash=) <row> <column>]
@@ -211,7 +229,10 @@
   (name :initform "Ion shield belt")
   (tile :initform "ion-shield")
   (equip-for :initform '(:belt :shoulder-mount :extension))
-  (size :initform 5))
+  (size :initform 5)
+  (description :initform 
+"This sheld throws up a temporary, stationary barrier against incoming
+missiles and enemies."))
 
 (defparameter *ion-shield-energy-cost* 6)
 
@@ -241,7 +262,8 @@
 (defcell mystery-box
   (tile :initform "mystery-box")
   (hit-points :initform (make-stat :base 5 :min 0))
-  (categories :initform '(:target)))
+  (categories :initform '(:target))
+  (description :initform "Shoot the box for a surprise inside!"))
 
 (define-method die mystery-box ()
   (let ((item (clone (ecase (random 3)
@@ -256,7 +278,8 @@
 (defcell mine 
   (name :initform "Proximity mine")
   (categories :initform '(:item :target :actor :hidden))
-  (tile :initform "mine"))
+  (tile :initform "mine")
+  (description :initform "If you get near it, it will probably explode."))
 
 (defvar *mine-warning-sensitivity* 5)
 (defvar *mine-explosion-sensitivity* 3)
@@ -302,7 +325,8 @@
 
 (define-prototype contact-mine (:parent =mine=)
   (name :initform "Contact mine")
-  (tile :initform "minesweeper"))
+  (tile :initform "minesweeper")
+  (descriptions :initform "Contact mines explode... um, on contact."))
 
 (define-method run mine ()
   nil)

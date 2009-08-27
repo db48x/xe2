@@ -3,7 +3,8 @@
 
 (defcell hive-floor 
   (name :initform "Hive floor")
-  (tile :initform "sprout-ground"))
+  (tile :initform "sprout-ground")
+  (description :initform "This slimy membrane is richly coated with biosilicate excreta."))
 
 (defcell pollen 
   (name :initform "Type 1 biosilicate pollen")
@@ -18,7 +19,8 @@
 (defcell pollen3a
   (name :initform "Type 3A biosilicate pollen")
   (categories :initform '(:item))
-  (tile :initform "pollen3a"))
+  (tile :initform "pollen3a")
+  (description :initform "Highly valuable pollen. Collect as much as you can!"))
 
 (define-method step pollen3a (stepper)
   (when (and [is-player stepper]
@@ -42,7 +44,11 @@
   (stepping :initform t)
   (movement-cost :initform (make-stat :base 10))
   (direction :initform (random-direction))
-  (categories :initform '(:actor :obstacle :enemy :target)))
+  (categories :initform '(:actor :obstacle :enemy :target))
+  (description :initform 
+"Rapidly growing and reproducing creatures. Grows upon eating pollen,
+divides after growing 3 times, dies after six. Kill them to collect
+biosilicate materials."))
 
 (define-method divide sprout ()
   [play-sample self "munch1"]
@@ -117,7 +123,8 @@
   (clock :initform 20)
   (tile :initform "toxic-hazard")
   (categories :initform '(:target :actor :item :opaque))
-  (hit-points :initform (make-stat :base 6 :min 0)))
+  (hit-points :initform (make-stat :base 6 :min 0))
+  (description :initform "Poisonous excreta."))
 
 (define-method step toxic-hazard (stepper)
   (when [is-player stepper]
@@ -143,7 +150,8 @@
   (stepping :initform t)
   (movement-cost :initform (make-stat :base 10))
   (direction :initform (random-direction))
-  (categories :initform '(:actor :obstacle :enemy :target)))
+  (categories :initform '(:actor :obstacle :enemy :target))
+  (description :initform "This Lovecraftian abomination excretes toxic waste pods."))
 
 (define-method run excretor ()
   (when (< [distance-to-player self] 12)

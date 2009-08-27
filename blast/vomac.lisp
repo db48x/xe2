@@ -5,7 +5,8 @@
 (define-prototype xr7 (:parent =rook=)
   (name :initform "XR-7 Phalanx Interdictor")
   (tile :initform "xr7")
-  (speed :initform (make-stat :base 5)))
+  (speed :initform (make-stat :base 5))
+  (description :initform "The deadly XR7 can fire lasers from a distance."))
 
 (define-method fire xr7 (direction)
   [expend-action-points self 15]
@@ -142,7 +143,8 @@
   (equipment-slots :initform '(:center-bay))
   (firing-with :initform :center-bay)
   (max-items :initform (make-stat :base 2))
-  (categories :initform '(:actor :obstacle :enemy :target)))
+  (categories :initform '(:actor :obstacle :enemy :target))
+  (description :initform "Invulnerable until red eye opens. Fires particle weapons."))
 
 (define-method loadout guardic-eye ()
   [make-inventory self]
@@ -166,8 +168,8 @@
   (if (< [distance-to-player self] 20)
       (let ((cannon [equipment-slot self :center-bay]))
 	[expend-default-action-points self]
-	[fire cannon [player-row *active-world*]
-	      [player-column *active-world*]])))
+	(when <open> [fire cannon [player-row *active-world*]
+			   [player-column *active-world*]]))))
 					  
 (define-method damage guardic-eye (points)
   ;; only damage when open
@@ -182,21 +184,22 @@
 ;;; the bases
 
 (defcell vomac-base 
-  (tile :initform "vomac-base"))
+  (tile :initform "vomac-base")
+  (description :initform "Platform for Guardic eye bases."))
 
 (define-method explode vomac-base ()
   [drop self (clone =explosion=)]
   [die self])
 
 (defcell vomac-wires 
-  (tile :initform "vomac-wires"))
+  (tile :initform "vomac-wires")
+  (description :initform "Deadly live defense wires."))
 
 (define-method step vomac-wires (stepper)
   (when [is-player stepper]
     [play-sample self "spawn"]
     [damage stepper 5]
     [say self "You are shocked by the guard wires!"]))
-
 
 ;;; the vomac ship
 
@@ -226,7 +229,10 @@
   (firing-with :initform :center-bay)
   (categories :initform '(:actor :player :target :container :light-source :vehicle :repairable))
   (equipment-slots :initform '(:left-bay :right-bay :center-bay :extension))
-  (boost-clock :initform 0))
+  (boost-clock :initform 0)
+  (description :initform 
+"The Vomac XLUX Fighter is Arch Gamma's newest mid-range fighter model
+with 8-way fire and heavy armor."))
 
 (define-method damage vomac (points)
   [play-sample self "vomac-damage"]
@@ -276,7 +282,7 @@
 
 (define-prototype vomac-cannon (:parent =muon-cannon=)
   (name :initform "Vomac defleptor wave cannon")
-  (energy-cost :initform (make-stat :base 10))
+  (energy-cost :initform (make-stat :base 1))
   (tile :initform "defleptorwave"))
 
 (define-method fire vomac-cannon (direction)
@@ -311,7 +317,8 @@
   (strength :initform (make-stat :base 4 :min 0 :max 30))
   (dexterity :initform (make-stat :base 5 :min 0 :max 30))
   (intelligence :initform (make-stat :base 11 :min 0 :max 30))
-  (hit-points :initform (make-stat :base 10 :min 0 :max 10)))
+  (hit-points :initform (make-stat :base 10 :min 0 :max 10))
+  (description :initform "Swarms of vaxodrones will trap and kill you."))
  
 (define-method run vaxodrone ()
   (when (< [distance-to-player self] 18)

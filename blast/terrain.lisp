@@ -10,7 +10,8 @@
 
 (defcell space2
   (tile :initform "space2")
-  (name :initform "Base floor"))
+  (name :initform "Base floor")
+  (description :initform "Carbon scoring from a recent battle is visible here."))
 
 ;;; Radioactive gas
 
@@ -18,7 +19,8 @@
   (tile :initform "rad")
   (name :initform "Radioactive Gas")
   (clock :initform 8)
-  (categories :initform '(:actor)))
+  (categories :initform '(:actor))
+  (description :initform "Spreading toxic radioactive gas. Avoid at all costs!"))
 
 (define-method step gas (stepper)
   (when [is-player stepper]
@@ -43,13 +45,17 @@
   (tile :initform "wall")
   (name :initform "Wall")
   (categories :initform '(:obstacle :opaque))
-  (hit-points :initform (make-stat :base 20 :min 0)))
+  (hit-points :initform (make-stat :base 20 :min 0))
+  (description :initform "The weakened walls of the base are crumbling away."))
 
 ;;; Energy gas
 
 (defcell energy-gas
   (tile :initform "energy-gas")
-  (name :initform "Energy Gas"))
+  (name :initform "Energy Gas")
+  (description :initform 
+"Clouds of charged plasma leak from damaged conduits. Passing through
+these clouds restores your energy level."))
 
 (define-method step energy-gas (stepper)
   (when [is-player stepper]

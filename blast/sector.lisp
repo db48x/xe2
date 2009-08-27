@@ -4,11 +4,13 @@
 
 (defcell star
   (tile :initform "star")
-  (name :initform "Naked star"))
+  (name :initform "Naked star")
+  (description :initform "A lonely star."))
 
 (defcell void
   (tile :initform "void")
-  (name :initform "Interstellar space"))
+  (name :initform "Interstellar space")
+  (description :initform "The infinite cosmos beckons."))
 
 (define-method step void (stepper)
   (when (has-field :endurium stepper)
@@ -19,7 +21,8 @@
 
 (define-prototype starfield (:parent =void=)
   (tile :initform "starfield")
-  (name :initform "Interstellar space"))
+  (name :initform "Interstellar space")
+  (description :initform "The depths of space yawn before you."))
 
 ;;; Zeta base
 
@@ -40,17 +43,22 @@
 		       :room-count 65
 		       :rook-count 0
 		       :scanner-count 25
-		       :energy-count 40)))
+		       :energy-count 40))
+  (description :initform 
+"Zeta Base was one of our clandestine research stations before the
+droids took control."))
 
 (define-method step zeta-base-gateway (stepper)
-  [>>narrateln :narrator "This is the old Zeta Base. Press RETURN to enter."])
+  [>>narrateln :narrator "This is the old Zeta Base. Press RETURN to
+  enter."])
 
 ;;; The mysterious Nebula M.
 
 (define-prototype nebula-m-gateway (:parent =gateway=)
   (tile :initform "nebula-m-gateway")
   (name :initform "Nebula M")
-  (address :initform '(=nebula-m=)))
+  (address :initform '(=nebula-m=))
+  (description :initform "You can mine asteroids for endurium fuel here."))
 
 (define-method step nebula-m-gateway (stepper)
   [>>narrateln :narrator "The mysterious Nebula M. Press RETURN to enter."])
@@ -77,7 +85,10 @@
 			   :rooms (+ 5 (random 10))
 			   :stations (+ 3 (random 10))
 			   :sequence-number 
-			   (incf *freighter-sequence-number*))))
+			   (incf *freighter-sequence-number*)))
+  (description :initform "A freighter ship penetrated by droids. The
+crew will have been murdered, but valuable resources may be left
+inside."))
 
 (define-method step freighter-gateway (stepper)
   [>>narrateln :narrator "An infested derelict freighter. Press RETURN to enter."])

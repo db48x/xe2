@@ -26,7 +26,11 @@
   (strength :initform (make-stat :base 10))
   (defense :initform (make-stat :base 20))
   (max-items :initform (make-stat :base 10))
-  (categories :initform '(:actor :obstacle :enemy :target :boss)))
+  (categories :initform '(:actor :obstacle :enemy :target :boss))
+  (descriptions :initform 
+"These factory buildings spawn hundreds of fighters. Destroy them, but
+watch out for the rockets they launch. Furthermore these factories are
+guarded by Gonds."))
 
 (define-method loadout bay-factory ()
   [make-inventory self]
@@ -69,7 +73,9 @@
   (movement-cost :initform (make-stat :base 10))
   (max-items :initform (make-stat :base 2))
   (direction :initform (random-direction))
-  (categories :initform '(:actor :obstacle :enemy :target)))
+  (categories :initform '(:actor :obstacle :enemy :target))
+  (description :initform 
+"Pesky, mindless drones who fire laser beams."))
 
 (define-method loadout laser-drone ()
   (incf (field-value :laser-drone-count *active-world*))
@@ -119,7 +125,10 @@
 
 (defcell ocean
   (tile :initform "ocean")
-  (name :initform "Ocean"))
+  (name :initform "Ocean")
+  (description :initform 
+"The beauty of Corva 3's deep oceans is striking---but also highly
+toxic."))
 
 (define-method step ocean (stepper)
   (when (clon:has-field :endurium stepper)

@@ -644,7 +644,8 @@ by symbol name. This enables them to be used as hash keys."
 
 (define-prototype launchpad (:parent =gateway=)
   (tile :initform "launchpad")
-  (categories :initform '(:gateway :player-entry-point)))
+  (categories :initform '(:gateway :player-entry-point))
+  (description :initform "Press RETURN here to exit this area."))
 
 (define-method activate launchpad ()
   [exit *active-universe* :player [get-player *active-world*]])

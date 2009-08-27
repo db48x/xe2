@@ -13,7 +13,10 @@
  (movement-cost :initform (make-stat :base 10))
  (max-items :initform (make-stat :base 2))
  (direction :initform (random-direction))
- (categories :initform '(:actor :obstacle :enemy :target)))
+ (categories :initform '(:actor :obstacle :enemy :target))
+ (description :initform 
+"The deadly Graviceptor seeks out the player and explodes into a cloud
+of poisonous radioactive gas."))
 
 (define-method run graviceptor ()
   (clon:with-field-values (row column) self
@@ -76,7 +79,9 @@
 
 (defcell radiation 
   (categories :initform '(:actor))
-  (clock :initform 4))
+  (clock :initform 4)
+  (description :initform 
+"A radiation trail. Don't touch it. Fades after several turns."))
   
 (define-method initialize radiation (&key direction clock)
   (setf <clock> clock)
@@ -122,7 +127,11 @@
   (direction :initform (random-direction))
   (movement-cost :initform (make-stat :base 10))
   (categories :initform '(:actor :obstacle :enemy :target))
-  (trail-length :initform (make-stat :base 10)))
+  (trail-length :initform (make-stat :base 10))
+  (description :initform 
+"This automated probe scans the area releasing graviceptor mines.
+Avoid its radioactive trail and shoot it from a distance.
+Watch out---they can spawn mines even after death!"))
 
 (define-method move probe (direction)
   [drop self (clone =radiation= 
@@ -168,7 +177,10 @@
   (firing-with :initform :center-bay)
   (max-items :initform (make-stat :base 2))
   (direction :initform (random-direction))
-  (categories :initform '(:actor :obstacle :enemy :target)))
+  (categories :initform '(:actor :obstacle :enemy :target))
+  (description :initform 
+"The Canaz is a lightweight silicate-body fighter equipped with a muon cannon.
+Not the typical choice of the best pilots."))
 
 (define-method run canaz ()
   (clon:with-field-values (row column) self
@@ -220,7 +232,10 @@
   (strength :initform (make-stat :base 4 :min 0 :max 30))
   (dexterity :initform (make-stat :base 5 :min 0 :max 30))
   (intelligence :initform (make-stat :base 11 :min 0 :max 30))
-  (hit-points :initform (make-stat :base 10 :min 0 :max 10)))
+  (hit-points :initform (make-stat :base 10 :min 0 :max 10))
+  (description :initform 
+"A protocol droid gone mad from radiation damage to the neural circuits.
+Berserkers attack with a shock probe."))
 
 (define-method initialize berserker ()
   [make-inventory self]
@@ -268,7 +283,10 @@
   (attacking-with :initform :robotic-arm)
   (max-weight :initform (make-stat :base 25))
   (hit-points :initform (make-stat :base 25 :min 0 :max 10))
-  (tile :initform "biclops"))
+  (tile :initform "biclops")
+  (description :initform 
+"The horror of human/machine hybrids is realized here.
+Two heads. One human, one droid."))
 
 (define-method initialize biclops ()
   [make-inventory self]
@@ -301,6 +319,7 @@
 (define-method die biclops ()
   (when (> 8 (random 10))
     [drop self (clone (random-stat-powerup))])
+  [play-sample self "blaagh3"]
   [parent>>die self])
 
 ;;; The deadly Scanner can be avoided because it moves (mostly) predictably
@@ -319,7 +338,11 @@
   (energy :initform (make-stat :base 800 :min 0 :max 1000))
   (firing-with :initform :robotic-arm)
   (strength :initform (make-stat :base 24))
-  (dexterity :initform (make-stat :base 12)))
+  (dexterity :initform (make-stat :base 12))
+  (description :initform 
+"Scanners move in a search pattern until an enemy comes within firing distance.
+They fire powerful heat-seeking bullets, but these can be shot down."))
+	       
 
 (define-method choose-new-direction scanner ()
   (setf <direction>
@@ -377,7 +400,10 @@
   (movement-cost :initform (make-stat :base 8))
   (tile :initform "rook")
   (target :initform nil)
-  (hit-points :initform (make-stat :base 40 :min 0 :max 40)))
+  (hit-points :initform (make-stat :base 40 :min 0 :max 40))
+  (description :initform 
+"The Rook is a cargo lifter modified to chase and bomb a target.
+Hard to kill because of their evasive manuevers.")) 
 
 (define-method run rook ()
   (ecase <behavior>
@@ -477,7 +503,10 @@
   (movement-cost :initform (make-stat :base 7))
   (tile :initform "guardian")
   (defended-cell :initform nil)
-  (hit-points :initform (make-stat :base 20 :min 0 :max 60)))
+  (hit-points :initform (make-stat :base 20 :min 0 :max 60))
+  (description :initform 
+"The Guardian cell patrols the area around a given protected cell,
+and attacks anyone who comes near."))
 
 (define-method defend guardian (defended-cell)
   (setf <defended-cell> defended-cell))
@@ -580,7 +609,9 @@
  (movement-cost :initform (make-stat :base 10))
  (max-items :initform (make-stat :base 2))
  (direction :initform (random-direction))
- (categories :initform '(:actor :obstacle :enemy :target)))
+ (categories :initform '(:actor :obstacle :enemy :target))
+ (description :initform
+"STAY AWAY! These can cause permanent speed drains, paralysis, and death."))
 
 (define-method speedsuck lymphocyte (victim)
   [play-sample self "lymph"]

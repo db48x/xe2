@@ -5,11 +5,15 @@
 (defcell bulkhead
   (name :initform "Bulkhead")
   (tile :initform "grayplate")
-  (categories :initform '(:opaque :obstacle)))
+  (categories :initform '(:opaque :obstacle))
+  (descriptions :initform "It's a bulkhead."))
 
 (defcell corridor
   (name :initform "Airless Corridor")
-  (tile :initform "grayplate-dark"))
+  (tile :initform "grayplate-dark")
+  (description :initform 
+"You will use 1 unit of oxygen for each square moved,
+or each turn waited. Melee combat uses 2 units per hit."))
 
 ;;; Moving in a corridor uses up oxygen.
 
@@ -21,7 +25,8 @@
 
 (defcell oxygen-tank
   (tile :initform "oxygen-tank")
-  (name :initform "Oxygen tank"))
+  (name :initform "Oxygen tank")
+  (description :initform "This tank will replenish a portion of your oxygen supply."))
 
 (define-method step oxygen-tank (stepper)
   (when [is-player stepper]
@@ -35,7 +40,10 @@
 (defcell crew-member 
   (tile :initform "crew")
   (name :initform "Dead Crewmember")
-  (categories :initform '(:item :target)))
+  (categories :initform '(:item :target))
+  (description :initform 
+"Oxygen or health items may be recovered from dead bodies like
+this."))
 
 (define-method step crew-member (stepper)
   (when [is-player stepper]
@@ -98,7 +106,8 @@
   (tile :initform "techblackmetal")
   (categories :initform '(:actor :obstacle :target :enemy :opaque))
   (direction :initform (car (one-of '(:south :west))))
-  (name :initform "Obelix"))
+  (name :initform "Obelix")
+  (description :initform "Their purpose and structure is unknown. They are best avoided."))
 
 (define-method get-nasty obelix ()
   [damage [get-player *active-world*] 3]
@@ -113,7 +122,8 @@
 
 (define-prototype boom-obelix (:parent =obelix=)
   (name :initform "Exploding obelix")
-  (tile :initform "tech-orangemetal"))
+  (tile :initform "tech-orangemetal")
+  (description :initform "A very quick way to die."))
 
 (define-method get-nasty boom-obelix ()
   (labels ((boom (r c &optional (probability 50))

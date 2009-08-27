@@ -303,6 +303,11 @@ auto-updated displays."
 	 while (and (plusp y) 
 		    ;; ran out of lines to display?
 		    (not (zerop n)))))))
+
+(defun split-string-on-lines (string)
+  (with-input-from-string (stream string)
+    (loop for line = (read-line stream nil)
+	  while line collect line)))
 	   
 ;;; Command prompt widget
 

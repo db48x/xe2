@@ -502,8 +502,13 @@
   (firing-with :initform :center-bay)
   (categories :initform '(:actor :player :target :container :light-source :vehicle :repairable))
   (equipment-slots :initform '(:left-bay :right-bay :center-bay :extension))
-  (boost-clock :initform 0))
-
+  (boost-clock :initform 0)
+  (description :initform 
+"The General Products OLVAC 3 Void Rider is a fine complement to any
+contractor's arsenal. Equipped with a basic muon cannon and bomb
+capability, the dependable Olvac covers the basics and gets the job
+done."))
+      
 (define-method is-disabled olvac ()
   (< [stat-value self :hit-points]
      6))

@@ -325,12 +325,20 @@ window. Set this in the game startup file.")
     (:mouse-motion-event (:state state :x x :y y :x-rel x-rel :y-rel y-rel)
 			 nil)
     (:mouse-button-down-event (:button button :state state :x x :y y)
-			      (let ((widget (hit-widgets x y *active-widgets*)))
-				(if (null widget)
-				    (message "Unhandled mouse click at ~S, ~S" x y)
+			      (let ((object (hit-widgets x y *active-widgets*)))
+				(if (null object)
+				    (message "")
 				    (progn 
-				      (message "Received mouse click at ~S ~S for widget ~S "
-					       x y (some-name-of widget))))))
+				      ;; deliver messages in a queued environment
+				      (sdl:clear-display sdl:*black*)
+				      (with-message-queue (field-value :message-queue *active-world*)
+					(case button
+					  (1 [select object])
+					  (2 [activate object])))
+				      [process-messages *active-world*]
+				      (dispatch-event *timer-event*)
+				      (show-widgets)
+				      (sdl:update-display)))))
     (:mouse-button-up-event (:button button :state state :x x :y y)
 			    nil)
     (:video-expose-event () (sdl:update-display))

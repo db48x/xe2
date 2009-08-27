@@ -94,6 +94,15 @@
   `(define-prototype ,name (:parent =cell=)
      ,@args))
 
+;;; Names, knowledge, and descriptions
+
+(define-method describe cell ()
+  [>>print-object-tag :narrator self]
+  [>>newline :narrator]
+  (when (stringp <description>)
+    (dolist (line (split-string-on-lines <description>))
+      [>>narrateln :narrator line])))
+
 ;;; Statistics 
 
 ;; <: stats :>
@@ -732,6 +741,12 @@ slot."
 (define-method screen-coordinates cell ()
   [get-screen-coordinates (field-value :viewport *active-world*)
 			  <row> <column>])
+
+
+;;; User Interaction with keyboard and mouse
+
+(define-method select cell ()
+  [describe self])
 
 ;;; The asterisk cell is a wildcard
 
