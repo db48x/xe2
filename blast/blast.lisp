@@ -401,10 +401,10 @@
 
 ;;; Main program. 
 
-(defparameter *blast-window-width* 1100)
+(defparameter *blast-window-width* 1180)
 (defparameter *blast-window-height* 600)
 
-(defparameter *right-column-width* 470)
+(defparameter *right-column-width* 550)
 (defparameter *left-column-width* (- *blast-window-width* 
 				     *right-column-width*))
 

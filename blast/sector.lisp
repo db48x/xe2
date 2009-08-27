@@ -86,9 +86,9 @@ droids took control."))
 			   :stations (+ 3 (random 10))
 			   :sequence-number 
 			   (incf *freighter-sequence-number*)))
-  (description :initform "A freighter ship penetrated by droids. The
-crew will have been murdered, but valuable resources may be left
-inside."))
+  (description :initform 
+"A freighter ship penetrated by droids. The crew will have been
+murdered, but valuable resources may be left inside."))
 
 (define-method step freighter-gateway (stepper)
   [>>narrateln :narrator "An infested derelict freighter. Press RETURN to enter."])

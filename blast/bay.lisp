@@ -127,7 +127,7 @@ guarded by Gonds."))
   (tile :initform "ocean")
   (name :initform "Ocean")
   (description :initform 
-"The beauty of Corva 3's deep oceans is striking---but also highly
+"The beauty of these deep oceans is striking---but also highly
 toxic."))
 
 (define-method step ocean (stepper)
