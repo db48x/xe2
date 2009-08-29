@@ -52,16 +52,17 @@ droids took control."))
   [>>narrateln :narrator "This is the old Zeta Base. Press RETURN to
   enter."])
 
-;;; The mysterious Nebula M.
+;;; The mysterious Nebulas
 
 (define-prototype nebula-m-gateway (:parent =gateway=)
   (tile :initform "nebula-m-gateway")
+  (sequence-number :initform (genseq))
   (name :initform "Nebula M")
-  (address :initform '(=nebula-m=))
+  (address :initform (list '=nebula-m= :sequence-number (genseq)))
   (description :initform "You can mine asteroids for endurium fuel here."))
 
 (define-method step nebula-m-gateway (stepper)
-  [>>narrateln :narrator "The mysterious Nebula M. Press RETURN to enter."])
+  [say self "The mysterious Nebula M~A. Press RETURN to enter." <sequence-number>])
 
 ;;; A mars-like planet with fractal terrain.
 
@@ -241,4 +242,5 @@ Good luck, contractor.
   [drop-cell self (clone =zeta-base-gateway=) (+ 10 (random 5)) (+ 10 (random 5)) :exclusive t :probe t]
   [drop-cell self (clone =mars-gateway=) (random 13) (random 6) :exclusive t :probe t]
   [drop-cell self (clone =ocean-gateway=) (+ 20 (random 10)) (+ 20 (random 20)) :exclusive t :probe t]
-  [drop-cell self (clone =nebula-m-gateway=) (random 10) (random 10) :exclusive t :probe t])
+  [drop-cell self (clone =nebula-m-gateway=) (random 10) (random 10) :exclusive t :probe t]
+  [drop-cell self (clone =nebula-m-gateway=) (+ 15 (random 10)) (+ 15 (random 10)) :exclusive t :probe t])

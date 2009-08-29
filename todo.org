@@ -5,6 +5,17 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
 
+** TODO MARKETING PUSH FOR BETA
+*** TODO make list contacts for sites, blogs, mags, casts
+*** TODO google analytics?
+*** TODO include game on linux mags?
+** visual menu in bottom left corner, icon-pie based popup menus with text
+** TODO Rez level that fills up with water while you follow arrows and push blocks or pong balls
+** TODO draw bridges over impassable water
+** TODO Fix freighter crash
+** TODO change background color of hive, too similar to nebula now
+** TODO more repair packs in zeta
+** TODO fix crash when clicking outside viewport... useful action for all areas
 ** TODO computer disk at zetabottom
 ** TODO SPACE for WAIT
 ** TODO oxygen and dead crew at zeta
