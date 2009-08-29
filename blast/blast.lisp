@@ -128,6 +128,7 @@
 	    ("W" nil "wait .")
 ;;	    ("SPACE" nil "respawn .")
 	    ("PERIOD" (:control) "restart .")
+	    ("KP-ENTER" nil "enter .")
 	    ("RETURN" nil "enter .")
 	    ("ESCAPE" (:control) "show-location .")
 	    ("3" nil "activate-extension .")
@@ -230,6 +231,7 @@
 	    ;;
 	    ("S" nil "wait .")
 ;;	    ("SPACE" nil "respawn .")
+	    ("KP-ENTER" nil "enter .")
 	    ("RETURN" nil "enter .")
 	    ("ESCAPE" (:control) "show-location .")
 	    ("PERIOD" (:control) "restart .")

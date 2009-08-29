@@ -11,7 +11,8 @@
   (movement-cost :initform (make-stat :base 10))
   (stuck-to :initform nil)
   (direction :initform :north)
-  (stepping :initform t))
+  (stepping :initform t)
+  (description :initform "These space rocks often contain Endurium."))
 
 (define-method is-stuck asteroid ()
   <stuck-to>)
@@ -69,7 +70,10 @@
   (stepping :initform t)
   (categories :initform '(:actor :target))
   (hit-points :initform (make-stat :base 5 :min 0 :max 5))
-  (direction :initform (rlx:random-direction)))
+  (direction :initform (rlx:random-direction))
+  (description :initform 
+"This magnetic mine explodes if damaged, and attracts metallic
+asteroids."))
 
 (define-method scan-neighborhood polaris ()
   (dolist (dir *compass-directions*)

@@ -4,6 +4,11 @@
 http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
+** TODO upon entering world, give its description in the terminal
+
+** TODO MENU SYSTEM
+** TODO Non-player characters (merchant?)
+** TODO generate planet surfaces with minerals and artifacts and ruins
 ** TODO missions are closures/objects
 ** TODO order tasks in time and importance (don't work on cube, work on early mission: collect fuel)
 ** TODO MISSION 1: COLLECT FUEL at the nebula
@@ -41,7 +46,6 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 ** TODO pheromones
 ** TODO guy uses oxygen whenever outside vehicle?
 ** TODO commodities trading consortium
-** TODO upon entering world, give its description in the terminal
 ** TODO evasive and neutral entities
 ** TODO vines that surround you
 ** TODO update linux kernel and ardour
@@ -145,7 +149,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 ** TODO [#C] equip mecha extension parts that can affect attributes... stat-value should take equipment into account
 ** TODO [#C] different colored star systems with planets (look up star types) with different tiles
 
-** TODO generate planet surfaces with minerals and artifacts and ruins
+
 ** TODO Scale factor for each world... 1m, 10m, 5km
 ** TODO interesting Zeta stuff in middle of map so you can't escape easy.
 ** TODO more weapons
