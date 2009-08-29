@@ -415,7 +415,7 @@
   (rlx:message "Initializing Blast Tactics...")
   (setf clon:*send-parent-depth* 2) 
   (rlx:set-screen-height *blast-window-height*)
-  (rlx:set-screen-width 1100)
+  (rlx:set-screen-width *blast-window-width*)
   ;; (rlx:set-frame-rate 30)
   ;; (rlx:set-timer-interval 20)
   ;; (rlx:enable-timer)

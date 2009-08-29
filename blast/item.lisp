@@ -226,7 +226,7 @@ types."))
 
 (defcell ion-shield 
   (categories :initform '(:item :equipment))
-  (name :initform "Ion shield belt")
+  (name :initform "Ion shield unit")
   (tile :initform "ion-shield")
   (equip-for :initform '(:belt :shoulder-mount :extension))
   (size :initform 5)
@@ -254,7 +254,7 @@ missiles and enemies."))
 
 (define-method step ion-shield (stepper)
   (when [is-player stepper]
-    [>>say :narrator "You've found the Ion Shield Belt."]
+    [>>say :narrator "You've found the Ion Shield Unit."]
     [equip stepper [take stepper :direction :here :category :item] :extension]))
 
 ;;; Powerup mystery box

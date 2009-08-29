@@ -111,12 +111,13 @@
 
 (define-method hit viewport (x y)
   (when [parent>>hit self x y]
+    
     (let* ((x0 (- x <x>))
 	   (y0 (- y <y>))
 	   (r (truncate (/ y0 <tile-size>)))
 	   (c (truncate (/ x0 <tile-size>)))
 	   (cells (aref (field-value :grid (or <world> *active-world*))
-			r c)))
+			(+ <origin-y> r) (+ <origin-x> c))))
       (aref cells (1- (fill-pointer cells))))))
 
 (define-method set-origin viewport (&key x y height width)

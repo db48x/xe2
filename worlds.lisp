@@ -36,6 +36,7 @@
 (define-prototype world
     (:documentation "An RLX game world filled with cells.")
   (name :initform "Unknown")
+  (description :initform "Unknown area.")
   (required-modes :initform nil)
   (mission-grammar :initform '())
   (scale :initform '(1 m)
@@ -482,6 +483,12 @@ in a roguelike until the user has pressed a key."
 (define-method begin-ambient-loop world ()
   nil)
 
+(define-method describe world ()
+  [>>newline :narrator]
+  (when (and <narrator> (stringp <description>))
+    (dolist (line (split-string-on-lines <description>))
+      [>>narrateln :narrator line])))
+
 (define-method start world ()
   (assert <player>)
   ;; start player at same phase (avoid free catch-up turns)
@@ -501,6 +508,7 @@ in a roguelike until the user has pressed a key."
   ;; clear out any pending messages
   (setf <message-queue> (make-queue))
   (with-message-queue <message-queue>
+    [describe self]
     [run-cpu-phase self]
     (incf <phase-number>)
     [start <player>]
@@ -630,9 +638,10 @@ by symbol name. This enables them to be used as hash keys."
     (setf *active-universe* self)
     [set-viewport world <viewport>]
     [drop-player-at-entry world player]
-    [start world]
     [set-receiver <prompt> world]
-    [set-narrator world <narrator>]))
+    [set-narrator world <narrator>]
+    [start world]))
+
 
 (define-method exit universe (&key player)
   (when player (setf <player> player))

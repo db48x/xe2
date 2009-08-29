@@ -161,7 +161,7 @@ these clouds restores your energy level."))
 	     [drop-cell self (clone (if (= 0 (random 2))
 					(symbol-value '=olvac=)
 					(symbol-value '=vomac=)))
-			r c :loadout t]))
+			r c :loadout t :no-collisions t]))
     (let ((r0 (random 20))
 	  (c0 (random width)))
       [drop-box-cluster self r0 c0]

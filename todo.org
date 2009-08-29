@@ -4,8 +4,11 @@
 http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
-** TODO upon entering world, give its description in the terminal
 
+** TODO computer disk at zetabottom
+** TODO SPACE for WAIT
+** TODO oxygen and dead crew at zeta
+** TODO keyboard targeting scanner cursor
 ** TODO MENU SYSTEM
 ** TODO Non-player characters (merchant?)
 ** TODO generate planet surfaces with minerals and artifacts and ruins

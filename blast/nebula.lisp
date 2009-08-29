@@ -1,6 +1,15 @@
 
 (in-package :blast)
 
+(defun random-nebula-powerup ()
+  (clone (ecase (random 6)
+	   (0 =crystal=)
+	   (1 =pulse-ammo=)
+	   (2 =extender=)
+	   (3 =bomb-ammo=)
+	   (4 =repair-module=)
+	   (5 =mystery-box=))))
+
 ;;; The evil boss stations must be destroyed.
 
 (defcell station-arm-horz 
@@ -108,10 +117,16 @@ condensing into protostars."))
 (define-prototype nebula-m (:parent rlx:=world=)
   (name :initform "Restricted Nebula M")
   (scale :initform '(50 m))
-  (ambient-light :initform :total))
+  (ambient-light :initform :total)
+  (description :initform
+"This nebula swirls with light and heat as massive clouds of
+superheated plasma condense into young stars. Droid activity level
+seems high."))
   
-(define-method drop-plasma nebula-m (&optional &key (object =red-plasma=)
-					       distance (row 0) (column 0)
+(define-method drop-plasma nebula-m (&optional &key (object
+					       =red-plasma=)
+					       distance (row
+					       0) (column 0)
 					       (graininess 0.3)
 					       (density 100)
 					       (cutoff 0))
@@ -134,10 +149,10 @@ condensing into protostars."))
 (define-method generate nebula-m (&key (height 100)
 				       (width 100)
 				       (protostars 30)
-				       (asteroids 400)
+				       (asteroids 230)
 				       (mysteries 4)
 				       (vaxodrones 16)
-				       (polaris 100)
+				       (polaris 60)
 				       (chunks 20)
 				       (rooks 5)
 				       (canaz 13))

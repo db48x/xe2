@@ -15,7 +15,7 @@
 (define-method step void (stepper)
   (when (has-field :endurium stepper)
     [stat-effect stepper :endurium -1]
-    [>>say :narrator (format nil "Burned 1 unit of endurium moving to ~D:~D"
+    [>>say :narrator (format nil "Burned 1 kilo of endurium moving to ~D:~D"
 			     (field-value :row stepper)
 			     (field-value :column stepper))]))
 
@@ -173,7 +173,39 @@ murdered, but valuable resources may be left inside."))
   (automapped :initform t)
   (required-modes :initform '(:vehicle :vomac))
   (scale :initform '(1 ly))
-  (edge-condition :initform :block))
+  (edge-condition :initform :block)
+  (description :initform 
+"Greetings, contractor. I'm Daytona Chang, your liason with Rogue
+Nexus. While in our employ you will receive assignments from and
+report to me. 
+
+You've arrived in the Antares sector. Only short-range scans are
+possible, so you'll have to map the area slowly. You'll need fuel to
+reach Zeta Base, so we suggest heading to the nearby Nebula M. You can
+mine asteroids there to collect Endurium. Eliminate any resistance you
+encounter.
+
+There may be ships available at Zeta---if the droids haven't destroyed
+them all. Don't take chances; protect the ship we've given you at all
+costs, as there is no guarantee you'll find any replacement. 
+
+You must penetrate the base and fight your way to the southernmost
+wing, where the data we are seeking was stored. See if you can find
+the computer and reactivate it.
+
+You will be substantially rewarded for data, materials, and artifacts
+collected during your mission---but do not allow these rewards to
+compete with mission goals.
+
+Your onboard computer is linked to our knowledge base---click any
+object to see what information is available.
+
+Good luck, contractor. 
+
+ -- CHANG
+
+
+"))
 
 (define-method begin-ambient-loop star-sector ()
   (play-music "xiomacs" :loop t))
@@ -206,8 +238,7 @@ murdered, but valuable resources may be left inside."))
     [drop-cell self (clone =vomac-gateway=) (+ 20 (random 30)) (+ 20 (random 30)) :exclusive t :probe t])
   (dotimes (i 2)
     [drop-cell self (clone =yellow-cube=) (+ 35 (random 10)) (+ 35 (random 10)) :exclusive t :probe t])
-  [drop-cell self (clone =zeta-base-gateway=) (+ 16 (random 5)) (+ 16 (random 5)) :exclusive t :probe t]
+  [drop-cell self (clone =zeta-base-gateway=) (+ 10 (random 5)) (+ 10 (random 5)) :exclusive t :probe t]
   [drop-cell self (clone =mars-gateway=) (random 13) (random 6) :exclusive t :probe t]
   [drop-cell self (clone =ocean-gateway=) (+ 20 (random 10)) (+ 20 (random 20)) :exclusive t :probe t]
   [drop-cell self (clone =nebula-m-gateway=) (random 10) (random 10) :exclusive t :probe t])
-
