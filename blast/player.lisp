@@ -245,7 +245,7 @@
 
 (defcell muon-particle 
   (categories :initform '(:actor))
-  (speed :initform (make-stat :base 20))
+  (speed :initform (make-stat :base 15))
   (default-cost :initform (make-stat :base 5))
   (tile :initform "muon")
   (direction :initform :here)
@@ -293,7 +293,7 @@
   (assert (member direction *compass-directions*))
   (setf <direction> direction)
   ;; don't hit the player
-  [move self direction]
+;  [move self direction]
   [find-target self])
 
 (defcell muon-cannon

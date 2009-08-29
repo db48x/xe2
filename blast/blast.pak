@@ -390,8 +390,12 @@
  (:name "antares" :type :image :file "antares.png") 
 
  (:name "protostar" :type :image :file "protostar.png")
+ (:name "protogas" :type :image :file "protogas.png")
+ (:name "gridbug" :type :image :file "gridbug.png")
  (:name "nebula" :type :image :file "nebula.png")
  (:name "nebula2" :type :image :file "nebula2.png")
+ (:name "nebula3" :type :image :file "nebula3.png")
+ (:name "nebula4" :type :image :file "nebula4.png")
  (:name "red-plasma" :type :image :file "red-plasma.png")
  (:name "nebula-m-gateway" :type :image :file "nebula-m-gateway.png")
  (:name "black-thunder" :type :music :file "black0999.ogg")

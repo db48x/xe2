@@ -84,37 +84,61 @@
   (name :initform "Charged plasma"))
 
 (defcell protostar
-  (tile :initform "protostar"))
+  (tile :initform "protostar")
+  (description :initform "These protostars are forming out of the energy of the nebula."))
 
 (define-method step protostar (stepper)
   (when [is-player stepper]
-    [>>say :narrator "You ram into the white-hot protostar and vaporize."]
-    [>>die stepper]))
+    [say self "You make a near miss of a protostar, and suffer heat damage."]
+    [damage stepper 12])) 
+
+(defcell protogas
+  (tile :initform "protogas")
+  (description :initform 
+"This highly dangerous superheated plasma is in the process of
+condensing into protostars."))
+
+(define-method step protogas (stepper)
+  (when [is-player stepper]
+    [say self "You fly through hot protostar gases, and suffer heat damage."]
+    [say self "The hot gases reduce your speed."]
+    [expend-action-points stepper 5]
+    [damage stepper 5]))
 
 (define-prototype nebula-m (:parent rlx:=world=)
   (name :initform "Restricted Nebula M")
   (scale :initform '(50 m))
   (ambient-light :initform :total))
   
-(define-method drop-plasma nebula-m ()
+(define-method drop-plasma nebula-m (&optional &key (object =red-plasma=)
+					       distance (row 0) (column 0)
+					       (graininess 0.3)
+					       (cutoff 0))
   (clon:with-field-values (height width) self
-    (let ((plasma (rlx:render-plasma height width :graininess 0.7))
-	  (value nil))
-      (dotimes (i height)
-	(dotimes (j width)
+    (let* ((h0 (or distance height))
+	   (w0 (or distance width))
+	   (r0 (- row (truncate (/ h0 2))))
+	   (c0 (- column (truncate (/ w0 2))))
+	   (plasma (rlx:render-plasma h0 w0 :graininess graininess))
+	   (value nil))
+      (dotimes (i h0)
+	(dotimes (j w0)
 	  (setf value (aref plasma i j))
-	  (when (< 0 value)
-	    (let ((object =red-plasma=))
-	      [drop-cell self (clone object) i j :no-collisions t])))))))
+	  (when (< cutoff value)
+	    (when (or (null distance)
+		      (< (distance (+ j r0) (+ c0 i) row column) distance))
+	      [drop-cell self (clone object) (+ r0 i) (+ c0 j) :no-collisions t])))))))
 
 (define-method generate nebula-m (&key (height 100)
 				       (width 100)
 				       (protostars 30)
 				       (asteroids 400)
 				       (mysteries 4)
+				       (vaxodrones 16)
 				       (polaris 100)
+				       (dust 100)
 				       (rooks 10)
-				       (canaz 30))
+				       (canaz 13))
   (setf <height> height <width> width)
   [create-default-grid self]
   (dotimes (i width)
@@ -127,12 +151,19 @@
   (dotimes (i rooks)
     [drop-cell self (clone =rook=) (random height) (random width) :loadout t])
   (dotimes (i protostars)
-    [drop-cell self (clone =protostar=) (random height) (random width)])
+    (let ((r (random height))
+	  (c (random width)))
+      [drop-cell self (clone =protostar=) r c]
+      [drop-plasma self :object =protogas= :distance 12 :row r :column c :graininess 0.3]))
   (dotimes (i mysteries)
     [drop-cell self (clone =mystery-box=)
 	       (random height) (random width)])
   (dotimes (i canaz)
     [drop-cell self (clone =canaz=) (random height) (random width) :loadout t])
+  (dotimes (i vaxodrones)
+    [drop-cell self (clone (symbol-value '=vaxodrone=)) (random height) (random width) :loadout t])
+  (dotimes (i dust)
+    [drop-cell self (clone =small-crystal=) (random height) (random width)])
   (dotimes (i polaris)
     [drop-cell self (clone =polaris=) (random height) (random width) :loadout t])
   ;;
