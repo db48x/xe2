@@ -66,6 +66,7 @@
 (defcell polaris
   (tile :initform "polaris")
   (name :initform "Polaris Mine")
+  (speed :initform (make-stat :base 7))
   (asteroids :initform '())
   (stepping :initform t)
   (categories :initform '(:actor :target))

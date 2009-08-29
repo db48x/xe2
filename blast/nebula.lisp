@@ -191,7 +191,7 @@ seems high."))
 (define-method drop-random-asteroids nebula-m (count)
   (clon:with-field-values (height width) self
     (dotimes (i count)
-      [drop-cell self (clone =asteroid= :speed (+ 3 (random 7))
+      [drop-cell self (clone =asteroid= :speed (+ 2 (random 3))
 			     :direction (rlx:random-direction)
 			     :color (nth (random 4)
 					 '(:red :blue :brown :orange)))

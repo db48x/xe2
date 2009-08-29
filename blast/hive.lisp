@@ -9,11 +9,11 @@
 (defcell pollen 
   (name :initform "Type 1 biosilicate pollen")
   (tile :initform "pollen")
-  (categories :initform '(:item :sprout-food)))
+  (categories :initform '(:sprout-food)))
 
 (defcell pollen2 
   (name :initform "Type 2 biosilicate pollen")
-  (categories :initform '(:item :sprout-food))
+  (categories :initform '(:sprout-food))
   (tile :initform "pollen2"))
 
 (defcell pollen3a

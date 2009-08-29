@@ -260,7 +260,7 @@ with 8-way fire and heavy armor."))
 
 (define-prototype defleptor-wave (:parent =muon-particle=)
   (name :initform "Defleptor wave")
-  (speed :initform (make-stat :base 70))
+  (speed :initform (make-stat :base 90))
   (tile :initform "defleptorwave")
   (clock :initform 20))
 

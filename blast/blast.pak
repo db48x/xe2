@@ -14,7 +14,7 @@
  (:name "unh1" :type :sample :file "unh1.wav" :properties (:volume 30))
  (:name "unh2" :type :sample :file "unh2.wav" :properties (:volume 30))
  (:name "unh3" :type :sample :file "unh3.wav" :properties (:volume 30))
- (:name "vomac-damage" :type :sample :file "vomac-damage.wav" :properties (:volume 30))
+ (:name "vomac-damage" :type :sample :file "vomac-damage.wav" :properties (:volume 10))
  
  (:name "techblackmetal" :type :image :file "tech-blackmetal.png")
  (:name "minesweeper" :type :image :file "minesweeper.png")
