@@ -331,11 +331,12 @@ window. Set this in the game startup file.")
 				    (progn 
 				      ;; deliver messages in a queued environment
 				      (sdl:clear-display sdl:*black*)
-				      (with-message-queue (field-value :message-queue *active-world*)
-					(case button
-					  (1 [select object])
-					  (2 [activate object])))
-				      [process-messages *active-world*]
+				      (when (field-value :message-queue *active-world*)
+					(with-message-queue (field-value :message-queue *active-world*)
+					  (case button
+					    (1 (when (has-method :select object) [select object]))
+					    (2 (when (has-method :activate object) [activate object]))))
+					[process-messages *active-world*])
 ;				      (dispatch-event *timer-event*)
 				      (show-widgets)
 				      (sdl:update-display)))))
