@@ -171,6 +171,7 @@
 (define-prototype minimap (:parent =viewport=)
   (category-map :initform '((:hidden ".black")
 			    (:player ".white")
+			    (:item ".gold")
 			    (:boss ".yellow")
 			    (:enemy ".red")
 			    (:target ".blue")

@@ -103,7 +103,7 @@ condensing into protostars."))
     [say self "You fly through hot protostar gases, and suffer heat damage."]
     [say self "The hot gases reduce your speed."]
     [expend-action-points stepper 5]
-    [damage stepper 5]))
+    [damage stepper 2]))
 
 (define-prototype nebula-m (:parent rlx:=world=)
   (name :initform "Restricted Nebula M")
@@ -113,6 +113,7 @@ condensing into protostars."))
 (define-method drop-plasma nebula-m (&optional &key (object =red-plasma=)
 					       distance (row 0) (column 0)
 					       (graininess 0.3)
+					       (density 100)
 					       (cutoff 0))
   (clon:with-field-values (height width) self
     (let* ((h0 (or distance height))
@@ -127,7 +128,8 @@ condensing into protostars."))
 	  (when (< cutoff value)
 	    (when (or (null distance)
 		      (< (distance (+ j r0) (+ c0 i) row column) distance))
-	      [drop-cell self (clone object) (+ r0 i) (+ c0 j) :no-collisions t])))))))
+	      (percent-of-time density
+		[drop-cell self (clone object) (+ r0 i) (+ c0 j) :no-collisions t]))))))))
 
 (define-method generate nebula-m (&key (height 100)
 				       (width 100)
@@ -136,8 +138,8 @@ condensing into protostars."))
 				       (mysteries 4)
 				       (vaxodrones 16)
 				       (polaris 100)
-				       (dust 100)
-				       (rooks 10)
+				       (chunks 20)
+				       (rooks 5)
 				       (canaz 13))
   (setf <height> height <width> width)
   [create-default-grid self]
@@ -150,11 +152,14 @@ condensing into protostars."))
   [drop-plasma self]
   (dotimes (i rooks)
     [drop-cell self (clone =rook=) (random height) (random width) :loadout t])
+  (dotimes (i chunks)
+    [drop-cell self (clone =big-crystal=) (random height) (random width)])
   (dotimes (i protostars)
     (let ((r (random height))
 	  (c (random width)))
-      [drop-cell self (clone =protostar=) r c]
-      [drop-plasma self :object =protogas= :distance 12 :row r :column c :graininess 0.3]))
+      [drop-plasma self :object =protogas= :distance 12 :row r :column c :graininess 0.3]
+      [drop-plasma self :object =crystal= :density 7 :distance 16 :row r :column c :graininess 0.3]
+      [drop-cell self (clone =protostar=) r c]))
   (dotimes (i mysteries)
     [drop-cell self (clone =mystery-box=)
 	       (random height) (random width)])
@@ -162,12 +167,11 @@ condensing into protostars."))
     [drop-cell self (clone =canaz=) (random height) (random width) :loadout t])
   (dotimes (i vaxodrones)
     [drop-cell self (clone (symbol-value '=vaxodrone=)) (random height) (random width) :loadout t])
-  (dotimes (i dust)
-    [drop-cell self (clone =small-crystal=) (random height) (random width)])
   (dotimes (i polaris)
     [drop-cell self (clone =polaris=) (random height) (random width) :loadout t])
   ;;
-  [drop-random-asteroids self asteroids])
+  [drop-random-asteroids self asteroids]
+  [drop-cell self (clone =launchpad=) (random height) (random width)])
 
 (define-method drop-random-asteroids nebula-m (count)
   (clon:with-field-values (height width) self

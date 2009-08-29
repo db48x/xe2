@@ -167,7 +167,7 @@ Watch out---they can spawn mines even after death!"))
 (defcell canaz 
   (tile :initform "canaz")
   (hit-points :initform (make-stat :base 4 :max 4 :min 0))
-  (speed :initform (make-stat :base 3))
+  (speed :initform (make-stat :base 2))
   (strength :initform (make-stat :base 10))
   (defense :initform (make-stat :base 10))
   (energy :initform (make-stat :base 100 :min 0 :max 100))
