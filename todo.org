@@ -4,13 +4,22 @@
 http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
-
+** TODO missions are closures/objects
+** TODO order tasks in time and importance (don't work on cube, work on early mission: collect fuel)
+** TODO MISSION 1: COLLECT FUEL at the nebula
+** TODO MISSION 2: LEVEL UP
+** TODO MISSION 3: COLLECT POLLEN
+** TODO sensors detect ancient energy waves to the north or west etc in Cube
+** TODO solvable path to cube
+** TODO fix kicking boxes into walls in Cube
+** TODO auto refill oxygen at void rider
+** TODO sprouts get too many moves at once
 ** TODO REVIEW AND PRIORITIZE TODO LIST
-** TODO find document in cube that goes (::.:.:)()((;::.)
+** TODO MAKE SOME EASIER LEVELS
+** TODO find document in cube that goes (::.:.:)()((;::.)... sell these data files to scientists
 ** TODO FIX left click = target and describe
 ** TODO right click = activate (must be adjacent)
 ** TODO info disks to explain story
-
 ** TODO piloting skill
 ** TODO fix troublesome item stacking in hive
 ** TODO don't model commodities as stats; instead use auto-aggregate  "pile" objects

@@ -97,7 +97,7 @@ around."))
       ;;
       [drop-maze self]
       [drop-specials self]
-      (dotimes (i 200)
+      (dotimes (i 350)
 	(drop-box (random height) (random width))))
     [drop-cell self (clone =launchpad=) 10 10]))
 
@@ -135,13 +135,6 @@ around."))
 	      (open-room r0 c0 (car (one-of '(:top :bottom :left :right)))))))))))
 
 	   
-
-
-	     
-    
-
-
-
 (define-method drop-specials cube  ()
   nil)
 

@@ -194,20 +194,20 @@ murdered, but valuable resources may be left inside."))
 				 =void=))
 		 i j]))
   (dotimes (i stars)
-    [drop-cell self (clone =star=) (random height) (random width)])
-  [drop-cell self (clone =antares=) (random 30) (random 30)]
+    [drop-cell self (clone =star=) (random height) (random width) :exclusive t :probe t])
+  [drop-cell self (clone =antares=) (random 5) (random 5)  :exclusive t :probe t]
   (dotimes (i freighters)
-    [drop-cell self (clone =freighter-gateway=) (random 30) (random 30)])
+    [drop-cell self (clone =freighter-gateway=) (+ 10 (random 30)) (+ 8 (random 30)) :exclusive t :probe t])
   (dotimes (i hives)
-    [drop-cell self (clone =hive-gateway=) (random 30) (random 30)])
+    [drop-cell self (clone =hive-gateway=) (random 30) (random 30) :exclusive t :probe t])
   (dotimes (i caves)
-    [drop-cell self (clone =cavern-gateway=) (random 30) (random 30)])
+    [drop-cell self (clone =cavern-gateway=) (+ 20 (random 40)) (+ 25 (random 30)) :exclusive t :probe t])
   (dotimes (i 5)
-    [drop-cell self (clone =vomac-gateway=) (+ 20 (random 30)) (+ 20 (random 30))])
+    [drop-cell self (clone =vomac-gateway=) (+ 20 (random 30)) (+ 20 (random 30)) :exclusive t :probe t])
   (dotimes (i 2)
-    [drop-cell self (clone =yellow-cube=) (+ 30 (random 10)) (+ 30 (random 10))])
-  [drop-cell self (clone =zeta-base-gateway=) (random 20) (random 20)]
-  [drop-cell self (clone =mars-gateway=) (random 20) (random 20)]
-  [drop-cell self (clone =ocean-gateway=) (random 20) (random 20)]
-  [drop-cell self (clone =nebula-m-gateway=) (random 20) (random 20)])
+    [drop-cell self (clone =yellow-cube=) (+ 35 (random 10)) (+ 35 (random 10)) :exclusive t :probe t])
+  [drop-cell self (clone =zeta-base-gateway=) (+ 16 (random 5)) (+ 16 (random 5)) :exclusive t :probe t]
+  [drop-cell self (clone =mars-gateway=) (random 13) (random 6) :exclusive t :probe t]
+  [drop-cell self (clone =ocean-gateway=) (+ 20 (random 10)) (+ 20 (random 20)) :exclusive t :probe t]
+  [drop-cell self (clone =nebula-m-gateway=) (random 10) (random 10) :exclusive t :probe t])
 

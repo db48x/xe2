@@ -22,7 +22,7 @@
   [play-sample self "bleep"]
   [drop self (if (equal <tile> "asteroid-red")
 		 (random-powerup)
-		 (if (zerop (random 4))
+		 (if (zerop (random 2))
 		     (clone =crystal=)
 		     (clone =small-crystal=)))]
   [stat-effect [get-player *active-world*] :score 120]

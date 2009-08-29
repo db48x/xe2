@@ -187,6 +187,8 @@ field named by STAT-NAME. The default is to change the :base value."
     :dead  ;; This cell is no longer receiving run messages.
     :player ;; Only one cell (your player avatar) has this category.
     :enemy ;; This cell is playing against you.
+    :exclusive ;; Prevent some objects from stacking.
+    ;; see also the method `drop-cell' in worlds.lisp
     :obstacle ;; Blocks <: movement :>
     :pushable ;; Can be pushed by impacts.
     :ephemeral ;; This cell is not preserved when exiting a world.

@@ -154,20 +154,41 @@ At the moment, only 0=off and 1=on are supported.")
 			   (vector-push-extend data cells)))))))
 
 (define-method drop-cell world (cell row column 
-				     &optional &key loadout no-collisions)
+				     &optional &key 
+				     loadout no-collisions exclusive probe)
   "Put CELL on top of the stack of cells at ROW, COLUMN. If LOADOUT is
 non-nil, then the `loadout' method of the dropped cell is invoked
 after dropping. If NO-COLLISIONS is non-nil, then an object is not
-dropped on top of an obstacle."
+dropped on top of an obstacle. If EXCLUSIVE is non-nil, then two
+objects with category :exclusive will not be placed together. If PROBE
+is non-nil, try to place the cell in the immediate neighborhood.
+Return T if a cell is placed; nil otherwise. If both NO-COLLISIONS and
+EXCLUSIVE are both non-nil, an error is signaled."
+  (assert (not (and no-collisions exclusive)))
   (when (array-in-bounds-p <grid> row column)
-    (when (or (null no-collisions)
-	      (not [obstacle-at-p self row column]))
-      (prog1 cell
-	(vector-push-extend cell (aref <grid> row column))
-	(setf (field-value :row cell) row)
-	(setf (field-value :column cell) column)
-	(when loadout
-	  [loadout cell])))))
+    (labels ((drop-it (row column)
+	       (prog1 t
+		 (vector-push-extend cell (aref <grid> row column))
+		 (setf (field-value :row cell) row)
+		 (setf (field-value :column cell) column)
+		 (when loadout
+		   [loadout cell]))))
+      (if (or no-collisions exclusive)
+	  (progn 
+	    (when no-collisions
+	      (when (not [obstacle-at-p self row column])
+		(drop-it row column)))
+	    (when exclusive
+	      (if [category-at-p self row column :exclusive]
+		  (when probe
+		    (block probing
+		      (dolist (dir *compass-directions*)
+			(multiple-value-bind (r c) 
+			    (step-in-direction row column dir)
+			  (when (not [category-at-p self row column :exclusive])
+			    (return-from probing (drop-it r c)))))))
+		  (drop-it row column))))
+	  (drop-it row column)))))
 
 (define-method replace-cell world (cell new-cell row column
 					&optional &key loadout no-collisions)
@@ -636,7 +657,7 @@ by symbol name. This enables them to be used as hash keys."
 (defcell gateway
   (tile :initform "gateway")
   (name :initform "Gateway")
-  (categories :initform '(:gateway))
+  (categories :initform '(:gateway :exclusive))
   (address :initform nil))
 
 (define-method activate gateway ()

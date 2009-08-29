@@ -464,7 +464,7 @@
 	       [loadout dude]
 	       [loadout ship]
 	       ;;
-	       [resize status :height 80 :width *left-column-width*]
+	       [resize status :height 80 :width *blast-window-width*]
 	       [set-character status ship]
 	       [update status]
 	       [set-tile-size *view* 16]
@@ -495,8 +495,8 @@
     [move stack :x 0 :y 0]
     [set-children stack (list status *view*)]
     ;;
-    [resize terminal :height (- *blast-window-height* 20) :width *right-column-width*]
-    [move terminal :x *left-column-width* :y 0]
+    [resize terminal :height (- *blast-window-height* 100) :width *right-column-width*]
+    [move terminal :x *left-column-width* :y 100]
     [set-verbosity terminal 0]
     ;; [move stack2 :x *left-column-width* :y 0]
     ;; [resize stack2 :width *right-column-width* :height 580]
