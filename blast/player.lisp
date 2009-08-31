@@ -486,7 +486,7 @@
   (hearing-range :initform 15)
   (energy :initform (make-stat :base 40 :min 0 :max 40 :unit :gj))
   (pollen3a :initform (make-stat :base 0 :min 0 :max 10 :unit :kg))
-  (endurium :initform (make-stat :base 200 :min 0 :max 400 :unit :kg))
+  (endurium :initform (make-stat :base 16 :min 0 :max 40 :unit :kg))
   (technetium :initform (make-stat :base 0 :min 0 :unit :ug))
   (biosilicate :initform (make-stat :base 0 :min 0 :unit :g))
   (hit-points :initform (make-stat :base 45 :min 0 :max 45))

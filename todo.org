@@ -5,7 +5,13 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
 
-** TODO MARKETING PUSH FOR BETA
+** TODO move f1 notice to after chang letter
+** TODO throwable bombs/missiles
+** TODO stealth where enemies do not always sense you! LOS at least
+** TODO gravity levels where gravity is in wrong direction... aspects of a platformer
+** TODO jump to gravity boot walls like in dead space
+** TODO rescue mission where you take an agent back to a rendezvous point on mars
+** TODO MARKETING PLAN FOR BETA RELEASE
 *** TODO make list contacts for sites, blogs, mags, casts
 *** TODO google analytics?
 *** TODO include game on linux mags?
