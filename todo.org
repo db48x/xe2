@@ -5,7 +5,9 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
 
-** TODO move f1 notice to after chang letter
+** TODO review unused pngs
+** TODO Change hive to greenish bg color? or brown
+** TODO bangai-o ish lasers that stick into a corridor and block you
 ** TODO throwable bombs/missiles
 ** TODO stealth where enemies do not always sense you! LOS at least
 ** TODO gravity levels where gravity is in wrong direction... aspects of a platformer

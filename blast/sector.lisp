@@ -199,7 +199,8 @@ collected during your mission---but do not allow these rewards to
 compete with mission goals.
 
 Your onboard computer is linked to our knowledge base---click any
-object to see what information is available.
+object to see what information is available. You may also press F1 for
+general help at any time.
 
 Good luck, contractor. 
 
