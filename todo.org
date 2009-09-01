@@ -5,10 +5,6 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
 
-** TODO dude status display
-      ;; TODO print whether or not player is in vehicle
-      ;; 
-
 ** TODO tell player whether it is safe to eva
 ** TODO Conditions
 ** TODO poison from toxic hazards

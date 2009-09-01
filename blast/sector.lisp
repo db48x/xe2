@@ -206,7 +206,7 @@ Good luck, contractor.
 (define-prototype star-sector (:parent rlx:=world=)
   (ambient-light :initform 4)
   (automapped :initform t)
-  (required-modes :initform '(:vehicle :vomac))
+  (required-modes :initform '(:vehicle))
   (scale :initform '(1 ly))
   (edge-condition :initform :block)
   (described-p :initform nil)

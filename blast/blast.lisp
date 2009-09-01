@@ -366,7 +366,7 @@
     [print self " COORDINATES:"]
     [print self (format nil "[~A ~A] " [player-row *active-world*]
 			[player-column *active-world*])]
-    [newline self]
+    [println self (format nil " MODES: ~A" (field-value :required-modes *active-world*))]
     [print self "TERRAIN: "]
     (let ((player [get-player *active-world*]))
       (when (and player [is-located player])
