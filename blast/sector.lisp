@@ -169,13 +169,7 @@ murdered, but valuable resources may be left inside."))
 
 ;;; The local cluster
 
-(define-prototype star-sector (:parent rlx:=world=)
-  (ambient-light :initform 4)
-  (automapped :initform t)
-  (required-modes :initform '(:vehicle :vomac))
-  (scale :initform '(1 ly))
-  (edge-condition :initform :block)
-  (description :initform 
+(defparameter *chang-message*
 "Greetings, contractor. I'm Daytona Chang, your liason with Rogue
 Nexus. While in our employ you will receive assignments from and
 report to me. 
@@ -207,7 +201,26 @@ Good luck, contractor.
  -- CHANG
 
 
-"))
+")
+
+(define-prototype star-sector (:parent rlx:=world=)
+  (ambient-light :initform 4)
+  (automapped :initform t)
+  (required-modes :initform '(:vehicle :vomac))
+  (scale :initform '(1 ly))
+  (edge-condition :initform :block)
+  (described-p :initform nil)
+  (description :initform *chang-message*))
+
+(define-method describe star-sector ()
+  (setf <description> (if (null <described-p>)
+			  (prog1 *chang-message* 
+			    (setf <described-p> t))
+			  "The unexplored Antares sector."))
+  (when <narrator>
+    [>>newline :narrator]
+    (dolist (line (rlx:split-string-on-lines <description>))
+      [>>narrateln :narrator line])))
 
 (define-method begin-ambient-loop star-sector ()
   (play-music "xiomacs" :loop t))
