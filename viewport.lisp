@@ -102,8 +102,11 @@
 		(draw-resource-image ".blackness" (* j tile-size) (* i tile-size)
 				     :destination image))))
       ;; update geometry
-      (setf <width> (* tile-size origin-width))
-      (setf <height> (* tile-size origin-height))
+      (let ((width (* tile-size origin-width))
+	    (height (* tile-size origin-height)))
+	(unless (and (= width <width>)
+		     (= height <height>))
+	  [resize self :height height :width width]))
       ;; render overlays
       (dolist (overlay <overlays>)
 	(funcall overlay image))

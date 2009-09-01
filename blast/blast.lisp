@@ -253,9 +253,10 @@
   [define-key self nil '(:timer) (lambda ()
 				   [run-cpu-phase *active-world* :timer])])
 
-;;; A ship status widget.
+;;; Status widgets for ship and dude
 
-(defvar *status* nil)
+(defvar *ship-status* nil)
+(defvar *dude-status* nil)
 
 (define-prototype status (:parent rlx:=formatter=)
   (character :documentation "The character cell."))
@@ -329,12 +330,63 @@
 
 (define-method update status ()
   [delete-all-lines self]
+  (let* ((char <character>))
+    (when char
+      (let ((hits [stat-value char :hit-points])
+	    (energy [stat-value char :energy]))
+	[println self "VEHICLE STATUS:" :foreground ".white" :background ".blue"]
+	[print-stat self :hit-points :warn-below 10]
+	[print-stat-bar self :hit-points :color ".red"]
+	[newline self]
+	[print-stat self :energy :warn-below 10]
+	[print-stat-bar self :energy :color ".cyan"]
+	[newline self]
+	[print-stat self :bomb-ammo :warn-below 2]
+	[print-stat-bar self :bomb-ammo :color ".green"]
+	[space self]
+	[print-stat self :oxygen :warn-below 50]
+	[print self " "]
+	[print-stat self :technetium]
+	[print self " "]
+	[print-stat self :endurium :warn-below 10]
+	[print self " "]
+	[newline self]
+	[print-stat self :strength :warn-below 10]
+	[print self " "]
+	[print-stat self :defense :warn-below 10]
+	[print self " "]
+	[print-stat self :speed :warn-below 5]
+	[newline self]))
+    [print self "LOCATION: "]
+    [print self (format nil "[~A]" [location-name *active-world*])]
+    [print self " SCALE:"]
+    (destructuring-bind (num unit) (field-value :scale *active-world*)
+      [print self (format nil "[~A ~A]" num unit)])
+    [space self]
+    [print self " COORDINATES:"]
+    [print self (format nil "[~A ~A] " [player-row *active-world*]
+			[player-column *active-world*])]
+    [newline self]
+    [print self "TERRAIN: "]
+    (let ((player [get-player *active-world*]))
+      (when (and player [is-located player])
+	(do-cells (cell [cells-at *active-world* 
+				  (field-value :row player)
+				  (field-value :column player)])
+	  (unless [is-player cell]
+	    [print-object-tag self cell])))
+      [newline self])))
+
+(define-prototype dude-status (:parent =status=))
+
+(define-method update dude-status ()
+  [delete-all-lines self]
+  (assert <character>)
   (when <character>
     (let* ((char <character>)
-	   (proxy (field-value :proxy char))
-	   (is-vehicle [in-category char :vehicle])
 	   (hits [stat-value char :hit-points])
 	   (energy [stat-value char :energy]))
+      [println self "CONTRACTOR STATUS:" :foreground ".white" :background ".blue"]
       [print-stat self :hit-points :warn-below 10]
       [print-stat-bar self :hit-points :color ".red"]
       [newline self]
@@ -342,10 +394,6 @@
       [print-stat self :energy :warn-below 10]
       [print-stat-bar self :energy :color ".cyan"]
       [newline self]
-      (when is-vehicle
-	[print-stat self :bomb-ammo :warn-below 2]
-	[print-stat-bar self :bomb-ammo :color ".green"])
-      [space self]
       [print-stat self :oxygen :warn-below 50]
       [print self " "]
       [print-stat self :strength :warn-below 10]
@@ -354,30 +402,9 @@
       [print self " "]
       [print-stat self :speed :warn-below 5]
       [print self " "]
-      [print-stat self :endurium :warn-below 10]
-      [print self " "]
-      [newline self]
-      [print self "LOCATION: "]
-      [print self (format nil "[~A]" [location-name *active-world*])]
-      [print self " SCALE:"]
-      (destructuring-bind (num unit) (field-value :scale *active-world*)
-	[print self (format nil "[~A ~A]" num unit)])
-      [space self]
-      [print-stat self :biosilicate]
-      [print self " COORDINATES:"]
-      [print self (format nil "[~A ~A] " [player-row *active-world*]
-			  [player-column *active-world*])]
-      [print-stat self :technetium]
-      [newline self]
-      [print self "TERRAIN: "]
-      (when (field-value :row char)
-	(do-cells (cell [cells-at *active-world* 
-				  (field-value :row char)
-				  (field-value :column char)])
-	  (unless [is-player cell]
-	    [print-object-tag self cell])))
       [newline self])))
-  
+    
+      
 ;;; Splash screen
   
 (defvar *pager* nil)
@@ -425,7 +452,8 @@
   (let* ((prompt (clone =blast-prompt=))
 	 (universe (clone =universe=))
 	 (narrator (clone =narrator=))
-	 (status (clone =status=))
+	 (ship-status (clone =status=))
+	 (dude-status (clone =dude-status=))
 	 (minimap (clone =minimap=))
 	 (ship (clone =olvac=))
 	 (dude (clone =contractor=))
@@ -454,7 +482,17 @@
     [set-verbosity narrator 0]
     ;;
     (labels ((spacebar ()
-	       (setf *status* status)
+	       (setf *ship-status* ship-status)
+	       (setf *dude-status* dude-status)
+	       ;;
+	       [resize ship-status :height 105 :width *blast-window-width*]
+	       [set-character ship-status ship]
+	       [move ship-status :x 0 :y 0]
+	       ;;
+	       [resize dude-status :height 160 :width 500]
+	       [set-character dude-status dude]
+	       [move dude-status :x 0 :y 400]
+	       ;;
 	       [set-player universe ship]
 	       [play universe
 		     :address '(=star-sector= :width 80 :height 80 
@@ -466,24 +504,22 @@
 	       [loadout dude]
 	       [loadout ship]
 	       ;;
-	       [resize status :height 80 :width *blast-window-width*]
-	       [set-character status ship]
-	       [update status]
+	       [update ship-status]
+	       [update dude-status]
 	       [set-tile-size *view* 16]
 	       ;; the default is to track the current world:
 	       ;; [set-world *view* world] 
 	       [resize *view* :height 432 :width *left-column-width*]
+	       [move *view* :x 0 :y 0]
 	       [set-origin *view* :x 0 :y 0 :height 24 :width (truncate (/ *left-column-width*
 									   16))]
 	       [adjust *view*]
-	       ;;
 	       ;;    [set-tile-size minimap 1]
 	       [resize minimap :height 80 :width 120]
-	       [move minimap :x 500 :y 470]
+	       [move minimap :x 500 :y 490]
 	       [set-origin minimap :x 0 :y 0 :height 100 :width 120]
 	       [adjust minimap]))
       (setf *space-bar-function* #'spacebar))
-   ;;
     ;;
     [set-buffer textbox
 		(find-resource-object "help-message")]
@@ -495,7 +531,7 @@
     ;;
     [resize stack :width *left-column-width* :height 580]
     [move stack :x 0 :y 0]
-    [set-children stack (list status *view*)]
+    [set-children stack (list ship-status *view*)]
     ;;
     [resize terminal :height (- *blast-window-height* 100) :width *right-column-width*]
     [move terminal :x *left-column-width* :y 100]
@@ -519,6 +555,6 @@
     (setf *pager* (clone =pager=))
     [auto-position *pager*]; :width *left-column-width*]
     (rlx:install-widgets splash-prompt splash)
-    [add-page *pager* :play stack prompt status *view* minimap terminal]
+    [add-page *pager* :play stack prompt dude-status ship-status *view* minimap terminal]
     [add-page *pager* :help textbox]))
 

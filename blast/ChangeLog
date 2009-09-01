@@ -1,0 +1,10 @@
+2009-09-01  David O'Toole  <dto@gnu.org>
+
+	* player.lisp (run): piloting skill affects player getting damaged when ship is hit
+	* player.lisp (run): pilot kill
+	* tweaked nebula and biohive colors
+	* added signature powerup fanfare
+	* low hit points and oxygen warning
+	* numbered nebulas
+	
+

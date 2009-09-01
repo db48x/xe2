@@ -115,9 +115,10 @@ condensing into protostars."))
     [damage stepper 2]))
 
 (define-prototype nebula-m (:parent rlx:=world=)
-  (name :initform "Restricted Nebula M")
+  (name :initform "Restricted Nebula MX type")
   (scale :initform '(50 m))
   (ambient-light :initform :total)
+  (required-modes :initform '(:vehicle :spacesuit))
   (description :initform
 "This nebula swirls with light and heat as massive clouds of
 superheated plasma condense into young stars. Droid activity level
@@ -125,8 +126,8 @@ seems high."))
   
 (define-method drop-plasma nebula-m (&optional &key (object
 					       =red-plasma=)
-					       distance (row
-					       0) (column 0)
+					       distance 
+					       (row 0) (column 0)
 					       (graininess 0.3)
 					       (density 100)
 					       (cutoff 0))
@@ -153,7 +154,7 @@ seems high."))
 				       (mysteries 4)
 				       (vaxodrones 16)
 				       (polaris 60)
-				       (chunks 20)
+				       (chunks 12)
 				       (rooks 5)
 				       (canaz 13)
 				       (sequence-number (genseq)))

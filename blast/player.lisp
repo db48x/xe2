@@ -166,7 +166,8 @@
   (let ((dude (clone =contractor=))
 	(ship (clone =olvac=)))
     [destroy *active-universe*]
-    [set-character *status* ship]
+    [set-character *ship-status* ship]
+    [set-character *dude-status* dude]
     [set-player *active-universe* ship]
     [play *active-universe*
 	  :address '(=star-sector= :width 80 :height 80 
@@ -423,7 +424,9 @@
 	 [die self])
 	((<= [stat-value self :speed] 0)
 	 [>>say :narrator "You are paralyzed. You suffocate and die."]
-	 [die self])))
+	 [die self]))
+  [update *dude-status*])
+
 
 (define-method die contractor ()
   [play-sample self "death"]
@@ -439,8 +442,8 @@
 (define-method embark contractor ()
   (let ((vehicle [category-at-p *active-world* <row> <column> :vehicle]))
     (when vehicle
-      [set-character *status* vehicle]
-      [parent>>embark self])))
+      [parent>>embark self]
+      [set-character *ship-status* vehicle])))
 
 (define-method do-post-unproxied contractor ()
   [say self "Commencing EVA (extra-vehicular activity)."]
@@ -525,9 +528,10 @@ done."))
   [equip self [add-item self (clone =bomb-cannon=)]])
 
 (define-method disembark olvac ()
-  [set-character *status* <occupant>]
   (if (null [in-category self :proxied])
-      [unproxy self]
+      (progn 
+	[unproxy self]
+	[set-character *ship-status* nil])
       [>>say :narrator "Cannot disembark without a vehicle."]))
 
 (define-method run olvac ()
@@ -555,7 +559,8 @@ done."))
 	     [die self]))
 	 [update-tile self]
 	 [update-react-shield self]
-	 [update *status*])))
+	 [update *ship-status*]
+	 [update *dude-status*])))
 
 (define-method wait olvac ()
   [say self "Skipped one turn."]
@@ -602,7 +607,7 @@ done."))
 	      [drop-trail self]
 	      [parent>>move self direction]
 	      [update-tile self]
-	      [update *status*])))))
+	      [update *ship-status*])))))
 
 (defvar *olvac-tiles* '(:north "voidrider-north" 
 			:east "voidrider-east" 
