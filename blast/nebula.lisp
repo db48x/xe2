@@ -61,9 +61,9 @@
     [>>narrateln :narrator "YOU WIN!"])
   [parent>>die self])
 
-(defun paint-station-piece (world row column maxsize)
+(defun paint-station-piece (world row column maxsize &optional guardian-p)
   (when (not [obstacle-at-p world row column])
-    (let ((guardian (clone =guardian=)))
+    (let ((guardian (when guardian-p (clone =guardian=))))
       (labels ((drop-horz (r c)
 		 [drop-cell world (clone =station-arm-horz=) r c])
 	       (drop-vert (r c)
@@ -78,7 +78,7 @@
 		   (+ (- row 5) (random 10))
 		   (+ (- column 5) (random 10))
 		   :loadout t]
-	[defend guardian (drop-base row column)]))))
+	(if guardian-p [defend guardian (drop-base row column)])))))
 
 (defcell nebula-space 
   (tile :initform "nebula4")
@@ -119,6 +119,7 @@ condensing into protostars."))
   (scale :initform '(50 m))
   (ambient-light :initform :total)
   (required-modes :initform '(:vehicle :spacesuit))
+  (categories :initform '(:weightless :airless))
   (description :initform
 "This nebula swirls with light and heat as massive clouds of
 superheated plasma condense into young stars. Droid activity level

@@ -206,6 +206,21 @@ types."))
     [play-sample self "biosilicate-sound"]
     [die self]))
 
+;;; Gravboots
+
+(defcell gravboots
+  (categories :initform '(:equipment :item))
+  (tile :initform "gravboots")
+  (equip-for :initform '(:feet)))
+
+(define-method step gravboots (stepper)
+  (if (and [is-player stepper]
+	   (eq :spacesuit (field-value :mode stepper)))
+      (progn [play-sample self "fanfare"]
+	     [say self "You've found the Gravity Boots."]
+	     [equip stepper [take stepper :direction :here :category :item] :feet])
+      [say self "You cannot pick this up while in a vehicle."]))
+
 ;;; The ion shield
 
 (defcell ion-shield-wall 
@@ -231,7 +246,7 @@ types."))
   (equip-for :initform '(:belt :shoulder-mount :extension))
   (size :initform 5)
   (description :initform 
-"This sheld throws up a temporary, stationary barrier against incoming
+"This sheld throws up a temporary non-moving barrier against incoming
 missiles and enemies."))
 
 (defparameter *ion-shield-energy-cost* 6)
@@ -246,6 +261,7 @@ missiles and enemies."))
 		 (prog1 nil
 		   [drop-cell world (clone =ion-shield-wall=) r c :no-collisions nil])))
 	[>>say :narrator "Activating ion shield."]
+	[play-sample self "worp"]
 	(trace-rectangle #'drop-ion 
 			 (- row (truncate (/ size 2)))
 			 (- column (truncate (/ size 2)))
@@ -269,8 +285,8 @@ missiles and enemies."))
 (define-method die mystery-box ()
   (let ((item (clone (ecase (random 3)
 		       (0 =ion-shield=)
-		       (1 =diamond=)
-		       (2 =energy=)))))
+		       (1 =gravboots=)
+		       (2 =level-up=)))))
     [drop self item]
     [parent>>die self]))
 

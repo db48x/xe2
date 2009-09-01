@@ -11,15 +11,10 @@
 (defcell corridor
   (name :initform "Airless Corridor")
   (tile :initform "grayplate-dark")
+  (categories :initform '(:magnetic))
   (description :initform 
 "You will use 1 unit of oxygen for each square moved,
 or each turn waited. Melee combat uses 2 units per hit."))
-
-;;; Moving in a corridor uses up oxygen.
-
-(define-method step corridor (stepper)
-  (when (has-field :oxygen stepper)
-    [>>stat-effect stepper :oxygen -1]))
 
 ;;; Oxygen tank replenishes your air
 
@@ -155,6 +150,7 @@ this."))
   (width :initform 48)
   (height :initform 150)
   (required-modes :initform '(:spacesuit))
+  (categories :initform '(:airless :weightless))
   (name :initform nil)
   (ambient-light :initform 8)
   (pallet-size :initform 13))

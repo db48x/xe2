@@ -18,6 +18,7 @@
  (:name "vomac-damage" :type :sample :file "vomac-damage.wav" :properties (:volume 10))
  
  (:name "techblackmetal" :type :image :file "tech-blackmetal.png")
+ (:name "gravboots" :type :image :file "gravboots.png")
  (:name "minesweeper" :type :image :file "minesweeper.png")
  (:name "ring" :type :image :file "ring.png")
  (:name "ring" :type :image :file "ring.png")

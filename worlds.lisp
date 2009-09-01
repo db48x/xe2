@@ -38,6 +38,7 @@
   (name :initform "Unknown")
   (description :initform "Unknown area.")
   (required-modes :initform nil)
+  (categories :initform nil)
   (mission-grammar :initform '())
   (scale :initform '(1 m)
 	 :documentation "Scale per square side in the form (N UNIT) where UNIT is m, km, ly etc.")
@@ -78,6 +79,9 @@ At the moment, only 0=off and 1=on are supported.")
 (defparameter *default-world-axis-size* 10)
 (defparameter *default-world-z-size* 4)
 
+(define-method in-category world (category)
+  (member category <categories>))
+    
 ;; <: environment :>
 (define-prototype environment
     (:documentation "A cell giving general environmental conditions at a world location.")
@@ -325,8 +329,9 @@ so on, until no more messages are generated."
 This is where most world computations start, because nothing happens
 in a roguelike until the user has pressed a key."
   (assert <player>)
-  (message "FORWARDWORLD: ~S ~S" <phase-number> 
-	   (field-value :phase-number <player>))
+  (message "FORWARDWORLD: ~S ~S ~S" <phase-number> 
+	   (field-value :phase-number <player>)
+	   method-key)
   (prog1 nil
     (let ((player <player>)
 	  (phase-number <phase-number>))

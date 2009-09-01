@@ -1,7 +1,13 @@
 2009-09-01  David O'Toole  <dto@gnu.org>
 
-	* player.lisp (run): piloting skill affects player getting damaged when ship is hit
-	* player.lisp (run): pilot kill
+	* separate ship and dude displays
+	* show required transportation modes for each world
+	* player uses oxygen whenever out of vehicle (unless there's air)
+	* refill oxygen infinitely at vehicle
+	* gravboots
+	* weightless derelict freighters with better layout
+	* no more instadeath on incompatible environments
+	* pilot kill
 	* tweaked nebula and biohive colors
 	* added signature powerup fanfare
 	* low hit points and oxygen warning

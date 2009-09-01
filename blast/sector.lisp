@@ -57,12 +57,12 @@ droids took control."))
 (define-prototype nebula-m-gateway (:parent =gateway=)
   (tile :initform "nebula-m-gateway")
   (sequence-number :initform (genseq))
-  (name :initform "Nebula M")
+  (name :initform "Nebula, MX type")
   (address :initform (list '=nebula-m= :sequence-number (genseq)))
   (description :initform "You can mine asteroids for endurium fuel here."))
 
 (define-method step nebula-m-gateway (stepper)
-  [say self "The mysterious Nebula M~A. Press RETURN to enter." <sequence-number>])
+  [say self "The mysterious Nebula MX-~A. Press RETURN to enter." <sequence-number>])
 
 ;;; A mars-like planet with fractal terrain.
 
@@ -206,7 +206,8 @@ Good luck, contractor.
 (define-prototype star-sector (:parent rlx:=world=)
   (ambient-light :initform 4)
   (automapped :initform t)
-  (required-modes :initform '(:vehicle))
+  (required-modes :initform '(:vehicle :spacesuit))
+  (categories :initform '(:weightless :airless))
   (scale :initform '(1 ly))
   (edge-condition :initform :block)
   (described-p :initform nil)

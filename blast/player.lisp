@@ -246,7 +246,7 @@
 
 (defcell muon-particle 
   (categories :initform '(:actor))
-  (speed :initform (make-stat :base 15))
+  (speed :initform (make-stat :base 18))
   (default-cost :initform (make-stat :base 5))
   (tile :initform "muon")
   (direction :initform :here)
@@ -356,7 +356,7 @@
   (dexterity :initform (make-stat :base 13))
   (piloting :initform (make-stat :base 15))
   (defense :initform (make-stat :base 15))
-  (equipment-slots :initform '(:left-hand :right-hand :belt :extension))
+  (equipment-slots :initform '(:left-hand :right-hand :belt :extension :feet))
   (hearing-range :initform 18)
   (energy :initform (make-stat :base 20.0 :min 0.0 :max 20.0 :unit :gj))
   (endurium :initform (make-stat :base 0 :min 0 :max 20 :unit :kg))
@@ -410,23 +410,27 @@
 (defparameter *contractor-low-hp-warning-level* 10)
 
 (define-method run contractor ()
+  ;; todo possibly be poisoned
+  ;; possibly breathe
+  (when (and [in-category *active-world* :airless]
+	     (null <proxy>)
+	     (has-field :oxygen self))
+      [stat-effect self :oxygen -1]
+      [say self "You expend one unit of oxygen."])
+  ;; check stats
   (when (< [stat-value self :oxygen] *contractor-oxygen-warning-level*)
     [>>println :narrator "WARNING: OXYGEN SUPPLY CRITICAL!" :foreground ".yellow" :background ".red"]
     [play-sample self (if (= 0 (random 2))
 			  "breath1" "breath2")])
   (when (< [stat-value self :hit-points] *contractor-low-hp-warning-level*)
     [>>println :narrator "WARNING: LOW HIT POINTS!" :foreground ".yellow" :background ".red"])
-  (cond ((not (member :spacesuit (field-value :required-modes *active-world*)))
-	 [>>say :narrator "You cannot survive in this environment! You die."]
-	 [die self])
-	((<= [stat-value self :oxygen] 0)
+  (cond ((<= [stat-value self :oxygen] 0)
 	 [>>say :narrator "Your oxygen runs out, suffocating you."]
 	 [die self])
 	((<= [stat-value self :speed] 0)
 	 [>>say :narrator "You are paralyzed. You suffocate and die."]
 	 [die self]))
   [update *dude-status*])
-
 
 (define-method die contractor ()
   [play-sample self "death"]
@@ -451,8 +455,23 @@
 
 (define-method attack contractor (target)
   (rlx:play-sample "knock")
-  [>>stat-effect self :oxygen -2]
-  [parent>>attack self target])
+  [parent>>attack self target]
+  (when [in-category *active-world* :airless]
+    [stat-effect self :oxygen -2]))
+
+(define-method move contractor (direction)
+  (if (member <mode> (field-value :required-modes *active-world*))
+      (if [in-category *active-world* :weightless] 
+	  (if (and (clon:object-p [equipment-slot self :feet])
+		   (clon:is-a [equipment-slot self :feet] '=gravboots=))
+	      (if [category-in-direction-p *active-world* 
+					   <row> <column> direction 
+					   :magnetic]
+		  [parent>>move self direction]
+		  [say self "Your magnetic boots won't stick to that location."])
+	      [say self "You cannot move in zero-gravity without magnetic boots."])
+	  [parent>>move self direction])
+      [say self "You cannot do EVA (Extra-Vehicular Activity) in this environment."]))
 
 (define-method show-location contractor ()
   (labels ((do-circle (image)
@@ -478,6 +497,7 @@
 	  [say self "The nanorepair module fixed some damage to your vehicle."]
 	  [die self])
 	[say self "You cannot use nano-repairs on your current transport mode."])))
+
 
 ;;; Your ship.
 
@@ -535,8 +555,9 @@ done."))
       [>>say :narrator "Cannot disembark without a vehicle."]))
 
 (define-method run olvac ()
-  ;; (when <occupant> 
-  ;;   (setf (field-value :phase-number <occupant>) <phase-number>))
+  (when <occupant> 
+    [run <occupant>])
+    ;;(setf (field-value :phase-number <occupant>) <phase-number>))
   (cond ((<= [stat-value self :hit-points] 0)
 	 [die self])
 	((<= [stat-value self :endurium] 0)
