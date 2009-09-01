@@ -254,6 +254,7 @@ missiles and enemies."))
 
 (define-method step ion-shield (stepper)
   (when [is-player stepper]
+    [play-sample self "fanfare"]
     [>>say :narrator "You've found the Ion Shield Unit."]
     [equip stepper [take stepper :direction :here :category :item] :extension]))
 

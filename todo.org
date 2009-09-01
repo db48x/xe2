@@ -5,6 +5,11 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
 
+** TODO piloting skill affects player getting damaged when in 
+** TODO pilot kill
+** TODO Conditions
+** TODO poison from toxic hazards
+** TODO tox hypo
 ** TODO review unused pngs
 ** TODO Change hive to greenish bg color? or brown
 ** TODO bangai-o ish lasers that stick into a corridor and block you

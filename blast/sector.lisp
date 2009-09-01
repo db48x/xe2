@@ -176,9 +176,9 @@ report to me.
 
 You've arrived in the Antares sector. Only short-range scans are
 possible, so you'll have to map the area slowly. You'll need fuel to
-reach Zeta Base, so we suggest heading to the nearby Nebula M. You can
-mine asteroids there to collect Endurium. Eliminate any resistance you
-encounter.
+reach Zeta Base, so we suggest heading to one of the nearby
+nebulae. You can mine asteroids there to collect Endurium. Eliminate
+any resistance you encounter.
 
 There may be ships available at Zeta---if the droids haven't destroyed
 them all. Don't take chances; protect the ship we've given you at all

@@ -353,6 +353,7 @@
   (speed :initform (make-stat :base 12 :min 0 :max 25))
   (strength :initform (make-stat :base 13))
   (dexterity :initform (make-stat :base 13))
+  (piloting :initform (make-stat :base 15))
   (defense :initform (make-stat :base 15))
   (equipment-slots :initform '(:left-hand :right-hand :belt :extension))
   (hearing-range :initform 18)
@@ -404,13 +405,16 @@
 (define-method quit contractor ()
   (rlx:quit :shutdown))
 
-(defparameter *contractor-energy-warning-level* 15)
+(defparameter *contractor-oxygen-warning-level* 20)
+(defparameter *contractor-low-hp-warning-level* 10)
 
 (define-method run contractor ()
-  (when (< [stat-value self :oxygen] *contractor-energy-warning-level*)
-    [>>println :narrator "OXYGEN SUPPLY CRITICAL!" :foreground ".yellow" :background ".red"]
+  (when (< [stat-value self :oxygen] *contractor-oxygen-warning-level*)
+    [>>println :narrator "WARNING: OXYGEN SUPPLY CRITICAL!" :foreground ".yellow" :background ".red"]
     [play-sample self (if (= 0 (random 2))
 			  "breath1" "breath2")])
+  (when (< [stat-value self :hit-points] *contractor-low-hp-warning-level*)
+    [>>println :narrator "WARNING: LOW HIT POINTS!" :foreground ".yellow" :background ".red"])
   (cond ((not (member :spacesuit (field-value :required-modes *active-world*)))
 	 [>>say :narrator "You cannot survive in this environment! You die."]
 	 [die self])
@@ -545,6 +549,10 @@ done."))
 	 [say self "You suffer toxic hazard damage. You must find a tox hypo."]
 	 [damage self 1])
 	(t 
+	 (when <occupant>
+	   (when (zerop [stat-value <occupant> :hit-points])
+	     [>>narrateln :narrator "PILOT KILL! YOU DIE." :foreground ".yellow" :background ".red"]
+	     [die self]))
 	 [update-tile self]
 	 [update-react-shield self]
 	 [update *status*])))
@@ -614,16 +622,29 @@ done."))
 (define-method scan-terrain olvac ()
   [cells-at *active-world* <row> <column>])
 		 
+(defparameter *piloting-skill-die* 20)
+
 (define-method damage olvac (points)
   (let ((was-disabled [is-disabled self]))
     (if (= 0 <invincibility-clock>)
 	(progn [play-sample self "warn"]
 	       [stat-effect self :hit-points (- points)]
+	       ;; possibly damage pilot
+	       (let ((occupant <occupant>))
+		 (when occupant 
+		   (percent-of-time (* 5 [stat-value occupant :dexterity])
+		     (let ((piloting [stat-value occupant :piloting]))
+		       (unless (roll-under piloting *piloting-skill-die*)
+			 (let ((amount (max 1 (truncate (/ *piloting-skill-die* (/ piloting 2))))))
+			   [damage occupant amount]
+			   [expend-action-points self <action-points>]
+			   [>>println :narrator (format nil "WARNING: PILOT INJURY OF ~A HIT POINTS" amount)
+				      :foreground ".red"]))))))
 	       (when (and (null was-disabled)
 			  [is-disabled self])
 		 [do-disable self]
 		 (when (= 0 [stat-value self :hit-points])
-		     [die self]))
+		   [die self]))
 	       (setf <invincibility-clock> 5)
 	       [update-tile self]
 	       [>>say :narrator "React Shield up with 5 turns remaining."])

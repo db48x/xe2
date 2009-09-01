@@ -38,6 +38,9 @@ So 2d6+2 would be (roll 2 6 2)."
        (dotimes (r rolls total)
 	 (incf total (+ 1 (random sides)))))))
 
+(defun roll-under (n sides)
+  (< n (random sides)))
+
 ;;; Space
 
 (defun distance (x1 y1 x2 y2)

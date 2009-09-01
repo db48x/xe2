@@ -81,7 +81,7 @@
 	[defend guardian (drop-base row column)]))))
 
 (defcell nebula-space 
-  (tile :initform "nebula")
+  (tile :initform "nebula4")
   (name :initform "Diffuse gas"))
 
 (defcell red-plasma
@@ -89,7 +89,7 @@
   (name :initform "Red plasma"))
 
 (defcell charged-nebula-space
-  (tile :initform "nebula2")
+  (tile :initform "nebula3")
   (name :initform "Charged plasma"))
 
 (defcell protostar
@@ -157,6 +157,7 @@ seems high."))
 				       (rooks 5)
 				       (canaz 13)
 				       (sequence-number (genseq)))
+  (setf <name> (format nil "Nebula MX-~A" sequence-number))
   (setf <height> height <width> width)
   [create-default-grid self]
   (dotimes (i width)

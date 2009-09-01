@@ -87,6 +87,8 @@
   (combination-amount :initform 0 :documentation "Amount of item this cell represents.")
   (combination-key :initform nil :documentation "Only items matching this key will be combined."))
     
+(define-method is-located cell ()
+  (and (integerp <row>) (integerp <column>)))
 
 ;; Convenience macro for defining cells:
 
@@ -740,9 +742,11 @@ slot."
   (let ((range (if (clon:has-field :hearing-range self)
 		   <hearing-range>
 		   *default-sample-hearing-range*))
-	(dist (distance <column> <row> 
-			[player-column *active-world*]
-			[player-row *active-world*])))
+	(dist (if [is-located self]
+		  (distance <column> <row> 
+			    [player-column *active-world*]
+			    [player-row *active-world*])
+		  0)))
     (when (> range dist)
       (play-sample sample-name))))
 
