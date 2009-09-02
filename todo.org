@@ -5,6 +5,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
 
+** TODO sample dana's keyboard
 ** TODO 3 missions
 ** TODO grav jump boots
 ** TODO refill oxygen infinitely at vehicle

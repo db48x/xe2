@@ -80,6 +80,20 @@ these clouds restores your energy level."))
   (declare (ignore points))
   [die self])
 
+(define-prototype zeta-crew (:parent =crew-member=))
+
+(define-method step zeta-crew (stepper)
+  (when (and [is-player stepper]
+	     (eq :spacesuit (field-value :mode stepper)))
+    [say stepper "You search the dead crewmember's body."]
+        [expend-default-action-points stepper]
+    (percent-of-time 30
+      [say stepper "You find a medical hypo, and recover 5 hit points."]
+      [stat-effect stepper :hit-points 5])
+    (percent-of-time 15
+      [say stepper "You find a pair of gravity boots!"]
+      [equip stepper [add-item stepper (clone (symbol-value '=gravboots=))] :feet])))
+  
 ;;; The ruins of Zeta Base, the game's first location.
 
 (define-prototype zeta-base (:parent rlx:=world=)
@@ -96,6 +110,7 @@ these clouds restores your energy level."))
 				    (berserker-count 0)
 				    (polaris-count 5)
 				    (probe-count 5)
+				    (crew 4)
 				    (mystery-count 5)
 				    (energy-gas-cluster-count 2)
 				    (box-cluster-count 4)
@@ -168,6 +183,8 @@ these clouds restores your energy level."))
 		  (+ r0 (1+ (random 3))) 
 		  (+ c0 (1+ (random 2))))))
   ;; spawn point
+  (dotimes (i crew)
+    [drop-cell self (clone =zeta-crew=) (random height) (random width)])
   [drop-cell self (clone =launchpad=) (random 16) (random 16)])
    
 (define-method drop-plasma-debris zeta-base ()
