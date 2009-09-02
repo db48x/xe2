@@ -120,7 +120,7 @@ this."))
   (when (and [is-player stepper]
 	     (eq :spacesuit (field-value :mode stepper)))
     [say stepper "You search the dead crewmember's body."]
-        [expend-default-action-points stepper]
+    [expend-default-action-points stepper]
     (percent-of-time 30
       [say stepper "You find a medical hypo, and recover 5 hit points."]
       [stat-effect stepper :hit-points 5])

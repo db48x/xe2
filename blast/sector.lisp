@@ -253,9 +253,9 @@ Good luck, contractor.
   (dotimes (i 5)
     [drop-cell self (clone =vomac-gateway=) (+ 20 (random 30)) (+ 20 (random 30)) :exclusive t :probe t])
   (dotimes (i 2)
-    [drop-cell self (clone =yellow-cube=) (+ 35 (random 10)) (+ 35 (random 10)) :exclusive t :probe t])
+    [drop-cell self (clone =yellow-cube=) (+ 10 (random 35)) (+ 14 (random 20)) :exclusive t :probe t])
   [drop-cell self (clone =zeta-base-gateway=) (+ 10 (random 5)) (+ 10 (random 5)) :exclusive t :probe t]
-  [drop-cell self (clone =mars-gateway=) (random 13) (random 6) :exclusive t :probe t]
-  [drop-cell self (clone =ocean-gateway=) (+ 20 (random 10)) (+ 20 (random 20)) :exclusive t :probe t]
+  [drop-cell self (clone =mars-gateway=) (+ 30 (random 13)) (+ 10 (random 6)) :exclusive t :probe t]
+  [drop-cell self (clone =ocean-gateway=) (+ 10 (random 10)) (+ 5 (random 10)) :exclusive t :probe t]
   [drop-cell self (clone =nebula-m-gateway=) (random 10) (random 10) :exclusive t :probe t]
   [drop-cell self (clone =nebula-m-gateway=) (+ 15 (random 10)) (+ 15 (random 10)) :exclusive t :probe t])
