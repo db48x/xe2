@@ -186,7 +186,11 @@ costs, as there is no guarantee you'll find any replacement.
 
 You must penetrate the base and fight your way to the southernmost
 wing, where the data we are seeking was stored. See if you can find
-the computer and reactivate it.
+the disk and transmit its contents to us.
+
+We lost contact with a few of our operatives who had tried to enter
+Zeta Base. You may be able to find valuable supplies on their bodies,
+if indeed they are dead.
 
 You will be substantially rewarded for data, materials, and artifacts
 collected during your mission---but do not allow these rewards to
@@ -258,4 +262,7 @@ Good luck, contractor.
   [drop-cell self (clone =mars-gateway=) (+ 30 (random 13)) (+ 10 (random 6)) :exclusive t :probe t]
   [drop-cell self (clone =ocean-gateway=) (+ 10 (random 10)) (+ 5 (random 10)) :exclusive t :probe t]
   [drop-cell self (clone =nebula-m-gateway=) (random 10) (random 10) :exclusive t :probe t]
-  [drop-cell self (clone =nebula-m-gateway=) (+ 15 (random 10)) (+ 15 (random 10)) :exclusive t :probe t])
+  [drop-cell self (clone =nebula-m-gateway=) (+ 15 (random 10)) (+ 15 (random 10)) :exclusive t :probe t]
+  ;;
+  ;; testing
+  [drop-cell self (clone =freighter-gateway=) 1 1 :exclusive t :probe t])

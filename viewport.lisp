@@ -191,6 +191,7 @@
 	 (origin-height <origin-height>)
 	 (origin-x <origin-x>)
 	 (origin-y <origin-y>)
+	 (tile-size <tile-size>)
 	 (category-map <category-map>)
 	 (grid (field-value :grid world))
 	 (image <image>)
@@ -202,10 +203,10 @@
 			     turn-number ambient-light) world
       ;; blank the display
       [clear self]
-      ;; draw the border
-      (draw-rectangle 0 0 <width> <height>
-		      :color <border-color>
-		      :destination <image>)
+      ;; ;; draw the border
+      ;; (draw-rectangle 0 0 <width> <height>
+      ;; 		      :color <border-color>
+      ;; 		      :destination <image>)
       ;; draw the minimap
       (dotimes (i origin-height)
 	(dotimes (j origin-width)
@@ -219,18 +220,41 @@
 		  (dotimes (k (fill-pointer objects))
 		    (setf cell (aref objects k))
 		    (setf categories (field-value :categories cell))
+		    ;; record location of player-entry-point if any
+		    (when (member :player-entry-point categories)
+		      (draw-circle (* tile-size (- j origin-x))
+				   (* tile-size (- i origin-y))
+				   4 
+				   :destination image 
+				   :color ".yellow"))
 		    (when (member category categories)
-		      (rlx:draw-pixel j i
-				      :destination image 
-				      :color color)
+		      (rlx:draw-box (* tile-size j) 
+				    (* tile-size i)
+				    tile-size tile-size
+				    :destination image 
+				    :stroke-color color
+				    :color color)
 		      (return-from coloring)))))))))
       ;; draw player indicator
-      (draw-circle [player-column world]
-		   [player-row world] 
-		   4 :destination image)
-	;; update geometry
-	(setf <width> origin-width))
-      (setf <height> origin-height)))
+      (draw-circle (* tile-size (- [player-column world] origin-x))
+		   (* tile-size (- [player-row world] origin-y))
+		   4 
+		   :destination image :color ".white"))))
+
+(defparameter *minimap-help-string* 
+"This is the minimap, a form of radar.
+Red dots represent enemies; the player's location is indicated in
+white.")
+
+(define-method select minimap ()
+  (dolist (line (split-string-on-lines *minimap-help-string*))
+    [>>narrateln :narrator line]))
+
+(define-method hit minimap (x y)
+  (when [parent>>hit self x y]
+    self))
+  
+	
 		  
 
 

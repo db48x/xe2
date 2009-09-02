@@ -2,6 +2,7 @@
  (:name ".default-font" :type :font :properties (:height 14 :width 7) :data "7x14b")
 
  (:name "knock" :type :sample :file "knock.wav" :properties (:volume 30))
+ (:name "activate" :type :sample :file "activate.wav" :properties (:volume 30))
  (:name "fanfare" :type :sample :file "fanfare.wav" :properties (:volume 30))
  (:name "blaagh2" :type :sample :file "blaagh2.wav" :properties (:volume 60))
  (:name "blaagh3" :type :sample :file "blaagh3.wav" :properties (:volume 40))

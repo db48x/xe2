@@ -74,11 +74,12 @@
 	(trace-row #'drop-horz row column (+ column (random maxsize)))
 	(trace-column #'drop-vert column row (max 0 (- row (random maxsize))))
 	(trace-column #'drop-vert column row (+ row (random maxsize)))
-	[drop-cell world guardian
-		   (+ (- row 5) (random 10))
-		   (+ (- column 5) (random 10))
-		   :loadout t]
-	(if guardian-p [defend guardian (drop-base row column)])))))
+	(when guardian-p 
+	  [drop-cell world guardian
+		     (+ (- row 5) (random 10))
+		     (+ (- column 5) (random 10))
+		     :loadout t]
+	  [defend guardian (drop-base row column)])))))
 
 (defcell nebula-space 
   (tile :initform "nebula4")

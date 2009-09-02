@@ -141,9 +141,8 @@
 (define-method step pulse-ammo (stepper)
   (when [is-player stepper]
     [play-sample self "powerup"]
-    [>>say :narrator "PULSE +2!"]
-    [stat-effect stepper :pulse-ammo 2]
-    [stat-effect stepper :score 2000]
+    [say self "You obtained a round for the Pulse Cannon."]
+    [stat-effect stepper :pulse-ammo 1]
     [die self]))
 
 ;;; Extra bomb ammo
@@ -162,13 +161,14 @@
 ;;; Random powerup function
 
 (defun random-powerup ()
-  (clone (ecase (random 6)
+  (clone (ecase (random 7)
 	   (0 =diamond=)
 	   (1 =pulse-ammo=)
 	   (2 =extender=)
 	   (3 =bomb-ammo=)
 	   (4 =diamond=)
-	   (5 =mystery-box=))))
+	   (5 =mystery-box=)
+	   (6 =repair-module=))))
 
 ;;; Some destructible blocks
 
@@ -229,8 +229,8 @@ types."))
 (define-method step gravboots (stepper)
   (if (and [is-player stepper]
 	   (eq :spacesuit (field-value :mode stepper)))
-      (progn [play-sample self "fanfare"]
-	     [say self "You've found the Gravity Boots."]
+      (progn [play-sample stepper "fanfare"]
+	     [say stepper "You've found the Gravity Boots."]
 	     [equip stepper [take stepper :direction :here :category :item] :feet])
       [say self "You cannot pick this up while in a vehicle."]))
 
@@ -290,10 +290,13 @@ missiles and enemies."))
 ;;; Powerup mystery box
 
 (defcell mystery-box
+  (name :initform "Ancient stasis container")
   (tile :initform "mystery-box")
   (hit-points :initform (make-stat :base 5 :min 0))
   (categories :initform '(:target))
-  (description :initform "Shoot the box for a surprise inside!"))
+  (description :initform 
+"Break open a stasis container to retrieve Ancient technology and
+materials."))
 
 (define-method die mystery-box ()
   (let ((item (clone (car (one-of (list 

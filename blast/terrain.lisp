@@ -13,6 +13,25 @@
   (name :initform "Base floor")
   (description :initform "Carbon scoring from a recent battle is visible here."))
 
+;;; The valuable data disk Rogue Nexus is looking for. 
+
+(defvar *found-data-disk* nil)
+
+(defcell data-disk 
+  (tile :initform "disk-blue")
+  (name :initform "Encrypted data")
+  (description :initform 
+"These disks contain data belonging to Rogue Nexus' client for this
+mission, the Arch Gamma Corporation."))
+
+(define-method step data-disk (stepper)
+  (when [is-player stepper]
+    [>>narrateln :narrator "MISSION COMPLETE. You found the data disk."
+		 :foreground ".yellow" :background ".forestgreen"]
+    [play-sample self "fanfare"]
+    (setf *found-data-disk* t)
+    [die self]))
+
 ;;; Radioactive gas
 
 (defcell gas
@@ -117,16 +136,18 @@ this."))
 (define-prototype zeta-crew (:parent =crew-member=))
 
 (define-method step zeta-crew (stepper)
-  (when (and [is-player stepper]
-	     (eq :spacesuit (field-value :mode stepper)))
-    [say stepper "You search the dead crewmember's body."]
-    [expend-default-action-points stepper]
-    (percent-of-time 30
-      [say stepper "You find a medical hypo, and recover 5 hit points."]
-      [stat-effect stepper :hit-points 5])
-    (percent-of-time 30
-      [say stepper "You find a pair of gravity boots!"]
-      [equip stepper [add-item stepper (clone (symbol-value '=gravboots=))] :feet])))
+  (when [is-player stepper]
+    (if (eq :spacesuit (field-value :mode stepper))
+	(progn [say stepper "You search the dead crewmember's body."]
+	       [expend-default-action-points stepper]
+	       (percent-of-time 30
+		 [say stepper "You find a medical hypo, and recover 5 hit points."]
+		 [stat-effect stepper :hit-points 5])
+	       (percent-of-time 80
+		 [say stepper "You find a pair of magnetic gravity boots."]
+		 [equip stepper [add-item stepper (clone (symbol-value '=gravboots=))] :feet])
+	       [die self])
+	[say stepper "You can't search the crewmember from inside a vehicle."])))
   
 ;;; The ruins of Zeta Base, the game's first location.
 
@@ -219,7 +240,12 @@ this."))
   ;; spawn point
   (dotimes (i crew)
     [drop-cell self (clone =zeta-crew=) (random height) (random width)])
-  [drop-cell self (clone =launchpad=) (random 16) (random 16)])
+  [drop-cell self (clone =launchpad=) (random 16) (random 16)]
+  ;; data disk
+  [drop-cell self (clone =data-disk=) 
+	     (+ height -20 (random 20))
+	     (+ width -20 (random 20))])
+	     
    
 (define-method drop-plasma-debris zeta-base ()
   (clon:with-field-values (height width) self

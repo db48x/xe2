@@ -246,8 +246,8 @@
 
 (defcell muon-particle 
   (categories :initform '(:actor))
-  (speed :initform (make-stat :base 18))
-  (default-cost :initform (make-stat :base 5))
+  (speed :initform (make-stat :base 22))
+  (default-cost :initform (make-stat :base 3))
   (tile :initform "muon")
   (direction :initform :here)
   (clock :initform 12))
@@ -320,7 +320,7 @@
   (when [is-player stepper]
     [>>take stepper :direction :here :category :item]))
 
-;;; Pulse wave cannon destroys anything near you.
+;;; Pulse wave cannon damages anything near you.
 
 (defcell pulse-cannon 
   (categories :initform '(:item :weapon :equipment))
@@ -338,6 +338,7 @@
     (if (plusp [stat-value <equipper> :pulse-ammo])
 	(progn 
 	  [say self "Activating pulse cannon."]
+	  [play-sample <equipper> "activate"]
 	  (labels ((drop-pulse (r c)
 		     (prog1 nil 
 		       [drop-cell world (clone =pulse=) r c])))
@@ -409,14 +410,15 @@
 (defparameter *contractor-oxygen-warning-level* 20)
 (defparameter *contractor-low-hp-warning-level* 10)
 
-(define-method run contractor ()
-  ;; todo possibly be poisoned
+(define-method phase-hook contractor ()
   ;; possibly breathe
   (when (and [in-category *active-world* :airless]
 	     (null <proxy>)
 	     (has-field :oxygen self))
-      [stat-effect self :oxygen -1]
-      [say self "You expend one unit of oxygen."])
+    [stat-effect self :oxygen -1]
+    [say self "You expend one unit of oxygen."])) 
+
+(define-method run contractor ()
   ;; check stats
   (when (< [stat-value self :oxygen] *contractor-oxygen-warning-level*)
     [>>println :narrator "WARNING: OXYGEN SUPPLY CRITICAL!" :foreground ".yellow" :background ".red"]
@@ -431,7 +433,7 @@
 	 [>>say :narrator "You are paralyzed. You suffocate and die."]
 	 [die self]))
   [update *dude-status*])
-
+  
 (define-method die contractor ()
   [play-sample self "death"]
   (let ((skull (clone =skull= self)))
@@ -447,7 +449,11 @@
   (let ((vehicle [category-at-p *active-world* <row> <column> :vehicle]))
     (when vehicle
       [parent>>embark self]
-      [set-character *ship-status* vehicle])))
+      [set-character *ship-status* vehicle]
+      ;; refill oxygen
+      [play-sample vehicle "pop-ssh"]
+      [say vehicle "Suit oxygen refilled to maximum."]
+      [stat-effect self :oxygen [stat-value self :oxygen :max]])))
 
 (define-method do-post-unproxied contractor ()
   [say self "Commencing EVA (extra-vehicular activity)."]
@@ -520,7 +526,7 @@
   (movement-cost :initform (make-stat :base 10))
   (max-items :initform (make-stat :base 2))
   (trail-length :initform (make-stat :base 12 :min 0))
-  (pulse-ammo :initform (make-stat :base 5 :min 0 :max 5))
+  (pulse-ammo :initform (make-stat :base 4 :min 0 :max 4))
   (bomb-ammo :initform (make-stat :base 10 :min 0 :max 10))
   (oxygen :initform (make-stat :base 200 :min 0 :max 200))
   (invincibility-clock :initform 0)

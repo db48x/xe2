@@ -194,9 +194,8 @@ or each turn waited. Melee combat uses 2 units per hit."))
     (dotimes (i 15)
       [drop-cell self (clone =oxygen-tank=) (random height) (random width) :no-collisions t])
     ;;
-    (setf *station-base-count* 0)
-    (loop do (paint-station-piece self (random height) (random width) 20)
-	  while (< *station-base-count* stations))
+    (dotimes (i stations)
+      (paint-station-piece self (random height) (random width) 20))
     ;;
     (dotimes (i 20)
       [drop-cell self (clone =energy=) (random height) (random width) :no-collisions t])

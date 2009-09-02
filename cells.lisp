@@ -280,7 +280,11 @@ field named by STAT-NAME. The default is to change the :base value."
   "Give the cell its allotment of action points to begin a phase.
 If the last action of the previous turn brought the AP score into the
 negative, then you'll come up that much short."
-  (incf <action-points> [stat-value self :speed]))
+  (incf <action-points> [stat-value self :speed])
+  [phase-hook self])
+
+(define-method phase-hook cell ()
+  "Invoked once at the beginning of each phase.")
 
 (define-method can-act cell (phase)
   "Determine whether the cell has enough action points to take some
@@ -631,7 +635,7 @@ slot."
 	      [remove-item self item]
 	      (setf (field-value :equipper item) self)
 	      (when (and *message-queue* [is-player self])
-		[>>say :narrator "You equip "]
+		[>>say :narrator "You have equipped: "]
 		[>>print-object-tag :narrator item]
 		[>>newline :narrator ]))
 	    (progn

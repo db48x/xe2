@@ -351,6 +351,9 @@
 	[print-stat self :endurium :warn-below 10]
 	[print self " "]
 	[newline self]
+	[print-stat self :pulse-ammo :warn-below 2]
+	[print-stat-bar self :pulse-ammo :color ".yellow"]
+	[space self]
 	[print-stat self :strength :warn-below 10]
 	[print self " "]
 	[print-stat self :defense :warn-below 10]
@@ -403,7 +406,6 @@
       [print-stat self :speed :warn-below 5]
       [print self " "]
       [newline self])))
-    
       
 ;;; Splash screen
   
@@ -514,10 +516,10 @@
 	       [set-origin *view* :x 0 :y 0 :height 24 :width (truncate (/ *left-column-width*
 									   16))]
 	       [adjust *view*]
-	       ;;    [set-tile-size minimap 1]
+	       [set-tile-size minimap 2]
 	       [resize minimap :height 80 :width 120]
 	       [move minimap :x 500 :y 490]
-	       [set-origin minimap :x 0 :y 0 :height 100 :width 120]
+	       [set-origin minimap :x 0 :y 0 :height 40 :width 60]
 	       [adjust minimap]))
       (setf *space-bar-function* #'spacebar))
     ;;

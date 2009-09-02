@@ -184,7 +184,7 @@ biosilicate materials."))
   ;;  (factory-count :initform 0) ;; some enemy
   (height :initform 20)
   (width :initform 20)
-  (scale :initform '(1 m))
+  (scale :initform '(5 m))
   (edge-condition :initform :block))
 
 (define-method begin-ambient-loop biome ()
