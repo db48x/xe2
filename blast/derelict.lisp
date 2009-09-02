@@ -30,40 +30,6 @@ or each turn waited. Melee combat uses 2 units per hit."))
     [>>stat-effect stepper :oxygen 40]
     [>>die self]))
 
-;;; Dead crewmember with random oxygen or possibly health.
-
-(defcell crew-member 
-  (tile :initform "crew")
-  (name :initform "Dead Crewmember")
-  (categories :initform '(:item :target))
-  (description :initform 
-"Oxygen or health items may be recovered from dead bodies like
-this."))
-
-(define-method step crew-member (stepper)
-  (when [is-player stepper]
-    [>>say :narrator "You search the dead crewmember's body."]
-    [expend-default-action-points stepper]
-    (let ((oxygen (+ 10 (random 60))))
-      [>>say :narrator "You recover ~D units of oxygen from the crewmember's tank."
-		     oxygen]
-      [>>stat-effect stepper :oxygen oxygen])
-    (when (> 3 (random 10))
-      [>>say :narrator "You find a medical hypo, and recover 5 hit points."]
-      [>>stat-effect stepper :hit-points 5])
-    (when (> 3 (random 10))
-      (let ((energy (+ 5 (random 15))))
-	[>>say :narrator "You recover ~D units of energy from the crewmember's battery pack." 
-	       energy]
-	[>>stat-effect stepper :energy energy]))
-    [>>play-sample self "powerup"]
-    [>>die self]))
-    
-(define-method damage crew-member (points)
-  (declare (ignore points))
-  [>>say :narrator "The crewmember's body was destroyed!"]
-  [>>die self])
-
 ;;; The storage crate.
 
 (defcell tech-box
