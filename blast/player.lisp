@@ -244,13 +244,21 @@
   (when (minusp <clock>)
     [die self]))
 
+;;; Basic muon particle
+
 (defcell muon-particle 
-  (categories :initform '(:actor))
+  (categories :initform '(:actor :muon :target))
   (speed :initform (make-stat :base 22))
   (default-cost :initform (make-stat :base 3))
+  (attack-power :initform 5)
   (tile :initform "muon")
+  (firing-sound :initform "dtmf2")
   (direction :initform :here)
   (clock :initform 12))
+
+(define-method initialize muon-particle (&key attack-power)
+  (when attack-power
+    (setf <attack-power> attack-power)))
 
 (define-method drop-trail muon-particle (direction)
   (let ((trail (clone =muon-trail=)))
@@ -267,7 +275,7 @@
 	  [>>expend-default-action-points self]
 	  [>>drop target (clone =flash=)]
 	  [>>push target <direction>]
-	  [>>damage target 5]
+	  [>>damage target <attack-power>]
 	  [>>die self])
 	(multiple-value-bind (r c) 
 	    (step-in-direction <row> <column> <direction>)
@@ -277,7 +285,7 @@
 		     [>>move self <direction>]))))))
 
 (define-method step muon-particle (stepper)
-  [damage stepper 5]
+  [damage stepper <attack-power>]
   [die self])
   
 (define-method update-tile muon-particle ()
@@ -294,12 +302,37 @@
   (assert (member direction *compass-directions*))
   (setf <direction> direction)
   ;; don't hit the player
-;  [move self direction]
+  ;;  [move self direction]
+  [play-sample self <firing-sound>]
   [find-target self])
+
+;;; Beta-muons
+
+(define-prototype beta-muon (:parent =muon-particle=)
+  (speed :initform (make-stat :base 27))
+  (attack-power :initform 8)
+  (firing-sound :initform "dtmf3")
+  (tile :initform "beta-muon")
+  (clock :initform 15))
+  
+(defvar *beta-muon-tiles* '(:north "beta-muon-north"
+			    :south "beta-muon-south"
+			    :east "beta-muon-east"
+			    :west "beta-muon-west"
+			    :northeast "beta-muon-northeast"
+			    :southeast "beta-muon-southeast"
+			    :southwest "beta-muon-southwest"
+			    :northwest "beta-muon-northwest"))
+
+(define-method update-tile beta-muon ()
+  (setf <tile> (getf *beta-muon-tiles* <direction>)))
+
+;;; Muon cannon
 
 (defcell muon-cannon
   (name :initform "Muon energy cannon")
   (tile :initform "gun")
+  (ammo :initform =muon-particle=)
   (categories :initform '(:item :weapon :equipment))
   (equip-for :initform '(:center-bay))
   (weight :initform 7000)
@@ -308,12 +341,15 @@
   (attack-cost :initform (make-stat :base 10))
   (energy-cost :initform (make-stat :base 1)))
 
+(define-method change-ammo muon-cannon (ammo)
+  (assert (clon:object-p ammo))
+  (setf <ammo> ammo))
+
 (define-method fire muon-cannon (direction)
   (if [expend-energy <equipper> [stat-value self :energy-cost]]
-      (let ((muon (clone =muon-particle=)))
-	[play-sample <equipper> "dtmf2"]
-	[>>drop <equipper> muon]
-	[>>impel muon direction])
+      (let ((bullet (clone <ammo>)))
+	[>>drop <equipper> bullet]
+	[>>impel bullet direction])
       [say <equipper> "Not enough energy to fire!"]))
 
 (define-method step muon-cannon (stepper)

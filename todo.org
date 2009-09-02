@@ -4,17 +4,15 @@
 http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
+** TODO purple gun weapon power up with new color <ammo> "graviton" bullets 
 ** TODO fix minimiap
-*** DONE larger tile size
-*** DONE fix cheat vision on minimap click (instead display minimap help)
 *** TODO near map edge warning (red=block, yellow=exit, green=wrap) and text/sound for "leaving area"
-** fix pulse cannon
+** TODO fix pulse cannon
 ** TODO do some eq of main theme ogg
 ** TODO flip height/width of freighter
 ** TODO fix zeta data disk!
 ** TODO REVIEW AND PRIORITIZE AND STRUCTURE ALL TODO IDEAS
 ** TODO sample dana's keyboard
-** TODO muon weapon power up with new color bullets
 ** TODO 3 missions
 ** TODO grav jump boots
 ** TODO refill oxygen infinitely at vehicle

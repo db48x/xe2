@@ -16,6 +16,26 @@
     [>>stat-effect stepper :strength 2]
     [>>die self]))
 
+;;; Muon cannon upgrade
+
+(defcell beta-muon-upgrade 
+  (tile :initform "beta-muon-upgrade")
+  (name :initform "Beta Muon cannon upgrade")
+  (description :initform 
+"This upgrade module modifies your Muon Cannon to fire the more
+powerful, longer-range beta muon particles."))
+
+(define-method step beta-muon-upgrade (stepper)
+  (when [is-player stepper]
+    (let ((gun [equipment-slot stepper :center-bay]))
+      (if (clon:object-p gun)
+	  (progn 
+	    [change-ammo gun =beta-muon=]
+	    [play-sample stepper "fanfare"]
+	    [say stepper "Upgraded muon cannon!"]
+	    [die self])
+	  [say stepper "Cannot use this upgrade."]))))
+
 ;;; Speed powerup
 
 (defcell speed-up 

@@ -2,7 +2,7 @@
  (:name ".default-font" :type :font :properties (:height 14 :width 7) :data "7x14b")
 
  (:name "knock" :type :sample :file "knock.wav" :properties (:volume 30))
- (:name "activate" :type :sample :file "activate.wav" :properties (:volume 30))
+ (:name "activate" :type :sample :file "activate.wav" :properties (:volume 6))
  (:name "fanfare" :type :sample :file "fanfare.wav" :properties (:volume 30))
  (:name "blaagh2" :type :sample :file "blaagh2.wav" :properties (:volume 60))
  (:name "blaagh3" :type :sample :file "blaagh3.wav" :properties (:volume 40))
@@ -23,7 +23,7 @@
  (:name "energy-max-up" :type :image :file "energy-max-up.png")
  (:name "minesweeper" :type :image :file "minesweeper.png")
  (:name "ring" :type :image :file "ring.png")
- (:name "ring" :type :image :file "ring.png")
+ (:name "beta-muon-upgrade" :type :image :file "beta-muon-upgrade.png")
  (:name "cube-floor" :type :image :file "cube-floor.png")
  (:name "cube-wall" :type :image :file "cube-wall.png")
  (:name "yellow-cube" :type :image :file "yellow-cube.png")
@@ -281,6 +281,7 @@
  (:name "defleptor3" :type :sample :file "defleptor3.wav" :properties (:volume 4))
  (:name "dtmf1" :type :sample :file "dtmf1.wav" :properties (:volume 3))
  (:name "dtmf2" :type :sample :file "dtmf2.wav" :properties (:volume 30))
+ (:name "dtmf3" :type :sample :file "dtmf3.wav" :properties (:volume 30))
  (:name "bleep" :type :sample :file "bleep.wav" :properties (:volume 20))
  (:name "bloup" :type :sample :file "bloup.wav" :properties (:volume 30))
  (:name "go" :type :sample :file "go.wav" :properties (:volume 30))
@@ -310,7 +311,6 @@
 
  (:name "muon-pistol" :type :image :file "muon-pistol.png")
  (:name "pickaxe" :type :image :file "pickaxe.png")
- (:name "muon" :type :image :file "muon.png")
 
  (:name "mystery-box" :type :image :file "mystery-box.png")
  
@@ -330,6 +330,18 @@
  (:name "sprout6" :type :image :file "sprout6.png")
  (:name "sprout-ground" :type :image :file "sprout-ground.png")
 
+ (:name "beta-muon" :type :image :file "beta-muon.png")
+ (:name "beta-muon-north" :type :image :file "beta-muon.png")
+ (:name "beta-muon-east" :type :alias :data ":rotate 90:beta-muon")
+ (:name "beta-muon-south" :type :alias :data ":rotate 180:beta-muon")
+ (:name "beta-muon-west" :type :alias :data ":rotate 270:beta-muon")
+
+ (:name "beta-muoneast" :type :image :file "beta-muon.png")
+ (:name "beta-muon-southeast" :type :alias :data ":rotate 90:beta-muon")
+ (:name "beta-muon-southwest" :type :alias :data ":rotate 180:beta-muon")
+ (:name "beta-muonwest" :type :alias :data ":rotate 270:beta-muon")
+
+ (:name "muon" :type :image :file "muon.png")
  (:name "muon-north" :type :image :file "muon-north.png")
  (:name "muon-east" :type :alias :data ":rotate 90:muon-north")
  (:name "muon-south" :type :alias :data ":rotate 180:muon-north")

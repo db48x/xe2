@@ -264,5 +264,8 @@ Good luck, contractor.
   [drop-cell self (clone =nebula-m-gateway=) (random 10) (random 10) :exclusive t :probe t]
   [drop-cell self (clone =nebula-m-gateway=) (+ 15 (random 10)) (+ 15 (random 10)) :exclusive t :probe t]
   ;;
-  ;; testing
-  [drop-cell self (clone =freighter-gateway=) 1 1 :exclusive t :probe t])
+  ;; testing stuff
+  ;; [drop-cell self (clone =beta-muon-upgrade=) 1 2 :exclusive t :probe t]
+  ;; [drop-cell self (clone =yellow-cube=) 1 1 :exclusive t :probe t]
+  ;; end
+  )

@@ -24,7 +24,11 @@ or each turn waited. Melee combat uses 2 units per hit."))
 around."))
 
 (define-method push blue-arrowbox (dir)
-  [move self dir :ignore-obstacles])
+  (when (or (not [obstacle-in-direction-p *active-world* <row> <column> dir])
+	    [category-in-direction-p *active-world*
+				     <row> <column>
+				     dir :arrowbox-receptacle])
+	    [move self dir :ignore-obstacles]))
 
 (define-prototype turquoise-arrowbox (:parent =blue-arrowbox=)
   (color :initform :turquoise)
@@ -46,7 +50,7 @@ around."))
     :blue "blue-arrowbox-receptacle" ))
 
 (defcell arrowbox-receptacle 
-  (categories :initform '(:obstacle :opaque))
+  (categories :initform '(:obstacle :opaque :arrowbox-receptacle))
   color)
 
 (define-method initialize arrowbox-receptacle (&optional (color (random-receptacle-color)))
@@ -68,8 +72,8 @@ around."))
   (scale :initform '(10 m))
   (room-size :initform 10)
   (required-modes :initform '(:spacesuit :olvac :vomac :vehicle))
-  (width :initform 100)
-  (height :initform 100)
+  (width :initform 50)
+  (height :initform 50)
   (name :initform "Ancient cube")
   (ambient-light :initform 10))
 
@@ -97,7 +101,7 @@ around."))
       ;;
       [drop-maze self]
       [drop-specials self]
-      (dotimes (i 350)
+      (dotimes (i 120)
 	(drop-box (random height) (random width))))
     [drop-cell self (clone =launchpad=) 10 10]))
 
@@ -133,10 +137,12 @@ around."))
 	    (drop-room r0 c0)
 	    (dotimes (i 3)
 	      (open-room r0 c0 (car (one-of '(:top :bottom :left :right)))))))))))
-
 	   
 (define-method drop-specials cube  ()
-  nil)
+  (dotimes (i 3)
+    [drop-cell self (clone =mystery-box=) (random <height>) (random <width>)])
+  (dotimes (i 2) 
+    [drop-cell self (clone =beta-muon-upgrade=) (random <height>) (random <width>)]))
 
 
       

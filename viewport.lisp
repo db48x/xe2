@@ -180,7 +180,7 @@
 			    (:enemy ".red")
 			    (:target ".blue")
 			    (:friend ".green")
-			    (:obstacle ".gray20")))
+			    (:obstacle ".gray20"))) ;;; TODO ?
   (background-color :initform ".black")
   (border-color :initform ".gray20"))
 		

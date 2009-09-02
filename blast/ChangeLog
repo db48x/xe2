@@ -1,24 +1,27 @@
-2009-09-01  David O'Toole  <dto@gnu.org>
+2009-09-02  David O'Toole  <dto@gnu.org>
 
+	* muon cannon upgrades; changeable ammo
 	* pulse ammo more scarce
+	* cool pulse sound
 	* better distribution of random powerups
-	* minimap radar improvements
-	* show required transportation modes for each world
+	* easier-to-read minimap radar
+	* show available transportation modes for each world
 	* player uses oxygen whenever out of vehicle (unless there's air)
 	* refill oxygen infinitely at vehicle
 	* separate ship and dude displays
 	* max energy tank powerup
 	* unoccupied ships do not beep when damaged
-	* new nebula music
+	* new more exciting nebula music
 	* player entry point indicator on minimap (yellow circle)
-	* gravboots
+	* gravity boots now required to move in weightless environments
 	* weightless derelict freighters with better layout
   	* no more instadeath on incompatible environments
-	* pilot kill
-	* tweaked nebula and biohive colors
+	* vehicle pilot damage and pilot kill
+	* tweaked nebula and biohive situations
 	* added signature powerup fanfare
 	* low hit points and oxygen warning
 	* numbered nebulas
+	* dead crewmembers in zeta
 	* tons of other small changes
 	
 
