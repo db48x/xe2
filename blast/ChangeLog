@@ -1,12 +1,12 @@
 2009-09-01  David O'Toole  <dto@gnu.org>
 
+	* show required transportation modes for each world
+	* player uses oxygen whenever out of vehicle (unless there's air)
+	* refill oxygen infinitely at vehicle
 	* separate ship and dude displays
 	* max energy tank powerup
 	* unoccupied ships do not beep when damaged
 	* new nebula music
-	* show required transportation modes for each world
-	* player uses oxygen whenever out of vehicle (unless there's air)
-	* refill oxygen infinitely at vehicle
 	* gravboots
 	* weightless derelict freighters with better layout
   	* no more instadeath on incompatible environments
