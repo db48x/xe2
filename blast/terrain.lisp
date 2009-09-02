@@ -124,7 +124,7 @@ this."))
     (percent-of-time 30
       [say stepper "You find a medical hypo, and recover 5 hit points."]
       [stat-effect stepper :hit-points 5])
-    (percent-of-time 15
+    (percent-of-time 30
       [say stepper "You find a pair of gravity boots!"]
       [equip stepper [add-item stepper (clone (symbol-value '=gravboots=))] :feet])))
   
