@@ -5,17 +5,16 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
 
-
+** TODO 3 missions
 ** TODO grav jump boots
-** TODO player uses oxygen whenever out of vehicle
 ** TODO refill oxygen infinitely at vehicle
 ** TODO no insta-death 
-** TODO gravity levels where gravity is in wrong direction... aspects of a platformer
 ** TODO jump to gravity boot walls like in dead space, need gravboots
 ** TODO rescue mission where you take an agent back to a rendezvous point on mars
 ** TODO Conditions
 *** TODO poison from toxic hazards
 *** TODO tox hypo
+** TODO gravity levels where gravity is in wrong direction... aspects of a platformer
 ** TODO review unused pngs
 ** TODO bangai-o ish lasers that stick into a corridor and block you
 ** TODO throwable bombs/missiles

@@ -3,7 +3,7 @@ HELP SCREEN --- PRESS F2 TO PLAY
 Welcome to Blast Tactics, an outer-space rogue-like game in Common
 Lisp.
 
-Greetings, Invader! Join the fight against the Droid Infestation.
+Greetings, Contractor! Join the fight against the Droid Infestation.
 
 Use your numeric keypad to move, or the roguelike movement keys:
    ^        
@@ -12,17 +12,19 @@ Use your numeric keypad to move, or the roguelike movement keys:
   BJN        2 = pulse cannon
    v         3 = activate shield (if any)
 
+To fire, hold down the CONTROL key and press any direction.
+To attack with a melee weapon, hold down ALT and press any direction.
+To wait in place without moving, hit W or SPACE.
 To enter a location or gateway, press ENTER.
 To leave most screens, move off the edge of the map,
    or press ENTER on the blue-and-white launchpad.
-To fire, hold down the CONTROL key and press any direction.
-To wait in place without moving, hit W.
 To quit, press CONTROL-Q.
 To restart after dying, press CONTROL-PERIOD.
 To highlight the player's location, press CONTROL-ESCAPE.
 To enter a vehicle, press P.
 To exit a vehicle, press CONTROL-P.
+To examine an object, left-click on it.
 
-TODO: document dvorak and other non-keypad directional controls.
+For DVORAK and other key layouts, see the included INSTALL file.
 
 

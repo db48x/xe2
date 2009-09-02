@@ -47,8 +47,21 @@
   (when [is-player stepper]
     (when (has-field :energy stepper)
       [play-sample self "whoop"]
-      [>>stat-effect stepper :energy 7]
-      [>>die self])))
+      [stat-effect stepper :energy 7]
+      [die self])))
+
+(defcell energy-tank
+  (tile :initform "energy-max-up")
+  (description :initform 
+"Increases maximum energy store by 5."))
+
+(define-method step energy-tank (stepper)
+  (when [is-player stepper]
+    (when (has-field :energy stepper)
+      [play-sample self "fanfare"]
+      [stat-effect stepper :energy 5 :max]
+      [>>narrateln :narrator "Increased max energy by 5" :foreground ".yellow" :background ".blue"]
+      [die self])))
 
 ;;; A life powerup.
 
@@ -283,10 +296,12 @@ missiles and enemies."))
   (description :initform "Shoot the box for a surprise inside!"))
 
 (define-method die mystery-box ()
-  (let ((item (clone (ecase (random 3)
-		       (0 =ion-shield=)
-		       (1 =gravboots=)
-		       (2 =level-up=)))))
+  (let ((item (clone (car (one-of (list 
+				   =ion-shield=
+				   =gravboots=
+				   =level-up=
+				   =speed-up=
+				   =energy-tank=))))))
     [drop self item]
     [parent>>die self]))
 

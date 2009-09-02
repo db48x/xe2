@@ -314,7 +314,7 @@
 	[play-sample <equipper> "dtmf2"]
 	[>>drop <equipper> muon]
 	[>>impel muon direction])
-      [say self "Not enough energy to fire!"]))
+      [say <equipper> "Not enough energy to fire!"]))
 
 (define-method step muon-cannon (stepper)
   (when [is-player stepper]
@@ -653,7 +653,8 @@ done."))
 (define-method damage olvac (points)
   (let ((was-disabled [is-disabled self]))
     (if (= 0 <invincibility-clock>)
-	(progn [play-sample self "warn"]
+	(progn (when <occupant>
+		 [play-sample self "warn"])
 	       [stat-effect self :hit-points (- points)]
 	       ;; possibly damage pilot
 	       (let ((occupant <occupant>))

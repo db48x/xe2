@@ -126,7 +126,7 @@
 	    ("N" (:control) "fire :southeast .")
 	    ;;
 	    ("W" nil "wait .")
-;;	    ("SPACE" nil "respawn .")
+	    ("SPACE" nil "wait .")
 	    ("PERIOD" (:control) "restart .")
 	    ("KP-ENTER" nil "enter .")
 	    ("RETURN" nil "enter .")
@@ -178,7 +178,7 @@
 	    ;;
 	    ("S" nil "wait .")
 	    ("ESCAPE" (:control) "show-location .")
-;;	    ("SPACE" nil "respawn .")
+	    ("SPACE" nil "wait .")
 	    ("PERIOD" (:control) "restart .")
 	    ("3" nil "activate-extension .")
 	    ("2" nil "activate-pulse-cannon .")
@@ -230,7 +230,7 @@
 	    ("V" (:control) "fire :southeast .")
 	    ;;
 	    ("S" nil "wait .")
-;;	    ("SPACE" nil "respawn .")
+	    ("SPACE" nil "wait .")
 	    ("KP-ENTER" nil "enter .")
 	    ("RETURN" nil "enter .")
 	    ("ESCAPE" (:control) "show-location .")
