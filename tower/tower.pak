@@ -31,5 +31,7 @@
  (:name "heartbeat" :type :music :file "heartbeat.ogg")
  (:name "heartbeat2" :type :music :file "heartbeat2.ogg")
  (:name "heartbeat3" :type :music :file "heartbeat3.ogg")
+ (:name "help-message" :type :text :file "README")
+
  (:name ".startup" :type :lisp :file "tower.lisp" :properties (:autoload t))
 )

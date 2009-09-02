@@ -4,10 +4,10 @@
 http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
+** TODO don't drop stuff on walls in cube
 ** TODO purple gun weapon power up with new color <ammo> "graviton" bullets 
 ** TODO fix minimiap
 *** TODO near map edge warning (red=block, yellow=exit, green=wrap) and text/sound for "leaving area"
-** TODO fix pulse cannon
 ** TODO do some eq of main theme ogg
 ** TODO flip height/width of freighter
 ** TODO fix zeta data disk!

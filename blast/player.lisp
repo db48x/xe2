@@ -309,7 +309,7 @@
 ;;; Beta-muons
 
 (define-prototype beta-muon (:parent =muon-particle=)
-  (speed :initform (make-stat :base 27))
+  (speed :initform (make-stat :base 24))
   (attack-power :initform 8)
   (firing-sound :initform "dtmf3")
   (tile :initform "beta-muon")

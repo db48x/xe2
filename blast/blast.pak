@@ -336,10 +336,10 @@
  (:name "beta-muon-south" :type :alias :data ":rotate 180:beta-muon")
  (:name "beta-muon-west" :type :alias :data ":rotate 270:beta-muon")
 
- (:name "beta-muoneast" :type :image :file "beta-muon.png")
+ (:name "beta-muon-northeast" :type :image :file "beta-muon.png")
  (:name "beta-muon-southeast" :type :alias :data ":rotate 90:beta-muon")
  (:name "beta-muon-southwest" :type :alias :data ":rotate 180:beta-muon")
- (:name "beta-muonwest" :type :alias :data ":rotate 270:beta-muon")
+ (:name "beta-muon-northwest" :type :alias :data ":rotate 270:beta-muon")
 
  (:name "muon" :type :image :file "muon.png")
  (:name "muon-north" :type :image :file "muon-north.png")
