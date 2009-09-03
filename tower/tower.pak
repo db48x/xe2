@@ -22,6 +22,7 @@
  (:name "smoke2" :type :image :file "smoke2.png")
  (:name "splash" :type :image :file "tower.png")
  (:name "victim" :type :image :file "victim.png")
+ (:name "wall" :type :image :file "wall.png")
  (:name "wall-breaking" :type :image :file "wall-breaking.png")
  (:name "debris" :type :image :file "debris.png")
  (:name "" :type :image :file ".png")

@@ -565,6 +565,8 @@ by symbol name. This enables them to be used as hash keys."
 	(push key address2))
 	(cons (car address) address2))))
 
+(defparameter *default-space-size* 10)
+
 (define-prototype universe 
     (:documentation "A collection of connected worlds.")
   (worlds :initform (make-hash-table :test 'equal)
@@ -572,7 +574,33 @@ by symbol name. This enables them to be used as hash keys."
   (viewport :initform nil)
   (current-address :initform nil)
   (player :initform nil)
-  (stack :initform '()))
+  (stack :initform '())
+  (space :initform nil 
+	 :documentation "When non-nil, this vector of worlds
+represents the z-axis of a euclidean 3-D space."))
+
+(define-method make-euclidean universe ()
+  (setf <space> (make-array *default-space-size* 
+			    :adjustable t
+			    :fill-pointer 0)))
+
+(define-method get-space-at universe (index)
+  (aref <space> index))
+
+(define-method set-space-at universe (index world)
+  (setf (aref <space> index) world))
+
+(define-method get-next-space universe (index)
+  (incf index)
+  (when (and (<= 0 index)
+	     (< index (fill-pointer <space>)))
+    (aref <space> index)))
+
+(define-method get-previous-space universe (index)
+  (decf index)
+  (when (and (<= 0 index)
+	     (< index (fill-pointer <space>)))
+    (aref <space> index)))
 
 (define-method add-world universe (address world)
   (setf (gethash (normalize-address address) <worlds>) world))
@@ -646,7 +674,6 @@ by symbol name. This enables them to be used as hash keys."
     [set-receiver <prompt> world]
     [set-narrator world <narrator>]
     [start world]))
-
 
 (define-method exit universe (&key player)
   (when player (setf <player> player))

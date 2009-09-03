@@ -82,11 +82,194 @@
 
 (in-package :tower)
 
-;;; The player
+;;; The rusty wrench
 
-(defcell player
-  (tile :initform "player"))
+(define-prototype wrench (:parent rlx:=cell=)
+  (name :initform "Rusty wrench")
+  (categories :initform '(:item :weapon :equipment))
+  (tile :initform "bar")
+  (attack-power :initform (make-stat :base 4)) ;; points of raw damage
+  (attack-cost :initform (make-stat :base 5))
+  (accuracy :initform (make-stat :base 80 :unit :percent))
+  (weight :initform 10000) ;; grams
+  (equip-for :initform '(:left-hand :right-hand)))
+
+(define-method step wrench (stepper)
+  (when [is-player stepper]
+    [equip stepper [add-item stepper (clone =wrench=)]]
+    [remove-from-world self]))
+
+;;; Our hero, the player
+
+(defcell player 
+  (tile :initform "player")
+  (name :initform "Player")
+  (speed :initform (make-stat :base 10 :min 0 :max 10))
+  (strength :initform (make-stat :base 13))
+  (dexterity :initform (make-stat :base 13))
+  (defense :initform (make-stat :base 15))
+  (equipment-slots :initform '(:left-hand :right-hand))
+  (hearing-range :initform 15)
+  (hit-points :initform (make-stat :base 30 :min 0 :max 30))
+  (movement-cost :initform (make-stat :base 10))
+  (max-items :initform (make-stat :base 2))
+  (oxygen :initform (make-stat :base 100 :min 0 :max 100))
+  (stepping :initform t)
+  (attacking-with :initform :right-hand)
+  (light-radius :initform 3)
+  (categories :initform '(:actor :player :target :container :light-source)))
+
+(defparameter *pain-sounds* '("unh1" "unh2" "unh3" "oghh"))
+
+(define-method damage player (points)
+  [play-sample self (nth (random (length *pain-sounds*)) *pain-sounds*)]
+  [parent>>damage self points])
+
+(define-method enter player ()
+  (let ((gateway [category-at-p *active-world* <row> <column> :gateway]))
+    (if (null gateway)
+	[>>say :narrator "No gateway to enter."]
+	[activate gateway])))
+
+(define-method loadout player ()
+  [make-inventory self]
+  [make-equipment self]
+  [equip self [add-item self (clone =wrench=)]])
+
+(define-method wait player ()
+  [say self "Skipped one turn."]
+  (when (not [in-category self :proxied])
+    [stat-effect self :oxygen -1])
+  [expend-action-points self <action-points>])
+
+(define-method quit player ()
+  (rlx:quit :shutdown))
+
+(defparameter *player-oxygen-warning-level* 20)
+(defparameter *player-low-hp-warning-level* 10)
+
+(define-method phase-hook player ()
+  ;; possibly breathe
+  (when (and [in-category *active-world* :airless]
+	     (null <proxy>)
+	     (has-field :oxygen self))
+    [stat-effect self :oxygen -1]
+    [say self "You expend one unit of oxygen."])) 
+
+(define-method run player ()
+  ;; check stats
+  (when (< [stat-value self :oxygen] *player-oxygen-warning-level*)
+    [>>println :narrator "WARNING: OXYGEN SUPPLY CRITICAL!" :foreground ".yellow" :background ".red"]
+    [play-sample self (if (= 0 (random 2))
+			  "breath1" "breath2")])
+  (when (< [stat-value self :hit-points] *player-low-hp-warning-level*)
+    [>>println :narrator "WARNING: LOW HIT POINTS!" :foreground ".yellow" :background ".red"])
+  (cond ((<= [stat-value self :oxygen] 0)
+	 [>>say :narrator "Your oxygen runs out, suffocating you."]
+	 [die self])
+	((<= [stat-value self :speed] 0)
+	 [>>say :narrator "You are paralyzed. You suffocate and die."]
+	 [die self]))
+  [update *status*])
   
+(define-method die player ()
+  [play-sample self "death"]
+  (let ((skull (clone =skull= self)))
+    [drop-cell *active-world* skull <row> <column> :loadout t :no-collisions nil]
+    [set-player *active-world* skull]
+    [parent>>die self]))
+
+(define-method attack player (target)
+  (rlx:play-sample "knock")
+  [parent>>attack self target]
+  [stat-effect self :oxygen -2])
+
+(define-method show-location player ()
+  (labels ((do-circle (image)
+	     (multiple-value-bind (x y) 
+		 [screen-coordinates self]
+	       (draw-circle x y 30 :destination image)
+	       (draw-circle x y 25 :destination image))))
+    [>>add-overlay :viewport #'do-circle]))
+
+;;; Fire 
+
+;;; Floors
+
+(defparameter *floor-tiles* '("floor-hole" "floor-breaking2" "floor-breaking" "floor"))
+
+(defcell floor 
+  (tile :initform "floor")
+  (hit-points :initform (make-stat :base 3 :min 0 :max 3)))
+
+(define-method update-tile floor ()
+  (setf <tile> (nth [stat-value self :hit-points] *floor-tiles*)))
+
+(define-method run floor ()
+  [update-tile self])
+
+;;; Walls
+
+(defparameter *wall-tiles* '("wall-breaking" "wall"))
+
+(defcell wall 
+  (tile :initform "wall")
+  (categories :initform '(:actor :obstacle))
+  (hit-points :initform (make-stat :base 2 :min 0 :max 2)))
+  
+(define-method update-tile wall ()
+  (setf <tile> (nth [stat-value self :hit-points] *wall-tiles*)))
+  
+(define-method run wall ()
+  [update-tile self])
+
+;;; Doors
+
+;;; Debris
+
+;;; Smoke
+
+;;; Stairwells
+
+;;; Blankets
+
+;;; Water 
+
+;;; The Tower
+
+(defparameter *tower-size* 30)
+
+(define-prototype tower (:parent rlx:=world=)
+  (ambient-light :initform :total)
+  (height :initform *tower-size*)
+  (width :initform *tower-size*)
+  (scale :initform '(1 m))
+  (edge-condition :initform :block))
+
+(define-method drop-floor tower ()
+  (clon:with-field-values (height width) self
+    (dotimes (i height)
+      (dotimes (j width)
+	[drop-cell self (clone =floor=) i j]))))
+
+(define-method drop-wall tower (r0 c0 r1 c1)
+  (trace-line #'(lambda (x y)
+		       [drop-cell self (clone =wall=) y x])
+		   c0 r0 c1 r1))
+
+(define-method generate tower (&key (floor 5)
+				    (height *tower-size*)
+				    (width *tower-size*))
+  [create-default-grid self]
+  [drop-floor self]
+  (dotimes (i 20)
+    (let ((column (random *tower-size*))
+	  (row (random *tower-size*))
+	  (len (random (truncate (/ *tower-size* 2)))))
+      [drop-wall self row column (+ row len) column]
+      [drop-wall self column row row (+ column len)])))
+
+;;; The people you are trying to save
 
 ;;; Controlling the game
 
@@ -325,24 +508,16 @@
   (assert <character>)
   (when <character>
     (let* ((char <character>)
-	   (hits [stat-value char :hit-points])
-	   (energy [stat-value char :energy]))
-      [println self "CONTRACTOR STATUS:" :foreground ".white" :background ".blue"]
+	   (hits [stat-value char :hit-points]))
+      [println self "PLAYER STATUS:" :foreground ".white" :background ".blue"]
       [print-stat self :hit-points :warn-below 10]
       [print-stat-bar self :hit-points :color ".red"]
       [newline self]
-      ;; energy display
-      [print-stat self :energy :warn-below 10]
-      [print-stat-bar self :energy :color ".cyan"]
-      [newline self]
       [print-stat self :oxygen :warn-below 50]
-      [print self " "]
-      [print-stat self :strength :warn-below 10]
-      [print self " "]
-      [print-stat self :defense :warn-below 10]
       [print self " "]
       [print-stat self :speed :warn-below 5]
       [print self " "]
+      ;; TODO left hand, right hand, face
       [newline self])))
       
 ;;; Splash screen
@@ -372,6 +547,8 @@
 (defparameter *tower-window-width* 800)
 (defparameter *tower-window-height* 600)
 
+(defvar *viewport*)
+
 (defun tower ()
   (rlx:message "Initializing Tower Escape...")
   (setf clon:*send-parent-depth* 2) 
@@ -394,7 +571,7 @@
 	 (terminal (clone =narrator=))
 	 (stack (clone =stack=)))
     ;;
-    ;; (setf *view* (clone =viewport=))
+    (setf *viewport* viewport)
     ;;
     [resize splash :height (- *tower-window-height* 20) :width *tower-window-width*]
     [move splash :x 0 :y 0]
@@ -409,44 +586,27 @@
     [install-keybindings prompt]
     ;;
     (labels ((spacebar ()
-	       ;; (setf *ship-status* ship-status)
-	       ;; (setf *dude-status* dude-status)
-	       ;; ;;
-	       ;; [resize ship-status :height 105 :width *tower-window-width*]
-	       ;; [set-character ship-status ship]
-	       ;; [move ship-status :x 0 :y 0]
-	       ;; ;;
-	       ;; [resize dude-status :height 160 :width 500]
-	       ;; [set-character dude-status dude]
-	       ;; [move dude-status :x 0 :y 400]
-	       ;; ;;
-	       ;; [set-player universe ship]
-	       ;; [play universe
-	       ;; 	     :address '(=star-sector= :width 80 :height 80 
-	       ;; 			:stars 80 :freighters 6 :sequence-number (genseq))
-	       ;; 	     :prompt prompt
-	       ;; 	     :narrator terminal
-	       ;; 	     :viewport *view*]
-	       ;; [proxy ship dude]
-	       ;; [loadout dude]
-	       ;; [loadout ship]
-	       ;; ;;
-	       ;; [update ship-status]
-	       ;; [update dude-status]
-	       ;; [set-tile-size *view* 16]
-	       ;; ;; the default is to track the current world:
-	       ;; ;; [set-world *view* world] 
-	       ;; [resize *view* :height 432 :width *left-column-width*]
-	       ;; [move *view* :x 0 :y 0]
-	       ;; [set-origin *view* :x 0 :y 0 :height 24 :width (truncate (/ *left-column-width*
-	       ;; 								   16))]
-	       ;; [adjust *view*]
-	       ;; [set-tile-size minimap 2]
-	       ;; [resize minimap :height 80 :width 120]
-	       ;; [move minimap :x 500 :y 490]
-	       ;; [set-origin minimap :x 0 :y 0 :height 40 :width 60]
-	       ;; [adjust minimap]))
-	       nil))
+	       (setf *status* status)
+	       ;;
+	       [resize status :height 105 :width *tower-window-width*]
+	       [set-character status player]
+	       [move status :x 0 :y 0]
+	       ;;
+	       [set-player universe player]
+	       [play universe
+	       	     :address '(=tower= :floor 5 :width *tower-size* :height *tower-size*)
+	       	     :prompt prompt
+	       	     :narrator terminal
+	       	     :viewport viewport]
+	       [loadout player]
+	       ;;
+	       [update status]
+	       [set-tile-size viewport 32]
+	       [resize viewport :height 580 :width *tower-window-width*]
+	       [move viewport :x 0 :y 0]
+	       [set-origin viewport :x 0 :y 0 :height 24 :width (truncate (/ *tower-window-width*
+	       								   32))]
+	       [adjust viewport]))
       (setf *space-bar-function* #'spacebar))
     ;;
     [set-buffer textbox
@@ -459,10 +619,10 @@
     ;;
     [resize stack :width *tower-window-width* :height *tower-window-height*]
     [move stack :x 0 :y 0]
-    [set-children stack (list ship-status viewport)]
+    [set-children stack (list status viewport)]
     ;;
-    [resize terminal :height (- *tower-window-height* 100) :width *tower-window-width*]
-    [move terminal :x 0 :y 100]
+    [resize terminal :height 100 :width *tower-window-width*]
+    [move terminal :x 0 :y (- *tower-window-height* 100)]
     [set-verbosity terminal 0]
     ;; [move stack2 :x *left-column-width* :y 0]
     ;; [resize stack2 :width *right-column-width* :height 580]
@@ -472,12 +632,12 @@
     ;; (labels ((light-hack (sr sc r c &optional (color ".white"))
     ;; 	       (labels ((hack-overlay (image)
     ;; 			  (multiple-value-bind (sx sy)
-    ;; 			      [get-screen-coordinates *view* sr sc]
+    ;; 			      [get-screen-coordinates viewport sr sc]
     ;; 			    (multiple-value-bind (x y)
-    ;; 				[get-screen-coordinates *view* r c]
+    ;; 				[get-screen-coordinates viewport r c]
     ;; 			      (draw-line x y sx sy :destination image
     ;; 					 :color color)))))
-    ;; 		 [add-overlay *view* #'hack-overlay])))
+    ;; 		 [add-overlay viewport #'hack-overlay])))
     ;;   (setf rlx::*lighting-hack-function* #'light-hack))
     ;;
     (setf *pager* (clone =pager=))
