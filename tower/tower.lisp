@@ -180,9 +180,10 @@
     [parent>>die self]))
 
 (define-method attack player (target)
-  (rlx:play-sample "knock")
-  [parent>>attack self target]
-  [stat-effect self :oxygen -2])
+  ;;  (rlx:play-sample "knock")
+  [>>expend-default-action-points self]
+  [>>damage [find self :direction target] 1]
+  [>>stat-effect self :oxygen -2])
 
 (define-method show-location player ()
   (labels ((do-circle (image)
@@ -200,10 +201,16 @@
 
 (defcell floor 
   (tile :initform "floor")
+  (categories :initform '(:actor))
   (hit-points :initform (make-stat :base 3 :min 0 :max 3)))
 
 (define-method update-tile floor ()
-  (setf <tile> (nth (1- [stat-value self :hit-points]) *floor-tiles*)))
+  (when (not (zerop [stat-value self :hit-points]))
+    (setf <tile> (nth [stat-value self :hit-points] *floor-tiles*))))
+
+(define-method damage floor (points)
+  [parent>>damage self points]
+  [update-tile self])
 
 (define-method run floor ()
   [update-tile self])
@@ -218,8 +225,13 @@
   (hit-points :initform (make-stat :base 2 :min 0 :max 2)))
   
 (define-method update-tile wall ()
-  (setf <tile> (nth (1- [stat-value self :hit-points]) *wall-tiles*)))
+  (when (not (zerop [stat-value self :hit-points]))
+    (setf <tile> (nth (1- [stat-value self :hit-points]) *wall-tiles*))))
   
+(define-method damage wall (points)
+  [parent>>damage self points]
+  [update-tile self])
+
 (define-method run wall ()
   [update-tile self])
 
@@ -235,7 +247,38 @@
 
 ;;; Water 
 
+;;; Windows 
+
+(defparameter *left-window-tiles* '("broken-window-left" "window-left"))
+(defparameter *top-window-tiles* '("broken-window-top" "window-top"))
+
+(defcell window
+  (tile :initform "window-left")
+  (orientation :initform :left)
+  (categories :initform '(:actor :obstacle))
+  (hit-points :initform (make-stat :base 2 :min 1 :max 2)))
+  
+(define-method update-tile window ()
+  (setf <tile> (nth (1- [stat-value self :hit-points])
+		    (ecase <orientation>
+		      (:left *left-window-tiles*)
+		      (:top *top-window-tiles*)))))
+
+(define-method is-broken window ()
+  (= 1 [stat-value self :hit-points]))
+
+(define-method initialize window (&optional (orientation :left))
+  (setf <orientation> orientation)
+  [update-tile self])
+
+(define-method run window ()
+  [update-tile self])
+
 ;;; The Tower
+
+(defcell drop-point 
+  (categories :initform '(:player-entry-point))
+  (tile :initform "floor"))
 
 (defparameter *tower-size* 30)
 
@@ -254,20 +297,57 @@
 
 (define-method drop-wall tower (r0 c0 r1 c1)
   (trace-line #'(lambda (x y)
-		       [drop-cell self (clone =wall=) y x])
+		  (prog1 nil
+		    [drop-cell self (clone =wall=) y x]))
 		   c0 r0 c1 r1))
+
+(define-method drop-windows tower ()
+  (clon:with-field-values (height width) self
+    (labels ((drop-left (r c)
+	       (prog1 nil 
+		 [drop-cell self (clone =window= :left) r c]))
+	     (drop-top (r c)
+	       (prog1 nil 
+		 [drop-cell self (clone =window= :top) r c])))
+      ;; left and right
+      (trace-line #'drop-left 0 0 (- height 1) 0)
+      (trace-line #'drop-left 0 (- width 1) (- height 1) (- width 1))
+      ;; top and bottom
+      (trace-line #'drop-top 0 0 0 (- width 1))
+      (trace-line #'drop-top (- height 1) 0 (- height 1) (- width 1)))))
 
 (define-method generate tower (&key (floor 5)
 				    (height *tower-size*)
 				    (width *tower-size*))
+  (setf <height> height)
+  (setf <width> width)
   [create-default-grid self]
   [drop-floor self]
-  (dotimes (i 20)
-    (let ((column (random *tower-size*))
-	  (row (random *tower-size*))
-	  (len (random (truncate (/ *tower-size* 2)))))
-      [drop-wall self row column (+ row len) column]
-      [drop-wall self column row row (+ column len)])))
+  (dotimes (i 18)
+    (let ((column (1+ (random *tower-size*)))
+	  (row (1+ (random *tower-size*)))
+	  (len (random (truncate (/ *tower-size* 2))))
+	  (len2 (random (truncate (/ *tower-size* 4)))))
+      (progn 
+	[drop-wall self row column 
+		   (min (- height 1)
+			(+ row len))
+		   (min (- width 1)
+			column)]
+	(destructuring-bind (r c)
+	    (midpoint (list row column)
+		      (list (+ row len) column))
+	  [drop-wall self r c r (+ column len)]))))
+	  ;; (progn
+	  ;;   [drop-wall self row column row (+ len2 column)]
+	  ;;   (destructuring-bind (r c)
+	  ;; 	(midpoint (list row column)
+	  ;; 		  (list row (+ len2 column)))
+	  ;;     [drop-wall self row column (+ r len2) c])))))
+  [drop-windows self]
+  [drop-cell self (clone =drop-point=) 
+	     (1+ (random 10)) 
+	     (1+ (random 10))])
 
 ;;; The people you are trying to save
 
@@ -554,14 +634,13 @@
   (setf clon:*send-parent-depth* 2) 
   (rlx:set-screen-height *tower-window-height*)
   (rlx:set-screen-width *tower-window-width*)
-  (rlx:set-frame-rate 30)
-  (rlx:set-timer-interval 20)
-  (rlx:enable-timer)
-  (rlx:enable-held-keys 1 15)
+  ;; (rlx:set-frame-rate 30)
+  ;; (rlx:set-timer-interval 20)
+  ;; (rlx:enable-timer)
+  ;; (rlx:enable-held-keys 1 15)
   (let* ((prompt (clone =tower-prompt=))
 	 (universe (clone =universe=))
 	 (narrator (clone =narrator=))
-	 (ship-status (clone =status=))
 	 (status (clone =status=))
 	 (player (clone =player=))
 	 (splash (clone =splash=))
@@ -588,13 +667,13 @@
     (labels ((spacebar ()
 	       (setf *status* status)
 	       ;;
-	       [resize status :height 105 :width *tower-window-width*]
+	       [resize status :height 60 :width *tower-window-width*]
 	       [set-character status player]
 	       [move status :x 0 :y 0]
 	       ;;
 	       [set-player universe player]
 	       [play universe
-	       	     :address '(=tower= :floor 5 :width *tower-size* :height *tower-size*)
+	       	     :address '(=tower= :floor 5)
 	       	     :prompt prompt
 	       	     :narrator terminal
 	       	     :viewport viewport]
@@ -602,10 +681,10 @@
 	       ;;
 	       [update status]
 	       [set-tile-size viewport 32]
-	       [resize viewport :height 580 :width *tower-window-width*]
+	       [resize viewport :height 470 :width *tower-window-width*]
 	       [move viewport :x 0 :y 0]
 	       [set-origin viewport :x 0 :y 0 
-			   :height (truncate (/ (- *tower-window-height* 100) 32))
+			   :height (truncate (/ (- *tower-window-height* 130) 32))
 			   :width (truncate (/ *tower-window-width* 32))]
 	       [adjust viewport]))
       (setf *space-bar-function* #'spacebar))
@@ -620,10 +699,10 @@
     ;;
     [resize stack :width *tower-window-width* :height *tower-window-height*]
     [move stack :x 0 :y 0]
-    [set-children stack (list status viewport)]
+    [set-children stack (list status viewport terminal)]
     ;;
-    [resize terminal :height 100 :width *tower-window-width*]
-    [move terminal :x 0 :y (- *tower-window-height* 100)]
+    [resize terminal :height 80 :width *tower-window-width*]
+    [move terminal :x 0 :y (- *tower-window-height* 80)]
     [set-verbosity terminal 0]
     ;; [move stack2 :x *left-column-width* :y 0]
     ;; [resize stack2 :width *right-column-width* :height 580]
@@ -644,7 +723,7 @@
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
     (rlx:install-widgets splash-prompt splash)
-    [add-page *pager* :play stack prompt status viewport terminal]
+    [add-page *pager* :play prompt stack status viewport terminal]
     [add-page *pager* :help textbox]))
 
 (tower)

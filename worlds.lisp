@@ -346,7 +346,6 @@ in a roguelike until the user has pressed a key."
 	[process-messages self]
 	;; if this is the player's last turn, begin the cpu phase
 	;; otherwise, stay in player phase and exit
-	;; <: action-points :>
 	(unless [can-act player phase-number]
 	  [end-phase player]
 	  (unless <exited>
@@ -375,7 +374,7 @@ in a roguelike until the user has pressed a key."
 	  (setf cells (aref grid i j))
 	  (dotimes (z (fill-pointer cells))
 	    (setf cell (aref cells z))
-	    ;; <: lighting :>
+	    ;; perform lighting
 	    (when (or [is-player cell]
 		      [is-light-source cell])
 	      [render-lighting self cell])
@@ -383,7 +382,7 @@ in a roguelike until the user has pressed a key."
 		       [in-category cell :actor]
 		       (not [in-category player :dead]))
 	      [begin-phase cell]
-	      ;; <: action-points :>
+	      ;; do turns 
 	      (loop while [can-act cell phase-number] do
 		   [run cell]
 		   [process-messages self]
