@@ -25,7 +25,6 @@
  (:name "wall" :type :image :file "wall.png")
  (:name "wall-breaking" :type :image :file "wall-breaking.png")
  (:name "debris" :type :image :file "debris.png")
- (:name "" :type :image :file ".png")
 
  (:name "bloup" :type :sample :file "bloup.wav" :properties (:volume 30))
 

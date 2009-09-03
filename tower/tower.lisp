@@ -86,7 +86,7 @@
 
 (define-prototype wrench (:parent rlx:=cell=)
   (name :initform "Rusty wrench")
-  (categories :initform '(:item :weapon :equipment))
+  (categories :initform '(:item :weapon :equipment :exclusive))
   (tile :initform "bar")
   (attack-power :initform (make-stat :base 4)) ;; points of raw damage
   (attack-cost :initform (make-stat :base 5))
@@ -96,8 +96,8 @@
 
 (define-method step wrench (stepper)
   (when [is-player stepper]
-    [equip stepper [add-item stepper (clone =wrench=)]]
-    [remove-from-world self]))
+    [equip stepper [add-item stepper self]]
+    [delete-from-world self]))
 
 ;;; Our hero, the player
 
@@ -133,8 +133,8 @@
 
 (define-method loadout player ()
   [make-inventory self]
-  [make-equipment self]
-  [equip self [add-item self (clone =wrench=)]])
+  [make-equipment self])
+;;  [equip self [add-item self (clone =wrench=)]])
 
 (define-method wait player ()
   [say self "Skipped one turn."]
@@ -181,9 +181,11 @@
 
 (define-method attack player (target)
   ;;  (rlx:play-sample "knock")
-  [>>expend-default-action-points self]
-  [>>damage [find self :direction target] 1]
-  [>>stat-effect self :oxygen -2])
+  (when [equipment-slot self <attacking-with>]
+    (unless [category-in-direction-p *active-world* <row> <column> target :no-wrench]
+      [>>expend-default-action-points self]
+      [>>damage [find self :direction target] 1]
+      [>>stat-effect self :oxygen -2])))
 
 (define-method show-location player ()
   (labels ((do-circle (image)
@@ -215,15 +217,50 @@
 (define-method run floor ()
   [update-tile self])
 
+;;; Doors
+
+(defparameter *door-tiles-left* '("door-left" "open-door-left" "jammed-door-left"))
+
+(defparameter *door-tiles-top* '("door-top" "open-door-top" "jammed-door-top"))
+
+(defcell door 
+  (tile :initform "door-left")
+  (orientation :initform :left)
+  (categories :initform '(:actor :obstacle :opaque))
+  (hit-points :initform (make-stat :base (random 3) :min 0 :max 2)))
+
+(define-method update-tile door ()
+  (if (not (zerop [stat-value self :hit-points]))
+      (progn 
+	(setf <tile> (nth [stat-value self :hit-points] 
+			  (ecase <orientation> 
+			    (:left *door-tiles-left*)
+			    (:top *door-tiles-top*))))
+	[add-category self :obstacle])
+      [delete-category self :obstacle]))
+      
+	  
+
+(define-method damage door (points)
+  [parent>>damage self points]
+  [update-tile self])
+
+(define-method run door ()
+  [update-tile self])
+
 ;;; Walls
 
 (defparameter *wall-tiles* '("wall-breaking" "wall"))
 
 (defcell wall 
   (tile :initform "wall")
-  (categories :initform '(:actor :obstacle))
+  (categories :initform '(:actor :obstacle :opaque :exclusive :wall :no-wrench))
+  (orientation :initform :left)
   (hit-points :initform (make-stat :base 2 :min 0 :max 2)))
   
+(define-method initialize wall (&key (orientation :left))
+  (setf <orientation> orientation))
+
 (define-method update-tile wall ()
   (when (not (zerop [stat-value self :hit-points]))
     (setf <tile> (nth (1- [stat-value self :hit-points]) *wall-tiles*))))
@@ -235,9 +272,22 @@
 (define-method run wall ()
   [update-tile self])
 
-;;; Doors
-
+(define-method become-door wall ()
+  (let ((door (clone =door= :orientation <orientation>)))
+    (assert (and (numberp <row>) (numberp <column>)))
+    [drop self door]
+    [die self]))
+		
 ;;; Debris
+
+(defcell debris 
+  (tile :initform "debris")
+  (categories :initform '(:exclusive)))
+
+(define-method step debris (stepper)
+  (when [is-player stepper]
+    [say self "The debris slows your movement."]
+    [expend-action-points stepper 5]))
 
 ;;; Smoke
 
@@ -250,6 +300,7 @@
 ;;; Windows 
 
 (defparameter *left-window-tiles* '("broken-window-left" "window-left"))
+
 (defparameter *top-window-tiles* '("broken-window-top" "window-top"))
 
 (defcell window
@@ -280,10 +331,10 @@
   (categories :initform '(:player-entry-point))
   (tile :initform "floor"))
 
-(defparameter *tower-size* 30)
+(defparameter *tower-size* 40)
 
 (define-prototype tower (:parent rlx:=world=)
-  (ambient-light :initform :total)
+  (ambient-light :initform 7)
   (height :initform *tower-size*)
   (width :initform *tower-size*)
   (scale :initform '(1 m))
@@ -295,11 +346,14 @@
       (dotimes (j width)
 	[drop-cell self (clone =floor=) i j]))))
 
-(define-method drop-wall tower (r0 c0 r1 c1)
+(define-method drop-wall tower (r0 c0 r1 c1 &optional (orientation :left))
   (trace-line #'(lambda (x y)
 		  (prog1 nil
-		    [drop-cell self (clone =wall=) y x]))
-		   c0 r0 c1 r1))
+		    (let ((wall (clone =wall= :orientation orientation)))
+		      (when [drop-cell self wall y x]
+			(percent-of-time 8
+			  [become-door wall])))))
+	      c0 r0 c1 r1))
 
 (define-method drop-windows tower ()
   (clon:with-field-values (height width) self
@@ -323,7 +377,7 @@
   (setf <width> width)
   [create-default-grid self]
   [drop-floor self]
-  (dotimes (i 18)
+  (dotimes (i 28)
     (let ((column (1+ (random *tower-size*)))
 	  (row (1+ (random *tower-size*)))
 	  (len (random (truncate (/ *tower-size* 2))))
@@ -345,9 +399,15 @@
 	  ;; 		  (list row (+ len2 column)))
 	  ;;     [drop-wall self row column (+ r len2) c])))))
   [drop-windows self]
+  (dotimes (i 2) 
+    [drop-cell self (clone =wrench=) 
+	       (1+ (random (1- height))) 
+	       (1+ (random (1- width)))
+	       :exclusive t :probe t])
   [drop-cell self (clone =drop-point=) 
 	     (1+ (random 10)) 
-	     (1+ (random 10))])
+	     (1+ (random 10))
+	     :exclusive t :probe t])
 
 ;;; The people you are trying to save
 
