@@ -385,7 +385,7 @@
 ;;; The Contractor.
 
 (defcell contractor 
-  (tile :initform "player")
+  (tile :initform "voyager")
   (mode :initform :spacesuit)
   (name :initform "Contractor")
   (speed :initform (make-stat :base 12 :min 0 :max 25))
