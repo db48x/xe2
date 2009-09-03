@@ -203,7 +203,7 @@
   (hit-points :initform (make-stat :base 3 :min 0 :max 3)))
 
 (define-method update-tile floor ()
-  (setf <tile> (nth [stat-value self :hit-points] *floor-tiles*)))
+  (setf <tile> (nth (1- [stat-value self :hit-points]) *floor-tiles*)))
 
 (define-method run floor ()
   [update-tile self])
@@ -218,7 +218,7 @@
   (hit-points :initform (make-stat :base 2 :min 0 :max 2)))
   
 (define-method update-tile wall ()
-  (setf <tile> (nth [stat-value self :hit-points] *wall-tiles*)))
+  (setf <tile> (nth (1- [stat-value self :hit-points]) *wall-tiles*)))
   
 (define-method run wall ()
   [update-tile self])
@@ -604,8 +604,9 @@
 	       [set-tile-size viewport 32]
 	       [resize viewport :height 580 :width *tower-window-width*]
 	       [move viewport :x 0 :y 0]
-	       [set-origin viewport :x 0 :y 0 :height 24 :width (truncate (/ *tower-window-width*
-	       								   32))]
+	       [set-origin viewport :x 0 :y 0 
+			   :height (truncate (/ (- *tower-window-height* 100) 32))
+			   :width (truncate (/ *tower-window-width* 32))]
 	       [adjust viewport]))
       (setf *space-bar-function* #'spacebar))
     ;;
