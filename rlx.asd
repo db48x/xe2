@@ -16,6 +16,7 @@
   :serial t
   :depends-on (:trivial-features :trivial-features-tests 
 				 :lispbuilder-sdl :lispbuilder-sdl-image 
+				 :lispbuilder-sdl-gfx
 				 :lispbuilder-sdl-mixer
 				 :clon)
   :components ((:file "rlx")

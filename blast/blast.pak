@@ -187,7 +187,7 @@
  (:name "bomb-4" :type :image :file "bomb-4.png")
  (:name "bomb-ammo" :type :image :file "bomb-ammo.png")
 
- (:name "splash" :type :image :file "blast-splash.png")
+ (:name "splash" :type :image :file "blast-splash.png" :properties (:nozoom t))
 
  (:name "skull" :type :image :file "skull.png")
  (:name "polaris" :type :image :file "polaris.png")
@@ -224,7 +224,7 @@
  (:name "ship-destroyed" :type :image :file "ship-destroyed.png")
  (:name "void" :type :music :file "void.xm")
  (:name "corridor-music" :type :music :file "corridor.ogg" :properties (:volume 13))
- (:name "rally" :type :music :file "rally.ogg" :properties (:volume 26))
+ (:name "rally" :type :music :file "rally.ogg" :properties (:volume 35))
  (:name "conspiracy" :type :music :file "conspiracy.ogg" :properties (:volume 30)) 
  (:name "ancients" :type :music :file "ancients.ogg" :properties (:volume 30))
  (:name "greenworld" :type :music :file "greenworld.ogg" :properties (:volume 20))

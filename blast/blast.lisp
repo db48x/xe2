@@ -439,6 +439,7 @@
 (defparameter *left-column-width* (- *blast-window-width* 
 				     *right-column-width*))
 
+(defparameter *tile-size* 16)
 
 (defun blast ()
   (rlx:message "Initializing Blast Tactics...")
@@ -449,8 +450,7 @@
   ;; (rlx:set-timer-interval 20)
   ;; (rlx:enable-timer)
   (rlx:enable-held-keys 1 15)
-  (setf *asteroid-count* 0)
-  (setf *level* 0)
+  (setf rlx:*zoom-factor* 1)
   (let* ((prompt (clone =blast-prompt=))
 	 (universe (clone =universe=))
 	 (narrator (clone =narrator=))
@@ -466,6 +466,7 @@
 	 (stack (clone =stack=))
 	 (stack2 (clone =stack=)))
     ;;
+    ;; 
     (setf *view* (clone =view=))
     ;;
     [resize splash :height 580 :width *blast-window-width*]
@@ -508,13 +509,16 @@
 	       ;;
 	       [update ship-status]
 	       [update dude-status]
-	       [set-tile-size *view* 16]
+	       [set-tile-size *view* *tile-size*]
 	       ;; the default is to track the current world:
 	       ;; [set-world *view* world] 
 	       [resize *view* :height 432 :width *left-column-width*]
 	       [move *view* :x 0 :y 0]
-	       [set-origin *view* :x 0 :y 0 :height 24 :width (truncate (/ *left-column-width*
-									   16))]
+	       [set-origin *view* 
+			   :x 0 :y 0 
+			   :height 24
+			   :width (truncate (/ *left-column-width*
+					       *tile-size*))]
 	       [adjust *view*]
 	       [set-tile-size minimap 2]
 	       [resize minimap :height 80 :width 120]

@@ -248,6 +248,20 @@ at the time the cell method is run.")
 (defun world ()
   *active-world*)
 
+;;; Auto-zooming images
+
+(defvar *zoom-factor* 1)
+
+(defun is-zoomed-resource (resource)
+  (not (getf (resource-properties resource)
+	     :nozoom)))
+
+(defun zoom-image (image factor)
+  (assert (integerp *zoom-factor*))
+  (lispbuilder-sdl-gfx:zoom-surface *zoom-factor* *zoom-factor*
+				    :surface image
+				    :smooth nil))
+
 ;;; Timer events
 
 ;; This can be used for pseudo-realtime roguelike play (see
@@ -609,8 +623,14 @@ table."
 ;;; Driver-dependent resource object loading handlers
 
 (defun load-image-resource (resource)
-  (sdl-image:load-image (namestring (resource-file resource)) 
-				  :alpha 255))
+  ;; handle zooming
+  (let ((image 
+	 (sdl-image:load-image (namestring (resource-file resource)) 
+			       :alpha 255)))
+    (if (or (= 1 *zoom-factor*)
+	    (not (is-zoomed-resource resource)))
+	image
+	(zoom-image image *zoom-factor*))))
 
 (defun load-text-resource (resource)
   (with-open-file (file (resource-file resource)

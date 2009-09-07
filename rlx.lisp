@@ -110,10 +110,10 @@
   set-field-option-value =pager= =pager-prompt= load-module
   field-options world set-frame-rate *frame-rate* =stack=
   set-timer-interval *message-logging* overlay set-screen-width
-  =universe= *active-universe* set-screen-height genseq
-  *timer-interval* enable-timer disable-timer while enable-held-keys
-  disable-held-keys do-cells draw-box draw-rectangle *quitting* quit
-  reset))
+  =universe= *active-universe* set-screen-height genseq *zoom-factor*
+  zoom-image is-zoomed-resource *timer-interval* enable-timer
+  disable-timer while enable-held-keys disable-held-keys do-cells
+  draw-box draw-rectangle *quitting* quit reset))
 
 (in-package :rlx)
 
