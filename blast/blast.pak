@@ -224,6 +224,7 @@
  (:name "ship-destroyed" :type :image :file "ship-destroyed.png")
  (:name "void" :type :music :file "void.xm")
  (:name "corridor-music" :type :music :file "corridor.ogg" :properties (:volume 13))
+ (:name "saga" :type :music :file "saga.ogg" :properties (:volume 13))
  (:name "rally" :type :music :file "rally.ogg" :properties (:volume 35))
  (:name "conspiracy" :type :music :file "conspiracy.ogg" :properties (:volume 30)) 
  (:name "ancients" :type :music :file "ancients.ogg" :properties (:volume 30))
