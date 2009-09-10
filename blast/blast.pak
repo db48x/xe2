@@ -224,7 +224,7 @@
  (:name "ship-destroyed" :type :image :file "ship-destroyed.png")
  (:name "void" :type :music :file "void.xm")
  (:name "corridor-music" :type :music :file "corridor.ogg" :properties (:volume 13))
- (:name "saga" :type :music :file "saga.ogg" :properties (:volume 13))
+ (:name "saga" :type :music :file "saga.ogg" :properties (:volume 8))
  (:name "rally" :type :music :file "rally.ogg" :properties (:volume 35))
  (:name "conspiracy" :type :music :file "conspiracy.ogg" :properties (:volume 30)) 
  (:name "ancients" :type :music :file "ancients.ogg" :properties (:volume 30))
@@ -277,6 +277,7 @@
  (:name "bullet-trail-end-thin-southwest" :type :alias :data ":rotate 180:bullet-trail-end-thin-northeast")
  (:name "bullet-trail-end-thin-northwest" :type :alias :data ":rotate 270:bullet-trail-end-thin-northeast")
 
+ (:name "swoosh" :type :sample :file "swoosh.wav" :properties (:volume 40))
  (:name "sweep" :type :sample :file "snare-wak2.wav" :properties (:volume 40))
  (:name "defleptor" :type :sample :file "defleptor.wav" :properties (:volume 4))
  (:name "defleptor3" :type :sample :file "defleptor3.wav" :properties (:volume 4))
@@ -295,6 +296,8 @@
  (:name "powerup" :type :sample :file "powerup.wav" :properties (:volume 40))
 
  (:name "tech-box" :type :image :file "tech-box.png")
+ (:name "bit" :type :image :file "bit.png")
+ (:name "bit2" :type :image :file "bit2.png")
  (:name "tech-box-special" :type :image :file "tech-box-special.png")
  (:name "tech-box-debris" :type :image :file "tech-box-debris.png")
  (:name "solv" :type :image :file "solv.png")

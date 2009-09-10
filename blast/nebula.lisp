@@ -203,4 +203,4 @@ seems high."))
 		 (random height) (random width)])))
 
 (define-method begin-ambient-loop nebula-m ()  
-  (play-music "rally" :loop t))
+  (play-music "saga" :loop t))

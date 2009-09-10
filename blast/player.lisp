@@ -487,7 +487,7 @@
       [parent>>embark self]
       [set-character *ship-status* vehicle]
       ;; refill oxygen
-      [play-sample vehicle "pop-ssh"]
+      [play-sample vehicle "swoosh"]
       [say vehicle "Suit oxygen refilled to maximum."]
       [stat-effect self :oxygen [stat-value self :oxygen :max]])))
 

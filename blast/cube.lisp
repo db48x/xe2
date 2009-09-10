@@ -66,6 +66,37 @@ around."))
     [die self]
     [die stepper]))
 
+;;; Enemies of the cube
+
+(define-prototype bit (:parent =laser-drone=)
+  (tile :initform "bit2")
+  (categories :initform '(:actor :obstacle :enemy :target))
+  (direction :initform :north)
+  (state :initform nil))
+
+(define-method loadout bit ()
+  [make-inventory self]
+  [make-equipment self]
+  [equip self [add-item self (clone =ray-caster=)]])
+
+(define-method flip bit ()
+  (setf <state> (if <state> nil t))
+  (setf <direction> (nth (random 2) (if <state> 
+					'(:north :south)
+					'(:east :west))))
+  (setf <tile> (if <state> "bit" "bit2")))
+
+(define-method run bit ()
+  (when (< [distance-to-player self] 5)
+    [fire self])
+  (when [obstacle-in-direction-p *active-world* <row> <column> <direction>]
+    [flip self])
+  [move self <direction>])
+
+(define-method die bit ()
+  [play-sample self "aagh"]
+  [delete-from-world self])
+
 ;;; The cube world
 
 (define-prototype cube (:parent =world=)
@@ -102,7 +133,9 @@ around."))
       [drop-maze self]
       [drop-specials self]
       (dotimes (i 120)
-	(drop-box (random height) (random width))))
+	(drop-box (random height) (random width)))
+      (dotimes (i 40)
+	[drop-cell self (clone =bit=) (random height) (random width) :loadout t]))
     [drop-cell self (clone =launchpad=) 10 10]))
 
 (define-method drop-maze cube ()
