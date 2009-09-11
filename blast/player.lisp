@@ -546,7 +546,7 @@
 (defcell olvac 
   (tile :initform "voidrider-north")
   (mode :initform :vehicle)
-  (name :initform "Olvac 2")
+  (name :initform "Olvac 3")
   (last-direction :initform :here)
   (speed :initform (make-stat :base 10 :min 0 :max 25))
   (crystals :initform (make-stat :base 0 :min 0))
@@ -555,7 +555,7 @@
   (hearing-range :initform 15)
   (energy :initform (make-stat :base 40 :min 0 :max 40 :unit :gj))
   (pollen3a :initform (make-stat :base 0 :min 0 :max 10 :unit :kg))
-  (endurium :initform (make-stat :base 16 :min 0 :max 40 :unit :kg))
+  (endurium :initform (make-stat :base 200 :min 0 :max 200 :unit :kg))
   (technetium :initform (make-stat :base 0 :min 0 :unit :ug))
   (biosilicate :initform (make-stat :base 0 :min 0 :unit :g))
   (hit-points :initform (make-stat :base 45 :min 0 :max 45))
