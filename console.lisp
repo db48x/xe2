@@ -120,8 +120,8 @@ and the like."
 
 ;;; Event handling and widgets
 
-;; Keyboard, mouse, and timer events are represented as event lists of
-;; the form:
+;; Keyboard, mouse, joystick, and timer events are represented as
+;; event lists of the form:
 ;;
 ;;       (STRING . MODIFIERS)
 ;; 
@@ -237,6 +237,79 @@ key event symbols."
 		       ((eql 0 sdl-mods)
 			nil))))))
 
+;;; Joystick support (gamepad probably required)
+
+(defparameter *ps3-joystick-mapping*
+  '((0 . :select)
+    (1 . :l3)
+    (2 . :r3)
+    (3 . :start)
+    (4 . :up)
+    (5 . :right)
+    (6 . :down)
+    (7 . :left)
+    (8 . :l2)
+    (9 . :r2)
+    (10 . :l1)
+    (11 . :r1)
+    (12 . :triangle)
+    (13 . :circle)
+    (14 . :cross)
+    (15 . :square)))
+
+(defvar *joystick-mapping* *ps3-joystick-mapping*)
+
+(defun translate-joystick-button (button)
+  (cdr (assoc button *joystick-mapping*)))
+
+(defun symbol-to-button (sym)
+  (let ((entry (some #'(lambda (entry)
+			 (when (eq sym (cdr entry))
+			   entry))
+		     *joystick-mapping*)))
+    (when entry 
+      (car entry))))
+
+(defvar *joystick-device* 0)
+
+(defvar *joystick-buttons* nil
+  "The nth element is non-nil when the nth button is pressed.")
+
+(defvar *joystick-position* nil "Current position of the joystick.")
+
+(defun reset-joystick ()
+  (setf *joystick-buttons* (make-array 100 :initial-element nil))
+  (setf *joystick-position* :here))
+
+(defun update-joystick (button state)
+  (setf (aref *joystick-buttons* button) (ecase state
+					   (1 t)
+					   (0 nil)))
+  (let ((sym (translate-joystick-button button)))
+    (labels ((pressed (sym) 
+	       (let ((b (symbol-to-button sym)))
+		 (when (integerp b)
+		   (aref *joystick-buttons* b)))))
+      (setf *joystick-position* 
+	    (or (cond ((and (pressed :up) (pressed :right))
+		       :northeast)
+		      ((and (pressed :up) (pressed :left))
+		       :northwest)
+		      ((and (pressed :down) (pressed :right))
+		       :southeast)
+		      ((and (pressed :down) (pressed :left))
+		       :southwest)
+		      ((pressed :up)
+		       :north)
+		      ((pressed :down)
+		       :south)
+		      ((pressed :right)
+		       :east)
+		      ((pressed :left)
+		       :west))
+		:here)))
+    (message "(JOYSTICK ~A ~A)" *joystick-position* sym)))
+
 ;;; The active world
 
 (defvar *active-world* nil 
@@ -331,6 +404,8 @@ window. Set this in the game startup file.")
 		  :flags sdl:SDL-FULLSCREEN)
       (sdl:window *screen-width* *screen-height*
 		  :title-caption "RLX"))
+  (setf *joystick-device* (sdl-cffi::sdl-joystick-open 0))
+  (reset-joystick)
   (sdl:clear-display sdl:*black*)
   (show-widgets)
   (sdl:update-display)
@@ -353,11 +428,18 @@ window. Set this in the game startup file.")
 					    (2 (when (has-method :activate object) 
 						 [activate object]))))
 					[process-messages *active-world*])
-;				      (dispatch-event *timer-event*)
+				      ;; (dispatch-event *timer-event*)
 				      (show-widgets)
 				      (sdl:update-display)))))
     (:mouse-button-up-event (:button button :state state :x x :y y)
 			    nil)
+    (:joy-button-down-event (:which which :button button :state state)
+			    (update-joystick button state)
+			    (dispatch-event (list :joystick
+						  *joystick-position*
+						  (translate-joystick-button button))))
+    (:joy-button-up-event (:which which :button button :state state)  
+			    (update-joystick button state))
     (:video-expose-event () (sdl:update-display))
     (:key-down-event (:key key :mod-key mod)
 		     (sdl:clear-display sdl:*black*)
