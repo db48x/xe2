@@ -50,7 +50,7 @@
 
 (define-prototype blast-prompt (:parent rlx:=prompt=))
 
-(defparameter *numpad-keybindings* 
+(defparameter *basic-keybindings* 
   '(("KP7" nil "move :northwest .")
     ("KP8" nil "move :north .")
     ("KP9" nil "move :northeast .")
@@ -85,10 +85,37 @@
     ("KP6" (:meta) "attack :east .")
     ("KP1" (:meta) "attack :southwest .")
     ("KP2" (:meta) "attack :south .")
-    ("KP3" (:meta) "attack :southeast .")))
+    ("KP3" (:meta) "attack :southeast .")
+    ;;
+    ("JOYSTICK" (:north :circle) "attack :north .")
+    ("JOYSTICK" (:northeast :circle) "attack :northeast .")
+    ("JOYSTICK" (:northwest :circle) "attack :northwest .")
+    ("JOYSTICK" (:east :circle) "attack :east .")
+    ("JOYSTICK" (:west :circle) "attack :west .")
+    ("JOYSTICK" (:south :circle) "attack :south .")
+    ("JOYSTICK" (:southwest :circle) "attack :southwest .")
+    ("JOYSTICK" (:southeast :circle) "attack :southeast .")
+    ;;
+    ("JOYSTICK" (:north :cross) "move :north .")
+    ("JOYSTICK" (:northeast :cross) "move :northeast .")
+    ("JOYSTICK" (:northwest :cross) "move :northwest .")
+    ("JOYSTICK" (:east :cross) "move :east .")
+    ("JOYSTICK" (:west :cross) "move :west .")
+    ("JOYSTICK" (:south :cross) "move :south .")
+    ("JOYSTICK" (:southwest :cross) "move :southwest .")
+    ("JOYSTICK" (:southeast :cross) "move :southeast .")
+    ;;
+    ("JOYSTICK" (:north :square) "fire :north .")
+    ("JOYSTICK" (:northeast :square) "fire :northeast .")
+    ("JOYSTICK" (:northwest :square) "fire :northwest .")
+    ("JOYSTICK" (:east :square) "fire :east .")
+    ("JOYSTICK" (:west :square) "fire :west .")
+    ("JOYSTICK" (:south :square) "fire :south .")
+    ("JOYSTICK" (:southwest :square) "fire :southwest .")
+    ("JOYSTICK" (:southeast :square) "fire :southeast .")))
 
 (defparameter *qwerty-keybindings*
-  (append *numpad-keybindings*
+  (append *basic-keybindings*
 	  '(("Y" nil "move :northwest .")
 	    ("K" nil "move :north .")
 	    ("U" nil "move :northeast .")
@@ -139,7 +166,7 @@
 	    ("Q" (:control) "quit ."))))
   
 (defparameter *alternate-qwerty-keybindings*
-  (append *numpad-keybindings*
+  (append *basic-keybindings*
 	  '(("Q" nil "move :northwest .")
 	    ("W" nil "move :north .")
 	    ("E" nil "move :northeast .")
@@ -192,7 +219,7 @@
 ;; m w v
 
 (defparameter *dvorak-keybindings*
-  (append *numpad-keybindings*
+  (append *basic-keybindings*
 	  '(("G" nil "move :northwest .")
 	    ("C" nil "move :north .")
 	    ("R" nil "move :northeast .")
