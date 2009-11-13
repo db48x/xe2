@@ -20,6 +20,8 @@
  
  (:name "techblackmetal" :type :image :file "tech-blackmetal.png")
  (:name "gravboots" :type :image :file "gravboots.png")
+ (:name "zetafloor" :type :image :file "zetafloor.png")
+ (:name "zetafloor2" :type :image :file "zetafloor2.png")
  (:name "energy-max-up" :type :image :file "energy-max-up.png")
  (:name "minesweeper" :type :image :file "minesweeper.png")
  (:name "ring" :type :image :file "ring.png")
@@ -192,6 +194,8 @@
  (:name "skull" :type :image :file "skull.png")
  (:name "polaris" :type :image :file "polaris.png")
  (:name "wall" :type :image :file "wall.png")
+ (:name "wall-debris1" :type :image :file "wall-debris1.png")
+ (:name "wall-debris2" :type :image :file "wall-debris2.png")
 
  (:name "diamond" :type :image :file "diamond.png")
  (:name "plus" :type :image :file "plus.png")

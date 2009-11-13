@@ -3,13 +3,13 @@
 ;;; Empty space.
 
 (defcell space 
-  (tile :initform "space")
+  (tile :initform "zetafloor")
   (name :initform "Base floor"))
 
 ;;; Colored space.
 
 (defcell space2
-  (tile :initform "space2")
+  (tile :initform "zetafloor2")
   (name :initform "Base floor")
   (description :initform "Carbon scoring from a recent battle is visible here."))
 
@@ -66,6 +66,20 @@ mission, the Arch Gamma Corporation."))
   (categories :initform '(:obstacle :opaque))
   (hit-points :initform (make-stat :base 20 :min 0))
   (description :initform "The weakened walls of the base are crumbling away."))
+
+(defcell wall-debris1 
+  (tile :initform "wall-debris1")
+  (name :initform "Wall debris")
+  (description :initform "The wall has been destroyed here."))
+
+(defcell wall-debris2
+  (tile :initform "wall-debris2")
+  (name :initform "Wall debris")
+  (description :initform "The wall has been destroyed here."))
+
+(define-method die wall ()
+  [drop self (clone (car (one-of (list =wall-debris1= =wall-debris2=))))]
+  [parent>>die self])
 
 ;;; Energy gas
 
@@ -155,7 +169,7 @@ this."))
   (name :initform "Zeta Base Ruins")
   (edge-condition :initform :block)
   (required-modes :initform '(:vehicle :spacesuit))
-  (ambient-light :initform :total))
+  (ambient-light :initform 8))
 
 (define-method generate zeta-base (&key   
 				    (width 20)

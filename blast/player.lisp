@@ -505,7 +505,7 @@
   (if (member <mode> (field-value :required-modes *active-world*))
       (if [in-category *active-world* :weightless] 
 	  (if (and (clon:object-p [equipment-slot self :feet])
-		   (clon:is-a [equipment-slot self :feet] '=gravboots=))
+		   [in-category [equipment-slot self :feet] :gravboots])
 	      (if [category-in-direction-p *active-world* 
 					   <row> <column> direction 
 					   :magnetic]

@@ -242,7 +242,7 @@ types."))
 ;;; Gravboots
 
 (defcell gravboots
-  (categories :initform '(:equipment :item))
+  (categories :initform '(:equipment :item :gravboots))
   (tile :initform "gravboots")
   (equip-for :initform '(:feet)))
 
