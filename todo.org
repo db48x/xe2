@@ -5,6 +5,7 @@ http://common-lisp.net/pipermail/rlx/2009-January/000000.html
 
 * TASKS
 
+** TODO JOYSTICK SUPPORT
 ** TODO enemies in cube
 ** TODO don't drop stuff on walls in cube
 ** TODO purple gun weapon power up with new color <ammo> "graviton" bullets 

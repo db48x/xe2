@@ -42,7 +42,7 @@ Installation and basic playing instructions are provided.
    key to skip them.
 
    Now install your GNU/Linux distribution's packages for libsdl,
-   libsdl-image, and libsdl-mixer.
+   libsdl-image, libsdl-mixer, and libsdl-gfx.
 
 5b. The latest development version of LISPBUILDER-SDL is required. Use
     Subversion to check out the source code:

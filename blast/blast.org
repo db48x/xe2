@@ -1,0 +1,253 @@
+#+TITLE: Blast Tactics Game Design Document
+#+AUTHOR: David O'Toole <dto1138@gmail.com>
+
+* Overview
+
+** Summary
+
+Blast Tactics is a rogue-like tactical RPG. The user creates and names
+a character with various attributes like strength, dexterity, and
+piloting skill. Using a turn-based 2.5D roguelike tactics engine, the
+player's character explores interstellar space and conducts various
+combat, research, and espionage missions. The main story line is
+embedded throughout the game and woven together with procedurally
+generated maps and missions. Drivable vehicles protect the player,
+enable high-speed aerial combat, and are the primary means of
+traveling between different parts of the game. Spacesuit EVA
+(extra-vehicular activity) is available for indoor maps. Destructible
+environments and hostile conditions (heat, vacuum, radiation) add
+strategy to the game. The goal of the game is to complete missions,
+upgrade your character and ship, while managing resources like fuel
+and money. This non-linear RPG combines a main story with "sandbox"
+and varied mission-style gameplay.
+
+** Tactical roguelike gameplay engine
+
+Play occurs in a two-dimensional grid where each square can contain a
+stack of objects. Each object is represented onscreen by a 16x16 pixel
+tile, and where objects stack the tiles are overlaid. The player can
+inspect a stack of tiles and choose which to pick up or act upon.
+
+All movement and combat are turn-based, with actions using up a
+resource called AP (action points). Turn order is determined by a
+character's speed rating and AP reserve. Both melee and ranged attacks
+are supported.
+
+The game's procedurally-generated universe is composed of a set of
+arbitrarily interconnected 2D maps. Maps can have different scale
+factors, so one map may represent a star sector with several stars to
+visit, while each star may have its own map with planets to visit, all
+the way down to the corridors of a planetary base.
+
+Non-player characters (friend or foe) can speak and emote with
+onscreen balloons or animated icons. 
+
+** Streamlined control interface with per-user configuration
+
+The game can be controlled with the keyboard and mouse, or via common
+USB gamepads. Users can configure the controls, and presets are
+included for common gamepads like the Playstation 3 controller and
+various Logitech models. For keyboard users, both QWERTY and DVORAK
+layouts are available, among others.
+
+** Screen layout 
+
+Blast Tactics is presented in high definition for PC screens.
+
+* Setting and story 
+
+** The state of humanity, post-invasion
+
+It's 2061. If only there were enough endurium!
+
+It's been known for decades that Humanity's reach within the Milky Way
+is limited only by the supply of endurium, its rare and precious fuel.
+As endurium was first brought to Earth at the advent of the present
+Droid Plague, its discovery came indeed at the cost of billions of
+human lives. But the living space and vast resources of the Milky Way,
+and indeed possibly those of the Universe itself, beckon to us with
+their promise of the renewed expansion and survival of the human
+species.
+
+Early attempts at control and regulation of endurium met with initial
+success. The space-faring nations---Russia, China, India, Japan, and
+the United States---along with the ESA (European Space Agency), could
+quite naturally claim endurium for themselves. But economies of scale
+and espionage in spaceflight technology eventually brought smaller
+deposits and endurium dust streams throughout the interstellar
+neighborhood within the reach of multinational corporations and
+various non-state actors. The largest of these formed what they called
+a "sovereign" but otherwise open and successful market in endurium,
+spaceflight technology, and various otherwise-controlled
+materials. The split between the Spacefaring Nations on the one hand,
+and the United Nations on the other, threatens to break into
+full-scale interstellar war; as Earth's environment continues to
+decay, and as the Droid Plague appears to be with us for the long run,
+the demand for endurium has reached a critical point.
+
+** Biosilicates
+
+The Biosilicates are silicon-based lifeforms who have assimilated
+human microprocessor technology in an attempt to amplify their
+species' intelligence. But the result of this fusion is less than
+organized; a hive's vast mentality is the sum of thousands or even
+millions of conflicting sprout minds, each with many gigaflops of
+computing power. Still, hives have been seen to act with more
+intelligence, even working in concert on some occasions. Some
+researchers believe that the biosilicates are adapting to their new
+symbiotic environment. 
+
+These hives grow raw biosilicate plant material from pollen
+deposited by drones. When encountering these gargantuan, gelatinous
+hive sacs in space, one must puncture the outer membrane to gain access to
+the putrid world within.
+
+The green sprouts in grow for 6 generations, and then die. The
+generation number is incremented whenever the wandering sprout finds
+food (in this case, Biosilicate pollen.) At generation 3, the sprout
+becomes stronger (more HP) and also spawns a baby sprout. The result
+is a busy, but not explosive growth and propagation of cells as they
+consume food and move on. Places with plentiful food tend to form
+dense clumps of material, masses of plants which emergently extend
+tendrils of plant matter toward the player whenever he approaches.
+
+** The Droid Plague
+
+On December 23, 2019, a Chinese probe in lunar orbit observes an
+irregular black spot on the side of the Moon that permanently faces
+away from the Earth. As the probe was designed for high-resolution
+multi-wavelength imaging of the Moon's surface, scientists debate in
+secret whether the material is natural or artificial in
+origin. Although rivers and eddies of this coal-black, smooth material
+are visible, shifting geometric patterns are observed, with some
+groups of triangular features persisting for days or weeks. The black
+spot grows rapidly, prompting the NASA/ESA/Chinese working group to
+attempt lowering the satellite's orbit in order to take a closer look.
+
+The rest is history; the satellite's approach is interpreted as a
+threat, and before telemetry is lost, millions of pyramid-shaped
+drones are seen emerging from the blackness. A year later, humanity
+had shrunk to an estimated 1 billion people. The Lunar Black Spot is
+eventually destroyed by carpet-bombing it with nuclear warheads, and
+the immediate droid presence around Earth is brought under control,
+but the planet is decimated and the species on the verge of real
+decline. The manufacture of an estimated 4 billion drones during the
+war consumed 0.0002 percent of the Moon's mass and altered its
+rotation and orbit, wreaking havoc on Earth's climate.
+
+** New opportunities
+
+The mineral Endurium is used as fuel by the Black Metal and by the
+drones it manufactures. The discovery of this vital energy source, and
+the faster-than-light travel made possible by Droid technology, have
+utterly transformed the prospects of the human species. The entire
+universe is now ours to explore, populate, and exploit---if the Black
+Metal can be contained in the long term.
+
+** Origins of the blackness
+
+Thus far the droid plague has not been connected with any known
+purpose, but researchers believe that the Black Metal is artificial in
+origin and may in fact be a kind of liquid supercomputer. Radio decay
+dating techniques show that some deposits of the metal are as old as
+ten million years. The artificial nature of this computing substrate
+taken together with its extreme age led scientists to postulate a race
+of "Ancients" who created the Black Metal and either fled or were
+wiped out by it. It is unknown whether any other species have
+inherited the technology left behind by the Ancients.
+
+** Making contact
+
+Researchers believe the Black Metal is dispersed throughout the
+galaxy, and it is believed that some larger deposits harbor a form of
+consciousness.
+
+** The Black Sun
+
+Eventually the player discovers a supermassive star encased in a shell
+of Black Metal. The sheer volume of the black metal and the star's
+incredible energy output combine to create a terrifyingly vast
+intelligence that has observed the universe for 11 billion years.
+
+* Save system
+
+That character death should incur a huge penalty is a major feature of
+the rogue-like genre. Blast Tactics's save system is a compromise
+between console-style "save points" and the roguelike "permadeath".
+
+There is no permadeath in Blast Tactics; but your opportunities to
+save a /restorable/ game are limited. 
+
+A "game" of Blast Tactics runs from character creation until death.  A
+gameplay session lasts from when you start up Blast Tactics, until you
+either Save and Quit or just Quit. A "sortie" is the time between saves.
+
+An autosave system prevents crashes from destroying more than a few
+minutes of gameplay. The autosave is also used when you quit, so that
+a game can last many gameplay sessions.
+
+When you die, the current sortie is canceled out, and you can only
+restore from the last save point. So while there is a substantial
+penalty to death in Blast Tactics, the save system is tailored to
+balance this with the expectations of modern gamers while still
+presenting a challenge.
+
+
+* Locations and activities
+
+** Antares sector
+
+This is the overall setting of the game, and (unbeknownst to the
+player) the location of the Black Planet.
+
+** Nebulae
+
+These hot nebulae are sources of free fuel (though sometimes only in
+small amounts). Ancient artifact containers and other sundry
+curiosities may be found here.
+
+** Biosilicate hives
+
+These are described in the Story section above. Hives serve as a
+source of biosilicates, which may be either sold or manufactured into
+ammunition or other supplies.
+
+** Zeta Base
+
+Early in the game, the player must enter the droid-overrun Zeta Base
+and take it back by eliminating them all.
+
+** Derelict freighters
+
+The player must leave the vehicle in a spacesuit, with an oxygen
+supply and gravity boots, in order to explore these dark
+environments. Droids designed for capturing freighters
+
+Some freighters are used by droids for reproduction, and these can
+never be fully cleared of droids. Sometimes more powerful droids are
+being manufactured in a given freighter, and this may result in player
+death, so each freighter should be taken carefully. Limited lighting
+and careful use of sound will create tension. 
+
+Freighters are a source of human supplies (medkits, upgrades,
+stim-packs, weapons, ammo) and in order to fully explore some
+freighters, the player must make use of oxygen tanks and even recover
+oxygen from dead crew members. (Some crewmembers are zombies and
+attack the player.)
+
+These ships also figure into the storyline, in that the huge increase
+in human shipping and exploration activity in the Antares sector
+awakened the Black Planet and caused it to begin using freighters as
+eggs for its "children".
+
+** Star corridors
+** Yellow Cubes
+** Hawk's Trading Post
+
+A busy frontier-town that has grown rapidly, this is where the player
+will do most of the buying and selling of resources. This is also
+probably the only place you will be able to save the game.
+
+** Corva-3
+** Green worlds
+** Mars-like planet

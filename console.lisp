@@ -138,7 +138,6 @@ one at a time (in list order) until one of them is found to have a
 matching keybinding, in which case the keybinding's corresponding
 function is triggered. If none of the widgets have a matching
 keybinding, nothing happens, and this function returns nil."
-;;  (princ event)
   (some #'(lambda (widget)
 	    [handle-key widget event])
 	*active-widgets*))
