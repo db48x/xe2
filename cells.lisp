@@ -743,14 +743,15 @@ slot."
 (defparameter *default-sample-hearing-range* 15)
 
 (define-method play-sample cell (sample-name)
-  (let ((range (if (clon:has-field :hearing-range self)
-		   <hearing-range>
+  (let* ((player [get-player *active-world*])
+	 (range (if (clon:has-field :hearing-range player)
+		   (clon:field-value :hearing-range player)
 		   *default-sample-hearing-range*))
-	(dist (if [is-located self]
-		  (distance <column> <row> 
-			    [player-column *active-world*]
-			    [player-row *active-world*])
-		  0)))
+	 (dist (if [is-located self]
+		   (distance <column> <row> 
+			     [player-column *active-world*]
+			     [player-row *active-world*])
+		   0)))
     (when (> range dist)
       (play-sample sample-name))))
 

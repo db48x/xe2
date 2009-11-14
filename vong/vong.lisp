@@ -1,4 +1,4 @@
-;;; vong.lisp --- vong escape roguelike
+;;; vong.lisp --- hockey paintball snake pong
 
 ;; Copyright (C) 2009  David O'Toole
 
@@ -76,6 +76,7 @@
 
 (define-method step chevron (stepper)
   (when [in-category stepper :puck]
+    [play-sample self "chevron"]
     [kick stepper <direction>]))
   
 ;;; Our hero, the player
@@ -92,7 +93,7 @@
   (dexterity :initform (make-stat :base 13))
   (defense :initform (make-stat :base 15))
   (equipment-slots :initform '(:left-hand :right-hand))
-  (hearing-range :initform 15)
+  (hearing-range :initform 1000)
   (hit-points :initform (make-stat :base 30 :min 0 :max 30))
   (movement-cost :initform (make-stat :base 10))
   (max-items :initform (make-stat :base 2))
@@ -103,6 +104,10 @@
 
 (define-method quit player ()
   (rlx:quit :shutdown))
+
+(define-method step player (stepper)
+  (when [in-category stepper :puck]
+    [grab self stepper]))
 
 (define-method drop-tail player ()
   [drop self (clone =tail= 
@@ -128,12 +133,14 @@
     (when puck
       [drop self puck]
       [kick puck direction]
-      (setf puck nil))))
+      (setf puck nil)
+      [play-sample self "serve"])))
 
 (define-method grab player (puck)
   (assert [in-category puck :puck])
   (setf <puck> puck)
-  [delete-from-world puck])
+  [delete-from-world puck]
+  [play-sample self "grab"])
 
 ;;; Controlling the game
 
@@ -199,6 +206,7 @@
       (when obstacle
 	;; bounce.
 	(setf <direction> (opposite-direction direction))
+	[play-sample self "bounce"]
 	(when (clon:object-p obstacle)
 	  (if [is-player obstacle]
 	      [grab obstacle self]
@@ -216,7 +224,7 @@
   (name :initform "Vong board")
   (edge-condition :initform :block)
   (width :initform 50)
-  (height :initform 30)
+  (height :initform 28)
   (scale :initform '(1 nm))
   (ambient-light :initform :total))
 
@@ -270,7 +278,7 @@
   (rlx:set-frame-rate 30)
   (rlx:enable-timer)
   (rlx:set-timer-interval 1)
-  (rlx:enable-held-keys 1 15)
+  (rlx:enable-held-keys 1 3)
   ;; go!
   (let* ((prompt (clone =vong-prompt=))
 	 (universe (clone =universe=))
@@ -321,7 +329,7 @@
     [resize-to-fit textbox] 
     [move textbox :x 0 :y 0]
     
-    (play-music "vong-theme" :loop t)
+    (play-music "techworld" :loop t)
     (set-music-volume 255)	       
     ;;
     [resize stack :width *vong-window-width* :height *vong-window-height*]

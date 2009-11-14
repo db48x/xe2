@@ -19,7 +19,12 @@
  (:name "tail-southeast" :type :alias :data ":rotate 90:tail-northeast")
 
  (:name "bloop" :type :sample :file "bloop.wav" :properties (:volume 8))
+ (:name "serve" :type :sample :file "serve.wav" :properties (:volume 8))
+ (:name "grab" :type :sample :file "grab.wav" :properties (:volume 8))
+ (:name "chevron" :type :sample :file "chevron.wav" :properties (:volume 8))
+ (:name "bounce" :type :sample :file "bounce.wav" :properties (:volume 8))
  (:name "sparqq" :type :music :file "sparqq.ogg")
+ (:name "techworld" :type :music :file "techworld.ogg")
  (:name "vong-theme" :type :music :file "vong.ogg" :properties (:volume 10))
  (:name "help-message" :type :text :file "README")
  (:name ".startup" :type :lisp :file "vong.lisp" :properties (:autoload t))
