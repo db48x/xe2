@@ -1,0 +1,9 @@
+(
+ (:name "player" :type :image :file "player.png")
+ (:name "floor" :type :image :file "floor.png")
+ (:name "splash" :type :image :file "vong.png")
+ (:name "bloop" :type :sample :file "bloop.wav" :properties (:volume 8))
+ (:name "sparqq" :type :music :file "sparqq.ogg")
+ (:name "help-message" :type :text :file "README")
+ (:name ".startup" :type :lisp :file "vong.lisp" :properties (:autoload t))
+)

@@ -1,0 +1,16 @@
+** Paintball, you have one ball which can change colors and paint walls.
+** Breakout and surround. Bounce the ball off your trail.
+** Arhythmic ambient context-sensitive music
+** <direction> always moving forward
+** Drop tiles which have chevrons pointed same way as current movement
+** Must replenish tiles etc
+** Ball follows chevrons
+** Colored chevrons get colored ball into colored goal?
+** Ball can be fired in any of the four compass directions, and bounces back.
+** Enemies drop black chevrons, which drain the color (no black goals)
+** Enemies also drop rows of mines
+** Three hit points
+** One inventory slot
+** s/ball/puck
+** dynamic color schemes? or just red/green/blue/orange/yellow?
+** pre-placed color rectangles are filled in when all 4 corner goals are properly colored
