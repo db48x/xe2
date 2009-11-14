@@ -1,3 +1,5 @@
+** Player has a square inside the white border that indicates ball color? black for no ball
+** Arrow keys to move, control-arrow to fire
 ** Paintball, you have one ball which can change colors and paint walls.
 ** Breakout and surround. Bounce the ball off your trail.
 ** Arhythmic ambient context-sensitive music
@@ -14,3 +16,4 @@
 ** s/ball/puck
 ** dynamic color schemes? or just red/green/blue/orange/yellow?
 ** pre-placed color rectangles are filled in when all 4 corner goals are properly colored
+** speech synth talking and onscreen bubbles

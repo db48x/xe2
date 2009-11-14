@@ -29,13 +29,44 @@
 
 (in-package :vong)
 
+;;; The player's tail
+
+(defcell tail 
+  (categories :initform '(:actor))
+  (clock :initform 4))
+  
+(define-method initialize tail (&key direction clock)
+  (setf <clock> clock)
+  (setf <tile> (ecase direction
+		 (:north "tail-north")
+		 (:south "tail-south")
+		 (:east "tail-east")
+		 (:west "tail-west")
+		 (:northeast "tail-northeast")
+		 (:northwest "tail-northwest")
+		 (:southeast "tail-southeast")
+		 (:southwest "tail-southwest"))))
+
+(define-method run tail ()
+  [expend-action-points self 10]
+  (decf <clock>)
+  (when (< <clock> 0) (setf <clock> 0))
+  (when (zerop <clock>)
+    [die self]))
+
+(define-method step tail (stepper)
+  ;; todo respond to puck collision
+  nil)
+
 ;;; Our hero, the player
 
 (defcell player 
   (tile :initform "player")
   (name :initform "Player")
+  (last-direction :initform :north)
   (speed :initform (make-stat :base 10 :min 0 :max 10))
   (strength :initform (make-stat :base 13))
+  (trail-length :initform (make-stat :base 10 :min 0))
   (dexterity :initform (make-stat :base 13))
   (defense :initform (make-stat :base 15))
   (equipment-slots :initform '(:left-hand :right-hand))
@@ -50,6 +81,16 @@
 
 (define-method quit player ()
   (rlx:quit :shutdown))
+
+(define-method drop-tail player ()
+  [drop self (clone =tail= 
+		    :direction <last-direction> 
+		    :clock [stat-value self :trail-length])])
+
+(define-method move player (direction)
+  (setf <last-direction> direction)
+  [drop-tail self]
+  [parent>>move self direction])
 
 ;;; Controlling the game
 
@@ -80,10 +121,6 @@
 	    ;;
 	    ("W" nil "wait .")
 	    ("SPACE" nil "wait .")
-	    ("PERIOD" (:control) "restart .")
-	    ("KP-ENTER" nil "enter .")
-	    ("RETURN" nil "enter .")
-	    ("ESCAPE" (:control) "show-location .")
 	    ("Q" (:control) "quit ."))))
   
 (define-method install-keybindings vong-prompt ()
@@ -93,6 +130,35 @@
   [define-key self nil '(:timer) (lambda ()
 				   [run-cpu-phase *active-world* :timer])])
 
+
+;;; The floor
+
+(defcell floor
+  (tile :initform "floor")
+  (color :initform ".black"))
+
+
+;;; Vong game board
+
+(define-prototype vong (:parent rlx:=world=)
+  (name :initform "Vong board")
+  (edge-condition :initform :block)
+  (width :initform 50)
+  (height :initform 30)
+  (scale :initform '(1 nm))
+  (ambient-light :initform :total))
+
+(define-method generate vong (&key (level 1))
+  [create-default-grid self]
+  (clon:with-fields (height width grid) self
+    (dotimes (i width)
+      (dotimes (j height)
+	[drop-cell self (clone =floor=) i j]))))
+;; todo drop color square corners
+;; todo drop enemies
+  
+(define-method begin-ambient-loop vong ()  
+  (play-music "sparqq" :loop t))
       
 ;;; Splash screen
   
@@ -169,12 +235,12 @@
 	       	     :viewport viewport]
 	       [loadout player]
 	       ;;
-	       [set-tile-size viewport 32]
+	       [set-tile-size viewport 16]
 	       [resize viewport :height 470 :width *vong-window-width*]
 	       [move viewport :x 0 :y 0]
 	       [set-origin viewport :x 0 :y 0 
-			   :height (truncate (/ (- *vong-window-height* 130) 32))
-			   :width (truncate (/ *vong-window-width* 32))]
+			   :height (truncate (/ (- *vong-window-height* 130) 16))
+			   :width (truncate (/ *vong-window-width* 16))]
 	       [adjust viewport]))
       (setf *space-bar-function* #'spacebar))
     ;;
@@ -183,12 +249,12 @@
     [resize-to-fit textbox] 
     [move textbox :x 0 :y 0]
     
-    ;; (play-music "theme" :loop t)
+    (play-music "vong-theme" :loop t)
     (set-music-volume 255)	       
     ;;
     [resize stack :width *vong-window-width* :height *vong-window-height*]
     [move stack :x 0 :y 0]
-    [set-children stack (list viewport terminal)]
+    [set-children stack (list viewport)]
     ;;
     [resize terminal :height 80 :width *vong-window-width*]
     [move terminal :x 0 :y (- *vong-window-height* 80)]
@@ -197,7 +263,7 @@
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
     (rlx:install-widgets splash-prompt splash)
-    [add-page *pager* :play prompt stack viewport terminal]
+    [add-page *pager* :play prompt stack viewport]
     [add-page *pager* :help textbox]))
 
 (vong)
