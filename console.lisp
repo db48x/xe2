@@ -361,8 +361,8 @@ at the time the cell method is run.")
 
 (defvar *timer-interval* 15 "Number of frames to wait before sending each timer event.")
 
-(defun set-timer-interval (inverval)
-  (setf *timer-interval* 15))
+(defun set-timer-interval (interval)
+  (setf *timer-interval* interval))
 
 ;;; Key repeat
 

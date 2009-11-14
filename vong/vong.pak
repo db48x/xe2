@@ -3,6 +3,12 @@
  (:name "floor" :type :image :file "floor.png")
  (:name "splash" :type :image :file "vong.png")
 
+ (:name "chevron-east" :type :image :file "chevron-right.png")
+ (:name "chevron-south" :type :alias :data ":rotate 90:chevron-east")
+ (:name "chevron-west" :type :alias :data ":rotate 90:chevron-south")
+ (:name "chevron-north" :type :alias :data ":rotate 90:chevron-west")
+
+ (:name "puck" :type :image :file "puck.png")
  (:name "tail-north" :type :image :file "tail-north.png")
  (:name "tail-west" :type :alias :data ":rotate 90:tail-north")
  (:name "tail-east" :type :alias :data ":rotate 90:tail-north")

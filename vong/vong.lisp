@@ -32,7 +32,7 @@
 ;;; The player's tail
 
 (defcell tail 
-  (categories :initform '(:actor))
+  (categories :initform '(:actor :obstacle))
   (clock :initform 4))
   
 (define-method initialize tail (&key direction clock)
@@ -58,15 +58,37 @@
   ;; todo respond to puck collision
   nil)
 
+;;; Chevrons change the direction of the puck
+
+(defcell chevron
+  (tile :initform "chevron-east")
+  (categories :initform '(:chevron)))
+
+(defvar *chevron-tiles* '(:north "chevron-north"
+			  :south "chevron-south"
+			  :east "chevron-east"
+			  :west "chevron-west"))
+
+(define-method orient chevron (direction)
+  (assert (member direction '(:north :south :east :west)))
+  (setf <tile> (getf *chevron-tiles* direction))
+  (setf <direction> direction))
+
+(define-method step chevron (stepper)
+  (when [in-category stepper :puck]
+    [kick stepper <direction>]))
+  
 ;;; Our hero, the player
 
 (defcell player 
   (tile :initform "player")
   (name :initform "Player")
+  (score :initform 0)
   (last-direction :initform :north)
+  (puck :initform nil)
   (speed :initform (make-stat :base 10 :min 0 :max 10))
   (strength :initform (make-stat :base 13))
-  (trail-length :initform (make-stat :base 10 :min 0))
+  (tail-length :initform (make-stat :base 20 :min 0))
   (dexterity :initform (make-stat :base 13))
   (defense :initform (make-stat :base 15))
   (equipment-slots :initform '(:left-hand :right-hand))
@@ -85,12 +107,33 @@
 (define-method drop-tail player ()
   [drop self (clone =tail= 
 		    :direction <last-direction> 
-		    :clock [stat-value self :trail-length])])
+		    :clock [stat-value self :tail-length])])
+
+(define-method drop-chevron player ()
+  (let ((chevron (clone =chevron=)))
+    [drop self chevron]
+    [orient chevron <last-direction>]))
 
 (define-method move player (direction)
   (setf <last-direction> direction)
   [drop-tail self]
   [parent>>move self direction])
+
+(define-method loadout player ()
+  (setf <puck> (clone =puck=)))
+
+(define-method throw player (direction)
+  (assert (member direction '(:north :south :east :west)))
+  (clon:with-fields (puck) self
+    (when puck
+      [drop self puck]
+      [kick puck direction]
+      (setf puck nil))))
+
+(define-method grab player (puck)
+  (assert [in-category puck :puck])
+  (setf <puck> puck)
+  [delete-from-world puck])
 
 ;;; Controlling the game
 
@@ -102,10 +145,10 @@
     ("KP6" nil "move :east .")
     ("KP2" nil "move :south .")
     ;;
-    ("KP8" (:control) "fire :north .")
-    ("KP4" (:control) "fire :west .")
-    ("KP6" (:control) "fire :east .")
-    ("KP2" (:control) "fire :south .")))
+    ("KP8" (:control) "throw :north .")
+    ("KP4" (:control) "throw :west .")
+    ("KP6" (:control) "throw :east .")
+    ("KP2" (:control) "throw :south .")))
 
 (defparameter *qwerty-keybindings*
   (append *numpad-keybindings*
@@ -114,13 +157,12 @@
 	    ("L" nil "move :east .")
 	    ("J" nil "move :south .")
 	    ;;
-	    ("K" (:control) "fire :north .")
-	    ("H" (:control) "fire :west .")
-	    ("L" (:control) "fire :east .")
-	    ("J" (:control) "fire :south .")
+	    ("K" (:control) "throw :north .")
+	    ("H" (:control) "throw :west .")
+	    ("L" (:control) "throw :east .")
+	    ("J" (:control) "throw :south .")
 	    ;;
-	    ("W" nil "wait .")
-	    ("SPACE" nil "wait .")
+	    ("SPACE" nil "drop-chevron .")
 	    ("Q" (:control) "quit ."))))
   
 (define-method install-keybindings vong-prompt ()
@@ -130,13 +172,43 @@
   [define-key self nil '(:timer) (lambda ()
 				   [run-cpu-phase *active-world* :timer])])
 
-
 ;;; The floor
 
 (defcell floor
   (tile :initform "floor")
   (color :initform ".black"))
 
+;;; The puck
+
+(defcell puck
+  (tile :initform "puck")
+  (categories :initform '(:puck :obstacle :target :actor))
+  (speed :initform (make-stat :base 10))
+  (movement-cost :initform (make-stat :base 10))
+  (direction :initform :here)
+  (stepping :initform t)
+  (color :initform ".white"))
+
+(define-method kick puck (direction)
+  (setf <direction> direction))
+
+(define-method move puck (direction)
+  (multiple-value-bind (r c) 
+      (step-in-direction <row> <column> direction)
+    (let ((obstacle [obstacle-at-p *active-world* r c]))
+      (when obstacle
+	;; bounce.
+	(setf <direction> (opposite-direction direction))
+	(when (clon:object-p obstacle)
+	  (if [is-player obstacle]
+	      [grab obstacle self]
+	      ;; it's not the player. see if we can color. 
+	      (when [in-category obstacle :colorable]
+		[color obstacle <color>])))))
+      [parent>>move self <direction>]))
+
+(define-method run puck ()
+  [move self <direction>])
 
 ;;; Vong game board
 
@@ -196,8 +268,8 @@
   (rlx:set-screen-width *vong-window-width*)
   ;; enable pseudo timing
   (rlx:set-frame-rate 30)
-  (rlx:set-timer-interval 20)
   (rlx:enable-timer)
+  (rlx:set-timer-interval 1)
   (rlx:enable-held-keys 1 15)
   ;; go!
   (let* ((prompt (clone =vong-prompt=))

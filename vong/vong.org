@@ -1,8 +1,13 @@
+** goals have goalies who move back and forth and try to eat the ball.
+** if you lose the ball, you have to find another. 
+** each level should introduce a new gameplay element and maybe even have text on the floor or balloons
+** rlx engine overlays should have a frame timeout associated. for balloons.
 ** Player has a square inside the white border that indicates ball color? black for no ball
 ** Arrow keys to move, control-arrow to fire
 ** Paintball, you have one ball which can change colors and paint walls.
 ** Breakout and surround. Bounce the ball off your trail.
 ** Arhythmic ambient context-sensitive music
+** Lose your ball or get touched by an enemy---you die. or maybe 3 hp
 ** <direction> always moving forward
 ** Drop tiles which have chevrons pointed same way as current movement
 ** Must replenish tiles etc
