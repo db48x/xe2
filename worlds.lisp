@@ -160,7 +160,7 @@ At the moment, only 0=off and 1=on are supported.")
 
 (define-method drop-cell world (cell row column 
 				     &optional &key 
-				     loadout no-collisions exclusive probe)
+				     loadout no-stepping no-collisions exclusive probe)
   "Put CELL on top of the stack of cells at ROW, COLUMN. If LOADOUT is
 non-nil, then the `loadout' method of the dropped cell is invoked
 after dropping. If NO-COLLISIONS is non-nil, then an object is not
@@ -178,7 +178,8 @@ EXCLUSIVE are both non-nil, an error is signaled."
 		 (setf (field-value :column cell) column)
 		 (when loadout
 		   [loadout cell])
-		 [step-on-current-square cell])))
+		 (unless no-stepping
+		   [step-on-current-square cell]))))
       (if (or no-collisions exclusive)
 	  (progn 
 	    (when no-collisions

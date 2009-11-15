@@ -1,5 +1,8 @@
 (
+ (:name ".default-font" :type :font :properties (:height 14 :width 7) :data "7x14b")
+
  (:name "player" :type :image :file "player.png")
+ (:name "player-empty" :type :image :file "player-empty.png")
  (:name "floor" :type :image :file "floor.png")
  (:name "splash" :type :image :file "vong.png")
  (:name "plus" :type :image :file "plus.png")
@@ -7,7 +10,7 @@
  (:name "skull" :type :image :file "skull.png")
  (:name "hole-suck" :type :sample :file "hole.wav" :properties (:volume 20))
  (:name "powerup" :type :sample :file "powerup.wav" :properties (:volume 40))
- (:name "death" :type :sample :file "death.wav" :properties (:volume 60))
+ (:name "death" :type :sample :file "death.wav" :properties (:volume 90))
  (:name "go" :type :sample :file "go.wav" :properties (:volume 60))
  (:name "buzz" :type :sample :file "buzz.wav" :properties (:volume 40))
  (:name "puckup" :type :image :file "newpuck.png")
@@ -16,6 +19,8 @@
  (:name "wire-south" :type :alias :data ":rotate 90:wire-east")
  (:name "wire-west" :type :alias :data ":rotate 90:wire-south")
  (:name "wire-north" :type :alias :data ":rotate 90:wire-west")
+
+ (:name "chevron-pickup" :type :image :file "chevron-pickup.png")
 
  (:name "chevron-east" :type :image :file "chevron-right.png")
  (:name "chevron-south" :type :alias :data ":rotate 90:chevron-east")
@@ -35,6 +40,15 @@
  (:name "brick-green" :type :image :file "brick-green.png")
  (:name "brick-yellow" :type :image :file "brick-yellow.png")
  (:name "brick-white" :type :image :file "brick-white.png")
+
+ (:name "player-purple" :type :image :file "player-purple.png")
+ (:name "player-black" :type :image :file "player-black.png")
+ (:name "player-red" :type :image :file "player-red.png")
+ (:name "player-blue" :type :image :file "player-blue.png")
+ (:name "player-orange" :type :image :file "player-orange.png")
+ (:name "player-green" :type :image :file "player-green.png")
+ (:name "player-yellow" :type :image :file "player-yellow.png")
+ (:name "player-white" :type :image :file "player.png")
 
  (:name "wall-purple" :type :image :file "wall-purple.png")
  (:name "wall-black" :type :image :file "wall-black.png")
@@ -80,4 +94,8 @@
  (:name "vong-theme" :type :music :file "vong.ogg" :properties (:volume 10))
  (:name "help-message" :type :text :file "README")
  (:name ".startup" :type :lisp :file "vong.lisp" :properties (:autoload t))
+
+ (:name "worp" :type :sample :file "worp.wav" :properties (:volume 20))
+ (:name "upwoop" :type :sample :file "upwoop.wav" :properties (:volume 20))
+
 )

@@ -54,10 +54,8 @@
   (when (zerop <clock>)
     [die self]))
 
-(define-method step tail (stepper)
-  (when [in-category stepper :puck]
-    [play-sample self "freeze"]
-    [expend-action-points stepper 200]))
+;; (define-method step tail (stepper)
+;;   (when [in-category stepper :puck]
 
 ;;; A tail extender powerup
 
@@ -66,7 +64,7 @@
 
 (define-method step extender (stepper)
   (when [in-category stepper :tailed]
-    [play-sample self "powerup"]
+    [play-sample self "worp"]
     [stat-effect stepper :tail-length 7]
     [stat-effect stepper :score 2000]
     [die self]))
@@ -91,6 +89,17 @@
   (when [in-category stepper :puck]
     [play-sample self "chevron"]
     [kick stepper <direction>]))
+
+;;; Diamond pickup replenishes chevrons
+
+(defcell diamond 
+  (tile :initform "chevron-pickup"))
+
+(define-method step diamond (stepper)
+  (when [in-category stepper :pointer]
+    [stat-effect stepper :chevrons 5]
+    [play-sample self "worp"]
+    [die self]))
 
 ;;; Tracers lay down deadly red wires
 
@@ -130,7 +139,7 @@
 (defcell tracer 
   (tile :initform "tracer-north")
   (categories :initform '(:actor :target :obstacle :opaque :enemy :equipper :puck :tailed :tracer))
-  (speed :initform (make-stat :base 5 :min 5))
+  (speed :initform (make-stat :base 7 :min 5))
   (max-items :initform (make-stat :base 3))
   (movement-cost :initform (make-stat :base 30))
   (stepping :initform t)
@@ -158,13 +167,14 @@
 
 (define-method drop-wire tracer ()
   [drop-cell *active-world* (clone =wire= :direction <direction> :clock 5)
-	     <row> <column>])
+	     <row> <column> :no-stepping t])
 
 (define-method move tracer (direction)
-  (let ((wall (clone =wall=)))
+  [parent>>move self direction]
+  ;; hack to prevent killing player
+  (unless [category-at-p *active-world* <row> <column> :player]
     [drop-wire self]
-    [update-tile self]
-    [parent>>move self direction]))
+    [update-tile self]))
 
 ;;; Replacement puck
 
@@ -247,6 +257,15 @@
   
 ;;; Our hero, the player
 
+(defvar *player-tiles* '(:purple "player-purple"
+			:black "player-black"
+			:red "player-red"
+			:blue "player-blue"
+			:orange "player-orange"
+			:green "player-green"
+			:white "player-white"
+			:yellow "player-yellow"))
+
 (defcell player 
   (tile :initform "player")
   (name :initform "Player")
@@ -254,6 +273,7 @@
   (last-direction :initform :north)
   (dead :initform nil)
   (puck :initform nil)
+  (chevrons :initform (make-stat :base 0 :min 0 :max 10))
   (speed :initform (make-stat :base 10 :min 0 :max 10))
   (strength :initform (make-stat :base 13))
   (tail-length :initform (make-stat :base 20 :min 0))
@@ -267,19 +287,22 @@
   (stepping :initform t)
   (attacking-with :initform :right-hand)
   (light-radius :initform 3)
-  (categories :initform '(:actor :tailed :player :target :container :light-source)))
+  (categories :initform '(:actor :tailed :player :target 
+			  :container :light-source :pointer)))
 
 (define-method run player ()
-  nil)
+  (unless <dead>
+    (setf <tile> (if (null <puck>)
+		     "player-empty"
+		     (getf *player-tiles* (field-value :color <puck>))))
+    [step-on-current-square self]))
 
 (define-method quit player ()
   (rlx:quit :shutdown))
 
 (define-method step player (stepper)
-  (if [in-category stepper :puck]
-      [grab self stepper]
-      (when [in-category stepper :damaging]
-	[damage self 1])))
+  (when [in-category stepper :puck]
+    [grab self stepper]))
 
 (define-method drop-tail player ()
   [drop self (clone =tail= 
@@ -295,11 +318,15 @@
     [loadout player]
     [play-sample self "go"]))
 
-(define-method drop-chevron player ()
+(define-method drop-chevron player (direction)
   (unless <dead>
-    (let ((chevron (clone =chevron=)))
-      [drop self chevron]
-      [orient chevron <last-direction>])))
+    (if (zerop [stat-value self :chevrons])
+	[play-sample self "error"]
+	(let ((chevron (clone =chevron=)))
+	  [drop self chevron]
+	  [play-sample self "powerup"]
+	  [stat-effect self :chevrons -1]
+	  [orient chevron direction]))))
 
 (define-method move player (direction)
   (unless <dead>
@@ -315,25 +342,24 @@
   (unless <dead>
     (clon:with-fields (puck) self
       (when puck
-	(multiple-value-bind (r c)
-	    (step-in-direction <row> <column> direction)
-	  [drop-cell *active-world* puck r c])
+	[drop-cell *active-world* puck <row> <column> :no-stepping t]
 	[kick puck direction]
 	(setf puck nil)
 	[play-sample self "serve"]))))
 
 (define-method grab player (puck)
   (assert [in-category puck :puck])
-  (if (null <puck>)
-      (progn (setf <puck> puck)
-	     [delete-from-world puck]
-	     [play-sample self "grab"])))
+  (when (null <puck>)
+    (progn (setf <puck> puck)
+	   [delete-from-world puck]
+	   [play-sample self "grab"])))
 
 (define-method die player ()
-  (setf <tile> "skull")
-  [play-sample self "death"]
-  [say self "You died. Press ESCAPE to try again."]
-  (setf <dead> t))
+  (unless <dead>
+    (setf <tile> "skull")
+    [play-sample self "death"]
+    [say self "You died. Press ESCAPE to try again."]
+    (setf <dead> t)))
 
 ;;; Controlling the game
 
@@ -349,6 +375,11 @@
     ("KP4" (:control) "throw :west .")
     ("KP6" (:control) "throw :east .")
     ("KP2" (:control) "throw :south .")
+    ;;
+    ("KP8" (:alt) "drop-chevron :north .")
+    ("KP4" (:alt) "drop-chevron :west .")
+    ("KP6" (:alt) "drop-chevron :east .")
+    ("KP2" (:alt) "drop-chevron :south .")
     ;; arrows
     ("UP" nil "move :north .")
     ("LEFT" nil "move :west .")
@@ -358,7 +389,13 @@
     ("UP" (:control) "throw :north .")
     ("LEFT" (:control) "throw :west .")
     ("RIGHT" (:control) "throw :east .")
-    ("DOWN" (:control) "throw :south .")))
+    ("DOWN" (:control) "throw :south .")
+    ;;
+    ("UP" (:alt) "drop-chevron :north .")
+    ("LEFT" (:alt) "drop-chevron :west .")
+    ("RIGHT" (:alt) "drop-chevron :east .")
+    ("DOWN" (:alt) "drop-chevron :south .")))
+
 
 (defparameter *qwerty-keybindings*
   (append *numpad-keybindings*
@@ -372,8 +409,12 @@
 	    ("L" (:control) "throw :east .")
 	    ("J" (:control) "throw :south .")
 	    ;;
+	    ("K" (:alt) "drop-chevron :north .")
+	    ("H" (:alt) "drop-chevron :west .")
+	    ("L" (:alt) "drop-chevron :east .")
+	    ("J" (:alt) "drop-chevron :south .")
+	    ;;
 	    ("ESCAPE" nil "restart .")
-	    ("SPACE" nil "drop-chevron .")
 	    ("Q" (:control) "quit ."))))
   
 (define-method install-keybindings vong-prompt ()
@@ -459,23 +500,26 @@
   (scale :initform '(1 nm))
   (ambient-light :initform :total))
 
-(define-method generate vong (&key (level 1))
+;; (define-method generate vong (&key (level 1)
+;; 				   (bricks 12)
+;; 				   (extenders 5)
+;; 				   (tracers 9)
+;; 				   (puckups 12)
+;; 				   (swatches 23))
+
+(define-method generate vong (&key (level 1)
+				   (bricks 0)
+				   (extenders 0)
+				   (tracers 3)
+				   (puckups 3)
+				   (diamonds 6)
+				   (swatches 10))
   [create-default-grid self]
   (clon:with-fields (height width grid) self
     (dotimes (i height)
       (dotimes (j width)
 	[drop-cell self (clone =floor=) i j]))
-    (dotimes (n 12)
-      (let ((brick (clone =brick=)))
-	[drop-cell self brick (random height) (random width) :exclusive t]
-	[paint brick :white]))
-    (dotimes (n 9)
-      [drop-cell self (clone =tracer=) (random height) (random width)])
-    (dotimes (n 9)
-      [drop-cell self (clone =extender=) (random height) (random width)])
-    (dotimes (n 12)
-      [drop-cell self (clone =puckup=) (random height) (random width)])
-    (dotimes (n 23)
+    (dotimes (n swatches)
       (let ((color (car (one-of *colors*))))
 	(labels ((drop-wall (r c)
 		   (prog1 nil
@@ -489,10 +533,23 @@
 		       (+ c 2 (random 3))
 		       :exclusive t]
 	    (trace-rectangle #'drop-wall r c
-			     (+ 4 (random 8)) (+ 4 (random 8)) :fill)))))))
+			     (+ 4 (random 8)) (+ 4 (random 8)) :fill)))))
+        (dotimes (n bricks)
+      (let ((brick (clone =brick=)))
+	[drop-cell self brick (random height) (random width) :exclusive t]
+	[paint brick :white]))
+    (dotimes (n tracers)
+      [drop-cell self (clone =tracer=) (random height) (random width)])
+    (dotimes (n extenders)
+      [drop-cell self (clone =extender=) (random height) (random width)])
+    (dotimes (n diamonds)
+      [drop-cell self (clone =diamond=) (random height) (random width)])
+    (dotimes (n puckups)
+      [drop-cell self (clone =puckup=) (random height) (random width)])))
+
   
 (define-method begin-ambient-loop vong ()  
-  (play-music "flyby" :loop t))
+  (play-music "sparqq" :loop t))
       
 ;;; Splash screen
   
