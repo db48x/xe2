@@ -36,7 +36,7 @@
 ;;; The player's tail
 
 (defcell tail 
-  (categories :initform '(:actor :obstacle))
+  (categories :initform '(:actor))
   (clock :initform 4))
   
 (define-method initialize tail (&key direction clock)
@@ -108,7 +108,7 @@
 
 (defcell brick 
   (tile :initform "brick-purple")
-  (categories :initform '(:obstacle :paintable)))
+  (categories :initform '(:obstacle :exclusive :paintable)))
 
 (define-method paint brick (c)
   (setf <color> c)
@@ -129,6 +129,7 @@
 
 (defcell wall 
   (tile :initform "wall-purple")
+  (categories :initform '(:exclusive :obstacle :wall))
   (color :initform :purple))
 
 (define-method paint wall (c)
@@ -137,11 +138,11 @@
     (assert (stringp res))
     (setf <tile> res)))
 
-(define-method step wall (puck)
-  (when [in-category puck :puck]
-    [paint puck <color>]
-    [bounce puck]
-    [die self]))
+;; (define-method step wall (puck)
+;;   (when [in-category puck :puck]
+;;     [paint puck <color>]
+;;     [bounce puck]
+;;     [die self]))
   
 ;;; Our hero, the player
 
@@ -289,9 +290,13 @@
 	(when (clon:object-p obstacle)
 	  (if [is-player obstacle]
 	      [grab obstacle self]
-	      ;; it's not the player. see if we can color. 
-	      (when [in-category obstacle :paintable]
-		[paint obstacle <color>])))))
+	      ;; it's not the player. see if we can color, or get paint
+	      (progn 
+		(when [in-category obstacle :paintable]
+		  [paint obstacle <color>])
+		(when [in-category obstacle :wall]
+		  [paint self (field-value :color obstacle)]
+		  [die obstacle]))))))
       [parent>>move self <direction>]))
 
 (define-method run puck ()
@@ -313,19 +318,19 @@
     (dotimes (i width)
       (dotimes (j height)
 	[drop-cell self (clone =floor=) i j]))
-    (dotimes (n 12)
-      (let ((brick (clone =brick=)))
-	[drop-cell self brick (random height) (random width)]
-	[paint brick :white]))
-    (dotimes (n 12)
+    (dotimes (n 23)
       (let ((color (car (one-of *colors*))))
 	(labels ((drop-wall (r c)
 		   (prog1 nil
 		     (let ((wall (clone =wall=)))
-		       [drop-cell self wall r c]
+		       [drop-cell self wall r c :exclusive t]
 		       [paint wall color]))))
 	  (trace-rectangle #'drop-wall (random height) (random width)
-			   (+ 4 (random 8)) (+ 4 (random 8)) :fill))))))
+			   (+ 4 (random 8)) (+ 4 (random 8)) :fill))))
+        (dotimes (n 12)
+      (let ((brick (clone =brick=)))
+	[drop-cell self brick (random height) (random width) :exclusive t]
+	[paint brick :white]))))
 ;; todo drop color square corners
 ;; todo drop enemies
   
