@@ -1,1 +1,21 @@
-Help message for Vong.
+This is the help screen. Press F2 to return to play.
+
+You are the white square at the top left corner of the screen. You can
+move in any of the four compass directions using the arrow keys,
+numeric keypad, or the letters H, J, K, and L. You may also click any
+object for a description.
+
+Press CONTROL-direction to fire whatever you are holding in that
+direction. Usually you are holding a colored puck but you can pick up
+other things.
+
+Press ALT-direction to drop a chevron pointed in that
+direction. Chevrons are arrows that change the direction of the puck
+and some enemies. You must find chevrons on the ground, they look like
+tiny white diamonds.
+
+The enemies leave red trails; don't touch them! Use chevrons to guide
+the enemies into the Black Holes. The puck will be destroyed if it
+hits a red wire or a black hole, so be careful where you fire.
+
+Press ESCAPE to restart the game if you die, and CONTROL-Q to quit.
