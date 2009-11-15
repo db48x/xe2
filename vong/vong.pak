@@ -49,6 +49,7 @@
  (:name "player-green" :type :image :file "player-green.png")
  (:name "player-yellow" :type :image :file "player-yellow.png")
  (:name "player-white" :type :image :file "player.png")
+ (:name "player-other" :type :image :file "player-other.png")
 
  (:name "wall-purple" :type :image :file "wall-purple.png")
  (:name "wall-black" :type :image :file "wall-black.png")

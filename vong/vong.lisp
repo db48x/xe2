@@ -264,7 +264,8 @@
 			:orange "player-orange"
 			:green "player-green"
 			:white "player-white"
-			:yellow "player-yellow"))
+			:yellow "player-yellow"
+			 :other "player-other"))
 
 (defcell player 
   (tile :initform "player")
@@ -294,7 +295,9 @@
   (unless <dead>
     (setf <tile> (if (null <puck>)
 		     "player-empty"
-		     (getf *player-tiles* (field-value :color <puck>))))
+		     (getf *player-tiles* (if (has-field :color <puck>)
+					      (field-value :color <puck>)
+					      :other))))
     [step-on-current-square self]))
 
 (define-method quit player ()
@@ -313,6 +316,7 @@
   (let ((player (clone =player=)))
     [destroy *active-universe*]
     [set-player *active-universe* player]
+    [set-character *status* player]
     [play *active-universe*
 	  :address '(=vong= :level 1)]
     [loadout player]
@@ -573,6 +577,62 @@
 (define-prototype splash-prompt (:parent =prompt=)
   (default-keybindings :initform '(("SPACE" nil "dismiss ."))))
 
+;;; Player status
+
+(defvar *status* nil)
+
+(define-prototype status (:parent rlx:=formatter=)
+  (character :documentation "The character cell."))
+
+(define-method set-character status (character)
+  (setf <character> character))
+
+(define-method print-stat status (stat-name &key warn-below show-max)
+  (let* ((stat (field-value stat-name <character>))
+	 (value [stat-value <character> stat-name]))
+    (destructuring-bind (&key min max base delta unit) stat
+      (let ((color (if (and (numberp warn-below)
+			    (< value warn-below))
+		       ".red"
+		       ".gray40")))
+	[print self (symbol-name stat-name)
+	       :foreground ".white"]
+	[print self ":["]
+	[print self (format nil "~S" value) 
+	       :foreground ".yellow"
+	       :background color]
+	(when show-max
+	  [print self (format nil "/~S" max)
+		 :foreground ".yellow"
+		 :background color])
+	(when unit 
+	  [print self " "]
+	  [print self (symbol-name unit)])
+	[print self "]"]
+	))))
+
+(defparameter *status-bar-character* " ")
+
+(define-method print-stat-bar status (stat &key 
+					   (color ".yellow")
+					   (background-color ".gray40"))
+  (let ((value (truncate [stat-value <character> stat]))
+	(max (truncate [stat-value <character> stat :max])))
+    (dotimes (i max)
+      [print self *status-bar-character*
+	     :foreground ".yellow"
+	     :background (if (< i value)
+			     color
+			   background-color)])))
+
+(define-method update status ()
+  [delete-all-lines self]
+  (let* ((char <character>))
+    (when char
+	[print-stat self :chevrons :warn-below 1 :show-max t]
+	[print-stat-bar self :chevrons :color ".yellow"]
+	[newline self])))
+
 ;;; Main program. 
 
 (defparameter *vong-window-width* 800)
@@ -598,11 +658,13 @@
 	 (splash (clone =splash=))
 	 (textbox (clone =textbox=))
 	 (viewport (clone =viewport=))
+	 (status (clone =status=))
 	 (splash-prompt (clone =splash-prompt=))
 	 (terminal (clone =narrator=))
 	 (stack (clone =stack=)))
     ;;
     (setf *viewport* viewport)
+    (setf *status* status)
     ;;
     [resize splash :height (- *vong-window-height* 20) :width *vong-window-width*]
     [move splash :x 0 :y 0]
@@ -610,6 +672,9 @@
     [move splash-prompt :x 0 :y 0]
     [hide splash-prompt]
     [set-receiver splash-prompt splash]
+    ;;
+    [resize *status* :height 20 :width 500]
+    [move *status* :x 0 :y 0]
     ;;
     [resize prompt :height 20 :width 100]
     [move prompt :x 0 :y 0]
@@ -625,6 +690,8 @@
 	       	     :narrator terminal
 	       	     :viewport viewport]
 	       [loadout player]
+	       ;;
+	       [set-character *status* player]
 	       ;;
 	       [set-tile-size viewport 16]
 	       [resize viewport :height 470 :width *vong-window-width*]
@@ -645,7 +712,7 @@
     ;;
     [resize stack :width *vong-window-width* :height (- *vong-window-height* 20)]
     [move stack :x 0 :y 0]
-    [set-children stack (list viewport terminal)]
+    [set-children stack (list viewport terminal status)]
     ;;
     [resize terminal :height 80 :width *vong-window-width*]
     [move terminal :x 0 :y (- *vong-window-height* 80)]
@@ -654,7 +721,7 @@
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
     (rlx:install-widgets splash-prompt splash)
-    [add-page *pager* :play prompt stack viewport terminal]
+    [add-page *pager* :play prompt stack viewport terminal *status*]
     [add-page *pager* :help textbox]))
 
 (vong)
