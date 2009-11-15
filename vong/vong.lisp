@@ -29,6 +29,10 @@
 
 (in-package :vong)
 
+;;; Colors
+
+(defparameter *colors* '(:purple :red :blue :orange :green :yellow :white))
+
 ;;; The player's tail
 
 (defcell tail 
@@ -58,7 +62,7 @@
   ;; todo respond to puck collision
   nil)
 
-;;; A trail extender powerup
+;;; A tail extender powerup
 
 (defcell extender 
   (tile :initform "plus"))
@@ -66,7 +70,7 @@
 (define-method step extender (stepper)
   (when [is-player stepper]
     [play-sample self "powerup"]
-    [stat-effect stepper :tail-length 4]
+    [stat-effect stepper :tail-length 7]
     [stat-effect stepper :score 2000]
     [die self]))
 
@@ -112,6 +116,32 @@
     (assert (stringp res))
     (setf <tile> res)))
 	
+;;; Breakable paint walls re-color the ball
+
+(defvar *wall-tiles* '(:purple "wall-purple"
+			:black "wall-black"
+			:red "wall-red"
+			:blue "wall-blue"
+			:orange "wall-orange"
+			:green "wall-green"
+			:white "wall-white"
+			:yellow "wall-yellow"))
+
+(defcell wall 
+  (tile :initform "wall-purple")
+  (color :initform :purple))
+
+(define-method paint wall (c)
+  (setf <color> c)
+  (let ((res (getf *wall-tiles* c)))
+    (assert (stringp res))
+    (setf <tile> res)))
+
+(define-method step wall (puck)
+  (when [in-category puck :puck]
+    [paint puck <color>]
+    [bounce puck]
+    [die self]))
   
 ;;; Our hero, the player
 
@@ -221,9 +251,18 @@
 
 ;;; The puck
 
+(defvar *puck-tiles* '(:purple "puck-purple"
+			:black "puck-black"
+			:red "puck-red"
+			:blue "puck-blue"
+			:orange "puck-orange"
+			:green "puck-green"
+			:white "puck-white"
+			:yellow "puck-yellow"))
+
 (defcell puck
   (tile :initform "puck")
-  (categories :initform '(:puck :obstacle :target :actor))
+  (categories :initform '(:puck :obstacle :target :actor :paintable))
   (speed :initform (make-stat :base 10))
   (movement-cost :initform (make-stat :base 10))
   (direction :initform :here)
@@ -233,14 +272,20 @@
 (define-method kick puck (direction)
   (setf <direction> direction))
 
+(define-method bounce puck ()
+  (setf <direction> (opposite-direction <direction>))
+  [play-sample self "bounce"])
+
+(define-method paint puck (color)
+  (setf <color> color)
+  (setf <tile> (getf *puck-tiles* color)))
+
 (define-method move puck (direction)
   (multiple-value-bind (r c) 
       (step-in-direction <row> <column> direction)
     (let ((obstacle [obstacle-at-p *active-world* r c]))
       (when obstacle
-	;; bounce.
-	(setf <direction> (opposite-direction direction))
-	[play-sample self "bounce"]
+	[bounce self]
 	(when (clon:object-p obstacle)
 	  (if [is-player obstacle]
 	      [grab obstacle self]
@@ -271,7 +316,11 @@
     (dotimes (n 12)
       (let ((brick (clone =brick=)))
 	[drop-cell self brick (random height) (random width)]
-	[paint brick (car (one-of '(:purple :red)))]))))
+	[paint brick :white]))
+    (dotimes (n 30)
+      (let ((wall (clone =wall=)))
+	[drop-cell self wall (random height) (random width)]
+	[paint wall (car (one-of *colors*))]))))
 ;; todo drop color square corners
 ;; todo drop enemies
   
