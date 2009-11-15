@@ -317,10 +317,15 @@
       (let ((brick (clone =brick=)))
 	[drop-cell self brick (random height) (random width)]
 	[paint brick :white]))
-    (dotimes (n 30)
-      (let ((wall (clone =wall=)))
-	[drop-cell self wall (random height) (random width)]
-	[paint wall (car (one-of *colors*))]))))
+    (dotimes (n 12)
+      (let ((color (car (one-of *colors*))))
+	(labels ((drop-wall (r c)
+		   (prog1 nil
+		     (let ((wall (clone =wall=)))
+		       [drop-cell self wall r c]
+		       [paint wall color]))))
+	  (trace-rectangle #'drop-wall (random height) (random width)
+			   (+ 4 (random 8)) (+ 4 (random 8)) :fill))))))
 ;; todo drop color square corners
 ;; todo drop enemies
   
