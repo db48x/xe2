@@ -3,12 +3,27 @@
  (:name "floor" :type :image :file "floor.png")
  (:name "splash" :type :image :file "vong.png")
  (:name "plus" :type :image :file "plus.png")
+ (:name "hole" :type :image :file "hole.png")
+ (:name "skull" :type :image :file "skull.png")
+ (:name "hole-suck" :type :sample :file "hole.wav" :properties (:volume 20))
  (:name "powerup" :type :sample :file "powerup.wav" :properties (:volume 40))
+ (:name "buzz" :type :sample :file "buzz.wav" :properties (:volume 40))
+ (:name "puckup" :type :image :file "newpuck.png")
+
+ (:name "wire-east" :type :image :file "wire-right.png")
+ (:name "wire-south" :type :alias :data ":rotate 90:wire-east")
+ (:name "wire-west" :type :alias :data ":rotate 90:wire-south")
+ (:name "wire-north" :type :alias :data ":rotate 90:wire-west")
 
  (:name "chevron-east" :type :image :file "chevron-right.png")
  (:name "chevron-south" :type :alias :data ":rotate 90:chevron-east")
  (:name "chevron-west" :type :alias :data ":rotate 90:chevron-south")
  (:name "chevron-north" :type :alias :data ":rotate 90:chevron-west")
+
+ (:name "tracer-east" :type :image :file "tracer-right.png")
+ (:name "tracer-south" :type :alias :data ":rotate 90:tracer-east")
+ (:name "tracer-west" :type :alias :data ":rotate 90:tracer-south")
+ (:name "tracer-north" :type :alias :data ":rotate 90:tracer-west")
 
  (:name "brick-purple" :type :image :file "brick-purple.png")
  (:name "brick-black" :type :image :file "brick-black.png")
@@ -47,7 +62,11 @@
  (:name "tail-northwest" :type :alias :data ":rotate 90:tail-northeast")
  (:name "tail-southeast" :type :alias :data ":rotate 90:tail-northeast")
 
+ (:name "xiomacs" :type :music :file "xiomacs.ogg")
+ (:name "metro" :type :music :file "metro.ogg" :properties (:volume 12))
+
  (:name "bloop" :type :sample :file "bloop.wav" :properties (:volume 8))
+ (:name "freeze" :type :sample :file "freeze.wav" :properties (:volume 8))
  (:name "serve" :type :sample :file "serve.wav" :properties (:volume 8))
  (:name "grab" :type :sample :file "grab.wav" :properties (:volume 8))
  (:name "chevron" :type :sample :file "chevron.wav" :properties (:volume 8))

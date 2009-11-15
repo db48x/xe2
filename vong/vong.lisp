@@ -45,11 +45,7 @@
 		 (:north "tail-north")
 		 (:south "tail-south")
 		 (:east "tail-east")
-		 (:west "tail-west")
-		 (:northeast "tail-northeast")
-		 (:northwest "tail-northwest")
-		 (:southeast "tail-southeast")
-		 (:southwest "tail-southwest"))))
+		 (:west "tail-west"))))
 
 (define-method run tail ()
   [expend-action-points self 10]
@@ -59,8 +55,9 @@
     [die self]))
 
 (define-method step tail (stepper)
-  ;; todo respond to puck collision
-  nil)
+  (when [in-category stepper :puck]
+    [play-sample self "freeze"]
+    [expend-action-points stepper 200]))
 
 ;;; A tail extender powerup
 
@@ -68,7 +65,7 @@
   (tile :initform "plus"))
 
 (define-method step extender (stepper)
-  (when [is-player stepper]
+  (when [in-category stepper :tailed]
     [play-sample self "powerup"]
     [stat-effect stepper :tail-length 7]
     [stat-effect stepper :score 2000]
@@ -94,6 +91,107 @@
   (when [in-category stepper :puck]
     [play-sample self "chevron"]
     [kick stepper <direction>]))
+
+;;; Tracers lay down deadly red wires
+
+(defcell wire 
+  (categories :initform '(:actor))
+  (speed :initform (make-stat :base 1))
+  (clock :initform 20))
+  
+(define-method initialize wire (&key direction clock)
+  (setf <clock> clock)
+  (setf <tile> (ecase direction
+		 (:north "wire-north")
+		 (:south "wire-south")
+		 (:east "wire-east")
+		 (:west "wire-west"))))
+
+(define-method run wire ()
+  [expend-action-points self 10]
+  (decf <clock>)
+  (when (< <clock> 0) (setf <clock> 0))
+  (when (zerop <clock>)
+    [die self]))
+
+(define-method step wire (stepper)
+  (when [in-category stepper :puck]
+    (unless [in-category stepper :tracer]
+      [die stepper])))
+
+(defvar *tracer-tiles* '(:north "tracer-north"
+			  :south "tracer-south"
+			  :east "tracer-east"
+			  :west "tracer-west"))
+
+(defcell tracer 
+  (tile :initform "tracer-north")
+  (categories :initform '(:actor :target :obstacle :opaque :enemy :equipper :puck :tailed :tracer))
+  (speed :initform (make-stat :base 5 :min 5))
+  (max-items :initform (make-stat :base 3))
+  (movement-cost :initform (make-stat :base 30))
+  (stepping :initform t)
+  (tail-length :initform (make-stat :base 20))
+  (attacking-with :initform :robotic-arm)
+  (max-weight :initform (make-stat :base 25))
+  (direction :initform (car (one-of '(:north :south :east :west))))
+  (strength :initform (make-stat :base 4 :min 0 :max 30))
+  (dexterity :initform (make-stat :base 5 :min 0 :max 30))
+  (intelligence :initform (make-stat :base 11 :min 0 :max 30))
+  (hit-points :initform (make-stat :base 10 :min 0 :max 10)))
+
+(define-method update-tile tracer ()
+  (setf <tile> (getf *tracer-tiles* <direction>)))
+
+(define-method kick tracer (direction)
+  (setf <direction> direction))
+    
+(define-method run tracer ()
+  (clon:with-field-values (row column) self
+    (let ((world *active-world*))
+      (when [obstacle-in-direction-p world row column <direction>]
+	(setf <direction> (car (one-of '(:north :south :east :west)))))
+      [move self <direction>])))
+
+(define-method drop-wire tracer ()
+  [drop-cell *active-world* (clone =wire= :direction <direction> :clock 5)
+	     <row> <column>])
+
+(define-method move tracer (direction)
+  (let ((wall (clone =wall=)))
+    [drop-wire self]
+    [update-tile self]
+    [parent>>move self direction]))
+
+;;; Replacement puck
+
+(defcell puckup 
+  (tile :initform "puckup"))
+
+(define-method step puckup (stepper)
+  (when [is-player stepper]
+    (let ((puck (clone =puck=)))
+      [drop self puck]
+      [grab stepper puck]
+      [die self])))
+
+;;; Black hole eats anything in category :puck
+
+(defcell hole 
+  (tile :initform "hole")
+  (categories :initform '(:exclusive :hole)))
+
+(define-method step hole (stepper)
+  (when [in-category stepper :puck]
+    [play-sample self "hole-suck"]
+    [die stepper]))
+
+;; (define-method die tracer ()
+;;   (when (> 5 (random 10))
+;;     [drop self (clone (random-powerup))])
+;;   [play-sample self "blaagh"]
+;;   [parent>>die self])
+
 
 ;;; Bricks
 
@@ -149,7 +247,7 @@
 (defcell player 
   (tile :initform "player")
   (name :initform "Player")
-  (score :initform 0)
+  (score :initform (make-stat :base 0))
   (last-direction :initform :north)
   (puck :initform nil)
   (speed :initform (make-stat :base 10 :min 0 :max 10))
@@ -165,7 +263,7 @@
   (stepping :initform t)
   (attacking-with :initform :right-hand)
   (light-radius :initform 3)
-  (categories :initform '(:actor :player :target :container :light-source)))
+  (categories :initform '(:actor :tailed :player :target :container :light-source)))
 
 (define-method quit player ()
   (rlx:quit :shutdown))
@@ -302,6 +400,10 @@
 (define-method run puck ()
   [move self <direction>])
 
+(define-method die puck ()
+  [play-sample self "buzz"]
+  [parent>>die self])
+
 ;;; Vong game board
 
 (define-prototype vong (:parent rlx:=world=)
@@ -315,9 +417,21 @@
 (define-method generate vong (&key (level 1))
   [create-default-grid self]
   (clon:with-fields (height width grid) self
-    (dotimes (i width)
-      (dotimes (j height)
+    (dotimes (i height)
+      (dotimes (j width)
 	[drop-cell self (clone =floor=) i j]))
+    (dotimes (n 12)
+      (let ((brick (clone =brick=)))
+	[drop-cell self brick (random height) (random width) :exclusive t]
+	[paint brick :white]))
+    (dotimes (n 9)
+      [drop-cell self (clone =tracer=) (random height) (random width)])
+    (dotimes (n 9)
+      [drop-cell self (clone =extender=) (random height) (random width)])
+    (dotimes (n 12)
+      [drop-cell self (clone =puckup=) (random height) (random width)])
+    (dotimes (n 8)
+      [drop-cell self (clone =hole=) (random height) (random width) :exclusive t])
     (dotimes (n 23)
       (let ((color (car (one-of *colors*))))
 	(labels ((drop-wall (r c)
@@ -326,16 +440,10 @@
 		       [drop-cell self wall r c :exclusive t]
 		       [paint wall color]))))
 	  (trace-rectangle #'drop-wall (random height) (random width)
-			   (+ 4 (random 8)) (+ 4 (random 8)) :fill))))
-        (dotimes (n 12)
-      (let ((brick (clone =brick=)))
-	[drop-cell self brick (random height) (random width) :exclusive t]
-	[paint brick :white]))))
-;; todo drop color square corners
-;; todo drop enemies
+			   (+ 4 (random 8)) (+ 4 (random 8)) :fill))))))
   
 (define-method begin-ambient-loop vong ()  
-  (play-music "sparqq" :loop t))
+  (play-music "xiomacs" :loop t))
       
 ;;; Splash screen
   
@@ -426,7 +534,7 @@
     [resize-to-fit textbox] 
     [move textbox :x 0 :y 0]
     
-    (play-music "techworld" :loop t)
+    (play-music "metro" :loop t)
     (set-music-volume 255)	       
     ;;
     [resize stack :width *vong-window-width* :height *vong-window-height*]
