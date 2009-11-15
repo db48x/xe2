@@ -60,7 +60,9 @@
 ;;; A tail extender powerup
 
 (defcell extender 
-  (tile :initform "plus"))
+  (tile :initform "plus")
+  (description :initform 
+"This powerup extends your trail."))	      
 
 (define-method step extender (stepper)
   (when [in-category stepper :tailed]
@@ -73,7 +75,9 @@
 
 (defcell chevron
   (tile :initform "chevron-east")
-  (categories :initform '(:chevron)))
+  (categories :initform '(:chevron))=
+  (description :initform 
+"Chevrons change the direction of the puck and certain enemies."))
 
 (defvar *chevron-tiles* '(:north "chevron-north"
 			  :south "chevron-south"
@@ -93,7 +97,8 @@
 ;;; Diamond pickup replenishes chevrons
 
 (defcell diamond 
-  (tile :initform "chevron-pickup"))
+  (tile :initform "chevron-pickup")
+  (description :initform "Adds five chevrons to your inventory."))
 
 (define-method step diamond (stepper)
   (when [in-category stepper :pointer]
@@ -107,7 +112,8 @@
   (categories :initform '(:actor :damaging))
   (stepping :initform t)
   (speed :initform (make-stat :base 1))
-  (clock :initform 20))
+  (clock :initform 20)
+  (description :initform "Deadly wires are an instant kill for player and puck."))
   
 (define-method initialize wire (&key direction clock)
   (setf <clock> clock)
@@ -150,7 +156,10 @@
   (strength :initform (make-stat :base 4 :min 0 :max 30))
   (dexterity :initform (make-stat :base 5 :min 0 :max 30))
   (intelligence :initform (make-stat :base 11 :min 0 :max 30))
-  (hit-points :initform (make-stat :base 10 :min 0 :max 10)))
+  (hit-points :initform (make-stat :base 10 :min 0 :max 10))
+  (description :initform 
+"The Tracer drags a live wire behind it. Don't touch! 
+Use chevrons to direct tracers into Black Holes."))
 
 (define-method update-tile tracer ()
   (setf <tile> (getf *tracer-tiles* <direction>)))
@@ -179,7 +188,9 @@
 ;;; Replacement puck
 
 (defcell puckup 
-  (tile :initform "puckup"))
+  (tile :initform "puckup")
+  (name :initform "Replacement puck")
+  (description :initform "A new puck, in case you lose the one you have."))
 
 (define-method step puckup (stepper)
   (when [is-player stepper]
@@ -192,7 +203,11 @@
 
 (defcell hole 
   (tile :initform "hole")
-  (categories :initform '(:exclusive :hole)))
+  (categories :initform '(:exclusive :hole))
+  (name :initform "Black hole")
+  (description :initform 
+"These holes eat the puck and enemies. The object of the game is to
+defeat enemies by guiding them into the black holes."))
 
 (define-method step hole (stepper)
   (when [in-category stepper :puck]
@@ -240,6 +255,9 @@
 
 (defcell wall 
   (tile :initform "wall-purple")
+  (description :initform
+"These blocks of paint can be broken using the puck to 
+reach new areas and items. The puck also picks up the color.")
   (categories :initform '(:exclusive :obstacle :wall))
   (color :initform :purple))
 
@@ -289,7 +307,8 @@
   (attacking-with :initform :right-hand)
   (light-radius :initform 3)
   (categories :initform '(:actor :tailed :player :target 
-			  :container :light-source :pointer)))
+			  :container :light-source :pointer))
+  (description :initform "This is you! Move with the arrow keys or numeric keypad."))
 
 (define-method run player ()
   (unless <dead>
@@ -447,6 +466,7 @@
 
 (defcell puck
   (tile :initform "puck")
+  (description :initform "A frictionless paint-absorbent hockey puck.")
   (categories :initform '(:puck :obstacle :target :actor :paintable))
   (speed :initform (make-stat :base 10))
   (movement-cost :initform (make-stat :base 10))
@@ -497,7 +517,7 @@
 
 (define-prototype vong (:parent rlx:=world=)
   (name :initform "Vong board")
-  (description :initform "Welcome to Vong, level 1.")
+  (description :initform "Welcome to Vong. Press F1 for general help, or click any object.")
   (edge-condition :initform :block)
   (width :initform 50)
   (height :initform 29)
@@ -631,6 +651,11 @@
     (when char
 	[print-stat self :chevrons :warn-below 1 :show-max t]
 	[print-stat-bar self :chevrons :color ".yellow"]
+	[space self]
+	[print self "HOLDING:"]
+	(when (field-value :puck char)
+	  [print self nil :image (field-value :tile
+					      (field-value :puck char))])
 	[newline self])))
 
 ;;; Main program. 
