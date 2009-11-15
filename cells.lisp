@@ -367,7 +367,7 @@ unproxying. By default, it does nothing."
   (if (and [is-player self]
 	   (not (has-method method self))
 	   (null <occupant>))
-      [say self "Command not applicable."]
+      [say self (format nil "The ~S command is not applicable." method) ]
       ;; otherwise maybe we're a vehicle
       (let ((occupant <occupant>))
 	(when (null occupant)
@@ -421,9 +421,14 @@ unproxying. By default, it does nothing."
 	       [expend-action-points self [stat-value self :movement-cost]]
 	       [move-cell world self r c]
 	       (when <stepping>
-		 (do-cells (cell [cells-at world r c])
-		   [step cell self]))))))))
-	     	     
+		 [step-on-current-square self])))))))
+
+(define-method step-on-current-square cell ()
+  (when <stepping>
+    (do-cells (cell [cells-at *active-world* <row> <column>])
+      (unless (eq cell self) 
+	[step cell self]))))
+
 (define-method drop cell (cell)
   [drop-cell *active-world* cell <row> <column>])
 

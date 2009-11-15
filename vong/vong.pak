@@ -7,6 +7,8 @@
  (:name "skull" :type :image :file "skull.png")
  (:name "hole-suck" :type :sample :file "hole.wav" :properties (:volume 20))
  (:name "powerup" :type :sample :file "powerup.wav" :properties (:volume 40))
+ (:name "death" :type :sample :file "death.wav" :properties (:volume 60))
+ (:name "go" :type :sample :file "go.wav" :properties (:volume 60))
  (:name "buzz" :type :sample :file "buzz.wav" :properties (:volume 40))
  (:name "puckup" :type :image :file "newpuck.png")
 
@@ -64,8 +66,10 @@
 
  (:name "xiomacs" :type :music :file "xiomacs.ogg")
  (:name "metro" :type :music :file "metro.ogg" :properties (:volume 12))
+ (:name "flyby" :type :music :file "flyby.ogg" :properties (:volume 90))
 
  (:name "bloop" :type :sample :file "bloop.wav" :properties (:volume 8))
+ (:name "error" :type :sample :file "error.wav" :properties (:volume 50))
  (:name "freeze" :type :sample :file "freeze.wav" :properties (:volume 8))
  (:name "serve" :type :sample :file "serve.wav" :properties (:volume 8))
  (:name "grab" :type :sample :file "grab.wav" :properties (:volume 8))

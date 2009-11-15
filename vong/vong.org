@@ -1,3 +1,5 @@
+** good help screen
+** clickable explanations of any object when paused
 ** goals have goalies who move back and forth and try to eat the ball.
 ** if you lose the ball, you have to find another. 
 ** each level should introduce a new gameplay element and maybe even have text on the floor or balloons

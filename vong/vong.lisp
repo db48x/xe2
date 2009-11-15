@@ -95,7 +95,8 @@
 ;;; Tracers lay down deadly red wires
 
 (defcell wire 
-  (categories :initform '(:actor))
+  (categories :initform '(:actor :damaging))
+  (stepping :initform t)
   (speed :initform (make-stat :base 1))
   (clock :initform 20))
   
@@ -115,9 +116,11 @@
     [die self]))
 
 (define-method step wire (stepper)
-  (when [in-category stepper :puck]
-    (unless [in-category stepper :tracer]
-      [die stepper])))
+  (if [is-player stepper]
+      [damage stepper 1]
+      (when [in-category stepper :puck]
+	(unless [in-category stepper :tracer]
+	  [die stepper]))))
 
 (defvar *tracer-tiles* '(:north "tracer-north"
 			  :south "tracer-south"
@@ -249,6 +252,7 @@
   (name :initform "Player")
   (score :initform (make-stat :base 0))
   (last-direction :initform :north)
+  (dead :initform nil)
   (puck :initform nil)
   (speed :initform (make-stat :base 10 :min 0 :max 10))
   (strength :initform (make-stat :base 13))
@@ -257,7 +261,7 @@
   (defense :initform (make-stat :base 15))
   (equipment-slots :initform '(:left-hand :right-hand))
   (hearing-range :initform 1000)
-  (hit-points :initform (make-stat :base 30 :min 0 :max 30))
+  (hit-points :initform (make-stat :base 1 :min 0 :max 30))
   (movement-cost :initform (make-stat :base 10))
   (max-items :initform (make-stat :base 2))
   (stepping :initform t)
@@ -265,45 +269,71 @@
   (light-radius :initform 3)
   (categories :initform '(:actor :tailed :player :target :container :light-source)))
 
+(define-method run player ()
+  nil)
+
 (define-method quit player ()
   (rlx:quit :shutdown))
 
 (define-method step player (stepper)
-  (when [in-category stepper :puck]
-    [grab self stepper]))
+  (if [in-category stepper :puck]
+      [grab self stepper]
+      (when [in-category stepper :damaging]
+	[damage self 1])))
 
 (define-method drop-tail player ()
   [drop self (clone =tail= 
 		    :direction <last-direction> 
 		    :clock [stat-value self :tail-length])])
 
+(define-method restart player ()
+  (let ((player (clone =player=)))
+    [destroy *active-universe*]
+    [set-player *active-universe* player]
+    [play *active-universe*
+	  :address '(=vong= :level 1)]
+    [loadout player]
+    [play-sample self "go"]))
+
 (define-method drop-chevron player ()
-  (let ((chevron (clone =chevron=)))
-    [drop self chevron]
-    [orient chevron <last-direction>]))
+  (unless <dead>
+    (let ((chevron (clone =chevron=)))
+      [drop self chevron]
+      [orient chevron <last-direction>])))
 
 (define-method move player (direction)
-  (setf <last-direction> direction)
-  [drop-tail self]
-  [parent>>move self direction])
-
+  (unless <dead>
+    (setf <last-direction> direction)
+    [drop-tail self]
+    [parent>>move self direction]))
+  
 (define-method loadout player ()
   (setf <puck> (clone =puck=)))
 
 (define-method throw player (direction)
   (assert (member direction '(:north :south :east :west)))
-  (clon:with-fields (puck) self
-    (when puck
-      [drop self puck]
-      [kick puck direction]
-      (setf puck nil)
-      [play-sample self "serve"])))
+  (unless <dead>
+    (clon:with-fields (puck) self
+      (when puck
+	[drop self puck]
+	[kick puck direction]
+	(setf puck nil)
+	[play-sample self "serve"]))))
 
 (define-method grab player (puck)
   (assert [in-category puck :puck])
-  (setf <puck> puck)
-  [delete-from-world puck]
-  [play-sample self "grab"])
+  (if (null <puck>)
+      (progn (setf <puck> puck)
+	     [delete-from-world puck]
+	     [play-sample self "grab"])
+      ;; there's something in inventory. error sound and bounce
+      (progn [play-sample self "error"])))
+
+(define-method die player ()
+  (setf <tile> "skull")
+  [play-sample self "death"]
+  [say self "You died. Press ESCAPE to try again."]
+  (setf <dead> t))
 
 ;;; Controlling the game
 
@@ -318,7 +348,17 @@
     ("KP8" (:control) "throw :north .")
     ("KP4" (:control) "throw :west .")
     ("KP6" (:control) "throw :east .")
-    ("KP2" (:control) "throw :south .")))
+    ("KP2" (:control) "throw :south .")
+    ;; arrows
+    ("UP" nil "move :north .")
+    ("LEFT" nil "move :west .")
+    ("RIGHT" nil "move :east .")
+    ("DOWN" nil "move :south .")
+    ;;
+    ("UP" (:control) "throw :north .")
+    ("LEFT" (:control) "throw :west .")
+    ("RIGHT" (:control) "throw :east .")
+    ("DOWN" (:control) "throw :south .")))
 
 (defparameter *qwerty-keybindings*
   (append *numpad-keybindings*
@@ -332,6 +372,7 @@
 	    ("L" (:control) "throw :east .")
 	    ("J" (:control) "throw :south .")
 	    ;;
+	    ("ESCAPE" nil "restart .")
 	    ("SPACE" nil "drop-chevron .")
 	    ("Q" (:control) "quit ."))))
   
@@ -398,7 +439,10 @@
       [parent>>move self <direction>]))
 
 (define-method run puck ()
-  [move self <direction>])
+  ;; pucks don't stop moving.
+  (if (eq :here <direction>)
+      [die self]
+      [move self <direction>]))
 
 (define-method die puck ()
   [play-sample self "buzz"]
@@ -408,6 +452,7 @@
 
 (define-prototype vong (:parent rlx:=world=)
   (name :initform "Vong board")
+  (description :initform "Welcome to Vong, level 1.")
   (edge-condition :initform :block)
   (width :initform 50)
   (height :initform 29)
@@ -430,8 +475,6 @@
       [drop-cell self (clone =extender=) (random height) (random width)])
     (dotimes (n 12)
       [drop-cell self (clone =puckup=) (random height) (random width)])
-    (dotimes (n 8)
-      [drop-cell self (clone =hole=) (random height) (random width) :exclusive t])
     (dotimes (n 23)
       (let ((color (car (one-of *colors*))))
 	(labels ((drop-wall (r c)
@@ -439,11 +482,17 @@
 		     (let ((wall (clone =wall=)))
 		       [drop-cell self wall r c :exclusive t]
 		       [paint wall color]))))
-	  (trace-rectangle #'drop-wall (random height) (random width)
-			   (+ 4 (random 8)) (+ 4 (random 8)) :fill))))))
+	  (let ((r (random height))
+		(c (random width)))
+	    [drop-cell self (clone =hole=) 
+		       (+ r 2 (random 3))
+		       (+ c 2 (random 3))
+		       :exclusive t]
+	    (trace-rectangle #'drop-wall r c
+			     (+ 4 (random 8)) (+ 4 (random 8)) :fill)))))))
   
 (define-method begin-ambient-loop vong ()  
-  (play-music "xiomacs" :loop t))
+  (play-music "flyby" :loop t))
       
 ;;; Splash screen
   
@@ -534,12 +583,12 @@
     [resize-to-fit textbox] 
     [move textbox :x 0 :y 0]
     
-    (play-music "metro" :loop t)
+    (play-music "techworld" :loop t)
     (set-music-volume 255)	       
     ;;
-    [resize stack :width *vong-window-width* :height *vong-window-height*]
+    [resize stack :width *vong-window-width* :height (- *vong-window-height* 20)]
     [move stack :x 0 :y 0]
-    [set-children stack (list viewport)]
+    [set-children stack (list viewport terminal)]
     ;;
     [resize terminal :height 80 :width *vong-window-width*]
     [move terminal :x 0 :y (- *vong-window-height* 80)]
@@ -548,7 +597,7 @@
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
     (rlx:install-widgets splash-prompt splash)
-    [add-page *pager* :play prompt stack viewport]
+    [add-page *pager* :play prompt stack viewport terminal]
     [add-page *pager* :help textbox]))
 
 (vong)

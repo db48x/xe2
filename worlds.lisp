@@ -177,7 +177,8 @@ EXCLUSIVE are both non-nil, an error is signaled."
 		 (setf (field-value :row cell) row)
 		 (setf (field-value :column cell) column)
 		 (when loadout
-		   [loadout cell]))))
+		   [loadout cell])
+		 [step-on-current-square cell])))
       (if (or no-collisions exclusive)
 	  (progn 
 	    (when no-collisions
@@ -517,7 +518,8 @@ in a roguelike until the user has pressed a key."
     (incf <phase-number>)
     [start <player>]
     [begin-phase <player>]
-    [show-location <player>]
+    (when (has-method :show-location <player>)
+      [show-location <player>])
     [process-messages self])
   [begin-ambient-loop self])
     
