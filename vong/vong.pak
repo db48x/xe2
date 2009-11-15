@@ -2,11 +2,22 @@
  (:name "player" :type :image :file "player.png")
  (:name "floor" :type :image :file "floor.png")
  (:name "splash" :type :image :file "vong.png")
+ (:name "plus" :type :image :file "plus.png")
+ (:name "powerup" :type :sample :file "powerup.wav" :properties (:volume 40))
 
  (:name "chevron-east" :type :image :file "chevron-right.png")
  (:name "chevron-south" :type :alias :data ":rotate 90:chevron-east")
  (:name "chevron-west" :type :alias :data ":rotate 90:chevron-south")
  (:name "chevron-north" :type :alias :data ":rotate 90:chevron-west")
+
+ (:name "brick-purple" :type :image :file "brick-purple.png")
+ (:name "brick-black" :type :image :file "brick-black.png")
+ (:name "brick-red" :type :image :file "brick-red.png")
+ (:name "brick-blue" :type :image :file "brick-blue.png")
+ (:name "brick-orange" :type :image :file "brick-orange.png")
+ (:name "brick-green" :type :image :file "brick-green.png")
+ (:name "brick-yellow" :type :image :file "brick-yellow.png")
+ (:name "brick-white" :type :image :file "brick-white.png")
 
  (:name "puck" :type :image :file "puck.png")
  (:name "tail-north" :type :image :file "tail-north.png")

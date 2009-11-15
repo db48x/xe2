@@ -58,6 +58,18 @@
   ;; todo respond to puck collision
   nil)
 
+;;; A trail extender powerup
+
+(defcell extender 
+  (tile :initform "plus"))
+
+(define-method step extender (stepper)
+  (when [is-player stepper]
+    [play-sample self "powerup"]
+    [stat-effect stepper :tail-length 4]
+    [stat-effect stepper :score 2000]
+    [die self]))
+
 ;;; Chevrons change the direction of the puck
 
 (defcell chevron
@@ -78,6 +90,28 @@
   (when [in-category stepper :puck]
     [play-sample self "chevron"]
     [kick stepper <direction>]))
+
+;;; Bricks
+
+(defvar *brick-tiles* '(:purple "brick-purple"
+			:black "brick-black"
+			:red "brick-red"
+			:blue "brick-blue"
+			:orange "brick-orange"
+			:green "brick-green"
+			:white "brick-white"
+			:yellow "brick-yellow"))
+
+(defcell brick 
+  (tile :initform "brick-purple")
+  (categories :initform '(:obstacle :paintable)))
+
+(define-method paint brick (c)
+  (setf <color> c)
+  (let ((res (getf *brick-tiles* c)))
+    (assert (stringp res))
+    (setf <tile> res)))
+	
   
 ;;; Our hero, the player
 
@@ -194,7 +228,7 @@
   (movement-cost :initform (make-stat :base 10))
   (direction :initform :here)
   (stepping :initform t)
-  (color :initform ".white"))
+  (color :initform :white))
 
 (define-method kick puck (direction)
   (setf <direction> direction))
@@ -211,8 +245,8 @@
 	  (if [is-player obstacle]
 	      [grab obstacle self]
 	      ;; it's not the player. see if we can color. 
-	      (when [in-category obstacle :colorable]
-		[color obstacle <color>])))))
+	      (when [in-category obstacle :paintable]
+		[paint obstacle <color>])))))
       [parent>>move self <direction>]))
 
 (define-method run puck ()
@@ -224,7 +258,7 @@
   (name :initform "Vong board")
   (edge-condition :initform :block)
   (width :initform 50)
-  (height :initform 28)
+  (height :initform 29)
   (scale :initform '(1 nm))
   (ambient-light :initform :total))
 
@@ -233,7 +267,11 @@
   (clon:with-fields (height width grid) self
     (dotimes (i width)
       (dotimes (j height)
-	[drop-cell self (clone =floor=) i j]))))
+	[drop-cell self (clone =floor=) i j]))
+    (dotimes (n 12)
+      (let ((brick (clone =brick=)))
+	[drop-cell self brick (random height) (random width)]
+	[paint brick (car (one-of '(:purple :red)))]))))
 ;; todo drop color square corners
 ;; todo drop enemies
   
