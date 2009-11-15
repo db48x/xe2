@@ -315,7 +315,9 @@
   (unless <dead>
     (clon:with-fields (puck) self
       (when puck
-	[drop self puck]
+	(multiple-value-bind (r c)
+	    (step-in-direction <row> <column> direction)
+	  [drop-cell *active-world* puck r c])
 	[kick puck direction]
 	(setf puck nil)
 	[play-sample self "serve"]))))
@@ -325,9 +327,7 @@
   (if (null <puck>)
       (progn (setf <puck> puck)
 	     [delete-from-world puck]
-	     [play-sample self "grab"])
-      ;; there's something in inventory. error sound and bounce
-      (progn [play-sample self "error"])))
+	     [play-sample self "grab"])))
 
 (define-method die player ()
   (setf <tile> "skull")
