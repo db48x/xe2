@@ -138,7 +138,7 @@
   (if [is-player stepper]
       [damage stepper 1]
       (when [in-category stepper :puck]
-	(unless [in-category stepper :tracer]
+	(unless [in-category stepper :enemy]
 	  [die stepper]))))
 
 (defvar *tracer-tiles* '(:north "tracer-north"
@@ -181,14 +181,12 @@ Use chevrons to direct tracers into Black Holes."))
 
 (define-method drop-wire tracer ()
   [drop-cell *active-world* (clone =wire= :direction <direction> :clock 5)
-	     <row> <column> :no-stepping t])
+	     <row> <column>])
 
 (define-method move tracer (direction)
-  [parent>>move self direction]
-  ;; hack to prevent killing player
-  (unless [category-at-p *active-world* <row> <column> :player]
-    [drop-wire self]
-    [update-tile self]))
+  [drop-wire self]
+  [update-tile self]
+  [parent>>move self direction])
 
 (define-method loadout tracer ()
   (incf *enemies*))
@@ -362,7 +360,7 @@ reach new areas and items. The puck also picks up the color.")
   (rlx:quit :shutdown))
 
 (define-method step player (stepper)
-  (when [in-category stepper :puck]
+  (when [in-category stepper :item]
     [grab self stepper]))
 
 (define-method drop-tail player ()
@@ -506,7 +504,7 @@ reach new areas and items. The puck also picks up the color.")
 (defcell puck
   (tile :initform "puck")
   (description :initform "A frictionless paint-absorbent hockey puck.")
-  (categories :initform '(:puck :obstacle :target :actor :paintable))
+  (categories :initform '(:puck :obstacle :target :actor :paintable :item))
   (speed :initform (make-stat :base 10))
   (movement-cost :initform (make-stat :base 10))
   (direction :initform :here)
