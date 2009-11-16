@@ -215,7 +215,7 @@ EXCLUSIVE are both non-nil, an error is signaled."
 		(return-from seeking (values i j)))))
 	  (return-from seeking (values 0 0)))
       (setf <player> player)
-      [drop-cell self player dest-row dest-column])))
+      [drop-cell self player dest-row dest-column :no-stepping t])))
 
 (define-method drop-player-at-last-location world (player)
   (setf <player> player)
