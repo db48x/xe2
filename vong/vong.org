@@ -1,3 +1,4 @@
+** TODO make levels harder
 ** Paint the enemies
 ** good help screen
 ** clickable explanations of any object when paused

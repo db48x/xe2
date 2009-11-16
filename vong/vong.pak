@@ -82,7 +82,7 @@
  (:name "xiomacs" :type :music :file "xiomacs.ogg")
  (:name "metro" :type :music :file "metro.ogg" :properties (:volume 12))
  (:name "flyby" :type :music :file "flyby.ogg" :properties (:volume 90))
-
+ (:name "door" :type :image :file "door.png")
  (:name "bloop" :type :sample :file "bloop.wav" :properties (:volume 8))
  (:name "error" :type :sample :file "error.wav" :properties (:volume 50))
  (:name "freeze" :type :sample :file "freeze.wav" :properties (:volume 8))
@@ -92,6 +92,7 @@
  (:name "bounce" :type :sample :file "bounce.wav" :properties (:volume 8))
  (:name "sparqq" :type :music :file "sparqq.ogg" :properties (:volume 100))
  (:name "techworld" :type :music :file "techworld.ogg")
+ (:name "pensive" :type :music :file "pensive.ogg")
  (:name "vong-theme" :type :music :file "vong.ogg" :properties (:volume 10))
  (:name "help-message" :type :text :file "README")
  (:name ".startup" :type :lisp :file "vong.lisp" :properties (:autoload t))

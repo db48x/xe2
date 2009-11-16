@@ -29,6 +29,10 @@
 
 (in-package :vong)
 
+;;; Counting enemies
+
+(defvar *enemies* 0)
+
 ;;; Colors
 
 (defparameter *colors* '(:purple :red :blue :orange :green :yellow :white))
@@ -145,6 +149,7 @@
 (defcell tracer 
   (tile :initform "tracer-north")
   (categories :initform '(:actor :target :obstacle :opaque :enemy :equipper :puck :tailed :tracer))
+  (dead :initform nil)
   (speed :initform (make-stat :base 7 :min 5))
   (max-items :initform (make-stat :base 3))
   (movement-cost :initform (make-stat :base 30))
@@ -184,6 +189,15 @@ Use chevrons to direct tracers into Black Holes."))
   (unless [category-at-p *active-world* <row> <column> :player]
     [drop-wire self]
     [update-tile self]))
+
+(define-method loadout tracer ()
+  (incf *enemies*))
+
+(define-method die tracer ()
+  (unless <dead>
+    (setf <dead> t)
+    (decf *enemies*)
+    [delete-from-world self]))
 
 ;;; Replacement puck
 
@@ -233,14 +247,39 @@ defeat enemies by guiding them into the black holes."))
 			:yellow "brick-yellow"))
 
 (defcell brick 
-  (tile :initform "brick-purple")
+  (tile :initform "brick-white")
+  (color :initform :white)
   (categories :initform '(:obstacle :exclusive :paintable)))
 
 (define-method paint brick (c)
   (setf <color> c)
   (let ((res (getf *brick-tiles* c)))
     (assert (stringp res))
-    (setf <tile> res)))
+    (setf <tile> res)
+    [spawn self]))
+
+(define-method spawn brick ()
+  (let ((dir (car (one-of '(:north :south :east :west))))
+	(brick (clone =brick=)))
+    (multiple-value-bind (r c)
+	(step-in-direction <row> <column> dir)
+      [drop-cell *active-world* brick r c :probe t :exclusive t])))
+
+;;; Door to next level
+
+(define-prototype door (:parent rlx:=gateway=)
+  (tile :initform "door")
+  (description :initform "Door to the next level of Vong.")
+  (address :initform nil))
+  
+(define-method level door (lev)
+  (setf <address> (generate-level-address lev)))
+
+(define-method step door (stepper)
+  (when [is-player stepper]
+    (if (zerop *enemies*)
+	[activate self]
+	[play-sample self "error"])))
 	
 ;;; Breakable paint walls re-color the ball
 
@@ -515,10 +554,22 @@ reach new areas and items. The puck also picks up the color.")
 
 ;;; Vong game board
 
+(defun generate-level-address (n)
+  (assert (and (integerp n) (plusp n)))
+  (list '=vong= 
+	:level n
+	:bricks (* 3 (1- n))
+	:extenders (truncate (/ (* 3 (1- n)) 2))
+	:tracers (+ 4 (* (1- n) 3))
+	:puckups (+ 4 (* (1- n) 2))
+	:diamonds (+ 6 (* (1- n) 2))
+	:swatches (+ 10 (truncate (/ n 2)))))
+
 (define-prototype vong (:parent rlx:=world=)
   (name :initform "Vong board")
   (description :initform "Welcome to Vong. Press F1 for general help, or click any object.")
   (edge-condition :initform :block)
+  (level :initform 1)
   (width :initform 50)
   (height :initform 29)
   (scale :initform '(1 nm))
@@ -532,13 +583,15 @@ reach new areas and items. The puck also picks up the color.")
 ;; 				   (swatches 23))
 
 (define-method generate vong (&key (level 1)
-				   (bricks 0)
+				   (bricks 5)
 				   (extenders 0)
 				   (tracers 4)
 				   (puckups 4)
 				   (diamonds 6)
 				   (swatches 10))
   [create-default-grid self]
+  (setf <level> level)
+  (setf *enemies* 0)
   (clon:with-fields (height width grid) self
     (dotimes (i height)
       (dotimes (j width)
@@ -558,22 +611,25 @@ reach new areas and items. The puck also picks up the color.")
 		       :exclusive t]
 	    (trace-rectangle #'drop-wall r c
 			     (+ 4 (random 8)) (+ 4 (random 8)) :fill)))))
-        (dotimes (n bricks)
+    (dotimes (n bricks)
       (let ((brick (clone =brick=)))
-	[drop-cell self brick (random height) (random width) :exclusive t]
-	[paint brick :white]))
+	[drop-cell self brick (random height) (random width) :exclusive t]))
     (dotimes (n tracers)
-      [drop-cell self (clone =tracer=) (random height) (random width)])
+      [drop-cell self (clone =tracer=) (random height) (random width) :loadout t])
     (dotimes (n extenders)
       [drop-cell self (clone =extender=) (random height) (random width)])
     (dotimes (n diamonds)
       [drop-cell self (clone =diamond=) (random height) (random width)])
     (dotimes (n puckups)
-      [drop-cell self (clone =puckup=) (random height) (random width)])))
+      [drop-cell self (clone =puckup=) (random height) (random width)])
+    ;; drop door
+    (let ((door (clone =door=)))
+      [level door (1+ <level>)]
+      [drop-cell self door (random height) (random width)])))
 
   
 (define-method begin-ambient-loop vong ()  
-  (play-music "sparqq" :loop t))
+  (play-music (car (one-of '("flyby" "pensive" "xiomacs"))) :loop t))
       
 ;;; Splash screen
   
@@ -652,7 +708,9 @@ reach new areas and items. The puck also picks up the color.")
 	[print-stat self :chevrons :warn-below 1 :show-max t]
 	[print-stat-bar self :chevrons :color ".yellow"]
 	[space self]
-	[print self "HOLDING:"]
+	[print self (format nil "   LEVEL:~S" (field-value :level *active-world*))]
+	[print self (format nil "   ENEMIES:~S" *enemies*)]
+	[print self "     HOLDING:"]
 	(when (field-value :puck char)
 	  [print self nil :image (field-value :tile
 					      (field-value :puck char))])
@@ -710,7 +768,7 @@ reach new areas and items. The puck also picks up the color.")
 	       ;;
 	       [set-player universe player]
 	       [play universe
-	       	     :address '(=vong= :level 1)
+	       	     :address (generate-level-address 1)
 	       	     :prompt prompt
 	       	     :narrator terminal
 	       	     :viewport viewport]
