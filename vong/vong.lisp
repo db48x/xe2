@@ -79,7 +79,7 @@
 
 (defcell chevron
   (tile :initform "chevron-east")
-  (categories :initform '(:chevron))=
+  (categories :initform '(:chevron))
   (description :initform 
 "Chevrons change the direction of the puck and certain enemies."))
 
