@@ -1,3 +1,7 @@
+** TODO SCORE
+** TODO red guys that turn left at obstacles and explode when touching any puck
+** TODO nth last chevron disappears when you lay a chevron, N changes over time
+** TODO enemies who seek/eat chevrons
 ** TODO bangai-o laser walls... destroy the generator
 ** TODO security cameras which cause enemy spawn
 ** TODO fix AP breakage when tracer is stuck

@@ -197,6 +197,82 @@ Use chevrons to direct tracers into Black Holes."))
     (decf *enemies*)
     [delete-from-world self]))
 
+;;; The deadly security monitor has a deadly ring field attack
+
+(defcell monitor
+  (tile :initform "monitor")
+  (name :initform "Monitor")
+  (categories :initform '(:obstacle :actor :equipper :opaque 
+			  :exclusive :enemy :target :puck :monitor))
+  (direction :initform nil)
+  (speed :initform (make-stat :base 2))
+  (movement-cost :initform (make-stat :base 6))
+  (hit-points :initform (make-stat :base 20 :min 0))
+  (equipment-slots :initform '(:robotic-arm))
+  (max-items :initform (make-stat :base 3))
+  (stepping :initform t)
+  (dead :initform nil)
+  (attacking-with :initform :robotic-arm)
+  (energy :initform (make-stat :base 800 :min 0 :max 1000))
+  (firing-with :initform :robotic-arm)
+  (strength :initform (make-stat :base 24))
+  (dexterity :initform (make-stat :base 12)))
+    
+(define-method choose-new-direction monitor ()
+  (setf <direction>
+	(if (= 0 (random 20))
+	    ;; occasionally choose a random dir
+	    (nth (random 3)
+		 '(:north :south :east :west))
+	    ;; otherwise turn left
+	    (getf '(:north :west :west :south :south :east :east :north)
+		  (or <direction> :north)))))
+  
+(define-method loadout monitor ()
+  (incf *enemies*)
+  [choose-new-direction self])
+  
+;; (define-method initialize monitor ()
+;;   [make-inventory self]
+;;   [make-equipment self])
+
+(define-method kick monitor (direction)
+  (setf <direction> direction))
+
+(define-method alarm monitor ()
+  [play-sample self "activate"]
+  [expend-action-points self 10]
+  (labels ((do-circle (image)
+	     (multiple-value-bind (x y) 
+		 [screen-coordinates self]
+	       (draw-circle x y 40 :destination image)
+	       (draw-circle x y 35 :destination image))))
+    [>>add-overlay :viewport #'do-circle])
+  (when (< [distance-to-player self] 3.5)
+    [damage [get-player *active-world*] 1]))
+
+(define-method run monitor ()
+  (clon:with-field-values (row column) self
+    (let ((world *active-world*))
+      (if (< [distance-to-player world row column] 6)
+	  (let ((player-dir [direction-to-player world row column]))
+	    [alarm self]
+	    [move self player-dir]
+	    [expend-action-points self 10])
+	  (multiple-value-bind (r c)
+	      (step-in-direction <row> <column> <direction>)
+	    (when [obstacle-at-p world r c]
+	      [choose-new-direction self])
+	    [move self <direction>])))))
+  
+(define-method die monitor ()
+  (unless <dead>
+    (setf <dead> t)
+    (decf *enemies*)
+    [play-sample self "death-alien"]
+    [delete-from-world self]))
+
+
 ;;; Replacement puck
 
 (defcell puckup 
@@ -559,6 +635,7 @@ reach new areas and items. The puck also picks up the color.")
 	:bricks (* 3 (1- n))
 	:extenders (truncate (/ (* 3 (1- n)) 2))
 	:tracers (+ 4 (* (1- n) 3))
+	:monitors (+ 2 (* (1- n) 2))
 	:puckups (+ 4 (truncate (* (1- n) 2.5)))
 	:diamonds (+ 6 (* (1- n) 2))
 	:swatches (+ 10 (truncate (* 1.6 n)))))
@@ -585,6 +662,7 @@ reach new areas and items. The puck also picks up the color.")
 				   (extenders 0)
 				   (tracers 4)
 				   (puckups 4)
+				   (monitors 3)
 				   (diamonds 6)
 				   (swatches 10))
   [create-default-grid self]
@@ -594,6 +672,9 @@ reach new areas and items. The puck also picks up the color.")
     (dotimes (i height)
       (dotimes (j width)
 	[drop-cell self (clone =floor=) i j]))
+    (dotimes (n monitors)
+      [drop-cell self (clone =monitor=) (+ 10 (random height)) (+ 10 (random width))
+		 :loadout t :exclusive t])
     (dotimes (n swatches)
       (let ((color (car (one-of *colors*))))
 	(labels ((drop-wall (r c)
