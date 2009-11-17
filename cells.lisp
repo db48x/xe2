@@ -90,6 +90,9 @@
 (define-method is-located cell ()
   (and (integerp <row>) (integerp <column>)))
 
+(define-method dislocate cell ()
+  (setf <row> nil <column> nil))
+
 ;; Convenience macro for defining cells:
 
 (defmacro defcell (name &body args)

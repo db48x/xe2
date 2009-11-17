@@ -593,6 +593,9 @@ reach new areas and items. The puck also picks up the color.")
 (define-method bounce puck ()
   (setf <direction> (opposite-direction <direction>))
   [play-sample self "bounce"])
+  ;; ;; check player collision; this happens when shooting an adjacent wall
+  ;; (when [category-at-p *active-world* <row> <column> :player]
+  ;;   [grab [get-player *active-world*] self]))
 
 (define-method paint puck (color)
   (setf <color> color)
@@ -613,8 +616,10 @@ reach new areas and items. The puck also picks up the color.")
 		  [paint obstacle <color>])
 		(when [in-category obstacle :wall]
 		  [paint self (field-value :color obstacle)]
-		  [die obstacle]))))))
-      [parent>>move self <direction>]))
+		  [die obstacle]
+		  [parent>>move self direction]))))))
+    (when [is-located self]
+      [parent>>move self <direction>])))
 
 (define-method run puck ()
   ;; pucks don't stop moving.
