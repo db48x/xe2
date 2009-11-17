@@ -37,6 +37,32 @@
 
 (defparameter *colors* '(:purple :red :blue :orange :green :yellow :white))
 
+;;; Gates 
+
+(defparameter *gate-timeout* 30)
+
+(defcell gate
+  (categories :initform '(:actor :obstacle :gate))
+  (speed :initform (make-stat :base 10))
+  (tile :initform "gate-closed")
+  (clock :initform 0))
+
+(define-method open gate ()
+  [delete-category self :obstacle]
+  (setf <tile> "gate-open")
+  (setf <clock> *gate-timeout*))
+
+(define-method close gate ()
+  [add-category self :obstacle]
+  (setf <tile> "gate-closed")
+  (setf <clock> 0))
+
+(define-method run gate ()
+  [expend-action-points self 10]
+  (decf <clock>)
+  (when (zerop <clock>)
+    [close self]))
+
 ;;; The player's tail
 
 (defcell tail 
@@ -152,7 +178,7 @@
   (dead :initform nil)
   (speed :initform (make-stat :base 7 :min 5))
   (max-items :initform (make-stat :base 3))
-  (movement-cost :initform (make-stat :base 30))
+  (movement-cost :initform (make-stat :base 1))
   (stepping :initform t)
   (tail-length :initform (make-stat :base 20))
   (attacking-with :initform :robotic-arm)
@@ -177,6 +203,7 @@ Use chevrons to direct tracers into Black Holes."))
     (let ((world *active-world*))
       (when [obstacle-in-direction-p world row column <direction>]
 	(setf <direction> (car (one-of '(:north :south :east :west)))))
+      [expend-action-points self 25]
       [move self <direction>])))
 
 (define-method drop-wire tracer ()
@@ -219,6 +246,7 @@ Use chevrons to direct tracers into Black Holes."))
   (dexterity :initform (make-stat :base 12)))
     
 (define-method choose-new-direction monitor ()
+  [expend-action-points self 2]
   (setf <direction>
 	(if (= 0 (random 20))
 	    ;; occasionally choose a random dir
@@ -620,7 +648,9 @@ reach new areas and items. The puck also picks up the color.")
 		(when [in-category obstacle :wall]
 		  [paint self (field-value :color obstacle)]
 		  [die obstacle]
-		  [parent>>move self direction]))))))
+		  [parent>>move self direction])
+		(when [in-category obstacle :gate]
+		  [open obstacle]))))))
     (when [is-located self]
       [parent>>move self <direction>])))
 
@@ -644,6 +674,7 @@ reach new areas and items. The puck also picks up the color.")
 	:extenders (truncate (/ (* 3 (1- n)) 2))
 	:tracers (+ 4 (* (1- n) 3))
 	:monitors (+ 2 (* (1- n) 2))
+	:gates 3
 	:puckups (+ 4 (truncate (* (1- n) 2.5)))
 	:diamonds (+ 6 (* (1- n) 2))
 	:swatches (+ 10 (truncate (* 1.6 n)))))
@@ -664,6 +695,7 @@ reach new areas and items. The puck also picks up the color.")
 				   (tracers 4)
 				   (puckups 4)
 				   (monitors 3)
+				   (gates 3)
 				   (diamonds 6)
 				   (swatches 10))
   [create-default-grid self]
@@ -702,6 +734,11 @@ reach new areas and items. The puck also picks up the color.")
       [drop-cell self (clone =diamond=) (random height) (random width)])
     (dotimes (n puckups)
       [drop-cell self (clone =puckup=) (random height) (random width)])
+    (dotimes (n gates)
+      (labels ((drop-gate (r c)
+		 (prog1 nil [drop-cell *active-world* (clone =gate=) r c])))
+	(let ((left (random width)))
+	  (trace-row #'drop-gate (random height) left (+ left 5)))))
     ;; drop door
     (let ((door (clone =door=)))
       [level door (1+ <level>)]

@@ -3,8 +3,10 @@
 
  (:name "player" :type :image :file "player.png")
  (:name "player-empty" :type :image :file "player-empty.png")
+ (:name "gate-open" :type :image :file "gate-open.png")
+ (:name "gate-closed" :type :image :file "gate-closed.png")
  (:name "floor" :type :image :file "floor.png")
- (:name "splash" :type :image :file "vong.png")
+ (:name "splash" :type :image :file "xong.png")
  (:name "plus" :type :image :file "plus.png")
  (:name "hole" :type :image :file "hole.png")
  (:name "skull" :type :image :file "skull.png")
@@ -96,9 +98,9 @@
  (:name "sparqq" :type :music :file "sparqq.ogg" :properties (:volume 100))
  (:name "techworld" :type :music :file "techworld.ogg")
  (:name "pensive" :type :music :file "pensive.ogg")
- (:name "vong-theme" :type :music :file "vong.ogg" :properties (:volume 10))
+ (:name "xong-theme" :type :music :file "xong.ogg" :properties (:volume 10))
  (:name "help-message" :type :text :file "README")
- (:name ".startup" :type :lisp :file "vong.lisp" :properties (:autoload t))
+ (:name ".startup" :type :lisp :file "xong.lisp" :properties (:autoload t))
 
  (:name "worp" :type :sample :file "worp.wav" :properties (:volume 20))
  (:name "upwoop" :type :sample :file "upwoop.wav" :properties (:volume 20))

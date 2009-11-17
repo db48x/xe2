@@ -1,4 +1,5 @@
-** TODO no multi chevrons on one spot
+** TODO gates that open for limited time
+** TODO color gates require colored paint?
 ** TODO don't drop enemies into swatches... probe for open space 
 ** TODO flashing/disappearing chevrons
 ** TODO drop paint squares that do different things
