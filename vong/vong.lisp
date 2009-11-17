@@ -287,7 +287,7 @@ Use chevrons to direct tracers into Black Holes."))
       [grab stepper puck]
       [die self])))
 
-;;; Black hole eats anything in category :puck
+;;; Black hole eats anything in category :puck (and the player)
 
 (defcell hole 
   (tile :initform "hole")
@@ -298,9 +298,11 @@ Use chevrons to direct tracers into Black Holes."))
 defeat enemies by guiding them into the black holes."))
 
 (define-method step hole (stepper)
-  (when [in-category stepper :puck]
-    [play-sample self "hole-suck"]
-    [die stepper]))
+  [play-sample self "hole-suck"]
+  (if [in-category stepper :puck]
+      [die stepper]
+      (when [is-player stepper]
+	[damage stepper 1])))
 
 ;; (define-method die tracer ()
 ;;   (when (> 5 (random 10))
@@ -456,7 +458,8 @@ reach new areas and items. The puck also picks up the color.")
 
 (define-method drop-chevron player (direction)
   (unless <dead>
-    (if (zerop [stat-value self :chevrons])
+    (if (or (zerop [stat-value self :chevrons])
+	    [category-at-p *active-world* <row> <column> :chevron])
 	[play-sample self "error"]
 	(let ((chevron (clone =chevron=)))
 	  [drop self chevron]
