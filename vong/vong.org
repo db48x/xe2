@@ -1,6 +1,9 @@
+** TODO no multi chevrons on one spot
+** TODO don't drop enemies into swatches... probe for open space 
+** TODO flashing/disappearing chevrons
+** TODO drop paint squares that do different things
 ** TODO SCORE
-** TODO red guys that turn left at obstacles and explode when touching any puck
-** TODO nth last chevron disappears when you lay a chevron, N changes over time
+** TODO PAUSE
 ** TODO enemies who seek/eat chevrons
 ** TODO bangai-o laser walls... destroy the generator
 ** TODO security cameras which cause enemy spawn
@@ -8,12 +11,6 @@
 ** Paint the enemies
 ** goals have goalies who move back and forth and try to eat the ball.
 ** Breakout and surround. Bounce the ball off your trail.
-
-** Enemies drop black chevrons, which drain the color (no black goals)
-** Enemies also drop rows of mines
-** Three hit points
-** One inventory slot
-** s/ball/puck
-** dynamic color schemes? or just red/green/blue/orange/yellow?
+** situations where you try to get multiple balls going, where the bounce makes something happen
 ** pre-placed color rectangles are filled in when all 4 corner goals are properly colored
 ** speech synth talking and onscreen bubbles

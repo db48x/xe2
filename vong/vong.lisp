@@ -650,13 +650,6 @@ reach new areas and items. The puck also picks up the color.")
   (scale :initform '(1 nm))
   (ambient-light :initform :total))
 
-;; (define-method generate vong (&key (level 1)
-;; 				   (bricks 12)
-;; 				   (extenders 5)
-;; 				   (tracers 9)
-;; 				   (puckups 12)
-;; 				   (swatches 23))
-
 (define-method generate vong (&key (level 1)
 				   (bricks 5)
 				   (extenders 0)
@@ -706,9 +699,8 @@ reach new areas and items. The puck also picks up the color.")
       [level door (1+ <level>)]
       [drop-cell self door (random height) (random width)])))
 
-  
 (define-method begin-ambient-loop vong ()  
-  (play-music (car (one-of '("flyby" "pensive" "xiomacs"))) :loop t))
+  (play-music (car (one-of '("flyby" "pensive"))) :loop t))
       
 ;;; Splash screen
   

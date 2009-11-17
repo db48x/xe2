@@ -614,24 +614,27 @@ resource is stored; see also `find-resource'."
 		   *resource-table*) 
 	  val)))
 
-(defvar *module-directories* (list *default-pathname-defaults*
-				   #p"/usr/local/games/rlx/")
+(defvar *module-directories* 
+  (delete nil (list *default-pathname-defaults*
+		    #p"/usr/local/games/rlx/"))
   "List of directories where RLX will search for modules.
 Directories are searched in list order.")
 
 (defun find-module-path (module-name)
   "Search the `*module-directories*' path for a directory with the
 name MODULE-NAME. Returns the pathname if found, otherwise nil."
-  (or 
-   (loop 
-      for dir in *module-directories* for path
-      = (probe-file (make-pathname :directory 
-				   (append (pathname-directory
-					    dir) (list module-name))
-				   :defaults dir))
-      when path return path)
-   (error "Cannot find module ~s. You must set the variable RLX:*MODULE-DIRECTORIES* in the configuration file ~~/.rlxrc"
-   module-name)))
+  (let ((dirs (cons (load-time-value (or #.*compile-file-truename* *load-truename*))
+		    *module-directories*)))
+    (or 
+     (loop 
+       for dir in dirs for path
+	 = (probe-file (make-pathname :directory 
+				      (append (pathname-directory
+					       dir) (list module-name))
+			    :defaults dir))
+       when path return path)
+     (error "Cannot find module ~s in paths ~S. You must set the variable RLX:*MODULE-DIRECTORIES* in the configuration file ~~/.rlxrc"
+	    module-name *module-directories*))))
 
 (defun find-module-file (module-name file)
   "Make a pathname for FILE within the module MODULE-NAME."
