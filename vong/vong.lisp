@@ -807,11 +807,6 @@ reach new areas and items. The puck also picks up the color.")
   (setf clon:*send-parent-depth* 2) 
   (rlx:set-screen-height *vong-window-height*)
   (rlx:set-screen-width *vong-window-width*)
-  ;; enable pseudo timing
-  (rlx:set-frame-rate 30)
-  (rlx:enable-timer)
-  (rlx:set-timer-interval 1)
-  (rlx:enable-held-keys 1 3)
   ;; go!
   (let* ((prompt (clone =vong-prompt=))
 	 (universe (clone =universe=))
@@ -844,6 +839,12 @@ reach new areas and items. The puck also picks up the color.")
     [install-keybindings prompt]
     ;;
     (labels ((spacebar ()
+	       ;;
+	       ;; enable pseudo timing
+	       (rlx:enable-timer)
+	       (rlx:set-frame-rate 30)
+	       (rlx:set-timer-interval 1)
+	       (rlx:enable-held-keys 1 3)
 	       ;;
 	       [set-player universe player]
 	       [play universe
