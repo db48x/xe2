@@ -221,7 +221,7 @@ field named by STAT-NAME. The default is to change the :base value."
 
 (define-method delete-category cell (category)
   "Remove this cell from the specified CATEGORY."
-  (setf <categories> (delete category <categories>)))
+  (setf <categories> (remove category <categories>)))
 
 ;;; Action Points
 

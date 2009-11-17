@@ -54,8 +54,7 @@
 
 (define-method close gate ()
   [add-category self :obstacle]
-  (setf <tile> "gate-closed")
-  (setf <clock> 0))
+  (setf <tile> "gate-closed"))
 
 (define-method run gate ()
   [expend-action-points self 10]
