@@ -149,14 +149,15 @@ At the moment, only 0=off and 1=on are supported.")
     (aref <grid> row column)))
 
 (define-method replace-cells-at world (row column data)
-  (setf (aref <grid> row column)
-	(etypecase data
-	  (vector data)
-	  (clon:object (let ((cells (make-array *default-world-z-size* 
-						:adjustable t
-						:fill-pointer 0)))
-			 (prog1 cells
-			   (vector-push-extend data cells)))))))
+  (when (array-in-bounds-p <grid> row column)
+    (setf (aref <grid> row column)
+	  (etypecase data
+	    (vector data)
+	    (clon:object (let ((cells (make-array *default-world-z-size* 
+						  :adjustable t
+						  :fill-pointer 0)))
+			   (prog1 cells
+			     (vector-push-extend data cells))))))))
 
 (define-method drop-cell world (cell row column 
 				     &optional &key 

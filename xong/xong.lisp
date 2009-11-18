@@ -45,7 +45,8 @@
   (categories :initform '(:actor :obstacle :gate))
   (speed :initform (make-stat :base 10))
   (tile :initform "gate-closed")
-  (clock :initform 0))
+  (clock :initform 0)
+  (description :initform "Opens for a brief time when hit with the puck."))
 
 (define-method open gate ()
   [delete-category self :obstacle]
@@ -54,6 +55,7 @@
 
 (define-method close gate ()
   [add-category self :obstacle]
+  [play-sample self "gate-closing-sound"]
   (setf <tile> "gate-closed"))
 
 (define-method run gate ()
@@ -242,7 +244,12 @@ Use chevrons to direct tracers into Black Holes."))
   (energy :initform (make-stat :base 800 :min 0 :max 1000))
   (firing-with :initform :robotic-arm)
   (strength :initform (make-stat :base 24))
-  (dexterity :initform (make-stat :base 12)))
+  (dexterity :initform (make-stat :base 12))
+  (description :initform 
+"These security drones scan areas methodically until an intruder is
+detected; if you get close enough, an alarm sounds, and an electric
+shock field is projected in pulses. If you become trapped, try
+squeezing by in between pulses!"))
     
 (define-method choose-new-direction monitor ()
   [expend-action-points self 2]
@@ -331,16 +338,9 @@ defeat enemies by guiding them into the black holes."))
       (when [is-player stepper]
 	[damage stepper 1])))
 
-;; (define-method die tracer ()
-;;   (when (> 5 (random 10))
-;;     [drop self (clone (random-powerup))])
-;;   [play-sample self "blaagh"]
-;;   [parent>>die self])
-
-
 ;;; Bricks
 
-(defvar *brick-tiles* '(:purple "brick-purple"
+(defvar *lock-tiles* '(:purple "brick-purple"
 			:black "brick-black"
 			:red "brick-red"
 			:blue "brick-blue"
@@ -349,24 +349,30 @@ defeat enemies by guiding them into the black holes."))
 			:white "brick-white"
 			:yellow "brick-yellow"))
 
-(defcell brick 
-  (tile :initform "brick-white")
+(defcell lock 
+  (tile :initform "lock-white")
   (color :initform :white)
-  (categories :initform '(:obstacle :exclusive :paintable)))
+  (categories :initform '(:obstacle :exclusive :paintable))
+  (description :initform "These open permanently when hit with the same color paint."))
 
-(define-method paint brick (c)
+(define-method set-color lock (c)
   (setf <color> c)
-  (let ((res (getf *brick-tiles* c)))
+  (let ((res (getf *lock-tiles* c)))
     (assert (stringp res))
-    (setf <tile> res)
-    [spawn self]))
+    (setf <tile> res)))
 
-(define-method spawn brick ()
-  (let ((dir (car (one-of '(:north :south :east :west))))
-	(brick (clone =brick=)))
-    (multiple-value-bind (r c)
-	(step-in-direction <row> <column> dir)
-      [drop-cell *active-world* brick r c :probe t :exclusive t])))
+(define-method paint lock (color)
+  (if (eq <color> color)
+      (progn [play-sample self "lock-opening-sound"]
+	     [die self])
+      [play-sample self "error"]))
+
+;; (define-method spawn lock ()
+;;   (let ((dir (car (one-of '(:north :south :east :west))))
+;; 	(lock (clone =lock=)))
+;;     (multiple-value-bind (r c)
+;; 	(step-in-direction <row> <column> dir)
+;;       [drop-cell *active-world* lock r c :probe t :exclusive t])))
 
 ;;; Door to next level
 
@@ -663,17 +669,24 @@ reach new areas and items. The puck also picks up the color.")
   [play-sample self "buzz"]
   [parent>>die self])
 
+;;; Bulkheads are indestructible walls
+
+(defcell bulkhead
+  (name :initform "Bulkhead")
+  (tile :initform "bulkhead")
+  (categories :initform '(:obstacle))
+  (description :initform "It's an indestructible wall."))
+
 ;;; Xong game board
 
 (defun generate-level-address (n)
   (assert (and (integerp n) (plusp n)))
   (list '=xong= 
 	:level n
-	:bricks (* 3 (1- n))
 	:extenders (truncate (/ (* 3 (1- n)) 2))
 	:tracers (+ 4 (* (1- n) 3))
 	:monitors (+ 2 (* (1- n) 2))
-	:gates 3
+	:rooms 1
 	:puckups (+ 4 (truncate (* (1- n) 2.5)))
 	:diamonds (+ 6 (* (1- n) 2))
 	:swatches (+ 10 (truncate (* 1.6 n)))))
@@ -688,13 +701,53 @@ reach new areas and items. The puck also picks up the color.")
   (scale :initform '(1 nm))
   (ambient-light :initform :total))
 
+(define-method drop-room xong (row column height width next-level &optional (material =bulkhead=))
+  (let (rectangle openings)
+    (labels ((collect-point (&rest args)
+	       (prog1 nil (push args rectangle)))
+	     (drop-wall (r c)
+		 [drop-cell self (clone material) r c]))
+      (trace-rectangle #'collect-point row column height width)
+      ;; make sure there are openings
+      (dotimes (i 6)
+	(let ((n (random (length rectangle))))
+	  (push (nth n rectangle) openings)
+	  (setf rectangle (delete (nth n rectangle) rectangle))))
+      ;; draw walls
+      (dolist (point rectangle)
+	(destructuring-bind (r c) point
+	  (drop-wall r c)))
+      ;; draw gates
+      (dolist (point openings)
+	(destructuring-bind (r c) point
+	  [drop-cell self (clone =gate=) r c]))
+      ;; drop floor, obliterating what's below
+      (labels ((drop-floor (r c)
+		 (prog1 nil
+		   [replace-cells-at self r c (clone =floor=)]))
+	       (drop-lock (r c)
+		 (prog1 nil 
+		   (let ((lock (clone =lock=)))
+		     [set-color lock (car (one-of *colors*))]
+		     [drop-cell self lock r c]))))
+	(trace-rectangle #'drop-floor (1+ row) (1+ column) (- height 2) (- width 2) :fill)
+	;; drop lock puzzle
+	(let ((len 4)
+	      (col (+ column (truncate (/ width 2)))))
+	  (trace-column #'drop-wall (- col 1) row (+ row len))
+	  (trace-column #'drop-lock col (+ row 1) (+ row len))
+	  (trace-column #'drop-wall (+ col 1) row (+ row len))
+	  ;; drop door
+	  (let ((door (clone =door=)))
+	    [level door next-level]
+	    [drop-cell self door (1+ row) col]))))))
+
 (define-method generate xong (&key (level 1)
-				   (bricks 5)
 				   (extenders 0)
 				   (tracers 4)
+				   (rooms 1)
 				   (puckups 4)
 				   (monitors 3)
-				   (gates 3)
 				   (diamonds 6)
 				   (swatches 10))
   [create-default-grid self]
@@ -722,9 +775,11 @@ reach new areas and items. The puck also picks up the color.")
 		       :exclusive t]
 	    (trace-rectangle #'drop-wall r c
 			     (+ 4 (random 8)) (+ 4 (random 8)) :fill)))))
-    (dotimes (n bricks)
-      (let ((brick (clone =brick=)))
-	[drop-cell self brick (random height) (random width) :exclusive t]))
+    (dotimes (n rooms)
+      [drop-room self 
+		 (+ 5 (random (- height 15)))
+		 (+ 5 (random (- width 15)))
+		 (+ 10 (random 4)) (+ 9 (random 5)) (+ level 1)])
     (dotimes (n tracers)
       [drop-cell self (clone =tracer=) (random height) (random width) :loadout t])
     (dotimes (n extenders)
@@ -732,16 +787,7 @@ reach new areas and items. The puck also picks up the color.")
     (dotimes (n diamonds)
       [drop-cell self (clone =diamond=) (random height) (random width)])
     (dotimes (n puckups)
-      [drop-cell self (clone =puckup=) (random height) (random width)])
-    (dotimes (n gates)
-      (labels ((drop-gate (r c)
-		 (prog1 nil [drop-cell *active-world* (clone =gate=) r c])))
-	(let ((left (random width)))
-	  (trace-row #'drop-gate (random height) left (+ left 5)))))
-    ;; drop door
-    (let ((door (clone =door=)))
-      [level door (1+ <level>)]
-      [drop-cell self door (random height) (random width)])))
+      [drop-cell self (clone =puckup=) (random height) (random width)])))
 
 (define-method begin-ambient-loop xong ()  
   (play-music (car (one-of '("flyby" "pensive"))) :loop t))
