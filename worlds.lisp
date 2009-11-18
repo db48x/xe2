@@ -164,6 +164,8 @@ At the moment, only 0=off and 1=on are supported.")
 		  
 (define-method replace-cells-at world (row column data)
   (when (array-in-bounds-p <grid> row column)
+    (do-cells (cell (aref <grid> row column))
+      [cancel cell])
     (setf (aref <grid> row column)
 	  (etypecase data
 	    (vector data)

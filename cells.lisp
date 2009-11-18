@@ -743,6 +743,9 @@ slot."
 	[add-category self :dead]
 	[delete-from-world self])))
 
+(define-method cancel cell ()
+  nil)
+
 (define-method expend-energy cell (amount)
   (when (< amount [stat-value self :energy])
     (prog1 t

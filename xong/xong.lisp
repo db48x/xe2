@@ -219,6 +219,9 @@ Use chevrons to direct tracers into Black Holes."))
 (define-method loadout tracer ()
   (incf *enemies*))
 
+(define-method cancel tracer ()
+  (decf *enemies*))
+
 (define-method die tracer ()
   (unless <dead>
     (setf <dead> t)
@@ -266,6 +269,9 @@ squeezing by in between pulses!"))
   (incf *enemies*)
   [choose-new-direction self])
   
+(define-method cancel monitor ()
+  (decf *enemies*))
+
 ;; (define-method initialize monitor ()
 ;;   [make-inventory self]
 ;;   [make-equipment self])
@@ -714,7 +720,7 @@ reach new areas and items. The puck also picks up the color.")
     (labels ((collect-point (&rest args)
 	       (prog1 nil (push args rectangle)))
 	     (drop-wall (r c)
-		 [drop-cell self (clone material) r c]))
+		 [replace-cells-at self r c (clone material)]))
       (trace-rectangle #'collect-point row column height width)
       ;; make sure there are openings
       (dotimes (i 6)
