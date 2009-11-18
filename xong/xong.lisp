@@ -759,9 +759,6 @@ reach new areas and items. The puck also picks up the color.")
     (dotimes (i height)
       (dotimes (j width)
 	[drop-cell self (clone =floor=) i j]))
-    (dotimes (n monitors)
-      [drop-cell self (clone =monitor=) (+ 10 (random height)) (+ 10 (random width))
-		 :loadout t :exclusive t])
     (dotimes (n swatches)
       ;; ensure all colors are present,
       ;; after that make it random
@@ -785,6 +782,9 @@ reach new areas and items. The puck also picks up the color.")
 		 (+ 5 (random (- height 15)))
 		 (+ 5 (random (- width 15)))
 		 (+ 10 (random 4)) (+ 9 (random 5)) (+ level 1) puzzle-length])
+    (dotimes (n monitors)
+      [drop-cell self (clone =monitor=) (+ 10 (random height)) (+ 10 (random width))
+		 :loadout t :exclusive t])
     (dotimes (n tracers)
       [drop-cell self (clone =tracer=) (random height) (random width) :loadout t])
     (dotimes (n extenders)
@@ -792,10 +792,11 @@ reach new areas and items. The puck also picks up the color.")
     (dotimes (n diamonds)
       [drop-cell self (clone =diamond=) (random height) (random width)])
     (dotimes (n puckups)
-      [drop-cell self (clone =puckup=) (random height) (random width)])))
+      (multiple-value-bind (r c) [random-place self]
+	[drop-cell self (clone =puckup=) r c]))))
 
 (define-method begin-ambient-loop xong ()  
-  (play-music (car (one-of '("flyby" "pensive"))) :loop t))
+  (play-music (car (one-of '("flyby" "pensive" "toybox"))) :loop t))
       
 ;;; Splash screen
   
