@@ -1,3 +1,5 @@
+** TODO color code gets longer with higher levels
+** TODO fix enemy being obliterated by replace-cells
 ** TODO do something with trail?
 ** TODO always generate some swatches of each color
 ** TODO carrying objects
@@ -13,10 +15,7 @@
 ** TODO bangai-o laser walls... destroy the generator
 ** TODO security cameras which cause enemy spawn
 ** TODO fix AP breakage when tracer is stuck
-** Paint the enemies
-** goals have goalies who move back and forth and try to eat the ball.
-** Breakout and surround. Bounce the ball off your trail.
-** situations where you try to get multiple balls going, where the bounce makes something happen
+** TODO situations where you try to get multiple balls going, where the bounce makes something happen
 ** pre-placed color rectangles are filled in when all 4 corner goals are properly colored
 ** speech synth talking and onscreen bubbles
 
