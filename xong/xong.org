@@ -1,3 +1,5 @@
+** TODO do something with trail?
+** TODO always generate some swatches of each color
 ** TODO carrying objects
 ** TODO tutorial video
 ** TODO rooms with enemy generators inside that you must kill
@@ -17,3 +19,8 @@
 ** situations where you try to get multiple balls going, where the bounce makes something happen
 ** pre-placed color rectangles are filled in when all 4 corner goals are properly colored
 ** speech synth talking and onscreen bubbles
+
+* Other games
+** vomac (shmup)
+** plant growth 
+** fractal green world explorer

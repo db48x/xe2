@@ -655,7 +655,8 @@ reach new areas and items. The puck also picks up the color.")
 		  [die obstacle]
 		  [parent>>move self direction])
 		(when [in-category obstacle :gate]
-		  [open obstacle]))))))
+		  [open obstacle]
+		  [parent>>move self direction]))))))
     (when [is-located self]
       [parent>>move self <direction>])))
 
@@ -761,7 +762,11 @@ reach new areas and items. The puck also picks up the color.")
       [drop-cell self (clone =monitor=) (+ 10 (random height)) (+ 10 (random width))
 		 :loadout t :exclusive t])
     (dotimes (n swatches)
-      (let ((color (car (one-of *colors*))))
+      ;; ensure all colors are present,
+      ;; after that make it random
+      (let ((color (if (< n (length *colors*))
+		       (nth n *colors*)
+		       (car (one-of *colors*)))))
 	(labels ((drop-wall (r c)
 		   (prog1 nil
 		     (let ((wall (clone =wall=)))
