@@ -402,6 +402,7 @@ defeat enemies by guiding them into the black holes."))
 			:yellow "wall-yellow"))
 
 (defcell wall 
+  (name :initform "Paint block")
   (tile :initform "wall-purple")
   (description :initform
 "These blocks of paint can be broken using the puck to 
@@ -876,8 +877,8 @@ reach new areas and items. The puck also picks up the color.")
 	[print-stat-bar self :chevrons :color ".yellow"]
 	[space self]
 	[print self (format nil "   LEVEL:~S" (field-value :level *active-world*))]
-	[print self (format nil "   ENEMIES:~S" *enemies*)]
-	[print self "     HOLDING:"]
+	[print self (format nil "   ENEMIES REMAINING:~S" *enemies*)]
+	[print self "     PAINT COLOR:"]
 	(when (field-value :puck char)
 	  [print self nil :image (field-value :tile
 					      (field-value :puck char))])

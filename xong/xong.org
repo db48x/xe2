@@ -1,10 +1,16 @@
-** TODO color code gets longer with higher levels
-** TODO fix enemy being obliterated by replace-cells
+** TODO fix more missing enemies
+** TODO fix more point-blank firing mis-bounces for grey walls
+** TODO goal flash when enemies extinguished
+** TODO victory music?
+** TODO tend to place pucks in rooms
+** TODO don't spawn pucks in paint
+** TODO prioritize and review todos
+** TODO require LOS for electrification by monitor
 ** TODO do something with trail?
-** TODO always generate some swatches of each color
 ** TODO carrying objects
 ** TODO tutorial video
 ** TODO rooms with enemy generators inside that you must kill
+** TODO darker green
 ** TODO color gates require colored paint?
 ** TODO don't drop enemies into swatches... probe for open space 
 ** TODO flashing/disappearing chevrons
