@@ -148,6 +148,20 @@ At the moment, only 0=off and 1=on are supported.")
   (when (array-in-bounds-p <grid> row column)
     (aref <grid> row column)))
 
+(define-method random-place world ()
+  (clon:with-field-values (width height) self
+    (let ((limit 10000)
+	  (n 0)
+	  found r c)
+      (loop do (progn (setf r (random height))
+		      (setf c (random width))
+		      (incf n)
+		      (unless [category-at-p self r c :exclusive]
+			(setf found t)))
+	    while (and (not found) 
+		       (< n limit)))
+      (values r c found))))
+		  
 (define-method replace-cells-at world (row column data)
   (when (array-in-bounds-p <grid> row column)
     (setf (aref <grid> row column)
