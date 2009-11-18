@@ -91,6 +91,7 @@
  (:name "metro" :type :music :file "metro.ogg" :properties (:volume 12))
  (:name "flyby" :type :music :file "flyby.ogg" :properties (:volume 90))
  (:name "door" :type :image :file "door.png")
+ (:name "door-open" :type :image :file "door-open.png")
  (:name "bloop" :type :sample :file "bloop.wav" :properties (:volume 8))
  (:name "error" :type :sample :file "error.wav" :properties (:volume 50))
  (:name "freeze" :type :sample :file "freeze.wav" :properties (:volume 8))

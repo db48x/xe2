@@ -1,4 +1,6 @@
+** TODO fix not obliterating grey wall area
 ** TODO fix more missing enemies
+** TODO fix puck getting colored by locks?
 ** TODO fix more point-blank firing mis-bounces for grey walls
 ** TODO goal flash when enemies extinguished
 ** TODO victory music?

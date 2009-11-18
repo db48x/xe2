@@ -306,7 +306,6 @@ squeezing by in between pulses!"))
     [play-sample self "death-alien"]
     [delete-from-world self]))
 
-
 ;;; Replacement puck
 
 (defcell puckup 
@@ -378,7 +377,9 @@ defeat enemies by guiding them into the black holes."))
 
 (define-prototype door (:parent rlx:=gateway=)
   (tile :initform "door")
+  (name :initform "Level exit")
   (description :initform "Door to the next level of Xong.")
+  (categories :initform '(:gateway :actor))
   (address :initform nil))
   
 (define-method level door (lev)
@@ -389,6 +390,10 @@ defeat enemies by guiding them into the black holes."))
     (if (zerop *enemies*)
 	[activate self]
 	[play-sample self "error"])))
+
+(define-method run door ()
+  (when (zerop *enemies*)
+    (setf <tile> "door-open")))
 	
 ;;; Breakable paint walls re-color the ball
 
@@ -736,13 +741,14 @@ reach new areas and items. The puck also picks up the color.")
 	(trace-rectangle #'drop-floor (1+ row) (1+ column) (- height 2) (- width 2) :fill)
 	;; drop lock puzzle
 	(let ((col (+ column (truncate (/ width 2)))))
-	  (trace-column #'drop-wall (- col 1) row (+ row puzzle-length))
-	  (trace-column #'drop-lock col (+ row 1) (+ row puzzle-length))
-	  (trace-column #'drop-wall (+ col 1) row (+ row puzzle-length))
+	  (trace-column #'drop-wall (- col 1) row (+ 1 row puzzle-length))
+	  (trace-column #'drop-lock col (+ row 2) (+ 1 row puzzle-length))
+	  (trace-column #'drop-wall (+ col 1) row (+ 1 row puzzle-length))
 	  ;; drop door
 	  (let ((door (clone =door=)))
 	    [level door next-level]
-	    [drop-cell self door (1+ row) col]))))))
+	    [drop-cell self (clone material) (+ 1 row) col]
+	    [drop-cell self door (+ 2 row) col]))))))
 
 (define-method generate xong (&key (level 1)
 				   (extenders 0)
@@ -782,7 +788,7 @@ reach new areas and items. The puck also picks up the color.")
       [drop-room self 
 		 (+ 5 (random (- height 15)))
 		 (+ 5 (random (- width 15)))
-		 (+ 10 (random 4)) (+ 9 (random 5)) (+ level 1) puzzle-length])
+		 (+ 9 (random 6)) (+ 10 (random 4)) (+ level 1) puzzle-length])
     (dotimes (n monitors)
       [drop-cell self (clone =monitor=) (+ 10 (random height)) (+ 10 (random width))
 		 :loadout t :exclusive t])
