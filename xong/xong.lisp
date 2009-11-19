@@ -23,7 +23,7 @@
 ;;; Packaging
 
 (defpackage :xong
-  (:documentation "XONG is a variation on Pong.")
+  (:documentation "XONG is a colorful puzzle game in Common Lisp.")
   (:use :rlx :common-lisp)
   (:export xong))
 
@@ -668,7 +668,9 @@ reach new areas and items. The puck also picks up the color.")
 		  [parent>>move self direction])
 		(when [in-category obstacle :gate]
 		  [open obstacle]
-		  [parent>>move self direction]))))))
+		  [parent>>move self direction])
+		(when [in-category obstacle :bulkhead]
+		  [parent>>move self direction :ignore-obstacles]))))))
     (when [is-located self]
       [parent>>move self <direction>])))
 
@@ -687,7 +689,7 @@ reach new areas and items. The puck also picks up the color.")
 (defcell bulkhead
   (name :initform "Bulkhead")
   (tile :initform "bulkhead")
-  (categories :initform '(:obstacle))
+  (categories :initform '(:obstacle :bulkhead))
   (description :initform "It's an indestructible wall."))
 
 ;;; Xong game board
@@ -698,7 +700,9 @@ reach new areas and items. The puck also picks up the color.")
 	:level n
 	:extenders (truncate (/ (* 3 (1- n)) 2))
 	:tracers (+ 4 (* (1- n) 3))
-	:monitors (+ 2 (* (1- n) 2))
+	:monitors (if (= n 1)
+		      0
+		      (* 2 (truncate (/ n 2))))
 	:rooms 1
 	:puzzle-length (+ 4 (truncate (/ n 3)))
 	:puckups (+ 4 (truncate (* (1- n) 2.5)))
@@ -931,7 +935,7 @@ reach new areas and items. The puck also picks up the color.")
     [hide splash-prompt]
     [set-receiver splash-prompt splash]
     ;;
-    [resize *status* :height 20 :width 500]
+    [resize *status* :height 20 :width *xong-window-width*]
     [move *status* :x 0 :y 0]
     ;;
     [resize prompt :height 20 :width 100]
