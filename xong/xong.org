@@ -1,41 +1,40 @@
 ** TODO [#A] easier level 1
-** TODO [#A] breakable one-hit shield
 ** TODO [#A] black holes fill up?
-** TODO [#A] PAUSE
-** TODO [#A] SCORE
-** TODO [#A] fix clicks in pensive track
-** TODO [#A]  Don't generate instadeaths
+** TODO [#B] fix clicks in pensive track
+** TODO [#A] Don't generate instadeath levels
 ** TODO [#A] always generate complete rooms (nothing cut off)
 ** TODO [#A] don't drop enemies into swatches... probe for open space 
 ** TODO [#A] don't drop enemies on exit (use replace-cells for exit)
 ** TODO [#A] always ensure dropped all colors!
 ** TODO [#A] don't drop items on black holes or grey walls
 ** TODO [#A] more time pressure (3rd enemy appears or awakens?)
-** TODO [#A] prioritize and review todos
 ** TODO [#A] require LOS for electrification by monitor
 ** TODO [#A] tend to place pucks in rooms
 ** TODO [#A] fix colored blocks under stuff
 ** TODO [#A] fix spooky-action-at-a-distance puck stuff when lock closes on player
+** TODO [#A] PAUSE
+** TODO [#A] SCORE
 
-** TODO [#B] warning with low chevrons
-** TODO [#B] start with 5 chevrons?
-** TODO [#B] don't generate doors in corner of room
-** TODO [#B] quick ref in lower right side of screen
-** TODO [#B] fix movement of status line when puck in/out
+
 ** TODO [#B] darker green
+** TODO [#B] don't generate doors in corner of room
 ** TODO [#B] don't spawn pucks in paint
 ** TODO [#B] drop paint squares that do different things
+** TODO [#B] fix movement of status line when puck in/out
+** TODO [#B] quick ref in lower right side of screen
+** TODO [#B] start with 5 chevrons?
 ** TODO [#B] tutorial video
-
+** TODO [#B] warning with low chevrons
 ** TODO [#C] bangai-o laser walls... destroy the generator
+** TODO [#C] breakable one-hit shield
 ** TODO [#C] carrying objects
 ** TODO [#C] do something with trail?
 ** TODO [#C] enemies who seek/eat chevrons
 ** TODO [#C] flashing/disappearing chevrons
+** TODO [#C] oldschool illustrated pdf manual
 ** TODO [#C] security cameras which cause enemy spawn
 ** TODO [#C] situations where you try to get multiple balls going, where the bounce makes something happen
 ** TODO [#C] victory music?
-** TODO [#C] oldschool illustrated pdf manual
 * Other games
 ** vomac (shmup)
 ** plant growth 
