@@ -294,7 +294,10 @@ squeezing by in between pulses!"))
 (define-method run monitor ()
   (clon:with-field-values (row column) self
     (let ((world *active-world*))
-      (if (< [distance-to-player world row column] 6)
+      (if (and (< [distance-to-player world row column] 7)
+	       [line-of-sight world row column 
+			      [player-row world]
+			      [player-column world]])
 	  (let ((player-dir [direction-to-player world row column]))
 	    [alarm self]
 	    [move self player-dir]
@@ -700,9 +703,9 @@ reach new areas and items. The puck also picks up the color.")
 	:level n
 	:extenders (truncate (/ (* 3 (1- n)) 2))
 	:tracers (+ 4 (* (1- n) 3))
-	:monitors (if (= n 1)
-		      0
-		      (* 2 (truncate (/ n 2))))
+	:monitors (or 10 (if (= n 1)
+			    0
+			    (* 2 (truncate (/ n 2)))))
 	:rooms 1
 	:puzzle-length (+ 4 (truncate (/ n 3)))
 	:puckups (+ 4 (truncate (* (1- n) 2.5)))
@@ -986,6 +989,19 @@ reach new areas and items. The puck also picks up the color.")
     [move terminal :x 0 :y (- *xong-window-height* 80)]
     [set-verbosity terminal 0]
     ;;
+    ;; HACK
+    (labels ((light-hack (sr sc r c &optional (color ".white"))
+    	       (labels ((hack-overlay (image)
+    			  (multiple-value-bind (sx sy)
+    			      [get-screen-coordinates *viewport* sr sc]
+    			    (multiple-value-bind (x y)
+    				[get-screen-coordinates *viewport* r c]
+    			      (draw-line x y sx sy :destination image
+    					 :color color)
+			      (draw-circle x y 5 :destination image)))))
+    		 [add-overlay *viewport* #'hack-overlay]))))
+;;      (setf rlx::*lighting-hack-function* #'light-hack))
+    ;; END HACK
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
     (rlx:install-widgets splash-prompt splash)
