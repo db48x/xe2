@@ -783,7 +783,12 @@ reach new areas and items. The puck also picks up the color.")
       ;; draw gates
       (dolist (point openings)
 	(destructuring-bind (r c) point
-	  [replace-cells-at self r c (clone =gate=)]))
+	  ;; not on corners though...
+	  (unless (or (and (= r row) (= c column)) ;; top left 
+		      (and (= r row) (= c (+ -1 column width))) ;; top right
+		      (and (= r (+ -1 row height)) (= c column)) ;; bottom left
+		      (and (= r (+ -1 row height)) (= c (+ -1 column width)))) ;; bottom right
+	    [replace-cells-at self r c (clone =gate=)])))
       ;; drop floor, obliterating what's below
       (labels ((drop-floor (r c)
 		 (prog1 nil
@@ -861,9 +866,11 @@ reach new areas and items. The puck also picks up the color.")
 	    [random-place self :avoiding player :distance 10]
 	  [drop-cell self tracer r c :loadout t])))
     (dotimes (n extenders)
-      [drop-cell self (clone =extender=) (random height) (random width) :exclusive t])
+      (multiple-value-bind (r c) [random-place self]
+	[drop-cell self (clone =extender=) r c]))
     (dotimes (n diamonds)
-      [drop-cell self (clone =diamond=) (random height) (random width) :exclusive t])
+      (multiple-value-bind (r c) [random-place self]
+	[drop-cell self (clone =diamond=) r c]))
     (dotimes (n puckups)
       (multiple-value-bind (r c) [random-place self]
 	[drop-cell self (clone =puckup=) r c]))
