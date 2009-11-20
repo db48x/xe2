@@ -363,8 +363,6 @@ holes can only eat one object before closing!"))
 	   (setf <open> nil)
 	   (setf <tile> "hole-closed"))))
 
-
-
 ;;; Bricks
 
 (defvar *lock-tiles* '(:purple "brick-purple"
@@ -747,6 +745,7 @@ reach new areas and items. The puck also picks up the color.")
 		      (* 2 (truncate (/ n 2))))
 	:rooms 1
 	:puzzle-length (+ 4 (truncate (/ n 3)))
+	:extra-holes (+ 4 (truncate (/ n 3)))
 	:puckups (+ 4 (truncate (* (1- n) 2.5)))
 	:diamonds (+ 9 (* (1- n) 3))
 	:swatches (+ 10 (truncate (* 1.6 n)))))
@@ -818,6 +817,7 @@ reach new areas and items. The puck also picks up the color.")
 				   (rooms 1)
 				   (puzzle-length 4)
 				   (puckups 4)
+				   (extra-holes 4)
 				   (monitors 3)
 				   (diamonds 6)
 				   (swatches 8))
@@ -867,7 +867,10 @@ reach new areas and items. The puck also picks up the color.")
       [drop-cell self (clone =diamond=) (random height) (random width) :exclusive t])
     (dotimes (n puckups)
       (multiple-value-bind (r c) [random-place self]
-	[drop-cell self (clone =puckup=) r c]))))
+	[drop-cell self (clone =puckup=) r c]))
+    (dotimes (n extra-holes)
+      (multiple-value-bind (r c) [random-place self]
+	[drop-cell self (clone =hole=) r c]))))
 
 (define-method begin-ambient-loop xong ()  
   (play-music (car (one-of '("flyby" "sparqq" "phong" "pensive" "toybox"))) :loop t))
