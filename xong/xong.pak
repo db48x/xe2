@@ -101,6 +101,7 @@
  (:name "bounce" :type :sample :file "bounce.wav" :properties (:volume 8))
  (:name "sparqq" :type :music :file "sparqq.ogg" :properties (:volume 100))
  (:name "techworld" :type :music :file "techworld.ogg")
+ (:name "phong" :type :music :file "phong.ogg")
  (:name "pensive" :type :music :file "pensive.ogg")
  (:name "xong-theme" :type :music :file "xong.ogg" :properties (:volume 10))
  (:name "help-message" :type :text :file "README")

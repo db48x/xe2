@@ -816,7 +816,7 @@ reach new areas and items. The puck also picks up the color.")
 	[drop-cell self (clone =puckup=) r c]))))
 
 (define-method begin-ambient-loop xong ()  
-  (play-music (car (one-of '("flyby" "pensive" "toybox"))) :loop t))
+  (play-music (car (one-of '("flyby" "sparqq" "phong" "pensive" "toybox"))) :loop t))
       
 ;;; Splash screen
   
