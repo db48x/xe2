@@ -33,6 +33,11 @@
 
 (defvar *enemies* 0)
 
+;;; Scoring points
+
+(defun score (points)
+  [score-points [get-player *active-world*] points])
+
 ;;; Colors
 
 (defparameter *colors* '(:purple :red :blue :orange :green :yellow :white))
@@ -123,6 +128,7 @@
 (define-method step chevron (stepper)
   (when [in-category stepper :puck]
     [play-sample self "chevron"]
+    (score 1000)
     [kick stepper <direction>]))
 
 ;;; Diamond pickup replenishes chevrons
@@ -136,6 +142,7 @@
   (when [in-category stepper :pointer]
     [stat-effect stepper :chevrons 5]
     [play-sample self "worp"]
+    (score 1000)
     [die self]))
 
 ;;; Tracers lay down deadly red wires
@@ -221,13 +228,14 @@ Use chevrons to direct tracers into Black Holes."))
 (define-method loadout tracer ()
   (incf *enemies*))
 
-(define-method cancel tracer ()
+*(define-method cancel tracer ()
   (decf *enemies*))
 
 (define-method die tracer ()
   (unless <dead>
     (setf <dead> t)
     (decf *enemies*)
+    (score 2000)
     [delete-from-world self]))
 
 ;;; The deadly security monitor has a deadly ring field attack
@@ -315,6 +323,7 @@ squeezing by in between pulses!"))
     (setf <dead> t)
     (decf *enemies*)
     [play-sample self "death-alien"]
+    (score 5000)
     [delete-from-world self]))
 
 ;;; Replacement puck
@@ -328,6 +337,7 @@ squeezing by in between pulses!"))
   (when [is-player stepper]
     (let ((puck (clone =puck=)))
       [drop self puck]
+      (score 1000)
       [grab stepper puck]
       [die self])))
 
@@ -381,6 +391,7 @@ holes can only eat one object before closing!"))
 (define-method paint lock (color)
   (if (eq <color> color)
       (progn [play-sample self "lock-opening-sound"]
+	     (score 1000)
 	     [die self])
       [play-sample self "error"]))
 
@@ -406,7 +417,10 @@ holes can only eat one object before closing!"))
 (define-method step door (stepper)
   (when [is-player stepper]
     (if (zerop *enemies*)
-	[activate self]
+	(progn 
+	  (score 20000)
+	  [play-sample self "go"]
+	  [activate self])
 	[play-sample self "error"])))
 
 (define-method run door ()
@@ -439,6 +453,10 @@ reach new areas and items. The puck also picks up the color.")
     (assert (stringp res))
     (setf <tile> res)))
 
+(define-method die wall ()
+  (score 100)
+  [parent>>die self])
+
 ;; (define-method step wall (puck)
 ;;   (when [in-category puck :puck]
 ;;     [paint puck <color>]
@@ -460,7 +478,7 @@ reach new areas and items. The puck also picks up the color.")
 (defcell player 
   (tile :initform "player")
   (name :initform "Player")
-  (score :initform (make-stat :base 0))
+  (score :initform (make-stat :base 0 :min 0))
   (last-direction :initform :north)
   (dead :initform nil)
   (puck :initform nil)
@@ -490,6 +508,10 @@ reach new areas and items. The puck also picks up the color.")
 					      (field-value :color <puck>)
 					      :other))))
     [step-on-current-square self]))
+
+(define-method score-points player (points)
+  [stat-effect self :score points]
+  [>>narrateln :narrator (format nil "Scored ~S points." points)])
 
 (define-method quit player ()
   (rlx:quit :shutdown))
@@ -924,9 +946,11 @@ reach new areas and items. The puck also picks up the color.")
 	[print self (format nil "   LEVEL:~S" (field-value :level *active-world*))]
 	[print self (format nil "   ENEMIES REMAINING:~S" *enemies*)]
 	[print self "     PAINT COLOR:"]
-	(when (field-value :puck char)
-	  [print self nil :image (field-value :tile
-					      (field-value :puck char))])
+	(if (field-value :puck char)
+	    [print self nil :image (field-value :tile
+						(field-value :puck char))]
+	    [print self nil :image "hole-closed"])
+	[print self (format nil "   SCORE:~S" [stat-value char :score])]
 	[newline self])))
 
 ;;; Main program. 
