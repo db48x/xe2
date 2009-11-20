@@ -1,5 +1,7 @@
 This is the help screen. Press F2 to return to play. While playing you
-can click any object for help.
+can click any object for help. Press PAUSE (or CONTROL-P) to pause,
+this makes it easier to click and see what all the different objects
+are.
 
 You are the white square at the top left corner of the screen. You can
 move in any of the four compass directions using the arrow keys,
@@ -25,11 +27,11 @@ be destroyed if it hits a red wire or a black hole, so be careful
 where you fire. You will also die instantly if you touch any of these
 things, or are hit by any attack or projectile. When you die, the game
 is over, and you can press ESCAPE to start over at level 1, or
-CONTROL-Q to quit.
+CONTROL-Q to quit. Black holes can only be used once.
 
 To get a new puck, pick up one of the letter P's that litter the
 environment. Be careful, if you are already holding a puck, the one
-you pick up is wasted.
+you pick up is wasted. 
 
 To clear a level, one must defeat all the enemies, and use the paint
 puck to open the coded lock that blocks the exit to the next

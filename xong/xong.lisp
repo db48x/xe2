@@ -784,7 +784,7 @@ reach new areas and items. The puck also picks up the color.")
       ;; draw gates
       (dolist (point openings)
 	(destructuring-bind (r c) point
-	  [drop-cell self (clone =gate=) r c]))
+	  [replace-cells-at self r c (clone =gate=)]))
       ;; drop floor, obliterating what's below
       (labels ((drop-floor (r c)
 		 (prog1 nil
