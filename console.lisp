@@ -419,14 +419,15 @@ window. Set this in the game startup file.")
 				    (progn 
 				      ;; deliver messages in a queued environment
 				      (sdl:clear-display sdl:*black*)
-				      (when (field-value :message-queue *active-world*)
-					(with-message-queue (field-value :message-queue *active-world*)
-					  (case button
-					    (1 (when (has-method :select object) 
-						 [select object]))
-					    (2 (when (has-method :activate object) 
-						 [activate object]))))
-					[process-messages *active-world*])
+				      (when *active-world*
+					(when (field-value :message-queue *active-world*)
+					  (with-message-queue (field-value :message-queue *active-world*)
+					    (case button
+					      (1 (when (has-method :select object) 
+						   [select object]))
+					      (2 (when (has-method :activate object) 
+						   [activate object]))))
+					  [process-messages *active-world*]))
 				      ;; (dispatch-event *timer-event*)
 				      (show-widgets)
 				      (sdl:update-display)))))
@@ -636,7 +637,9 @@ name MODULE-NAME. Returns the pathname if found, otherwise nil."
 					       dir) (list module-name))
 			    :defaults dir))
        when path return path)
-     (error "Cannot find module ~s in paths ~S. You must set the variable RLX:*MODULE-DIRECTORIES* in the configuration file ~~/.rlxrc"
+     (error "Cannot find module ~s in paths ~S. 
+You must set the variable RLX:*MODULE-DIRECTORIES* in the configuration file ~~/.rlxrc
+Please see the included file BINARY-README for instructions."
 	    module-name dirs))))
 
 (defun find-module-file (module-name file)

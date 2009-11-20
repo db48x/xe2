@@ -1,7 +1,8 @@
 ** DONE [#A] fix spooky-action-at-a-distance puck stuff when lock closes on player
 CLOSED: [2009-11-20 Fri 06:24]
+** TODO 
 ** TODO [#A] always ensure dropped all colors!
-** TODO [#B] fix click splash error
+
 
 ** TODO [#B] darker green
 ** TODO [#B] more time pressure (3rd enemy appears or awakens?)
