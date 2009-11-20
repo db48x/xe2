@@ -728,7 +728,7 @@ reach new areas and items. The puck also picks up the color.")
 (defcell bulkhead
   (name :initform "Bulkhead")
   (tile :initform "bulkhead")
-  (categories :initform '(:obstacle :bulkhead))
+  (categories :initform '(:obstacle :bulkhead :exclusive))
   (description :initform "It's an indestructible wall."))
 
 ;;; Xong game board
