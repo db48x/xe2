@@ -1,6 +1,5 @@
 ** TODO [#A] always ensure dropped all colors!
-** TODO [#B] fix clicks in pensive track
-
+** TODO [#A] don't generate holes on wall
 
 ** TODO [#B] darker green
 ** TODO [#B] more time pressure (3rd enemy appears or awakens?)

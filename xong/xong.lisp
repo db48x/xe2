@@ -1058,8 +1058,8 @@ reach new areas and items. The puck also picks up the color.")
     			      (draw-line x y sx sy :destination image
     					 :color color)
 			      (draw-circle x y 5 :destination image)))))
-    		 [add-overlay *viewport* #'hack-overlay])))
-      (setf rlx::*lighting-hack-function* #'light-hack))
+    		 [add-overlay *viewport* #'hack-overlay]))))
+;;      (setf rlx::*lighting-hack-function* #'light-hack))
     ;; END HACK
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
