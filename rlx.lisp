@@ -108,7 +108,7 @@
   set-music-volume add-message-verbosities with-message-queue
   =minimap= draw-pixel *user-keyboard-layout* *fullscreen* draw-circle
   set-field-option-value =pager= =pager-prompt= load-module
-  field-options world set-frame-rate *frame-rate* =stack=
+  field-options world set-frame-rate *frame-rate* =stack= *window-title*
   set-timer-interval *message-logging* overlay set-screen-width
   =universe= *active-universe* set-screen-height genseq *zoom-factor*
   zoom-image is-zoomed-resource *timer-interval* enable-timer

@@ -135,6 +135,7 @@
 (defcell diamond 
   (tile :initform "chevron-pickup")
   (name :initform "Chevron pack")
+  (categories :initform '(:exclusive))
   (description :initform "Adds five chevrons to your inventory."))
 
 (define-method step diamond (stepper)
@@ -330,6 +331,7 @@ squeezing by in between pulses!"))
 (defcell puckup 
   (tile :initform "puckup")
   (name :initform "Replacement puck")
+  (categories :initform '(:exclusive))
   (description :initform "A new puck, in case you lose the one you have."))
 
 (define-method step puckup (stepper)
@@ -984,6 +986,7 @@ reach new areas and items. The puck also picks up the color.")
 
 (defun xong ()
   (rlx:message "Initializing Xong...")
+  (setf rlx:*window-title* "Xong")
   (setf clon:*send-parent-depth* 2) 
   (rlx:set-screen-height *xong-window-height*)
   (rlx:set-screen-width *xong-window-width*)

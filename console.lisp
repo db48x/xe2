@@ -396,13 +396,15 @@ window. Set this in the game startup file.")
 
 (defvar *fullscreen* nil)
 
+(defvar *window-title* "RLX")
+
 (defun run-main-loop ()
   (if *fullscreen*
       (sdl:window *screen-width* *screen-height*
-		  :title-caption "RLX"
+		  :title-caption *window-title*
 		  :flags sdl:SDL-FULLSCREEN)
       (sdl:window *screen-width* *screen-height*
-		  :title-caption "RLX"))
+		  :title-caption *window-title*))
   (setf *joystick-device* (sdl-cffi::sdl-joystick-open 0))
   (reset-joystick)
   (sdl:clear-display sdl:*black*)
