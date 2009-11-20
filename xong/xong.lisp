@@ -762,7 +762,8 @@ reach new areas and items. The puck also picks up the color.")
   (scale :initform '(1 nm))
   (ambient-light :initform :total))
 
-(define-method drop-room xong (row column height width next-level puzzle-length &optional (material =bulkhead=))
+(define-method drop-room xong (row column height width 
+				   next-level puzzle-length &optional (material =bulkhead=))
   (let (rectangle openings)
     (labels ((collect-point (&rest args)
 	       (prog1 nil (push args rectangle)))
@@ -773,9 +774,17 @@ reach new areas and items. The puck also picks up the color.")
       (trace-rectangle #'collect-point row column height width)
       ;; make sure there are openings
       (dotimes (i 6)
-	(let ((n (random (length rectangle))))
-	  (push (nth n rectangle) openings)
-	  (setf rectangle (delete (nth n rectangle) rectangle))))
+	(let* ((n (random (length rectangle)))
+	       (point (nth n rectangle)))
+	  (destructuring-bind (r c) point
+	    ;; don't make gate holes on corners or above exit
+	    (unless (or (and (= r row) (= c (+ column (truncate (/ width 2)))))
+			(and (= r row) (= c column)) ;; top left 
+			(and (= r row) (= c (+ -1 column width))) ;; top right
+			(and (= r (+ -1 row height)) (= c column)) ;; bottom left
+			(and (= r (+ -1 row height)) (= c (+ -1 column width)))) ;; bottom right
+	      (push (nth n rectangle) openings)
+	      (setf rectangle (delete (nth n rectangle) rectangle))))))
       ;; draw walls
       (dolist (point rectangle)
 	(destructuring-bind (r c) point
@@ -783,12 +792,7 @@ reach new areas and items. The puck also picks up the color.")
       ;; draw gates
       (dolist (point openings)
 	(destructuring-bind (r c) point
-	  ;; not on corners though...
-	  (unless (or (and (= r row) (= c column)) ;; top left 
-		      (and (= r row) (= c (+ -1 column width))) ;; top right
-		      (and (= r (+ -1 row height)) (= c column)) ;; bottom left
-		      (and (= r (+ -1 row height)) (= c (+ -1 column width)))) ;; bottom right
-	    [replace-cells-at self r c (clone =gate=)])))
+	  [replace-cells-at self r c (clone =gate=)]))
       ;; drop floor, obliterating what's below
       (labels ((drop-floor (r c)
 		 (prog1 nil
@@ -813,7 +817,7 @@ reach new areas and items. The puck also picks up the color.")
 	  (dotimes (n (1+ (random 2)))
 	    [drop-cell self (clone =puckup=) (+ 2 (random 2) row)
 		       (+ 2 (random 2) column)]))))))
-	    
+  
 
 (define-method generate xong (&key (level 1)
 				   (extenders 0)

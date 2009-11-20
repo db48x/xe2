@@ -1,10 +1,7 @@
 ** TODO [#A] always ensure dropped all colors!
-** TODO [#A] don't generate holes on wall
 
-** TODO [#B] darker green
 ** TODO [#B] more time pressure (3rd enemy appears or awakens?)
 ** TODO [#B] explanation of color puzzle
-** TODO [#B] don't generate doors in corner of room
 ** TODO [#B] organize help and format with icons
 ** TODO [#B] quick ref in lower right side of screen
 ** TODO [#B] tutorial video
