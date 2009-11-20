@@ -1,15 +1,11 @@
-** DONE [#A] fix spooky-action-at-a-distance puck stuff when lock closes on player
-CLOSED: [2009-11-20 Fri 06:24]
-** TODO 
 ** TODO [#A] always ensure dropped all colors!
+** TODO [#B] fix clicks in pensive track
 
 
 ** TODO [#B] darker green
 ** TODO [#B] more time pressure (3rd enemy appears or awakens?)
 ** TODO [#B] explanation of color puzzle
 ** TODO [#B] don't generate doors in corner of room
-** TODO [#B] don't spawn pucks in paint
-** TODO [#B] fix clicks in pensive track
 ** TODO [#B] organize help and format with icons
 ** TODO [#B] quick ref in lower right side of screen
 ** TODO [#B] tutorial video
@@ -21,13 +17,11 @@ CLOSED: [2009-11-20 Fri 06:24]
 ** TODO [#C] carrying objects
 ** TODO [#C] do something with trail?
 ** TODO [#C] enemies who seek/eat chevrons
-** TODO [#C] fix hit points message
 ** TODO [#C] flashing/disappearing chevrons
 ** TODO [#C] oldschool illustrated pdf manual
 ** TODO [#C] security cameras which cause enemy spawn
 ** TODO [#C] situations where you try to get multiple balls going, where the bounce makes something happen
 ** TODO [#C] victory music?
-** TODO ways to turn chevrons into a wall
 * Other games
 ** vomac (shmup)
 ** plant growth 
