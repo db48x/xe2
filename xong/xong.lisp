@@ -420,6 +420,7 @@ holes can only eat one object before closing!"))
 	(progn 
 	  (score 20000)
 	  [play-sample self "go"]
+	  [say self "You made it to the next level!"]
 	  [activate self])
 	[play-sample self "error"])))
 
@@ -537,14 +538,17 @@ reach new areas and items. The puck also picks up the color.")
 
 (define-method drop-chevron player (direction)
   (unless <dead>
-    (if (or (zerop [stat-value self :chevrons])
-	    [category-at-p *active-world* <row> <column> :chevron])
-	[play-sample self "error"]
-	(let ((chevron (clone =chevron=)))
-	  [drop self chevron]
-	  [play-sample self "powerup"]
-	  [stat-effect self :chevrons -1]
-	  [orient chevron direction]))))
+    (if (zerop [stat-value self :chevrons])
+	(progn [play-sample self "error"]
+	       [say self "You don't have any chevrons to drop."])
+	(if [category-at-p *active-world* <row> <column> :chevron]
+	    (progn [play-sample self "error"]
+		   [say self "You can't drop a chevron on top of another chevron."])
+	    (let ((chevron (clone =chevron=)))
+	      [drop self chevron]
+	      [play-sample self "powerup"]
+	      [stat-effect self :chevrons -1]
+	      [orient chevron direction])))))
 
 (define-method move player (direction)
   (unless <dead>
@@ -704,7 +708,8 @@ reach new areas and items. The puck also picks up the color.")
 		  [parent>>move self direction])
 		(when [in-category obstacle :gate]
 		  [open obstacle]
-		  [parent>>move self direction])
+		  (when [category-at-p *active-world* <row> <column> :player]
+		    [parent>>move self direction]))
 		(when [in-category obstacle :bulkhead]
 		  [parent>>move self direction :ignore-obstacles]))))))
     (when [is-located self]

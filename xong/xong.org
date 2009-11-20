@@ -1,28 +1,20 @@
-** TODO [#B] fix click splash error
-** TODO [#A] Don't generate instadeath levels
-** TODO [#A] PAUSE
-** TODO [#A] SCORE
-** TODO [#A] always ensure dropped all colors!
-** TODO [#A] brighter F1 for help message. quickie guide in corner
-** TODO [#A] explanation of color puzzle
 ** TODO [#A] fix spooky-action-at-a-distance puck stuff when lock closes on player
-** TODO [#A] more time pressure (3rd enemy appears or awakens?)
-** TODO [#A] out of chevrons message
-** TODO [#A] print message when you clear a level
+** TODO [#A] always ensure dropped all colors!
+** TODO [#B] fix click splash error
 
 ** TODO [#B] darker green
+** TODO [#B] more time pressure (3rd enemy appears or awakens?)
+** TODO [#B] explanation of color puzzle
 ** TODO [#B] don't generate doors in corner of room
 ** TODO [#B] don't spawn pucks in paint
-** TODO [#B] drop paint squares that do different things
 ** TODO [#B] fix clicks in pensive track
-** TODO [#B] fix movement of status line when puck in/out
 ** TODO [#B] organize help and format with icons
 ** TODO [#B] quick ref in lower right side of screen
-** TODO [#B] start with 5 chevrons?
 ** TODO [#B] tutorial video
 ** TODO [#B] warning with low chevrons
 
 ** TODO [#C] bangai-o laser walls... destroy the generator
+** TODO [#C] drop paint squares that do different things
 ** TODO [#C] breakable one-hit shield
 ** TODO [#C] carrying objects
 ** TODO [#C] do something with trail?
