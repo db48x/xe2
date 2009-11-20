@@ -601,6 +601,11 @@ reach new areas and items. The puck also picks up the color.")
     ("KP4" (:alt) "drop-chevron :west .")
     ("KP6" (:alt) "drop-chevron :east .")
     ("KP2" (:alt) "drop-chevron :south .")
+    ;;
+    ("KP8" (:meta) "drop-chevron :north .")
+    ("KP4" (:meta) "drop-chevron :west .")
+    ("KP6" (:meta) "drop-chevron :east .")
+    ("KP2" (:meta) "drop-chevron :south .")
     ;; arrows
     ("UP" nil "move :north .")
     ("LEFT" nil "move :west .")
@@ -615,7 +620,12 @@ reach new areas and items. The puck also picks up the color.")
     ("UP" (:alt) "drop-chevron :north .")
     ("LEFT" (:alt) "drop-chevron :west .")
     ("RIGHT" (:alt) "drop-chevron :east .")
-    ("DOWN" (:alt) "drop-chevron :south .")))
+    ("DOWN" (:alt) "drop-chevron :south .")
+    ;;
+    ("UP" (:meta) "drop-chevron :north .")
+    ("LEFT" (:meta) "drop-chevron :west .")
+    ("RIGHT" (:meta) "drop-chevron :east .")
+    ("DOWN" (:meta) "drop-chevron :south .")))
 
 
 (defparameter *qwerty-keybindings*
@@ -634,6 +644,11 @@ reach new areas and items. The puck also picks up the color.")
 	    ("H" (:alt) "drop-chevron :west .")
 	    ("L" (:alt) "drop-chevron :east .")
 	    ("J" (:alt) "drop-chevron :south .")
+	    ;;
+	    ("K" (:meta) "drop-chevron :north .")
+	    ("H" (:meta) "drop-chevron :west .")
+	    ("L" (:meta) "drop-chevron :east .")
+	    ("J" (:meta) "drop-chevron :south .")
 	    ;;
 	    ("P" (:control) "pause .")
 	    ("PAUSE" nil "pause .")
@@ -978,7 +993,7 @@ reach new areas and items. The puck also picks up the color.")
 	[newline self])))
 
 ;;; Main program. 
-
+*
 (defparameter *xong-window-width* 800)
 (defparameter *xong-window-height* 600)
 

@@ -1,3 +1,13 @@
+** TODO [#A] indicate player pos on startup
+** TODO [#A] replace player puck when picking up puckup
+** TODO [#A] give function to player tail
+** TODO [#B] dvorak
+** TODO [#B] debug output off by default
+** TODO [#A] Don't require .rlxrc!!!
+** TODO [#C] better score for leaving more items behind on a level and using less
+** TODO [#B] alt help key for 				    :mac:
+: (04:32:10 PM) Super-Dot: dto: It's hard to sort through, but I think Cmd-? outputs
+: (04:32:12 PM) Super-Dot: 11/20/09 1:30:14 PM	[0x0-0x168168].com.sbcl.xong[4624]	SDL KEY AND MODS: (SDL-KEY-SLASH (SDL-KEY-MOD-RSHIFT SDL-KEY-MOD-RMETA))
 ** TODO [#A] always ensure dropped all colors!
 
 ** TODO [#B] more time pressure (3rd enemy appears or awakens?)
