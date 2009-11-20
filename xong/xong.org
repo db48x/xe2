@@ -1,4 +1,5 @@
-** TODO [#A] fix spooky-action-at-a-distance puck stuff when lock closes on player
+** DONE [#A] fix spooky-action-at-a-distance puck stuff when lock closes on player
+CLOSED: [2009-11-20 Fri 06:24]
 ** TODO [#A] always ensure dropped all colors!
 ** TODO [#B] fix click splash error
 
