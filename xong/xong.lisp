@@ -848,12 +848,13 @@ reach new areas and items. The puck also picks up the color.")
 		       [drop-cell self wall r c :exclusive t]
 		       [paint wall color]))))
 	  (multiple-value-bind (r c) [random-place self]
-	    [drop-cell self (clone =hole=) 
-		       (+ r 2 (random 3))
-		       (+ c 2 (random 3))
-		       :exclusive t]
-	    (trace-rectangle #'drop-wall r c
-			     (+ 4 (random 8)) (+ 4 (random 8)) :fill)))))
+	    (unless (= 0 r c)
+	      [replace-cells-at self 
+				(+ r 2 (random 3))
+				(+ c 2 (random 3))
+				(clone =hole=)]
+	      (trace-rectangle #'drop-wall r c
+			       (+ 4 (random 8)) (+ 4 (random 8)) :fill))))))
     (dotimes (n rooms)
       [drop-room self 
 		 (+ 5 (random (- height 20)))
