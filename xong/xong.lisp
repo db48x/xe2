@@ -703,9 +703,9 @@ reach new areas and items. The puck also picks up the color.")
 	:level n
 	:extenders (truncate (/ (* 3 (1- n)) 2))
 	:tracers (+ 4 (* (1- n) 3))
-	:monitors (or 10 (if (= n 1)
-			    0
-			    (* 2 (truncate (/ n 2)))))
+	:monitors (if (= n 1)
+		      0
+		      (* 2 (truncate (/ n 2))))
 	:rooms 1
 	:puzzle-length (+ 4 (truncate (/ n 3)))
 	:puckups (+ 4 (truncate (* (1- n) 2.5)))
