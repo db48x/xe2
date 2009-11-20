@@ -729,6 +729,9 @@ table."
     (loop for line = (read-line file nil)
 	  while line collect line)))
 
+(defun load-formatted-text-resource (resource)
+  (read-sexp-from-file (resource-file resource)))
+    
 (defun load-lisp-resource (resource)
   (let* ((source (resource-file resource))
 	 (fasl (compile-file-pathname source)))
@@ -785,6 +788,7 @@ table."
 				  :color #'load-color-resource
 				  :music #'load-music-resource
 				  :text #'load-text-resource
+				  :formatted-text #'load-formatted-text-resource
 				  :sample #'load-sample-resource
 				  :canvas #'load-canvas-resource
 				  :font #'load-font-resource)

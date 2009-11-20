@@ -990,7 +990,7 @@ reach new areas and items. The puck also picks up the color.")
 	 (narrator (clone =narrator=))
 	 (player (clone =player=))
 	 (splash (clone =splash=))
-	 (textbox (clone =textbox=))
+	 (help (clone =formatter=))
 	 (viewport (clone =viewport=))
 	 (status (clone =status=))
 	 (splash-prompt (clone =splash-prompt=))
@@ -1042,11 +1042,14 @@ reach new areas and items. The puck also picks up the color.")
 	       [adjust viewport]))
       (setf *space-bar-function* #'spacebar))
     ;;
-    [set-buffer textbox
-    		(find-resource-object "help-message")]
-    [resize-to-fit textbox] 
-    [move textbox :x 0 :y 0]
-    
+    [resize help :height 540 :width 800] 
+    [move help :x 0 :y 0]
+    (let ((text	(find-resource-object "help-message")))
+      (dolist (line text)
+	(dolist (string line)
+	  (funcall #'send nil :print-formatted-string help string))
+	[newline help]))
+    ;;
     (play-music "techworld" :loop t)
     (set-music-volume 255)	       
     ;;
@@ -1075,6 +1078,6 @@ reach new areas and items. The puck also picks up the color.")
     [auto-position *pager*]
     (rlx:install-widgets splash-prompt splash)
     [add-page *pager* :play prompt stack viewport terminal *status*]
-    [add-page *pager* :help textbox]))
+    [add-page *pager* :help help]))
 
 (xong)

@@ -105,7 +105,7 @@
  (:name "phong" :type :music :file "phong.ogg" :properties (:volume 35))
  (:name "pensive" :type :music :file "pensive.ogg")
  (:name "xong-theme" :type :music :file "xong.ogg" :properties (:volume 10))
- (:name "help-message" :type :text :file "README")
+ (:name "help-message" :type :formatted-text :file "README")
  (:name ".startup" :type :lisp :file "xong.lisp" :properties (:autoload t))
  (:name "display-font" :type :font :properties (:height 20 :width 10) :data "10x20")
  (:name "worp" :type :sample :file "worp.wav" :properties (:volume 20))

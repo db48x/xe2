@@ -1,41 +1,47 @@
-This is the help screen. Press F2 to return to play. While playing you
-can click any object for help. Press PAUSE (or CONTROL-P) to pause,
-this makes it easier to click and see what all the different objects
-are.
+((("This is the help screen. Press F2 to return to play. While playing you"))
+ (("can click any object for help. Press PAUSE (or CONTROL-P) to pause,"))
+ (("this makes it easier to click and see what all the different objects are."))
+ ((""))
+ (("You are the white square ") (nil :image "player") (" at the top left corner of"))
+ (("the screen. You can move in any of the four orthogonal compass"))
+ (("directions using the arrow keys, numeric keypad, or the letters"))
+ (("H, J, K, and L. You cannot move diagonally, but some enemies can."))
+ (("You are armed with a paint-absorbent hockey puck. The puck can"))
+ (("pick up color from blocks and transfer it to other objects."))
+ ((""))
+ (("Press CONTROL-direction to fire the puck ") (nil :image "puck") (" in that direction. The"))
+ (("current paint color is shown near the bottom of the screen along"))
+ (("with the current level number and number of chevrons remaining."))
 
-You are the white square at the top left corner of the screen. You can
-move in any of the four compass directions using the arrow keys,
-numeric keypad, or the letters H, J, K, and L. You cannot move
-diagonally, but some enemies can.
+ (("Press ALT-direction to drop a 'chevron' ") 
+  (nil :image "chevron-east") (" pointed in that direction."))
+ (("Chevrons are arrows that change the direction of the puck"))
+ (("and some enemies. You must find chevron refills on the ground, they"))
+ (("look like the letter C. Each pickup gets you five chevrons,"))
+ (("and you can hold a maximum of ten."))
+ ((""))
+ (("You cannot shoot enemies ") 
+  (nil :image "tracer-east")
+  (nil :image "monitor")
+  (" instead, use chevrons to guide the enemies"))
+ (("into the Black Holes: ") (nil :image "hole") (" The puck will be destroyed if it"))
 
-You are armed with a paint-absorbent hockey puck. The puck can pick up
-color from blocks and transfer it to other objects.
-
-Press CONTROL-direction to fire the puck in that direction. The
-current paint color is shown near the bottom of the screen along with
-the current level number and number of chevrons remaining.
-
-Press ALT-direction to drop a "chevron" pointed in that
-direction. Chevrons are arrows that change the direction of the puck
-and some enemies. You must find chevron refills on the ground, they
-look like tiny white diamonds. Each diamond gets you five chevrons,
-and you can hold a maximum of ten.
-
-You cannot shoot enemies; instead, use chevrons to guide the enemies
-into the Black Holes (black squares with white borders.) The puck will
-be destroyed if it hits a red wire or a black hole, so be careful
-where you fire. You will also die instantly if you touch any of these
-things, or are hit by any attack or projectile. When you die, the game
-is over, and you can press ESCAPE to start over at level 1, or
-CONTROL-Q to quit. Black holes can only be used once.
-
-To get a new puck, pick up one of the letter P's that litter the
-environment. Be careful, if you are already holding a puck, the one
-you pick up is wasted. 
-
-To clear a level, one must defeat all the enemies, and use the paint
-puck to open the coded lock that blocks the exit to the next
-level. (The exit is the red and black X.)  These goals may be
-completed in either order. The game generates boards of increasing
-difficulty as you clear them, and there is no win-condition at all;
-you just keep playing until you die.
+ (("hits a red wire ") (nil :image "wire-east") (" or a black hole, so be careful where you fire."))
+ (("You will also die instantly if you touch either a wire or a black"))
+ (("hole, or are hit by any attack or projectile. When you die, the game"))
+ (("is over, and you can press ESCAPE to start over at level 1, or"))
+ (("CONTROL-Q to quit. Black holes can only be used once."))
+ ((""))
+ (("To get a new puck, pick up one of the pucks lying around: ") (nil :image "puckup"))
+ (("Be careful, if you are already holding a puck, the one you pick up is wasted."))
+ ((""))
+ (("To clear a level, one must defeat all the enemies, and use the paint"))
+ (("blocks with the puck to open the coded lock (i.e. ") 
+  (nil :image "brick-blue")
+  (nil :image "brick-red")
+  (nil :image "brick-yellow")
+  (" ), which blocks"))
+ (("the exit ( ") (nil :image "door") (" ) to the next level."))
+ ((""))
+ (("The game generates boards of increasing difficulty as you clear them,"))
+ (("and there is no win-condition at all; you just keep playing until you die.")))
