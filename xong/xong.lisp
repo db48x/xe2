@@ -128,7 +128,6 @@
 (define-method step chevron (stepper)
   (when [in-category stepper :puck]
     [play-sample self "chevron"]
-    (score 1000)
     [kick stepper <direction>]))
 
 ;;; Diamond pickup replenishes chevrons
