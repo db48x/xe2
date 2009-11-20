@@ -778,7 +778,9 @@ reach new areas and items. The puck also picks up the color.")
 	       (point (nth n rectangle)))
 	  (destructuring-bind (r c) point
 	    ;; don't make gate holes on corners or above exit
-	    (unless (or (and (= r row) (= c (+ column (truncate (/ width 2)))))
+	    (unless (or (and (= r row) (= c (+ -1 column (truncate (/ width 2)))))
+			(and (= r row) (= c (+ column (truncate (/ width 2)))))
+			(and (= r row) (= c (+ 1 column (truncate (/ width 2)))))
 			(and (= r row) (= c column)) ;; top left 
 			(and (= r row) (= c (+ -1 column width))) ;; top right
 			(and (= r (+ -1 row height)) (= c column)) ;; bottom left
