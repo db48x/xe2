@@ -148,7 +148,7 @@ At the moment, only 0=off and 1=on are supported.")
   (when (array-in-bounds-p <grid> row column)
     (aref <grid> row column)))
 
-(define-method random-place world ()
+(define-method random-place world (&optional &key avoiding distance)
   (clon:with-field-values (width height) self
     (let ((limit 10000)
 	  (n 0)
@@ -156,7 +156,10 @@ At the moment, only 0=off and 1=on are supported.")
       (loop do (progn (setf r (random height))
 		      (setf c (random width))
 		      (incf n)
-		      (unless [category-at-p self r c :exclusive]
+		      (unless 
+			  (or (and (numberp distance)
+				   (> distance (distance r c 0 0)))
+			      [category-at-p self r c :exclusive])
 			(setf found t)))
 	    while (and (not found) 
 		       (< n limit)))

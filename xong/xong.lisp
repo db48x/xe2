@@ -42,7 +42,7 @@
 (defparameter *gate-timeout* 30)
 
 (defcell gate
-  (categories :initform '(:actor :obstacle :gate))
+  (categories :initform '(:actor :obstacle :gate :exclusive))
   (speed :initform (make-stat :base 10))
   (tile :initform "gate-closed")
   (clock :initform 0)
@@ -175,7 +175,8 @@
 
 (defcell tracer 
   (tile :initform "tracer-north")
-  (categories :initform '(:actor :target :obstacle :opaque :enemy :equipper :puck :tailed :tracer))
+  (categories :initform '(:actor :target :obstacle 
+			  :opaque :exclusive :enemy :equipper :puck :tailed :tracer))
   (dead :initform nil)
   (speed :initform (make-stat :base 7 :min 5))
   (max-items :initform (make-stat :base 3))
@@ -333,6 +334,7 @@ squeezing by in between pulses!"))
 
 (defcell hole 
   (tile :initform "hole")
+  (open :initform t)
   (categories :initform '(:exclusive :hole))
   (name :initform "Black hole")
   (description :initform 
@@ -340,11 +342,16 @@ squeezing by in between pulses!"))
 defeat enemies by guiding them into the black holes."))
 
 (define-method step hole (stepper)
-  [play-sample self "hole-suck"]
-  (if [in-category stepper :puck]
-      [die stepper]
-      (when [is-player stepper]
-	[damage stepper 1])))
+  (when <open>
+    (progn [play-sample self "hole-suck"]
+	   (if [in-category stepper :puck]
+	       [die stepper]
+	       (when [is-player stepper]
+		 [damage stepper 1]))
+	   (setf <open> nil)
+	   (setf <tile> "hole-closed"))))
+
+
 
 ;;; Bricks
 
@@ -388,7 +395,7 @@ defeat enemies by guiding them into the black holes."))
   (tile :initform "door")
   (name :initform "Level exit")
   (description :initform "Door to the next level of Xong.")
-  (categories :initform '(:gateway :actor))
+  (categories :initform '(:gateway :actor :exclusive))
   (address :initform nil))
   
 (define-method level door (lev)
@@ -455,7 +462,7 @@ reach new areas and items. The puck also picks up the color.")
   (last-direction :initform :north)
   (dead :initform nil)
   (puck :initform nil)
-  (chevrons :initform (make-stat :base 0 :min 0 :max 10))
+  (chevrons :initform (make-stat :base 5 :min 0 :max 10))
   (speed :initform (make-stat :base 10 :min 0 :max 10))
   (strength :initform (make-stat :base 13))
   (tail-length :initform (make-stat :base 20 :min 0))
@@ -709,7 +716,7 @@ reach new areas and items. The puck also picks up the color.")
 	:rooms 1
 	:puzzle-length (+ 4 (truncate (/ n 3)))
 	:puckups (+ 4 (truncate (* (1- n) 2.5)))
-	:diamonds (+ 6 (* (1- n) 2))
+	:diamonds (+ 9 (* (1- n) 3))
 	:swatches (+ 10 (truncate (* 1.6 n)))))
 
 (define-prototype xong (:parent rlx:=world=)
@@ -727,7 +734,9 @@ reach new areas and items. The puck also picks up the color.")
     (labels ((collect-point (&rest args)
 	       (prog1 nil (push args rectangle)))
 	     (drop-wall (r c)
-		 [replace-cells-at self r c (clone material)]))
+	       (unless (and (= r 0)
+			    (= c 0))
+		 [replace-cells-at self r c (clone material)])))
       (trace-rectangle #'collect-point row column height width)
       ;; make sure there are openings
       (dotimes (i 6)
@@ -761,7 +770,12 @@ reach new areas and items. The puck also picks up the color.")
 	  (let ((door (clone =door=)))
 	    [level door next-level]
 	    [drop-cell self (clone material) (+ 1 row) col]
-	    [drop-cell self door (+ 2 row) col]))))))
+	    [drop-cell self door (+ 2 row) col])
+	  ;; drop a puck or two
+	  (dotimes (n (1+ (random 2)))
+	    [drop-cell self (clone =puckup=) (+ 2 (random 2) row)
+		       (+ 2 (random 2) column)]))))))
+	    
 
 (define-method generate xong (&key (level 1)
 				   (extenders 0)
@@ -771,15 +785,15 @@ reach new areas and items. The puck also picks up the color.")
 				   (puckups 4)
 				   (monitors 3)
 				   (diamonds 6)
-				   (swatches 10))
+				   (swatches 8))
   [create-default-grid self]
   (setf <level> level)
   (setf *enemies* 0)
-  (clon:with-fields (height width grid) self
+  (clon:with-fields (height width grid player) self
     (dotimes (i height)
       (dotimes (j width)
 	[drop-cell self (clone =floor=) i j]))
-    (dotimes (n swatches)
+    (dotimes (n (+ swatches monitors tracers))
       ;; ensure all colors are present,
       ;; after that make it random
       (let ((color (if (< n (length *colors*))
@@ -799,18 +813,23 @@ reach new areas and items. The puck also picks up the color.")
 			     (+ 4 (random 8)) (+ 4 (random 8)) :fill)))))
     (dotimes (n rooms)
       [drop-room self 
-		 (+ 5 (random (- height 15)))
-		 (+ 5 (random (- width 15)))
+		 (+ 5 (random (- height 20)))
+		 (+ 5 (random (- width 20)))
 		 (+ 9 (random 6)) (+ 10 (random 4)) (+ level 1) puzzle-length])
     (dotimes (n monitors)
-      [drop-cell self (clone =monitor=) (+ 10 (random height)) (+ 10 (random width))
-		 :loadout t :exclusive t])
+      (let ((monitor (clone =monitor=)))
+	(multiple-value-bind (r c)
+	    [random-place self :avoiding player :distance 10]
+	  [drop-cell self monitor r c :loadout t])))
     (dotimes (n tracers)
-      [drop-cell self (clone =tracer=) (random height) (random width) :loadout t])
+      (let ((tracer (clone =tracer=)))
+	(multiple-value-bind (r c)
+	    [random-place self :avoiding player :distance 10]
+	  [drop-cell self tracer r c :loadout t])))
     (dotimes (n extenders)
-      [drop-cell self (clone =extender=) (random height) (random width)])
+      [drop-cell self (clone =extender=) (random height) (random width) :exclusive t])
     (dotimes (n diamonds)
-      [drop-cell self (clone =diamond=) (random height) (random width)])
+      [drop-cell self (clone =diamond=) (random height) (random width) :exclusive t])
     (dotimes (n puckups)
       (multiple-value-bind (r c) [random-place self]
 	[drop-cell self (clone =puckup=) r c]))))
@@ -892,7 +911,7 @@ reach new areas and items. The puck also picks up the color.")
   [delete-all-lines self]
   (let* ((char <character>))
     (when char
-	[print-stat self :chevrons :warn-below 1 :show-max t]
+	[print-stat self :chevrons :warn-below 3 :show-max t]
 	[print-stat-bar self :chevrons :color ".yellow"]
 	[space self]
 	[print self (format nil "   LEVEL:~S" (field-value :level *active-world*))]
@@ -1000,7 +1019,7 @@ reach new areas and items. The puck also picks up the color.")
     					 :color color)
 			      (draw-circle x y 5 :destination image)))))
     		 [add-overlay *viewport* #'hack-overlay]))))
-;;      (setf rlx::*lighting-hack-function* #'light-hack))
+      ;; (setf rlx::*lighting-hack-function* #'light-hack))
     ;; END HACK
     (setf *pager* (clone =pager=))
     [auto-position *pager*]

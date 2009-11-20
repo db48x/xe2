@@ -731,9 +731,9 @@ slot."
     (progn 
       [stat-effect self :hit-points (- damage-points)]
       (when (zerop [stat-value self :hit-points])
-	[die self])
-      (when [is-player self]
-	[>>say :narrator "You take ~D hit points of damage." damage-points]))))
+	[die self]))))
+      ;; (when [is-player self]
+      ;; 	[>>say :narrator "You take ~D hit points of damage." damage-points]))))
 	
 (define-method die cell ()
   (if [in-category self :dead]

@@ -1,24 +1,14 @@
-** TODO [#A] fix click splash error
+** TODO [#B] fix click splash error
 ** TODO [#A] Don't generate instadeath levels
 ** TODO [#A] PAUSE
 ** TODO [#A] SCORE
 ** TODO [#A] always ensure dropped all colors!
-** TODO [#A] always generate complete rooms (nothing cut off)
-** TODO [#A] black holes fill up?
 ** TODO [#A] brighter F1 for help message. quickie guide in corner
-** TODO [#A] don't drop enemies into swatches... probe for open space 
-** TODO [#A] don't drop enemies on exit (use replace-cells for exit)
-** TODO [#A] don't drop items on black holes or grey walls
-** TODO [#A] easier level 1
 ** TODO [#A] explanation of color puzzle
-** TODO [#A] fix colored blocks under stuff
 ** TODO [#A] fix spooky-action-at-a-distance puck stuff when lock closes on player
 ** TODO [#A] more time pressure (3rd enemy appears or awakens?)
 ** TODO [#A] out of chevrons message
 ** TODO [#A] print message when you clear a level
-** TODO [#A] require LOS for chase/attack of monitor
-** TODO [#A] require LOS for electrification by monitor
-** TODO [#A] tend to place pucks in rooms
 
 ** TODO [#B] darker green
 ** TODO [#B] don't generate doors in corner of room
