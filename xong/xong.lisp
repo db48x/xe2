@@ -859,7 +859,7 @@ reach new areas and items. The puck also picks up the color.")
       [drop-room self 
 		 (+ 5 (random (- height 20)))
 		 (+ 5 (random (- width 20)))
-		 (+ 9 (random 6)) (+ 10 (random 4)) (+ level 1) puzzle-length])
+		 (+ 10 (random 6)) (+ 10 (random 4)) (+ level 1) puzzle-length])
     (dotimes (n monitors)
       (let ((monitor (clone =monitor=)))
 	(multiple-value-bind (r c)
