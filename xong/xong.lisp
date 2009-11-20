@@ -129,6 +129,7 @@
 
 (defcell diamond 
   (tile :initform "chevron-pickup")
+  (name :initform "Chevron pack")
   (description :initform "Adds five chevrons to your inventory."))
 
 (define-method step diamond (stepper)
@@ -339,7 +340,8 @@ squeezing by in between pulses!"))
   (name :initform "Black hole")
   (description :initform 
 "These holes eat the puck and enemies. The object of the game is to
-defeat enemies by guiding them into the black holes."))
+defeat enemies by guiding them into the black holes. Be careful; black
+holes can only eat one object before closing!"))
 
 (define-method step hole (stepper)
   (when <open>
@@ -608,6 +610,8 @@ reach new areas and items. The puck also picks up the color.")
 	    ("L" (:alt) "drop-chevron :east .")
 	    ("J" (:alt) "drop-chevron :south .")
 	    ;;
+	    ("P" (:control) "pause .")
+	    ("PAUSE" nil "pause .")
 	    ("ESCAPE" nil "restart .")
 	    ("Q" (:control) "quit ."))))
   
@@ -721,7 +725,10 @@ reach new areas and items. The puck also picks up the color.")
 
 (define-prototype xong (:parent rlx:=world=)
   (name :initform "Xong board")
-  (description :initform "Welcome to Xong. Press F1 for general help, or click any object.")
+  (description :initform 
+	       '((("Welcome to Xong." :foreground ".white" :background ".blue")
+		  ("Press F1 for general help" :foreground ".white" :background ".red")
+		  (", or click any object." :foreground ".white" :background ".blue"))))
   (edge-condition :initform :block)
   (level :initform 1)
   (width :initform 50)

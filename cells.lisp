@@ -104,9 +104,14 @@
 (define-method describe cell ()
   [>>print-object-tag :narrator self]
   [>>newline :narrator]
-  (when (stringp <description>)
-    (dolist (line (split-string-on-lines <description>))
-      [>>narrateln :narrator line])))
+  (if (stringp <description>)
+      (dolist (line (split-string-on-lines <description>))
+	[>>narrateln :narrator line])
+      ;; it's a formatted string
+      (dolist (line <description>)
+	(dolist (string line)
+	  (apply #'send-queue nil :print :narrator string))
+	(send-queue nil :newline :narrator))))
 
 ;;; Statistics 
 

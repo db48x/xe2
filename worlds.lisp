@@ -36,6 +36,7 @@
 (define-prototype world
     (:documentation "An RLX game world filled with cells.")
   (name :initform "Unknown")
+  (paused :initform nil)
   (description :initform "Unknown area.")
   (required-modes :initform nil)
   (categories :initform nil)
@@ -82,6 +83,12 @@ At the moment, only 0=off and 1=on are supported.")
 (define-method in-category world (category)
   (member category <categories>))
     
+(define-method pause world ()
+  (setf <paused> (if <paused> (prog1 nil [narrateln <narrator> "Resuming game."]
+				     (play-sample "go"))
+			      (prog1 t [narrateln <narrator> 
+						  "The game is now paused. Press Control-P or PAUSE to un-pause."]))))
+
 ;; <: environment :>
 (define-prototype environment
     (:documentation "A cell giving general environmental conditions at a world location.")
@@ -351,69 +358,71 @@ so on, until no more messages are generated."
 This is where most world computations start, because nothing happens
 in a roguelike until the user has pressed a key."
   (assert <player>)
-  (message "FORWARDWORLD: ~S ~S ~S" <phase-number> 
-	   (field-value :phase-number <player>)
-	   method-key)
-  (prog1 nil
-    (let ((player <player>)
-	  (phase-number <phase-number>))
-      (with-message-queue <message-queue> 
-	(when <narrator> 
-	  [narrate-message <narrator> nil method-key player args])
-	;; run the player
-	[run player]
-	;; send the message to the player, possibly generating queued messages
-	(apply #'send self method-key player args)
-	;; process any messages that were generated
-	[process-messages self]
-	;; if this is the player's last turn, begin the cpu phase
-	;; otherwise, stay in player phase and exit
-	(unless [can-act player phase-number]
-	  [end-phase player]
-	  (unless <exited>
-	    (incf <phase-number>)
-	    (when (not [in-category <player> :dead])
-	      [run-cpu-phase self])
-	    [begin-phase player]))))))
-        
+  (when (not <paused>)
+    (message "FORWARDWORLD: ~S ~S ~S" <phase-number> 
+	     (field-value :phase-number <player>)
+	     method-key)
+    (prog1 nil
+      (let ((player <player>)
+	    (phase-number <phase-number>))
+	(with-message-queue <message-queue> 
+	  (when <narrator> 
+	    [narrate-message <narrator> nil method-key player args])
+	  ;; run the player
+	  [run player]
+	  ;; send the message to the player, possibly generating queued messages
+	  (apply #'send self method-key player args)
+	  ;; process any messages that were generated
+	  [process-messages self]
+	  ;; if this is the player's last turn, begin the cpu phase
+	  ;; otherwise, stay in player phase and exit
+	  (unless [can-act player phase-number]
+	    [end-phase player]
+	    (unless <exited>
+	      (incf <phase-number>)
+	      (when (not [in-category <player> :dead])
+		[run-cpu-phase self])
+	      [begin-phase player])))))))
+  
 (define-method get-phase-number world ()
   <phase-number>)
 
 (define-method run-cpu-phase world (&optional timer-p)
   "Run all non-player actor cells."
-  (when timer-p
-    (incf <phase-number>))
-  (with-message-queue <message-queue> 
-    (let ((cells nil)
-	  (cell nil)
-	  (phase-number <phase-number>)
-	  (player <player>)
-	  (grid <grid>))
-      [run player]
-      [clear-light-grid self]
-      (dotimes (i <height>)
-	(dotimes (j <width>)
-	  (setf cells (aref grid i j))
-	  (dotimes (z (fill-pointer cells))
-	    (setf cell (aref cells z))
-	    ;; perform lighting
-	    (when (or [is-player cell]
-		      [is-light-source cell])
-	      [render-lighting self cell])
-	    (when (and (not (eq player cell))
-		       [in-category cell :actor]
-		       (not [in-category player :dead]))
-	      [begin-phase cell]
-	      ;; do turns 
-	      (loop while [can-act cell phase-number] do
-		   [run cell]
-		   [process-messages self]
-		   [end-phase cell]))))))))
+  (when (not <paused>)
+    (when timer-p
+      (incf <phase-number>))
+    (with-message-queue <message-queue> 
+      (let ((cells nil)
+	    (cell nil)
+	    (phase-number <phase-number>)
+	    (player <player>)
+	    (grid <grid>))
+	[run player]
+	[clear-light-grid self]
+	(dotimes (i <height>)
+	  (dotimes (j <width>)
+	    (setf cells (aref grid i j))
+	    (dotimes (z (fill-pointer cells))
+	      (setf cell (aref cells z))
+	      ;; perform lighting
+	      (when (or [is-player cell]
+			[is-light-source cell])
+		[render-lighting self cell])
+	      (when (and (not (eq player cell))
+			 [in-category cell :actor]
+			 (not [in-category player :dead]))
+		[begin-phase cell]
+		;; do turns 
+		(loop while [can-act cell phase-number] do
+		      [run cell]
+		      [process-messages self]
+		      [end-phase cell])))))))))
 
 ;; <: lighting :>
-
+ 
 (defvar *lighting-hack-function* nil)
-
+  
 (define-method render-lighting world (cell)
   (let* ((light-radius (field-value :light-radius cell))
 	 (ambient <ambient-light>)
@@ -511,10 +520,16 @@ in a roguelike until the user has pressed a key."
   nil)
 
 (define-method describe world ()
-  [>>newline :narrator]
-  (when (and <narrator> (stringp <description>))
-    (dolist (line (split-string-on-lines <description>))
-      [>>narrateln :narrator line])))
+  (when <narrator>
+    (if (stringp <description>)
+	(dolist (line (split-string-on-lines <description>))
+	  [>>narrateln :narrator line])
+	;; it's a formatted string
+	(dolist (line <description>)
+	  (dolist (string line)
+	    (apply #'send-queue nil :print :narrator string))
+	  (send-queue nil :newline :narrator)
+	  (send-queue nil :newline :narrator)))))
 
 (define-method start world ()
   (assert <player>)
