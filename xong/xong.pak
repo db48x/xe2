@@ -102,6 +102,7 @@
  (:name "chevron" :type :sample :file "chevron.wav" :properties (:volume 8))
  (:name "bounce" :type :sample :file "bounce.wav" :properties (:volume 8))
  (:name "sparqq" :type :music :file "sparqq.ogg" :properties (:volume 100))
+ (:name "neon" :type :music :file "neon.ogg" :properties (:volume 80))
  (:name "techworld" :type :music :file "techworld.ogg")
  (:name "phong" :type :music :file "phong.ogg" :properties (:volume 35))
  (:name "pensive" :type :music :file "pensive.ogg")

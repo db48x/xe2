@@ -473,9 +473,9 @@
   (setf clon:*send-parent-depth* 2) 
   (rlx:set-screen-height *blast-window-height*)
   (rlx:set-screen-width *blast-window-width*)
-;;  (rlx:set-frame-rate 30)
-  (rlx:disable-timer)
-  (rlx:enable-held-keys 1 15)
+  ;; (rlx:set-frame-rate 30)
+  ;; (rlx:disable-timer)
+  ;; (rlx:enable-held-keys 1 15)
   (setf rlx:*zoom-factor* 1)
   (let* ((prompt (clone =blast-prompt=))
 	 (universe (clone =universe=))
@@ -491,7 +491,11 @@
 	 (terminal (clone =narrator=))
 	 (stack (clone =stack=))
 	 (stack2 (clone =stack=)))
-    ;;
+    ;; hehe, turn this on for realtime
+    ;; (rlx:enable-timer)
+    ;; (rlx:set-frame-rate 30)
+    ;; (rlx:set-timer-interval 1)
+    ;; (rlx:enable-held-keys 1 3)
     ;; 
     (setf *view* (clone =view=))
     ;;
