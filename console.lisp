@@ -37,7 +37,7 @@
 
 ;;; Message logging
 
-(defparameter *message-logging* t)
+(defparameter *message-logging* nil)
 
 (defun message (format-string &rest args)
   "Print a log message to the standard output."

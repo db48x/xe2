@@ -1,3 +1,6 @@
+** TODO [#B] blackhole radiation freezes
+** TODO [#A] Fix crash when next-level door opens while player standing on it
+** TODO [#A] DOn't generate black holes on 0,0
 ** TODO [#A] indicate player pos on startup
 ** TODO [#A] replace player puck when picking up puckup
 ** TODO [#A] give function to player tail
