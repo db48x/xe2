@@ -1,3 +1,4 @@
+** TODO level editor in-game like bangai-o
 ** TODO [#B] blackhole radiation freezes
 ** TODO [#A] Fix crash when next-level door opens while player standing on it
 ** TODO [#A] DOn't generate black holes on 0,0
@@ -17,6 +18,11 @@
 ** TODO [#B] explanation of color puzzle
 ** TODO [#B] quick ref in lower right side of screen
 ** TODO [#B] tutorial video
+** TODO [#A] freeze attack with snowflake
+(01:59:31 PM) dto: for example the colored ball could have different effects on enemies. 
+(01:59:38 PM) dto: blue ball = freeze for a few seconds
+(01:59:44 PM) dto: so it could be a defensive weapon
+(01:59:48 PM) dto: or give you more time to lay down chevrons
 ** TODO [#B] warning with low chevrons
 
 ** TODO [#C] bangai-o laser walls... destroy the generator
@@ -34,3 +40,5 @@
 ** vomac (shmup)
 ** plant growth 
 ** fractal green world explorer
+** TODO ambient game using black0999 rain track and other rain effects, bird sound. short story. exploring an abandoned house. path through woods to clearing.
+
