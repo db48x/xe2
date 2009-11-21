@@ -793,7 +793,7 @@ reach new areas and items. The puck also picks up the color.")
 	     [grab stepper self])
       (when [in-category stepper :enemy]
 	[bounce self]
-	[freeze self enemy])))
+	[freeze self stepper])))
 
 (define-method run snowflake ()
   (unless (eq :here <direction>)
