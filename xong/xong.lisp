@@ -173,7 +173,8 @@
   (if [is-player stepper]
       [damage stepper 1]
       (when [in-category stepper :puck]
-	(unless [in-category stepper :enemy]
+	(unless (or [in-category stepper :enemy]
+		    [in-category stepper :snowflake])
 	  [die stepper]))))
 
 (defvar *tracer-tiles* '(:north "tracer-north"
@@ -336,12 +337,12 @@ squeezing by in between pulses!"))
 
 (define-method step puckup (stepper)
   (when [is-player stepper]
+    (when (field-value :puck stepper)
+      [>>narrateln :narrator "You wasted your puck."]
+      [play-sample self "buzz"])
     (let ((puck (clone =puck=)))
       [drop self puck]
       (score 1000)
-      (when (field-value :puck stepper)
-      	[>>narrateln :narrator "You wasted your puck."]
-      	[play-sample self "buzz"])
       [grab stepper puck]
       [die self])))
 
@@ -744,11 +745,19 @@ reach new areas and items. The puck also picks up the color.")
 
 ;;; Special puck: snowflake
 
-(define-prototype snowflake (:parent =puck=)
+(defcell snowflake
   (tile :initform "snowflake")
   ;; not paintable
-  (categories :initform '(:puck :target :actor :item))
-  (description :initform "A puck that freezes enemies for a brief time."))
+  (categories :initform '(:puck :target :actor :item :snowflake))
+  (description :initform "A puck that freezes enemies for a brief time.")
+  (speed :initform (make-stat :base 10))
+  (movement-cost :initform (make-stat :base 10))
+  (direction :initform :here)
+  (stepping :initform t))
+
+(define-method bounce snowflake ()
+  (setf <direction> (opposite-direction <direction>))
+  [play-sample self "bounce"])
 
 (define-method move snowflake (direction)
   (multiple-value-bind (r c) 
@@ -759,10 +768,10 @@ reach new areas and items. The puck also picks up the color.")
 	(when (clon:object-p obstacle)
 	  (if [is-player obstacle]
 	      [grab obstacle self]
-	      ;; if it's an enemy, freeze it!
-	      (when [in-category obstacle :enemy]
-		[play-sample self "freeze"]
-		[expend-action-points obstacle 150]))))
+	      ;; if it's an enemy or puck, freeze it!
+	      (when (or [in-category obstacle :puck]
+			[in-category obstacle :enemy])
+		[freeze self obstacle]))))
       (when [is-located self]
 	[parent>>move self <direction>]))))
 
@@ -770,15 +779,30 @@ reach new areas and items. The puck also picks up the color.")
   (setf <direction> direction)
   [move self direction])
 
+(define-method freeze snowflake (enemy)
+  [play-sample self "freeze"]
+  [expend-action-points enemy 200])
+
+(define-method paint snowflake (color)
+  nil)
+
 (define-method step snowflake (stepper)
-  (when (and [is-player stepper]
-	     (null (field-value :puck stepper)))
-    (score 1000)
-    [grab stepper self]))
+  (if (and [is-player stepper]
+	   (null (field-value :puck stepper)))
+      (progn (score 1000)
+	     [grab stepper self])
+      (when [in-category stepper :enemy]
+	[bounce self]
+	[freeze self enemy])))
 
 (define-method run snowflake ()
   (unless (eq :here <direction>)
     [move self <direction>]))
+
+(define-method die snowflake ()
+  [say self "The snowflake was destroyed."]
+  [play-sample self "buzz"]
+  [parent>>die self])
 
 ;;; Bulkheads are indestructible walls
 
@@ -800,7 +824,7 @@ reach new areas and items. The puck also picks up the color.")
 		      0
 		      (* 2 (truncate (/ n 2))))
 	:rooms 1
-	:snowflakes 2
+	:snowflakes (+ 1 (truncate (/ n 3)))
 	:puzzle-length (+ 4 (truncate (/ n 3)))
 	:extra-holes (+ 4 (truncate (/ n 3)))
 	:puckups (+ 4 (truncate (* (1- n) 2.5)))

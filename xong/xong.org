@@ -1,41 +1,38 @@
-** TODO level editor in-game like bangai-o
-** TODO [#B] blackhole radiation freezes
-** TODO [#A] Fix crash when next-level door opens while player standing on it
-** TODO [#A] DOn't generate black holes on 0,0
-** TODO [#A] indicate player pos on startup
-** TODO [#A] replace player puck when picking up puckup
-** TODO [#A] give function to player tail
-** TODO [#B] dvorak
-** TODO [#B] debug output off by default
-** TODO [#A] Don't require .rlxrc!!!
-** TODO [#C] better score for leaving more items behind on a level and using less
-** TODO [#B] alt help key for 				    :mac:
-: (04:32:10 PM) Super-Dot: dto: It's hard to sort through, but I think Cmd-? outputs
-: (04:32:12 PM) Super-Dot: 11/20/09 1:30:14 PM	[0x0-0x168168].com.sbcl.xong[4624]	SDL KEY AND MODS: (SDL-KEY-SLASH (SDL-KEY-MOD-RSHIFT SDL-KEY-MOD-RMETA))
-** TODO [#A] always ensure dropped all colors!
 
-** TODO [#B] more time pressure (3rd enemy appears or awakens?)
+** TODO RELEASE 1.2 REQUIREMENTS
+*** Improve help system
+*** Fix bugs
+*** Introduce new enemy 
+*** Introduce new play mechanics that tie together the painting with the chevrons more
+** TODO [#A] DOn't generate black holes on 0,0
+** TODO [#A] Don't require .rlxrc!!!
+** TODO [#A] Fix crash when next-level door opens while player standing on it
+** TODO [#A] always ensure dropped all colors!
+** TODO [#A] give function to player tail
+** TODO [#A] indicate player pos on startup
+** TODO [#B] alt help key for 				    :mac:
+** TODO [#B] blackhole radiation freezes
+** TODO [#B] dvorak
 ** TODO [#B] explanation of color puzzle
+** TODO [#B] level editor in-game like bangai-o
+** TODO [#B] more time pressure (3rd enemy appears or awakens?)
 ** TODO [#B] quick ref in lower right side of screen
 ** TODO [#B] tutorial video
-** TODO [#A] freeze attack with snowflake
-(01:59:31 PM) dto: for example the colored ball could have different effects on enemies. 
-(01:59:38 PM) dto: blue ball = freeze for a few seconds
-(01:59:44 PM) dto: so it could be a defensive weapon
-(01:59:48 PM) dto: or give you more time to lay down chevrons
 ** TODO [#B] warning with low chevrons
-
 ** TODO [#C] bangai-o laser walls... destroy the generator
-** TODO [#C] drop paint squares that do different things
+** TODO [#C] better score for leaving more items behind on a level and using less
 ** TODO [#C] breakable one-hit shield
 ** TODO [#C] carrying objects
 ** TODO [#C] do something with trail?
+** TODO [#C] drop paint squares that do different things
 ** TODO [#C] enemies who seek/eat chevrons
 ** TODO [#C] flashing/disappearing chevrons
 ** TODO [#C] oldschool illustrated pdf manual
 ** TODO [#C] security cameras which cause enemy spawn
 ** TODO [#C] situations where you try to get multiple balls going, where the bounce makes something happen
 ** TODO [#C] victory music?
+: (04:32:10 PM) Super-Dot: dto: It's hard to sort through, but I think Cmd-? outputs
+: (04:32:12 PM) Super-Dot: 11/20/09 1:30:14 PM	[0x0-0x168168].com.sbcl.xong[4624]	SDL KEY AND MODS: (SDL-KEY-SLASH (SDL-KEY-MOD-RSHIFT SDL-KEY-MOD-RMETA))
 * Other games
 ** vomac (shmup)
 ** plant growth 
