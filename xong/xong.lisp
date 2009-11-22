@@ -361,10 +361,10 @@ explode with deadly plasma radiation!"))
 
 (define-method spew-plasma hole ()
   (clon:with-field-values (row column) self
-    (assert (and row column))
+    (let ((color (car (one-of *colors*))))
+      (assert (and row column))
       (dotimes (n (+ 9 (random 10)))
-	(let ((plasma (clone =plasma=))
-	      (color (car (one-of *colors*))))
+	(let ((plasma (clone =plasma=)))
 	  [set-color plasma color]
 	  [set-clock plasma (+ 10 (random 10))]
 	  (let ((limit 10))
@@ -377,7 +377,7 @@ explode with deadly plasma radiation!"))
 			       (return-from placing))
 			     ;; try again
 			     (decf limit)))
-		    while (plusp limit))))))))
+		    while (plusp limit)))))))))
 
 (define-method step hole (stepper)
   (when <open>
@@ -868,7 +868,14 @@ reach new areas and items. The puck also picks up the color.")
 	(do-cells (cell [cells-at *active-world* <row> <column>])
 	  (when (has-field :hit-points cell)
 	    [damage cell 1]))
-	[move self (random-direction)])))
+	(let ((dir (random-direction)))
+	  (multiple-value-bind (r c) (step-in-direction <row> <column> dir)
+	    (let ((brick [category-at-p *active-world* r c :wall]))
+	      (if brick
+		  (progn 
+		    [paint brick <color>]
+		    [die self])
+		  [move self dir])))))))
 
 ;;; Bulkheads are indestructible walls
 
