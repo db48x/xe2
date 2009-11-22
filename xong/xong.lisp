@@ -558,7 +558,7 @@ reach new areas and items. The puck also picks up the color.")
     [set-player *active-universe* player]
     [set-character *status* player]
     [play *active-universe*
-	  :address '(=xong= :level 1)]
+	  :address (generate-level-address 1)]
     [loadout player]
     [play-sample self "go"]))
 
@@ -792,9 +792,12 @@ reach new areas and items. The puck also picks up the color.")
 	  (if [is-player obstacle]
 	      [grab obstacle self]
 	      ;; if it's an enemy or puck, freeze it!
-	      (when (or [in-category obstacle :puck]
-			[in-category obstacle :enemy])
-		[freeze self obstacle]))))
+	      (progn 
+		(when (or [in-category obstacle :puck]
+			  [in-category obstacle :enemy])
+		  [freeze self obstacle])
+		(when [in-category obstacle :gate]
+		  [open obstacle])))))
       (when [is-located self]
 	[parent>>move self <direction>]))))
 
@@ -877,6 +880,49 @@ reach new areas and items. The puck also picks up the color.")
 		    [die self])
 		  [move self dir])))))))
 
+;;; The Oscillator
+
+(defcell oscillator 
+  (tile :initform "oscillator")
+  (categories :initform '(:actor :obstacle :target :enemy :opaque :oscillator :puck))
+  (direction :initform (car (one-of '(:south :west))))
+  (stepping :initform t)
+  (dead :initform nil)
+  (name :initform "Oscillator")
+  (description :initform 
+"These bounce back and forth very quickly, occasionally changing direction.
+Stepping on any adjacent square means an instant kill."))
+
+(define-method get-nasty oscillator ()
+  [damage [get-player *active-world*] 1])
+
+(define-method loadout oscillator ()
+  (incf *enemies*))
+  
+(define-method cancel oscillator ()
+  (decf *enemies*))
+
+(define-method run oscillator ()
+  (if [obstacle-in-direction-p *active-world* <row> <column> <direction>]
+      (setf <direction> (opposite-direction <direction>))
+      (progn [move self <direction>]
+	     (when [adjacent-to-player self]
+	       [get-nasty self]))))
+
+(define-method damage oscillator (points)
+  [get-nasty self])
+
+(define-method die oscillator ()
+  (unless <dead>
+    (decf *enemies*)
+    [play-sample self "death-alien"]
+    [parent>>die self]))
+    
+(define-method kick oscillator (direction)
+  (setf <direction> direction)
+  [move self direction])
+
+
 ;;; Bulkheads are indestructible walls
 
 (defcell bulkhead
@@ -892,17 +938,20 @@ reach new areas and items. The puck also picks up the color.")
   (list '=xong= 
 	:level n
 	:extenders (truncate (/ (* 3 (1- n)) 2))
-	:tracers (+ 4 (* (1- n) 3))
+	:tracers (+ 4 (truncate (/ (* (1- n) 2) 3)))
 	:monitors (if (= n 1)
 		      0
 		      (* 2 (truncate (/ n 2))))
 	:rooms 1
-	:snowflakes (+ 1 (truncate (/ n 3)))
+	:snowflakes (+ 2 (truncate (/ n 2)))
+	:oscillators (* (max 0 (- n 3)) (truncate (/ n 2)))
 	:puzzle-length (+ 4 (truncate (/ n 3)))
 	:extra-holes (+ 4 (truncate (/ n 3)))
 	:puckups (+ 4 (truncate (* (1- n) 2.5)))
 	:diamonds (+ 9 (* (1- n) 3))
 	:swatches (+ 10 (truncate (* 1.6 n)))))
+
+;; (generate-level-address 1)
 
 (define-prototype xong (:parent rlx:=world=)
   (name :initform "Xong board")
@@ -975,12 +1024,12 @@ reach new areas and items. The puck also picks up the color.")
 	    [drop-cell self (clone =puckup=) (+ 2 (random 2) row)
 		       (+ 2 (random 2) column)]))))))
   
-
 (define-method generate xong (&key (level 1)
 				   (extenders 0)
 				   (tracers 4)
 				   (rooms 1)
 				   (snowflakes 2)
+				   (oscillators 3)
 				   (puzzle-length 4)
 				   (puckups 4)
 				   (extra-holes 4)
@@ -994,7 +1043,7 @@ reach new areas and items. The puck also picks up the color.")
     (dotimes (i height)
       (dotimes (j width)
 	[drop-cell self (clone =floor=) i j]))
-    (dotimes (n (+ swatches monitors tracers))
+    (dotimes (n (+ swatches 3))
       ;; ensure all colors are present,
       ;; after that make it random
       (let ((color (if (< n (length *colors*))
@@ -1029,6 +1078,11 @@ reach new areas and items. The puck also picks up the color.")
 	(multiple-value-bind (r c)
 	    [random-place self :avoiding player :distance 10]
 	  [drop-cell self tracer r c :loadout t])))
+    (dotimes (n oscillators)
+      (let ((oscillator (clone =oscillator=)))
+	(multiple-value-bind (r c)
+	    [random-place self :avoiding player :distance 10]
+	  [drop-cell self oscillator r c :loadout t])))
     (dotimes (n extenders)
       (multiple-value-bind (r c) [random-place self]
 	[drop-cell self (clone =extender=) r c]))
