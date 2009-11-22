@@ -90,6 +90,7 @@
 
  (:name "toybox" :type :music :file "toybox.ogg")
  (:name "metro" :type :music :file "metro.ogg" :properties (:volume 12))
+ (:name "synthy" :type :music :file "synthy.ogg" :properties (:volume 25))
  (:name "flyby" :type :music :file "flyby.ogg" :properties (:volume 90))
  (:name "door" :type :image :file "door.png")
  (:name "snowflake" :type :image :file "snowflake.png")
@@ -102,7 +103,7 @@
  (:name "chevron" :type :sample :file "chevron.wav" :properties (:volume 8))
  (:name "bounce" :type :sample :file "bounce.wav" :properties (:volume 8))
  (:name "sparqq" :type :music :file "sparqq.ogg" :properties (:volume 100))
- (:name "neon" :type :music :file "neon.ogg" :properties (:volume 80))
+ (:name "neon" :type :music :file "neon.ogg" :properties (:volume 95))
  (:name "techworld" :type :music :file "techworld.ogg")
  (:name "phong" :type :music :file "phong.ogg" :properties (:volume 35))
  (:name "pensive" :type :music :file "pensive.ogg")

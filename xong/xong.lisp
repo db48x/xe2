@@ -781,7 +781,7 @@ reach new areas and items. The puck also picks up the color.")
 
 (define-method freeze snowflake (enemy)
   [play-sample self "freeze"]
-  [expend-action-points enemy 200])
+  [expend-action-points enemy 125])
 
 (define-method paint snowflake (color)
   nil)
@@ -972,7 +972,7 @@ reach new areas and items. The puck also picks up the color.")
 	[drop-cell self (clone =hole=) r c]))))
 
 (define-method begin-ambient-loop xong ()  
-  (play-music (car (one-of '("flyby" "sparqq" "neon" "phong" "xong-theme" "pensive" "toybox"))) :loop t))
+  (play-music (car (one-of '("flyby" "sparqq" "synthy" "neon" "phong" "xong-theme" "pensive" "toybox"))) :loop t))
       
 ;;; Splash screen
   
