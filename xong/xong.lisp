@@ -358,8 +358,30 @@ squeezing by in between pulses!"))
 defeat enemies by guiding them into the black holes. Be careful; black
 holes can only eat one object before closing!"))
 
+(define-method spew-plasma hole ()
+  (clon:with-field-values (row column) self
+    (assert (and row column))
+    (let ((color (car (one-of *colors*))))
+      (dotimes (n (+ 9 (random 10)))
+	(let ((plasma (clone =plasma=)))
+	  [set-color plasma color]
+	  [set-clock plasma (+ 10 (random 10))]
+	  (let ((limit 10))
+	    (block placing
+	      (loop do (let ((r (+ row (- (random 3) (random 6))))
+			     (c (+ column (- (random 3) (random 6)))))
+			 (if [line-of-sight *active-world* row column r c]
+			     (progn 
+			       [drop-cell *active-world* plasma r c]
+			       (return-from placing))
+			     ;; try again
+			     (decf limit)))
+		    while (plusp limit)))))))))
+
 (define-method step hole (stepper)
   (when <open>
+    (assert (and <row> <column>))
+    [spew-plasma self]
     (progn [play-sample self "hole-suck"]
 	   (if [in-category stepper :puck]
 	       [die stepper]
@@ -804,6 +826,49 @@ reach new areas and items. The puck also picks up the color.")
   [play-sample self "buzz"]
   [parent>>die self])
 
+;;; Radioactive gas
+
+(defvar *plasma-tiles* '(:purple "plasma-purple"
+			:black "plasma-black"
+			:red "plasma-red"
+			:blue "plasma-blue"
+			:orange "plasma-orange"
+			:green "plasma-green"
+			:white "plasma-white"
+			:yellow "plasma-yellow"))
+
+(defcell plasma
+  (tile :initform "plasma-white")
+  (color :initform :white)
+  (name :initform "Toxic paint plasma")
+  (speed :initform (make-stat :base 10))
+  (movement-cost :initform (make-stat :base 10))
+  (clock :initform 100)
+  (categories :initform '(:actor :paint-source :plasma))
+  (description :initform "Spreading toxic paint gas. Avoid at all costs!"))
+
+(define-method step plasma (stepper)
+  (when (has-field :hit-points stepper)
+    [damage stepper 1]))
+
+(define-method set-color plasma (color)
+  (setf <color> color)
+  (setf <tile> (getf *plasma-tiles* color)))
+
+(define-method set-clock plasma (clock)
+  (setf <clock> clock))
+
+(define-method run plasma ()
+  [play-sample self "plasma"]
+  (decf <clock>)
+  (if (> 0 <clock>)
+      [die self]
+      (progn 
+	(do-cells (cell [cells-at *active-world* <row> <column>])
+	  (when (has-field :hit-points cell)
+	    [damage cell 1]))
+	[move self (random-direction)])))
+
 ;;; Bulkheads are indestructible walls
 
 (defcell bulkhead
@@ -934,12 +999,13 @@ reach new areas and items. The puck also picks up the color.")
 		       [paint wall color]))))
 	  (multiple-value-bind (r c) [random-place self]
 	    (unless (= 0 r c)
-	      [replace-cells-at self 
-				(+ r 2 (random 3))
-				(+ c 2 (random 3))
-				(clone =hole=)]
-	      (trace-rectangle #'drop-wall r c
-			       (+ 4 (random 8)) (+ 4 (random 8)) :fill))))))
+	      (let ((hr (+ r 2 (random 3)))
+		    (hc (+ c 2 (random 3))))
+		[replace-cells-at self hr hc
+				  (clone =floor=)]
+		[drop-cell self (clone =hole=) hr hc]
+		(trace-rectangle #'drop-wall r c
+				 (+ 4 (random 8)) (+ 4 (random 8)) :fill)))))))
     (dotimes (n rooms)
       [drop-room self 
 		 (+ 5 (random (- height 20)))

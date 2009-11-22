@@ -50,6 +50,15 @@
  (:name "brick-yellow" :type :image :file "brick-yellow.png")
  (:name "brick-white" :type :image :file "brick-white.png")
 
+ (:name "plasma-purple" :type :image :file "plasma-purple.png")
+ (:name "plasma-black" :type :image :file "plasma-black.png")
+ (:name "plasma-red" :type :image :file "plasma-red.png")
+ (:name "plasma-blue" :type :image :file "plasma-blue.png")
+ (:name "plasma-orange" :type :image :file "plasma-orange.png")
+ (:name "plasma-green" :type :image :file "plasma-green.png")
+ (:name "plasma-yellow" :type :image :file "plasma-yellow.png")
+ (:name "plasma-white" :type :image :file "plasma-white.png")
+
  (:name "player-purple" :type :image :file "player-purple.png")
  (:name "player-black" :type :image :file "player-black.png")
  (:name "player-red" :type :image :file "player-red.png")
@@ -96,6 +105,7 @@
  (:name "snowflake" :type :image :file "snowflake.png")
  (:name "door-open" :type :image :file "door-open.png")
  (:name "bloop" :type :sample :file "bloop.wav" :properties (:volume 8))
+ (:name "plasma" :type :sample :file "plasma.wav" :properties (:volume 10))
  (:name "error" :type :sample :file "error.wav" :properties (:volume 50))
  (:name "freeze" :type :sample :file "freeze.wav" :properties (:volume 8))
  (:name "serve" :type :sample :file "serve.wav" :properties (:volume 8))

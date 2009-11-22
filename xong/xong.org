@@ -1,9 +1,11 @@
-
+** TODO [#B] Bitmap fonts: http://code.google.com/p/lispbuilder/wiki/UsingLispbuilderSDL#Bitmapped_Fonts
+** TODO http://nsis.sourceforge.net/License
 ** TODO RELEASE 1.2 REQUIREMENTS
 *** Improve help system
 *** Fix bugs
 *** Introduce new enemy 
 *** Introduce new play mechanics that tie together the painting with the chevrons more
+*** TODO aliens that eat and excrete paint gas
 ** TODO [#A] DOn't generate black holes on 0,0
 ** TODO [#A] Don't require .rlxrc!!!
 ** TODO [#A] Fix crash when next-level door opens while player standing on it

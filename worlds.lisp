@@ -572,39 +572,41 @@ in a roguelike until the user has pressed a key."
       (decf (fill-pointer square)))))
 
 (define-method line-of-sight world (r1 c1 r2 c2 &optional (category :obstacle))
-  (let ((line (make-array 100 :initial-element nil :adjustable t :fill-pointer 0))
-	(grid <grid>)
-	(num-points 0)
-	(r0 r1)
-	(c0 c1))
-    (labels ((collect-point (&rest args)
-	       (prog1 nil
-		 (vector-push-extend args line)
-		 (incf num-points))))
-      (let ((flipped (trace-line #'collect-point c1 r1 c2 r2)))
-	(if flipped 
-	    (setf line (nreverse line))
-	    (when (array-in-bounds-p grid r2 c2)
-	      (incf num-points)
-	      (vector-push-extend (list c2 r2) line)))
-	(message "~S" line)
-	(let ((retval (block tracing
-			(let ((i 0))
-			  (loop while (< i num-points) do
-			    (destructuring-bind (x y) (aref line i)
-			      (setf r0 x c0 y)
-			      (when *lighting-hack-function* 
-				(funcall *lighting-hack-function* r0 c0 r1 c1))
-			      (if (and (= r0 r2)
-				       (= c0 c2))
-				  (return-from tracing t)
-				  (when [category-at-p self r0 c0 category]
-				    (return-from tracing nil))))
-			    (incf i)))
-			(return-from tracing t))))
-	  (prog1 retval
-	    (message "tracing ~S" retval)))))))
-	
+  (when (and (array-in-bounds-p <grid> r1 c1) 
+	     (array-in-bounds-p <grid> r2 c2))
+    (let ((line (make-array 100 :initial-element nil :adjustable t :fill-pointer 0))
+	  (grid <grid>)
+	  (num-points 0)
+	  (r0 r1)
+	  (c0 c1))
+      (labels ((collect-point (&rest args)
+		 (prog1 nil
+		   (vector-push-extend args line)
+		   (incf num-points))))
+	(let ((flipped (trace-line #'collect-point c1 r1 c2 r2)))
+	  (if flipped 
+	      (setf line (nreverse line))
+	      (when (array-in-bounds-p grid r2 c2)
+		(incf num-points)
+		(vector-push-extend (list c2 r2) line)))
+	  (message "~S" line)
+	  (let ((retval (block tracing
+			  (let ((i 0))
+			    (loop while (< i num-points) do
+			      (destructuring-bind (x y) (aref line i)
+				(setf r0 x c0 y)
+				(when *lighting-hack-function* 
+				  (funcall *lighting-hack-function* r0 c0 r1 c1))
+				(if (and (= r0 r2)
+					 (= c0 c2))
+				    (return-from tracing t)
+				    (when [category-at-p self r0 c0 category]
+				      (return-from tracing nil))))
+			      (incf i)))
+			  (return-from tracing t))))
+	    (prog1 retval
+	      (message "tracing ~S" retval))))))))
+
 (define-method move-cell world (cell row column)
   (let* ((old-row (field-value :row cell))
 	 (old-column (field-value :column cell)))
