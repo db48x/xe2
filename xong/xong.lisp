@@ -356,14 +356,15 @@ squeezing by in between pulses!"))
   (description :initform 
 "These holes eat the puck and enemies. The object of the game is to
 defeat enemies by guiding them into the black holes. Be careful; black
-holes can only eat one object before closing!"))
+holes can only eat one object before closing. Not only that, they
+explode with deadly plasma radiation!"))
 
 (define-method spew-plasma hole ()
   (clon:with-field-values (row column) self
     (assert (and row column))
-    (let ((color (car (one-of *colors*))))
       (dotimes (n (+ 9 (random 10)))
-	(let ((plasma (clone =plasma=)))
+	(let ((plasma (clone =plasma=))
+	      (color (car (one-of *colors*))))
 	  [set-color plasma color]
 	  [set-clock plasma (+ 10 (random 10))]
 	  (let ((limit 10))
@@ -376,7 +377,7 @@ holes can only eat one object before closing!"))
 			       (return-from placing))
 			     ;; try again
 			     (decf limit)))
-		    while (plusp limit)))))))))
+		    while (plusp limit))))))))
 
 (define-method step hole (stepper)
   (when <open>
@@ -848,7 +849,7 @@ reach new areas and items. The puck also picks up the color.")
   (description :initform "Spreading toxic paint gas. Avoid at all costs!"))
 
 (define-method step plasma (stepper)
-  (when (has-field :hit-points stepper)
+  (when [is-player stepper]
     [damage stepper 1]))
 
 (define-method set-color plasma (color)
