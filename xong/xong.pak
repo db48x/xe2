@@ -104,8 +104,41 @@
  (:name "door" :type :image :file "door.png")
  (:name "snowflake" :type :image :file "snowflake.png")
  (:name "oscillator" :type :image :file "oscillator.png")
+
+ (:name "muon" :type :image :file "muon.png")
+ (:name "muon-north" :type :image :file "muon-north.png")
+ (:name "muon-east" :type :alias :data ":rotate 90:muon-north")
+ (:name "muon-south" :type :alias :data ":rotate 180:muon-north")
+ (:name "muon-west" :type :alias :data ":rotate 270:muon-north")
+
+ (:name "muon-northeast" :type :image :file "muon-northeast.png")
+ (:name "muon-southeast" :type :alias :data ":rotate 90:muon-northeast")
+ (:name "muon-southwest" :type :alias :data ":rotate 180:muon-northeast")
+ (:name "muon-northwest" :type :alias :data ":rotate 270:muon-northeast")
+
+ (:name "bullet-trail-middle-north" :type :image :file "bullet-trail-middle-north.png")
+ (:name "bullet-trail-middle-east" :type :alias :data ":rotate 90:bullet-trail-middle-north")
+ (:name "bullet-trail-middle-south" :type :alias :data ":rotate 180:bullet-trail-middle-north")
+ (:name "bullet-trail-middle-west" :type :alias :data ":rotate 270:bullet-trail-middle-north")
+
+ (:name "bullet-trail-middle-northeast" :type :image :file "bullet-trail-middle-northeast.png")
+ (:name "bullet-trail-middle-southeast" :type :alias :data ":rotate 90:bullet-trail-middle-northeast")
+ (:name "bullet-trail-middle-southwest" :type :alias :data ":rotate 180:bullet-trail-middle-northeast")
+ (:name "bullet-trail-middle-northwest" :type :alias :data ":rotate 270:bullet-trail-middle-northeast")
+
+ (:name "bullet-trail-end-north" :type :image :file "bullet-trail-end-north.png")
+ (:name "bullet-trail-end-east" :type :alias :data ":rotate 90:bullet-trail-end-north")
+ (:name "bullet-trail-end-south" :type :alias :data ":rotate 180:bullet-trail-end-north")
+ (:name "bullet-trail-end-west" :type :alias :data ":rotate 270:bullet-trail-end-north")
+
+ (:name "bullet-trail-end-northeast" :type :image :file "bullet-trail-end-northeast.png")
+ (:name "bullet-trail-end-southeast" :type :alias :data ":rotate 90:bullet-trail-end-northeast")
+ (:name "bullet-trail-end-southwest" :type :alias :data ":rotate 180:bullet-trail-end-northeast")
+ (:name "bullet-trail-end-northwest" :type :alias :data ":rotate 270:bullet-trail-end-northeast")
+
  (:name "door-open" :type :image :file "door-open.png")
  (:name "bloop" :type :sample :file "bloop.wav" :properties (:volume 8))
+ (:name "muon-fire" :type :sample :file "muon-fire.wav" :properties (:volume 8))
  (:name "plasma" :type :sample :file "plasma.wav" :properties (:volume 10))
  (:name "error" :type :sample :file "error.wav" :properties (:volume 50))
  (:name "freeze" :type :sample :file "freeze.wav" :properties (:volume 8))

@@ -807,7 +807,7 @@ reach new areas and items. The puck also picks up the color.")
 
 (define-method freeze snowflake (enemy)
   [play-sample self "freeze"]
-  [expend-action-points enemy 125])
+  [expend-action-points enemy 150])
 
 (define-method paint snowflake (color)
   nil)
@@ -880,18 +880,136 @@ reach new areas and items. The puck also picks up the color.")
 		    [die self])
 		  [move self dir])))))))
 
+;;; Muon bullets
+
+(defvar *muon-tiles* '(:north "muon-north"
+		       :south "muon-south"
+		       :east "muon-east"
+		       :west "muon-west"
+		       :northeast "muon-northeast"
+		       :southeast "muon-southeast"
+		       :southwest "muon-southwest"
+		       :northwest "muon-northwest"))
+
+(defvar *trail-middle-tiles* '(:north "bullet-trail-middle-north"
+			       :south "bullet-trail-middle-south"
+			       :east "bullet-trail-middle-east"
+			       :west "bullet-trail-middle-west"
+			       :northeast "bullet-trail-middle-northeast"
+			       :southeast "bullet-trail-middle-southeast"
+			       :southwest "bullet-trail-middle-southwest"
+			       :northwest "bullet-trail-middle-northwest"))
+
+(defvar *trail-end-tiles* '(:north "bullet-trail-end-north"
+			       :south "bullet-trail-end-south"
+			       :east "bullet-trail-end-east"
+			       :west "bullet-trail-end-west"
+			       :northeast "bullet-trail-end-northeast"
+			       :southeast "bullet-trail-end-southeast"
+			       :southwest "bullet-trail-end-southwest"
+			       :northwest "bullet-trail-end-northwest"))
+
+(defvar *trail-tile-map* (list *trail-end-tiles* *trail-middle-tiles* *trail-middle-tiles*))
+
+(defcell muon-trail
+  (categories :initform '(:actor))
+  (clock :initform 2)
+  (speed :initform (make-stat :base 10))
+  (default-cost :initform (make-stat :base 10))
+  (tile :initform ".gear")
+  (direction :initform :north))
+
+(define-method orient muon-trail (direction)
+  (setf <direction> direction)
+  (setf <tile> (getf *trail-middle-tiles* direction)))
+
+(define-method run muon-trail ()
+  (setf <tile> (getf (nth <clock> *trail-tile-map*)
+		     <direction>))
+  [expend-default-action-points self]
+  (decf <clock>)
+  (when (minusp <clock>)
+    [die self]))
+
+;;; Basic muon particle
+
+(defcell muon-particle 
+  (categories :initform '(:actor :muon :target))
+  (speed :initform (make-stat :base 20))
+  (default-cost :initform (make-stat :base 3))
+  (movement-cost :initform (make-stat :base 20))
+  (attack-power :initform 5)
+  (tile :initform "muon")
+  (name :initform "Muon particle")
+  (firing-sound :initform "muon-fire")
+  (direction :initform :here)
+  (clock :initform 12)
+  (description :initform
+"This high-energy particle will kill you instantly."))
+
+(define-method initialize muon-particle (&key attack-power)
+  (when attack-power
+    (setf <attack-power> attack-power)))
+
+(define-method drop-trail muon-particle (direction)
+  (let ((trail (clone =muon-trail=)))
+    [orient trail direction]
+    [drop self trail]))
+
+(define-method find-target muon-particle ()
+  (let ((target [category-in-direction-p *active-world* 
+					 <row> <column> <direction>
+					 '(:obstacle :target)]))
+    (if target
+	(progn
+	  [>>move self <direction>]
+	  [>>expend-default-action-points self]
+	  [>>push target <direction>]
+	  [>>damage target <attack-power>]
+	  [>>die self])
+	(multiple-value-bind (r c) 
+	    (step-in-direction <row> <column> <direction>)
+	  (if (not (array-in-bounds-p (field-value :grid *active-world*) r c))
+	      [die self]
+	      (progn [drop-trail self <direction>]
+		     [>>move self <direction>]))))))
+
+(define-method step muon-particle (stepper)
+  [damage stepper <attack-power>]
+  [die self])
+  
+(define-method update-tile muon-particle ()
+  (setf <tile> (getf *muon-tiles* <direction>)))
+
+(define-method run muon-particle ()
+  [update-tile self]
+  [find-target self]
+  (decf <clock>)
+  (when (zerop <clock>)
+    [>>die self]))
+
+(define-method impel muon-particle (direction)
+  (assert (member direction *compass-directions*))
+  (setf <direction> direction)
+  ;; don't hit the player
+  ;;  [move self direction]
+  [play-sample self <firing-sound>]
+  [find-target self])
+
 ;;; The Oscillator
 
 (defcell oscillator 
   (tile :initform "oscillator")
   (categories :initform '(:actor :obstacle :target :enemy :opaque :oscillator :puck))
+  (speed :initform (make-stat :base 20))
+  (movement-cost :initform (make-stat :base 20))
   (direction :initform (car (one-of '(:south :west))))
   (stepping :initform t)
   (dead :initform nil)
   (name :initform "Oscillator")
   (description :initform 
-"These bounce back and forth very quickly, occasionally changing direction.
-Stepping on any adjacent square means an instant kill."))
+"These bounce back and forth very quickly, firing muon particles if
+the player gets too close."))
 
 (define-method get-nasty oscillator ()
   [damage [get-player *active-world*] 1])
@@ -906,8 +1024,17 @@ Stepping on any adjacent square means an instant kill."))
   (if [obstacle-in-direction-p *active-world* <row> <column> <direction>]
       (setf <direction> (opposite-direction <direction>))
       (progn [move self <direction>]
-	     (when [adjacent-to-player self]
-	       [get-nasty self]))))
+	     (if (and (> 8 [distance-to-player self])
+		      [line-of-sight *active-world* <row> <column> 
+				     [player-row *active-world*]
+				     [player-column *active-world*]])
+		 [fire self [direction-to-player self]]))))
+
+(define-method fire oscillator (direction)
+  (let ((muon (clone =muon-particle=)))
+    [drop self muon]
+    [expend-action-points self 200]
+    [impel muon direction] ))
 
 (define-method damage oscillator (points)
   [get-nasty self])
@@ -922,7 +1049,6 @@ Stepping on any adjacent square means an instant kill."))
 (define-method kick oscillator (direction)
   (setf <direction> direction)
   [move self direction])
-
 
 ;;; Bulkheads are indestructible walls
 
@@ -945,7 +1071,7 @@ Stepping on any adjacent square means an instant kill."))
 		      (* 2 (truncate (/ n 2))))
 	:rooms 1
 	:snowflakes (+ 2 (truncate (/ n 2)))
-	:oscillators (* (max 0 (- n 3)) (truncate (/ n 2)))
+	:oscillators (+ 1 (* (max 0 (- n 3)) (truncate (/ n 2))))
 	:puzzle-length (+ 4 (truncate (/ n 3)))
 	:extra-holes (+ 4 (truncate (/ n 3)))
 	:puckups (+ 4 (truncate (* (1- n) 2.5)))
