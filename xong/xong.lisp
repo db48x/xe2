@@ -915,6 +915,7 @@ Stepping on any adjacent square means an instant kill."))
 (define-method die oscillator ()
   (unless <dead>
     (decf *enemies*)
+    (score 5000)
     [play-sample self "death-alien"]
     [parent>>die self]))
     
