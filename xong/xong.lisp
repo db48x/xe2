@@ -805,12 +805,12 @@ reach new areas and items. The puck also picks up the color.")
     [drop self item]
     [parent>>die self]))
 
-;;; Shield adds one hit's worth of protection
+;;; Shield offers brief invulnerability
 
 (defcell shield
   (name :initform "Shield generator")
   (tile :initform "shield")
-  (description :initform "Adds a single-use hit protection shield."))
+  (description :initform "Single-use, time-limited invulnerability shield."))
 
 (define-method step shield (stepper)
   (when [is-player stepper]
@@ -1085,7 +1085,7 @@ the player gets too close."))
 (define-method fire oscillator (direction)
   (let ((muon (clone =muon-particle=)))
     [drop self muon]
-    [expend-action-points self 200]
+    [expend-action-points self 100]
     [impel muon direction] ))
 
 (define-method damage oscillator (points)

@@ -144,7 +144,7 @@
  (:name "shield-sound" :type :sample :file "shield.wav" :properties (:volume 8))
  (:name "muon-fire" :type :sample :file "muon-fire.wav" :properties (:volume 8))
  (:name "plasma" :type :sample :file "plasma.wav" :properties (:volume 10))
- (:name "error" :type :sample :file "error.wav" :properties (:volume 50))
+ (:name "error" :type :sample :file "error.wav" :properties (:volume 30))
  (:name "freeze" :type :sample :file "freeze.wav" :properties (:volume 8))
  (:name "serve" :type :sample :file "serve.wav" :properties (:volume 8))
  (:name "grab" :type :sample :file "grab.wav" :properties (:volume 8))
