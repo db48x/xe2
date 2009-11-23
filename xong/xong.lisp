@@ -392,9 +392,16 @@ explode with deadly plasma radiation!"))
 	   (setf <open> nil)
 	   (setf <tile> "hole-closed"))))
 
-;;; Locks are the body components of a snake
+;;; Snakes are the body components of a snake
 
-(defvar *lock-tiles* '(:purple "brick-purple"
+(defvar *snake* nil)
+
+(defun snake-living-p ()
+  (labels ((smashed (c)
+	     (field-value :smashed c)))
+    (notevery #'smashed *snake*)))
+
+(defvar *snake-tiles* '(:purple "brick-purple"
 			:black "brick-black"
 			:red "brick-red"
 			:blue "brick-blue"
@@ -403,31 +410,70 @@ explode with deadly plasma radiation!"))
 			:white "brick-white"
 			:yellow "brick-yellow"))
 
-(defcell lock 
-  (tile :initform "lock-white")
+(defcell snake 
+  (tile :initform "snake-white")
+  (smashed :initform nil)
+  (speed :initform (make-stat :base 20))
+  (movement-cost :initform (make-stat :base 60))
+  (ahead :initform nil)
+  (behind :initform nil)
   (color :initform :white)
-  (categories :initform '(:obstacle :exclusive :paintable))
+  (direction :initform :south)
+  (categories :initform '(:obstacle :exclusive :paintable :actor :snake))
   (description :initform "These open permanently when hit with the same color paint."))
 
-(define-method set-color lock (c)
+(define-method set-color snake (c)
   (setf <color> c)
-  (let ((res (getf *lock-tiles* c)))
+  (let ((res (getf *snake-tiles* c)))
     (assert (stringp res))
     (setf <tile> res)))
 
-(define-method paint lock (color)
+(define-method paint snake (color)
   (if (eq <color> color)
       (progn [play-sample self "lock-opening-sound"]
 	     (score 1000)
+	     (setf <smashed> t)
 	     (setf <tile> "brick-smashed"))
       [play-sample self "error"]))
 
-;; (define-method spawn lock ()
+(define-method attach snake (piece)
+  (setf <behind> piece)
+  (setf (field-value :ahead piece) self))
+
+(define-method choose-new-direction snake ()
+  [expend-action-points self 60]
+  (setf <direction> (car (one-of '(:north :south :east :west)))))
+
+(define-method run snake ()
+  (clon:with-field-values (row column) self
+    (when (null <ahead>)
+      ;; we are the head of the snake
+      (when [obstacle-in-direction-p *active-world* row column <direction>]
+	[choose-new-direction self])
+      ;; ;; kill if adjacent to head
+      ;; (when [adjacent-to-player self]
+      ;; 	[say self "The snake bites you!"]
+      ;; 	[damage [get-player *active-world*] 1])
+      ;; move self and the rest of the pieces
+      [move self <direction>]
+	  (let ((piece <behind>)
+		(r row)
+		(c column)
+		next-r next-c)
+	    (loop while piece
+		  do [>>move piece (direction-to (setf next-r (field-value :row piece))
+						 (setf next-c (field-value :column piece))
+					     r c)]
+		     (setf r next-r
+			   c next-c
+			   piece (field-value :behind piece)))))))
+  
+;; (define-method spawn snake ()
 ;;   (let ((dir (car (one-of '(:north :south :east :west))))
-;; 	(lock (clone =lock=)))
+;; 	(snake (clone =snake=)))
 ;;     (multiple-value-bind (r c)
 ;; 	(step-in-direction <row> <column> dir)
-;;       [drop-cell *active-world* lock r c :probe t :exclusive t])))
+;;       [drop-cell *active-world* snake r c :probe t :exclusive t])))
 
 ;;; Door to next level
 
@@ -443,7 +489,7 @@ explode with deadly plasma radiation!"))
 
 (define-method step door (stepper)
   (when [is-player stepper]
-    (if (zerop *enemies*)
+    (if (and (zerop *enemies*) (not (snake-living-p)))
 	(progn 
 	  (score 20000)
 	  [play-sample self "go"]
@@ -569,7 +615,9 @@ reach new areas and items. The puck also picks up the color.")
 
 (define-method step player (stepper)
   (when [in-category stepper :item]
-    [grab self stepper]))
+    [grab self stepper])
+  (when [in-category stepper :snake]
+    [damage self 1]))
 
 (define-method drop-tail player ()
   [drop self (clone =tail= 
@@ -1159,6 +1207,20 @@ the player gets too close."))
   (scale :initform '(1 nm))
   (ambient-light :initform :total))
 
+(define-method drop-snake xong (column row1 row2)
+  (setf *snake* nil)
+  (let (piece last-piece)
+    (labels ((drop-piece (r c)
+	       (progn nil
+		      (setf piece (clone =snake=))
+		      (push piece *snake*)
+		      [drop-cell *active-world* piece r c]
+		      [set-color piece (car (one-of *colors*))]
+		      (when last-piece
+			[attach last-piece piece])
+		      (setf last-piece piece))))
+      (trace-column #'drop-piece column row1 row2))))
+
 (define-method drop-room xong (row column height width 
 				   next-level puzzle-length &optional (material =bulkhead=))
   (let (rectangle openings)
@@ -1195,17 +1257,12 @@ the player gets too close."))
       ;; drop floor, obliterating what's below
       (labels ((drop-floor (r c)
 		 (prog1 nil
-		   [replace-cells-at self r c (clone =floor=)]))
-	       (drop-lock (r c)
-		 (prog1 nil 
-		   (let ((lock (clone =lock=)))
-		     [set-color lock (car (one-of *colors*))]
-		     [drop-cell self lock r c]))))
+		   [replace-cells-at self r c (clone =floor=)])))
 	(trace-rectangle #'drop-floor (1+ row) (1+ column) (- height 2) (- width 2) :fill)
 	;; drop lock puzzle
 	(let ((col (+ column (truncate (/ width 2)))))
 	  (trace-column #'drop-wall (- col 1) row (+ 1 row puzzle-length))
-	  (trace-column #'drop-lock col (+ row 2) (+ 1 row puzzle-length))
+	  [drop-snake self col (+ row 2) (+ 1 row puzzle-length)]
 	  (trace-column #'drop-wall (+ col 1) row (+ 1 row puzzle-length))
 	  ;; drop door
 	  (let ((door (clone =door=)))

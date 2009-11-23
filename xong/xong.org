@@ -1,4 +1,6 @@
-** TODO life hit point upgrade? try it
+
+** TODO don't generate black holes in room, or in open areas
+** TODO don't let explosions go through obstacles
 ** TODO [#B] Bitmap fonts: http://code.google.com/p/lispbuilder/wiki/UsingLispbuilderSDL#Bitmapped_Fonts
 ** TODO http://nsis.sourceforge.net/License
 ** TODO RELEASE 1.2 SELLING POINTS
