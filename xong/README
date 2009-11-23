@@ -23,6 +23,7 @@
  (("You cannot shoot enemies ") 
   (nil :image "tracer-east")
   (nil :image "monitor")
+  (nil :image "oscillator")
   (" instead, use chevrons to guide the enemies"))
  (("into the Black Holes: ") (nil :image "hole") (" The puck will be destroyed if it"))
 

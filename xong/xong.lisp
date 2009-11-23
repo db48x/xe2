@@ -392,7 +392,7 @@ explode with deadly plasma radiation!"))
 	   (setf <open> nil)
 	   (setf <tile> "hole-closed"))))
 
-;;; Bricks
+;;; Locks are the body components of a snake
 
 (defvar *lock-tiles* '(:purple "brick-purple"
 			:black "brick-black"
@@ -419,7 +419,7 @@ explode with deadly plasma radiation!"))
   (if (eq <color> color)
       (progn [play-sample self "lock-opening-sound"]
 	     (score 1000)
-	     [die self])
+	     (setf <tile> "brick-smashed"))
       [play-sample self "error"]))
 
 ;; (define-method spawn lock ()

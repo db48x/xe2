@@ -2,11 +2,11 @@
 ** TODO [#B] Bitmap fonts: http://code.google.com/p/lispbuilder/wiki/UsingLispbuilderSDL#Bitmapped_Fonts
 ** TODO http://nsis.sourceforge.net/License
 ** TODO RELEASE 1.2 SELLING POINTS
-*** TODO improved mini-puzzles and color puzzle... consequences to breaking each block
-*** New level 3 enemy "Oscillator" is more dangerous than the others, and will require fast dodging
-*** Black holes expel deadly paint plasma when consuming an item
+*** New level 3 enemy "Oscillator" is more dangerous than the others, and will require fast dodging because he fires bullets
+*** Black holes expel deadly paint plasma when consuming anything
 *** "Snowflake" is a special puck that freezes enemies
-*** TODO Introduce new play mechanics that tie together the painting with the chevrons more
+*** TODO improved color puzzle... consequences to breaking each block
+*** SHIELD
 ** TODO [#A] DOn't generate black holes on 0,0
 ** TODO [#A] Don't require .rlxrc!!!
 ** TODO [#A] Fix crash when next-level door opens while player standing on it
@@ -34,10 +34,12 @@
 ** TODO [#C] security cameras which cause enemy spawn
 ** TODO [#C] situations where you try to get multiple balls going, where the bounce makes something happen
 ** TODO [#C] victory music?
+** TODO [#B] subtract points for using paint blocks
 : (04:32:10 PM) Super-Dot: dto: It's hard to sort through, but I think Cmd-? outputs
 : (04:32:12 PM) Super-Dot: 11/20/09 1:30:14 PM	[0x0-0x168168].com.sbcl.xong[4624]	SDL KEY AND MODS: (SDL-KEY-SLASH (SDL-KEY-MOD-RSHIFT SDL-KEY-MOD-RMETA))
 * Other games
-** vomac (shmup)
+* vomac (shmup) bullet hell
+*** vomac shield bracket 
 ** plant growth 
 ** fractal green world explorer
 ** TODO ambient game using black0999 rain track and other rain effects, 

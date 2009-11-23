@@ -41,6 +41,7 @@
  (:name "tracer-west" :type :alias :data ":rotate 90:tracer-south")
  (:name "tracer-north" :type :alias :data ":rotate 90:tracer-west")
 
+ (:name "brick-smashed" :type :image :file "brick-smashed.png")
  (:name "brick-purple" :type :image :file "brick-purple.png")
  (:name "brick-black" :type :image :file "brick-black.png")
  (:name "brick-red" :type :image :file "brick-red.png")
