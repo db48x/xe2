@@ -63,6 +63,10 @@
   [play-sample self "gate-closing-sound"]
   (setf <tile> "gate-closed"))
 
+(define-method is-open gate ()
+  (let ((retval (null [in-category self :obstacle])))
+    (prog1 retval (message "IS-OPEN: ~S" retval))))
+
 (define-method run gate ()
   [expend-action-points self 10]
   (decf <clock>)
@@ -410,11 +414,14 @@ explode with deadly plasma radiation!"))
 			:white "brick-white"
 			:yellow "brick-yellow"))
 
+(defparameter *snake-escape-time* 100)
+
 (defcell snake 
   (tile :initform "snake-white")
   (smashed :initform nil)
   (speed :initform (make-stat :base 20))
   (movement-cost :initform (make-stat :base 60))
+  (escape-clock :initform 0)
   (ahead :initform nil)
   (behind :initform nil)
   (color :initform :white)
@@ -440,35 +447,56 @@ explode with deadly plasma radiation!"))
   (setf <behind> piece)
   (setf (field-value :ahead piece) self))
 
+(define-method adjacent-gate snake ()
+  (clon:with-field-values (row column) self
+    (block searching
+      (dolist (dir '(:north :south :east :west))
+	(multiple-value-bind (r c) (step-in-direction row column dir)
+	  (let ((gate [category-at-p *active-world* r c :gate]))
+	    (when (and (clon:object-p gate)
+		       [is-open gate]
+		       (zerop <escape-clock>))
+	      (setf <escape-clock> *snake-escape-time*)
+	      (return dir))))))))	
+
 (define-method probe snake (direction)
   (let ((retval (clon:with-field-values (row column) self
 		  (multiple-value-bind (r c) (step-in-direction row column direction)
-		    (if (not [category-at-p *active-world* r c :obstacle])
+		    (if (and [in-bounds-p *active-world* r c]
+			     (not [category-at-p *active-world* r c :obstacle]))
+			;; all clear
 			direction
-			(when [category-at-p *active-world* r c :snake]
+			;; allow overlapping self
+			(when (or [category-at-p *active-world* r c :snake]
+				  ;; try to escape the room
+				  (and (let ((gate [category-at-p *active-world* r c :gate]))
+					 (when (clon:object-p gate)
+					   [is-open gate]))))
 			  direction))))))
     (when retval 
       (prog1 retval [expend-action-points self 20]))))
 	      
 (define-method run snake ()
+  (setf <escape-clock> (max 0 (1- <escape-clock>)))
   (clon:with-field-values (row column) self
     (when (null <ahead>)
       ;; we are the head of the snake
-      (if [probe self <direction>]
-	  (progn [move self <direction> :ignoring-obstacles]
-		 (let ((piece <behind>)
-		       (r row)
-		       (c column)
-		       next-r next-c)
-		   (loop while piece
-			 do [>>move piece (direction-to (setf next-r (field-value :row piece))
-							(setf next-c (field-value :column piece))
-						    r c) :ignoring-obstacles]
-			    (setf r next-r
-				  c next-c
-				  piece (field-value :behind piece)))))
-	  (let ((dir (car (one-of '(:north :south :east :west)))))
-	    (setf <direction> (or [probe self dir] <direction>)))))))
+      (let ((dir (or [adjacent-gate self] <direction>)))
+	(if [probe self dir]
+	    (progn [move self dir :ignoring-obstacles]
+		   (let ((piece <behind>)
+			 (r row)
+			 (c column)
+			 next-r next-c)
+		     (loop while piece
+			   do [>>move piece (direction-to (setf next-r (field-value :row piece))
+							  (setf next-c (field-value :column piece))
+						      r c) :ignoring-obstacles]
+			      (setf r next-r
+				    c next-c
+				    piece (field-value :behind piece)))))
+	    (let ((dir (car (one-of '(:north :south :east :west)))))
+	      (setf <direction> (or [probe self dir] <direction>))))))))
 
 ;; (define-method spawn snake ()
 ;;   (let ((dir (car (one-of '(:north :south :east :west))))
@@ -1189,7 +1217,7 @@ the player gets too close."))
 	:mystery-boxes (+ 2 (truncate (/ n 2)))
 	:oscillators (* (max 0 (- n 3)) (truncate (/ n 2)))
 	:puzzle-length (+ 4 (truncate (/ n 3)))
-	:extra-holes (+ 4 (truncate (/ n 3)))
+	:extra-holes (+ 1 (truncate (/ n 3)))
 	:puckups (+ 4 (truncate (* (1- n) 2.5)))
 	:diamonds (+ 9 (* (1- n) 3))
 	:swatches (+ 10 (truncate (* 1.6 n)))))
