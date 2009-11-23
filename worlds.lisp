@@ -358,7 +358,8 @@ so on, until no more messages are generated."
 This is where most world computations start, because nothing happens
 in a roguelike until the user has pressed a key."
   (assert <player>)
-  (when (not <paused>)
+  (when (or (eq :quit method-key) 
+	    (not <paused>))
     (message "FORWARDWORLD: ~S ~S ~S" <phase-number> 
 	     (field-value :phase-number <player>)
 	     method-key)
