@@ -420,7 +420,7 @@ explode with deadly plasma radiation!"))
   (color :initform :white)
   (direction :initform :south)
   (categories :initform '(:obstacle :exclusive :paintable :actor :snake))
-  (description :initform "These open permanently when hit with the same color paint."))
+  (description :initform "The deadly Snake's body segments must be painted to defeat it."))
 
 (define-method set-color snake (c)
   (setf <color> c)
@@ -440,34 +440,36 @@ explode with deadly plasma radiation!"))
   (setf <behind> piece)
   (setf (field-value :ahead piece) self))
 
-(define-method choose-new-direction snake ()
-  [expend-action-points self 60]
-  (setf <direction> (car (one-of '(:north :south :east :west)))))
-
+(define-method probe snake (direction)
+  (let ((retval (clon:with-field-values (row column) self
+		  (multiple-value-bind (r c) (step-in-direction row column direction)
+		    (if (not [category-at-p *active-world* r c :obstacle])
+			direction
+			(when [category-at-p *active-world* r c :snake]
+			  direction))))))
+    (when retval 
+      (prog1 retval [expend-action-points self 20]))))
+	      
 (define-method run snake ()
   (clon:with-field-values (row column) self
     (when (null <ahead>)
       ;; we are the head of the snake
-      (when [obstacle-in-direction-p *active-world* row column <direction>]
-	[choose-new-direction self])
-      ;; ;; kill if adjacent to head
-      ;; (when [adjacent-to-player self]
-      ;; 	[say self "The snake bites you!"]
-      ;; 	[damage [get-player *active-world*] 1])
-      ;; move self and the rest of the pieces
-      [move self <direction>]
-	  (let ((piece <behind>)
-		(r row)
-		(c column)
-		next-r next-c)
-	    (loop while piece
-		  do [>>move piece (direction-to (setf next-r (field-value :row piece))
-						 (setf next-c (field-value :column piece))
-					     r c)]
-		     (setf r next-r
-			   c next-c
-			   piece (field-value :behind piece)))))))
-  
+      (if [probe self <direction>]
+	  (progn [move self <direction> :ignoring-obstacles]
+		 (let ((piece <behind>)
+		       (r row)
+		       (c column)
+		       next-r next-c)
+		   (loop while piece
+			 do [>>move piece (direction-to (setf next-r (field-value :row piece))
+							(setf next-c (field-value :column piece))
+						    r c) :ignoring-obstacles]
+			    (setf r next-r
+				  c next-c
+				  piece (field-value :behind piece)))))
+	  (let ((dir (car (one-of '(:north :south :east :west)))))
+	    (setf <direction> (or [probe self dir] <direction>)))))))
+
 ;; (define-method spawn snake ()
 ;;   (let ((dir (car (one-of '(:north :south :east :west))))
 ;; 	(snake (clone =snake=)))
@@ -1185,7 +1187,7 @@ the player gets too close."))
 		      (* 2 (truncate (/ n 2))))
 	:rooms 1
 	:mystery-boxes (+ 2 (truncate (/ n 2)))
-	:oscillators (+ 1 (* (max 0 (- n 3)) (truncate (/ n 2))))
+	:oscillators (* (max 0 (- n 3)) (truncate (/ n 2)))
 	:puzzle-length (+ 4 (truncate (/ n 3)))
 	:extra-holes (+ 4 (truncate (/ n 3)))
 	:puckups (+ 4 (truncate (* (1- n) 2.5)))

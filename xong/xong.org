@@ -1,14 +1,16 @@
-
+** TODO allow snake to get out of corners
+** TODO snake gets out of room if it finds an open exit? 
 ** TODO don't generate black holes in room, or in open areas
 ** TODO don't let explosions go through obstacles
+** TODO --------------------------------- RELEASE 1.2 
+** TODO Licensing due diligence
+(03:33:49 PM) Luke Crook: dto:  think the only license you need to wory about is the SDL one. And as long as you include the README-SDL.txt you should be fione.
+(03:34:04 PM) David O'Toole: i will have an attorney read it for me
+(03:34:07 PM) Luke Crook: dto: Other games include the SDL binaries in the instalers.
+(03:34:10 PM) David O'Toole: ok.
+(03:35:09 PM) Luke Crook: The lb-sdl stuff is all MIT or BSD I think. So no worries there.
 ** TODO [#B] Bitmap fonts: http://code.google.com/p/lispbuilder/wiki/UsingLispbuilderSDL#Bitmapped_Fonts
 ** TODO http://nsis.sourceforge.net/License
-** TODO RELEASE 1.2 SELLING POINTS
-*** New level 3 enemy "Oscillator" is more dangerous than the others, and will require fast dodging because he fires bullets
-*** Black holes expel deadly paint plasma when consuming anything
-*** "Snowflake" is a special puck that freezes enemies
-*** TODO improved color puzzle... consequences to breaking each block
-*** SHIELD
 ** TODO [#A] DOn't generate black holes on 0,0
 ** TODO [#A] Don't require .rlxrc!!!
 ** TODO [#A] Fix crash when next-level door opens while player standing on it
