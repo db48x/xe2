@@ -805,18 +805,6 @@ reach new areas and items. The puck also picks up the color.")
     [drop self item]
     [parent>>die self]))
 
-;;; Shield offers brief invulnerability
-
-(defcell shield
-  (name :initform "Shield generator")
-  (tile :initform "shield")
-  (description :initform "Single-use, time-limited invulnerability shield."))
-
-(define-method step shield (stepper)
-  (when [is-player stepper]
-    [run-shield stepper *shield-time*]
-    [die self]))
-
 ;;; Special puck: snowflake
 
 (defcell snowflake
@@ -880,6 +868,32 @@ reach new areas and items. The puck also picks up the color.")
   [say self "The snowflake was destroyed."]
   [play-sample self "buzz"]
   [parent>>die self])
+
+;;; Special puck: shield
+
+(defcell shield
+  (tile :initform "shield")
+  ;; not paintable
+  (categories :initform '(:puck :target :item :shield))
+  (player :initform nil)
+  (description :initform "A puck that creates a shield around you when fired.")
+  (speed :initform (make-stat :base 10))
+  (movement-cost :initform (make-stat :base 10))
+  (direction :initform :here)
+  (stepping :initform t))
+
+(define-method kick shield (direction)
+  (when <player>
+    [run-shield <player> *shield-time*]
+    [die self]))
+
+(define-method step shield (stepper)
+  (if (and [is-player stepper]
+	   (null (field-value :puck stepper)))
+      (progn (score 1000)
+	     [grab stepper self]
+	     (setf <player> stepper)
+	     [say self "You picked up the shield puck. Fire it to become invulnerable!"])))
 
 ;;; Radioactive gas
 
