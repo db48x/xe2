@@ -618,10 +618,12 @@ resource is stored; see also `find-resource'."
 	  val)))
 
 (defvar *module-directories* 
-  (delete nil (list (load-time-value *default-pathname-defaults*)
-		    #p"/usr/local/games/rlx/"))
-  "List of directories where RLX will search for modules.
-Directories are searched in list order.")
+  (list (make-pathname :directory 
+		       (pathname-directory 
+			(load-time-value 
+			 (or #.*compile-file-truename* *load-truename*))))))
+;;   "List of directories where RLX will search for modules.
+;; Directories are searched in list order.")
 
 (defun find-module-path (module-name)
   "Search the `*module-directories*' path for a directory with the
