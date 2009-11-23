@@ -374,8 +374,8 @@ explode with deadly plasma radiation!"))
 	  [set-clock plasma (+ 10 (random 10))]
 	  (let ((limit 10))
 	    (block placing
-	      (loop do (let ((r (+ row (- (random 3) (random 6))))
-			     (c (+ column (- (random 3) (random 6)))))
+	      (loop do (let ((r (+ row (- (random 3) (random 5))))
+			     (c (+ column (- (random 3) (random 5)))))
 			 (if [line-of-sight *active-world* row column r c]
 			     (progn 
 			       [drop-cell *active-world* plasma r c]
@@ -1214,7 +1214,7 @@ the player gets too close."))
 		      0
 		      (* 2 (truncate (/ n 2))))
 	:rooms 1
-	:mystery-boxes (+ 2 (truncate (/ n 2)))
+	:mystery-boxes (+ 1 (truncate (/ n 2)))
 	:oscillators (* (max 0 (- n 3)) (truncate (/ n 2)))
 	:puzzle-length (+ 4 (truncate (/ n 3)))
 	:extra-holes (+ 1 (truncate (/ n 3)))
@@ -1343,6 +1343,9 @@ the player gets too close."))
 		[drop-cell self (clone =hole=) hr hc]
 		(trace-rectangle #'drop-wall r c
 				 (+ 4 (random 8)) (+ 4 (random 8)) :fill)))))))
+    (dotimes (n extra-holes)
+      (multiple-value-bind (r c) [random-place self]
+	[drop-cell self (clone =hole=) r c]))
     (dotimes (n rooms)
       [drop-room self 
 		 (+ 5 (random (- height 20)))
@@ -1374,10 +1377,7 @@ the player gets too close."))
 	[drop-cell self (clone =puckup=) r c]))
     (dotimes (n mystery-boxes)
       (multiple-value-bind (r c) [random-place self]
-	[drop-cell self (clone =mystery-box=) r c]))
-    (dotimes (n extra-holes)
-      (multiple-value-bind (r c) [random-place self]
-	[drop-cell self (clone =hole=) r c]))))
+	[drop-cell self (clone =mystery-box=) r c]))))
 
 (define-method begin-ambient-loop xong ()  
   (play-music (car (one-of '("flyby" "sparqq" "synthy" "neon" "phong" "xong-theme" "pensive" "toybox"))) :loop t))

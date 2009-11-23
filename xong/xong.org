@@ -1,5 +1,3 @@
-** TODO allow snake to get out of corners
-** TODO snake gets out of room if it finds an open exit? 
 ** TODO don't generate black holes in room, or in open areas
 ** TODO don't let explosions go through obstacles
 ** TODO --------------------------------- RELEASE 1.2 
