@@ -45,7 +45,7 @@
   (origin-height :initform 10 :documentation "The height in tiles of the viewport.")
   (tile-size :initform 16 :documentation "Size in pixels of a tile. They must be square."))
 
-(define-method get-screen-coordinates viewport (cell-row cell-column)
+(define-method get-viewport-coordinates viewport (cell-row cell-column)
   (let ((size <tile-size>))
     (let ((x0 (+ (/ size 2)
 		 (* size
@@ -57,6 +57,14 @@
 
 (define-method add-overlay viewport (overlay)
   (pushnew overlay <overlays>))
+
+(define-method draw-overlays viewport ()
+  ;; draw, removing any overlay that returns non-nil
+  (let ((image <image>))
+    (setf <overlays> 
+	  (remove-if #'(lambda (ov)
+			 (funcall ov image))
+		     <overlays>))))
 
 (define-method set-world viewport (world)
   (setf <world> world))
@@ -107,10 +115,7 @@
 	(unless (and (= width <width>)
 		     (= height <height>))
 	  [resize self :height height :width width]))
-      ;; render overlays
-      (dolist (overlay <overlays>)
-	(funcall overlay image))
-      (setf <overlays> nil))))
+      [draw-overlays self])))
 
 (define-method hit viewport (x y)
   (when [parent>>hit self x y]

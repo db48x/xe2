@@ -136,8 +136,12 @@
  (:name "bullet-trail-end-southwest" :type :alias :data ":rotate 180:bullet-trail-end-northeast")
  (:name "bullet-trail-end-northwest" :type :alias :data ":rotate 270:bullet-trail-end-northeast")
 
+ (:name "mystery-box" :type :image :file "mystery-box.png")
+ (:name "shield" :type :image :file "shield.png")
+ (:name "shield-warning" :type :sample :file "shield-warning.wav" :properties (:volume 80))
  (:name "door-open" :type :image :file "door-open.png")
  (:name "bloop" :type :sample :file "bloop.wav" :properties (:volume 8))
+ (:name "shield-sound" :type :sample :file "shield.wav" :properties (:volume 8))
  (:name "muon-fire" :type :sample :file "muon-fire.wav" :properties (:volume 8))
  (:name "plasma" :type :sample :file "plasma.wav" :properties (:volume 10))
  (:name "error" :type :sample :file "error.wav" :properties (:volume 50))

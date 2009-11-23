@@ -44,7 +44,7 @@
 
 ;;; Gates 
 
-(defparameter *gate-timeout* 30)
+(defparameter *gate-timeout* 70)
 
 (defcell gate
   (categories :initform '(:actor :obstacle :gate :exclusive))
@@ -294,10 +294,11 @@ squeezing by in between pulses!"))
   [play-sample self "activate"]
   [expend-action-points self 10]
   (labels ((do-circle (image)
-	     (multiple-value-bind (x y) 
-		 [screen-coordinates self]
-	       (draw-circle x y 40 :destination image)
-	       (draw-circle x y 35 :destination image))))
+	     (prog1 t
+	       (multiple-value-bind (x y) 
+		   [viewport-coordinates self]
+		 (draw-circle x y 40 :destination image)
+		 (draw-circle x y 35 :destination image)))))
     [>>add-overlay :viewport #'do-circle])
   (when (< [distance-to-player self] 3.5)
     [damage [get-player *active-world*] 1]))
@@ -502,10 +503,13 @@ reach new areas and items. The puck also picks up the color.")
 			:yellow "player-yellow"
 			 :other "player-other"))
 
+(defparameter *shield-time* 50)
+
 (defcell player 
   (tile :initform "player")
   (name :initform "Player")
   (score :initform (make-stat :base 0 :min 0))
+  (shield-clock :initform 0)
   (last-direction :initform :north)
   (dead :initform nil)
   (puck :initform nil)
@@ -517,7 +521,7 @@ reach new areas and items. The puck also picks up the color.")
   (defense :initform (make-stat :base 15))
   (equipment-slots :initform '(:left-hand :right-hand))
   (hearing-range :initform 1000)
-  (hit-points :initform (make-stat :base 1 :min 0 :max 30))
+  (hit-points :initform (make-stat :base 1 :min 0 :max 2))
   (movement-cost :initform (make-stat :base 10))
   (max-items :initform (make-stat :base 2))
   (stepping :initform t)
@@ -534,8 +538,28 @@ reach new areas and items. The puck also picks up the color.")
 		     (getf *player-tiles* (if (has-field :color <puck>)
 					      (field-value :color <puck>)
 					      :other))))
+    [run-shield self]
     [step-on-current-square self]))
 
+(define-method run-shield player (&optional clock)
+  (clon:with-fields (shield-clock row column) self
+    (when clock (setf shield-clock clock))
+    (decf shield-clock)
+    ;; warning when about to expire
+    (when (= 10 shield-clock)
+      [play-sample self "shield-warning"])
+    (if (plusp shield-clock)
+	(labels ((draw-shield (image)
+		   (prog1 t (multiple-value-bind (x y)
+				[viewport-coordinates self]
+			      (draw-circle x y 15 :color ".cyan" :destination image)))))
+	  [play-sample self "shield-sound"]
+	  [>>add-overlay :viewport #'draw-shield]))))
+	
+(define-method damage player (points)
+  (when (not (plusp <shield-clock>))
+    [parent>>damage self points]))
+   
 (define-method score-points player (points)
   [stat-effect self :score points]
   [>>narrateln :narrator (format nil "Scored ~S points." points)])
@@ -742,6 +766,8 @@ reach new areas and items. The puck also picks up the color.")
 	      (progn 
 		(when [in-category obstacle :paintable]
 		  [paint obstacle <color>])
+		(when [in-category obstacle :breakable]
+		  [die obstacle])
 		(when [in-category obstacle :wall]
 		  [paint self (field-value :color obstacle)]
 		  [die obstacle]
@@ -765,6 +791,31 @@ reach new areas and items. The puck also picks up the color.")
   [say self "You lost your puck!"]
   [play-sample self "buzz"]
   [parent>>die self])
+
+;;; Powerup mystery box
+
+(defcell mystery-box
+  (name :initform "Mystery box")
+  (tile :initform "mystery-box")
+  (categories :initform '(:target :obstacle :breakable :exclusive))
+  (description :initform  "Break it open to find a surprise inside!"))
+
+(define-method die mystery-box ()
+  (let ((item (clone (car (one-of (list =snowflake= =shield= =diamond=))))))
+    [drop self item]
+    [parent>>die self]))
+
+;;; Shield adds one hit's worth of protection
+
+(defcell shield
+  (name :initform "Shield generator")
+  (tile :initform "shield")
+  (description :initform "Adds a single-use hit protection shield."))
+
+(define-method step shield (stepper)
+  (when [is-player stepper]
+    [run-shield stepper *shield-time*]
+    [die self]))
 
 ;;; Special puck: snowflake
 
@@ -807,7 +858,7 @@ reach new areas and items. The puck also picks up the color.")
 
 (define-method freeze snowflake (enemy)
   [play-sample self "freeze"]
-  [expend-action-points enemy 150])
+  [expend-action-points enemy 100])
 
 (define-method paint snowflake (color)
   nil)
@@ -1001,8 +1052,9 @@ reach new areas and items. The puck also picks up the color.")
 (defcell oscillator 
   (tile :initform "oscillator")
   (categories :initform '(:actor :obstacle :target :enemy :opaque :oscillator :puck))
-  (speed :initform (make-stat :base 20))
+  (speed :initform (make-stat :base 10))
   (movement-cost :initform (make-stat :base 20))
+  (default-cost :initform (make-stat :base 20))
   (direction :initform (car (one-of '(:south :west))))
   (stepping :initform t)
   (dead :initform nil)
@@ -1070,7 +1122,7 @@ the player gets too close."))
 		      0
 		      (* 2 (truncate (/ n 2))))
 	:rooms 1
-	:snowflakes (+ 2 (truncate (/ n 2)))
+	:mystery-boxes (+ 2 (truncate (/ n 2)))
 	:oscillators (+ 1 (* (max 0 (- n 3)) (truncate (/ n 2))))
 	:puzzle-length (+ 4 (truncate (/ n 3)))
 	:extra-holes (+ 4 (truncate (/ n 3)))
@@ -1155,7 +1207,7 @@ the player gets too close."))
 				   (extenders 0)
 				   (tracers 4)
 				   (rooms 1)
-				   (snowflakes 2)
+				   (mystery-boxes 2)
 				   (oscillators 3)
 				   (puzzle-length 4)
 				   (puckups 4)
@@ -1219,9 +1271,9 @@ the player gets too close."))
     (dotimes (n puckups)
       (multiple-value-bind (r c) [random-place self]
 	[drop-cell self (clone =puckup=) r c]))
-    (dotimes (n snowflakes)
+    (dotimes (n mystery-boxes)
       (multiple-value-bind (r c) [random-place self]
-	[drop-cell self (clone =snowflake=) r c]))
+	[drop-cell self (clone =mystery-box=) r c]))
     (dotimes (n extra-holes)
       (multiple-value-bind (r c) [random-place self]
 	[drop-cell self (clone =hole=) r c]))))
@@ -1410,9 +1462,9 @@ the player gets too close."))
     (labels ((light-hack (sr sc r c &optional (color ".white"))
     	       (labels ((hack-overlay (image)
     			  (multiple-value-bind (sx sy)
-    			      [get-screen-coordinates *viewport* sr sc]
+    			      [get-viewport-coordinates *viewport* sr sc]
     			    (multiple-value-bind (x y)
-    				[get-screen-coordinates *viewport* r c]
+    				[get-viewport-coordinates *viewport* r c]
     			      (draw-line x y sx sy :destination image
     					 :color color)
 			      (draw-circle x y 5 :destination image)))))
