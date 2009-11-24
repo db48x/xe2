@@ -1,4 +1,6 @@
-** TODO quick reference message in lower right corner w basic control info
+** TODO don't allow points when shooting already-smashed snake
+
+** TODO fix quitting crash on linux
 ** TODO enforce conservation of pucks
 ** TODO Update help text w.r.t. snake
 ** TODO no point-farming snake in gray room
@@ -59,6 +61,7 @@ win... maybe i need those?
 * Other games
 * vomac (shmup) bullet hell
 *** vomac shield bracket 
+** TODO lisp fighter, fight cons cells with pop command. white page darkgray lisp pd icons
 ** plant growth 
 ** fractal green world explorer
 ** TODO ambient game using black0999 rain track and other rain effects, 
