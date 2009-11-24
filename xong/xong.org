@@ -1,3 +1,10 @@
+** TODO quick reference message in lower right corner w basic control info
+** TODO enforce conservation of pucks
+** TODO Update help text w.r.t. snake
+** TODO no point-farming snake in gray room
+** TODO get rid of tail extenders
+** TODO fix point-blank firing bounce on mystery-box
+** TODO set <direction> when seeking player, easier to lure
 ** TODO fix dynamic library loading on win/mac
 (10:02:00 PM) Shawn Betts: f710bc3ad0ebbdb87758003dc713b156a0ba5e2a
 (10:02:09 PM) Shawn Betts: that changes borks osx and win32 builds
@@ -10,7 +17,7 @@ win... maybe i need those?
 ** TODO don't generate black holes in room, or in open areas
 ** TODO don't let explosions go through obstacles
 ** TODO --------------------------------- RELEASE 1.2 
-** TODO Licensing due diligence
+** TODO SDL / LISP deps Licensing due diligence
 (03:33:49 PM) Luke Crook: dto:  think the only license you need to wory about is the SDL one. And as long as you include the README-SDL.txt you should be fione.
 (03:34:04 PM) David O'Toole: i will have an attorney read it for me
 (03:34:07 PM) Luke Crook: dto: Other games include the SDL binaries in the instalers.

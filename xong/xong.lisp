@@ -1218,7 +1218,7 @@ the player gets too close."))
 		      (* 2 (truncate (/ n 2))))
 	:rooms 1
 	:mystery-boxes (+ 1 (truncate (/ n 2)))
-	:oscillators (* (max 0 (- n 3)) (truncate (/ n 4)))
+	:oscillators (* (max 0 (- n 2)) (truncate (/ n 4)))
 	:puzzle-length (+ 4 (truncate (/ n 3)))
 	:extra-holes (+ 1 (truncate (/ n 3)))
 	:puckups (+ 4 (truncate (* (1- n) 2.5)))
@@ -1398,7 +1398,7 @@ the player gets too close."))
 (defvar *space-bar-function*)
 
 (define-method dismiss splash ()
-  [select *pager* :play]
+  [select *pager* :game]
   (when (functionp *space-bar-function*)
     (funcall *space-bar-function*))
   ;; TODO ugh this is a hack!
@@ -1463,7 +1463,7 @@ the player gets too close."))
 	[print-stat-bar self :chevrons :color ".yellow"]
 	[space self]
 	[print self (format nil "   LEVEL:~S" (field-value :level *active-world*))]
-	[print self (format nil "   ENEMIES REMAINING:~S" *enemies*)]
+	[print self (format nil "   ENEMIES:~S" *enemies*)]
 	[print self "     HOLDING:"]
 	(if (field-value :puck char)
 	    [print self nil :image (field-value :tile
@@ -1492,6 +1492,7 @@ the player gets too close."))
 	 (player (clone =player=))
 	 (splash (clone =splash=))
 	 (help (clone =formatter=))
+	 (quickhelp (clone =formatter=))
 	 (viewport (clone =viewport=))
 	 (status (clone =status=))
 	 (splash-prompt (clone =splash-prompt=))
@@ -1551,6 +1552,14 @@ the player gets too close."))
 	  (funcall #'send nil :print-formatted-string help string))
 	[newline help]))
     ;;
+    [resize quickhelp :height 85 :width 250] 
+    [move quickhelp :y (- *xong-window-height* 130) :x (- *xong-window-width* 250)]
+    (let ((text	(find-resource-object "quickhelp-message")))
+      (dolist (line text)
+	(dolist (string line)
+	  (funcall #'send nil :print-formatted-string quickhelp string))
+	[newline quickhelp]))
+    ;;
     (play-music "techworld" :loop t)
     (set-music-volume 255)	       
     ;;
@@ -1578,7 +1587,7 @@ the player gets too close."))
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
     (rlx:install-widgets splash-prompt splash)
-    [add-page *pager* :play prompt stack viewport terminal *status*]
+    [add-page *pager* :game prompt stack viewport terminal *status* quickhelp]
     [add-page *pager* :help help]))
 
 (xong)
