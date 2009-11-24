@@ -480,6 +480,9 @@ explode with deadly plasma radiation!"))
   (setf <escape-clock> (max 0 (1- <escape-clock>)))
   (clon:with-field-values (row column) self
     (when (null <ahead>)
+      ;; kill player if adjacent
+      (when [adjacent-to-player self]
+	[damage [get-player *active-world*] 1])
       ;; we are the head of the snake
       (let ((dir (or [adjacent-gate self] <direction>)))
 	(if [probe self dir]

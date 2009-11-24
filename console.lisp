@@ -1101,21 +1101,56 @@ The default destination is the main window."
   (loop while (and (not *quitting*)
 		   *next-module*)
      do (unwind-protect
-	     (sdl:with-init (sdl:SDL-INIT-VIDEO sdl:SDL-INIT-AUDIO sdl:SDL-INIT-JOYSTICK)
-	       (load-user-init-file)	
-	       (run-hook '*initialization-hook*)
-	       (initialize-resource-table)
-	       (initialize-colors)
-	       (when *use-sound*
-		 ;; try opening sound
-		 (when (null (sdl-mixer:open-audio :chunksize *audio-chunksize*))
-		   ;; if that didn't work, disable effects/music
-		   (message "Could not open audio driver. Disabling sound effects and music.")
-		   (setf *use-sound* nil)))
-	       (index-module "standard") 
-	       (load-module *next-module*)
-	       (run-main-loop))
- 	  ;; close audio if crash
+	     ;; dynamically load libs (needed for GNU/Linux)
+	     (progn (cffi:define-foreign-library sdl
+		      (:unix (:or "libSDL-1.2.so.0.7.2"
+				  "libSDL-1.2.so.0"
+				  "libSDL-1.2.so"
+				  "libSDL.so"
+				  "libSDL")))
+		    (cffi:use-foreign-library sdl)
+		    ;;
+		    (cffi:define-foreign-library sdl-mixer
+		      (:unix (:or "libSDL_mixer-1.2.so.0.7.2"
+				  "libSDL_mixer-1.2.so.0"
+				  "libSDL_mixer-1.2.so"
+				  "libSDL_mixer.so"
+				  "libSDL_mixer")))
+		    (cffi:use-foreign-library sdl-mixer)
+		    ;;
+		    (cffi:define-foreign-library sdl-gfx
+		      (:unix (:or "libSDL_gfx-1.2.so.0.7.2"
+				  "libSDL_gfx-1.2.so.0"
+				  "libSDL_gfx-1.2.so"
+				  "libSDL_gfx.so.4"
+				  "libSDL_gfx.so.13"
+				  "libSDL_gfx.so"
+				  "libSDL_gfx")))
+		    (cffi:use-foreign-library sdl-gfx)
+		    ;;
+		    (cffi:define-foreign-library sdl-image
+		      (:unix (:or "libSDL_image-1.2.so.0.7.2"
+				  "libSDL_image-1.2.so.0"
+				  "libSDL_image-1.2.so"
+				  "libSDL_image.so"
+				  "libSDL_image")))
+		    (cffi:use-foreign-library sdl-image)
+		    ;;
+		    (sdl:with-init (sdl:SDL-INIT-VIDEO sdl:SDL-INIT-AUDIO sdl:SDL-INIT-JOYSTICK)
+		      (load-user-init-file)	
+		      (run-hook '*initialization-hook*)
+		      (initialize-resource-table)
+		      (initialize-colors)
+		      (when *use-sound*
+			;; try opening sound
+			(when (null (sdl-mixer:open-audio :chunksize *audio-chunksize*))
+			  ;; if that didn't work, disable effects/music
+			  (message "Could not open audio driver. Disabling sound effects and music.")
+			  (setf *use-sound* nil)))
+		      (index-module "standard") 
+		      (load-module *next-module*)
+		      (run-main-loop)))
+	  ;; close audio if crash
 	  (when *use-sound* 
 	    (sdl-mixer:close-audio t)))
 	  (setf *quitting* t))
