@@ -660,7 +660,7 @@ reach new areas and items. The puck also picks up the color.")
     [set-player *active-universe* player]
     [set-character *status* player]
     [play *active-universe*
-	  :address (generate-level-address 1)]
+	  :address (generate-level-address 8)]
     [loadout player]
     [play-sample self "go"]))
 
@@ -1215,7 +1215,7 @@ the player gets too close."))
 		      (* 2 (truncate (/ n 2))))
 	:rooms 1
 	:mystery-boxes (+ 1 (truncate (/ n 2)))
-	:oscillators (* (max 0 (- n 3)) (truncate (/ n 2)))
+	:oscillators (* (max 0 (- n 3)) (truncate (/ n 4)))
 	:puzzle-length (+ 4 (truncate (/ n 3)))
 	:extra-holes (+ 1 (truncate (/ n 3)))
 	:puckups (+ 4 (truncate (* (1- n) 2.5)))
