@@ -628,10 +628,7 @@ resource is stored; see also `find-resource'."
 (defun find-module-path (module-name)
   "Search the `*module-directories*' path for a directory with the
 name MODULE-NAME. Returns the pathname if found, otherwise nil."
-  (let ((dirs (cons (make-pathname :directory 
-				   (pathname-directory 
-				    (load-time-value (or #.*compile-file-truename* *load-truename*))))
-		    *module-directories*)))
+  (let ((dirs *module-directories*))
     (message "Probing directories ~S..." dirs)
     (or 
      (loop 
