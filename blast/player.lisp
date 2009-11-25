@@ -518,7 +518,7 @@
 (define-method show-location contractor ()
   (labels ((do-circle (image)
 	     (multiple-value-bind (x y) 
-		 [screen-coordinates self]
+		 [viewport-coordinates self]
 	       (draw-circle x y 30 :destination image)
 	       (draw-circle x y 25 :destination image))))
     [>>add-overlay :viewport #'do-circle]))
@@ -753,7 +753,7 @@ done."))
 (define-method show-location olvac ()
   (labels ((do-circle (image)
 	     (multiple-value-bind (x y) 
-		 [screen-coordinates self]
+		 [viewport-coordinates self]
 	       (draw-circle x y 30 :destination image)
 	       (draw-circle x y 25 :destination image))))
     [>>add-overlay :viewport #'do-circle]))

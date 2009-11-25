@@ -14,9 +14,9 @@
 	 (player [get-player *active-world*]))
     (labels ((draw-beam (image)
 	       (multiple-value-bind (x0 y0) 
-		   [screen-coordinates self]
+		   [viewport-coordinates self]
 		 (multiple-value-bind (x1 y1)
-		     [screen-coordinates player]
+		     [viewport-coordinates player]
 		   (rlx:draw-line x0 y0 x1 y1 
 				  :destination image)))))
       [damage player 2]
