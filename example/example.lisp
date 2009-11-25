@@ -49,12 +49,8 @@
 (defcell wall 
   (tile :initform "wall")
   (categories :initform '(:obstacle :opaque :exclusive :wall))
-  (orientation :initform :left)
   (hit-points :initform (make-stat :base 1 :min 0))) 
   
-(define-method initialize wall (&key (orientation :left))
-  (setf <orientation> orientation))
-
 (define-method hit wall ()
   (setf <tile> "debris")
   [delete-category self :obstacle]
@@ -149,7 +145,7 @@
     (dotimes (i 10)
       [drop-cell self (clone =person=) (random height) (random width)])))
 
-(define-method drop-wall room (r0 c0 r1 c1 &optional (orientation :left))
+(define-method drop-wall room (r0 c0 r1 c1)
   (trace-line #'(lambda (x y)
 		  (prog1 nil
 		      (when [drop-cell self (clone =wall=) y x])))

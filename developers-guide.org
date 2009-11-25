@@ -363,6 +363,11 @@ that an object has no handler for a particular method. This is akin to
 
 [[file:../clon/clon.html#Message_forwarding][See also clon.lisp, "Message forwarding"]]
 
+* Immersion: an example game module
+
+See the =example= subdirectory, and use =(rlx:play "example") to try it out. 
+You can also read the code at http://github.com/dto/rlx/tree/master/example/
+
 * RLX: A Common Lisp Game Engine
 
 ** The "console" is a pretend home computer in 80's style
