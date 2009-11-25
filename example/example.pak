@@ -6,6 +6,7 @@
  (:name "ball" :type :image :file "ball.png")
  (:name "wall" :type :image :file "wall.png")
  (:name "ouch" :type :sample :file "ouch.wav" :properties (:volume 10))
+ (:name "frantix" :tupe :music :file "frantix.ogg" :properties (:volume 20))
  (:name "debris" :type :image :file "debris.png")
  (:name "bip" :type :sample :file "bip.wav" :properties (:volume 10))
  (:name "serve" :type :sample :file "serve.wav" :properties (:volume 10))
