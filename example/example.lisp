@@ -162,7 +162,7 @@
   [create-default-grid self]
   [drop-floor self]
   [drop-people self]
-  (dotimes (i 28)
+  (dotimes (i 20)
     (let ((column (1+ (random *room-size*)))
 	  (row (1+ (random *room-size*)))
 	  (len (random (truncate (/ *room-size* 2))))
@@ -274,8 +274,10 @@
     [set-origin viewport :x 0 :y 0 
 		:height (truncate (/ (- *room-window-height* 130) 32))
 		:width (truncate (/ *room-window-width* 32))]
-    [adjust viewport]
-    ;;
-    (rlx:install-widgets prompt viewport)))
+    [adjust viewport] 
+    [narrateln narrator "You are the green guy."]
+    [narrateln narrator "Use the numpad or nethack keys to move; Control-direction to fire."]
+   ;;
+    (rlx:install-widgets prompt viewport narrator)))
 
 (init-example)
