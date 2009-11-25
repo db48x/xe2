@@ -882,7 +882,7 @@ reach new areas and items. The puck also picks up the color.")
   (description :initform  "Break it open to find a surprise inside!"))
 
 (define-method die mystery-box ()
-  (let ((item (clone (car (one-of (list =snowflake= =shield= =diamond=))))))
+  (let ((item (clone (car (one-of (list =snowflake= =shield=))))))
     [drop self item]
     [parent>>die self]))
 

@@ -1,7 +1,8 @@
 ** TODO OFFTOPIC: melange of nice parts of certain B-side tracks for GOLD
+*** TODO http://common-lisp.net/project/cl-wav-synth/
 ** TODO fix crash when standing on exit as it opens
 ** TODO don't allow points when shooting already-smashed snake
-
+** TODO single-shot powerup kills any enemy within 2 squares
 ** TODO fix quitting crash on linux
 ** TODO enforce conservation of pucks
 ** TODO Update help text w.r.t. snake
