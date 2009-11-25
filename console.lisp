@@ -410,6 +410,7 @@ window. Set this in the game startup file.")
   (sdl:clear-display sdl:*black*)
   (show-widgets)
   (sdl:update-display)
+  (run-hook '*initialization-hook*)
   (sdl:with-events ()
     (:quit-event () (prog1 t))
     (:mouse-motion-event (:state state :x x :y y :x-rel x-rel :y-rel y-rel)
@@ -1091,6 +1092,7 @@ The default destination is the main window."
 (defparameter *audio-chunksize* 512)
 
 (defun play (&optional (module-name "standard"))
+  (setf *initialization-hook* nil)
   (setf *random-state* (make-random-state t))
   ;; override module to play?
   (setf *next-module* module-name)
@@ -1135,7 +1137,6 @@ The default destination is the main window."
 		    ;;
 		    (sdl:with-init (sdl:SDL-INIT-VIDEO sdl:SDL-INIT-AUDIO sdl:SDL-INIT-JOYSTICK)
 		      (load-user-init-file)	
-		      (run-hook '*initialization-hook*)
 		      (initialize-resource-table)
 		      (initialize-colors)
 		      (when *use-sound*
