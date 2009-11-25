@@ -182,6 +182,9 @@
 	     (1+ (random 10))
 	     :exclusive t :probe t])
 
+(define-method begin-ambient-loop room ()
+  (play-music "frantix" :loop t))
+
 ;;; Controlling the game
 
 (define-prototype room-prompt (:parent rlx:=prompt=))
