@@ -1,3 +1,4 @@
+** TODO fix crash when standing on exit as it opens
 ** TODO don't allow points when shooting already-smashed snake
 
 ** TODO fix quitting crash on linux
@@ -29,7 +30,6 @@ win... maybe i need those?
 ** TODO http://nsis.sourceforge.net/License
 ** TODO [#A] DOn't generate black holes on 0,0
 ** TODO [#A] Don't require .rlxrc!!!
-** TODO  4x4 sub-tile bullet positioning technology
 ** TODO [#A] Fix crash when next-level door opens while player standing on it
 ** TODO [#A] always ensure dropped all colors!
 ** TODO [#A] give function to player tail
