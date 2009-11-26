@@ -928,7 +928,8 @@ reach new areas and items. The puck also picks up the color.")
 
 (define-method kick snowflake (direction)
   (setf <direction> direction)
-  [move self direction])
+  (when [category-at-p *active-world* <row> <column> :player]
+    [move self direction]))
 
 (define-method freeze snowflake (enemy)
   [play-sample self "freeze"]
