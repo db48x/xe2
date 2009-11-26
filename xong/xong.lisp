@@ -928,7 +928,7 @@ reach new areas and items. The puck also picks up the color.")
 
 (define-method freeze snowflake (enemy)
   [play-sample self "freeze"]
-  [expend-action-points enemy 100])
+  [expend-action-points enemy 100 -100])
 
 (define-method paint snowflake (color)
   nil)

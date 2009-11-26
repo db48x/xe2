@@ -302,9 +302,11 @@ action during PHASE."
 	     (plusp <action-points>))
     (incf <phase-number>)))
   
-(define-method expend-action-points cell (points)
+(define-method expend-action-points cell (points &optional min)
   "Expend POINTS action points, possibly going into the negative."
-  (decf <action-points> points))
+  (decf <action-points> points)
+  (when (numberp min)
+    (setf <action-points> (max min <action-points>))))
 
 (define-method expend-default-action-points cell ()
   [expend-action-points self [stat-value self :default-cost]])
@@ -796,7 +798,7 @@ slot."
 (defcell sprite 
   x y image)
 
-(define-method update-coordinates sprite ()
-  (
+;; (define-method update-coordinates sprite ()
+;;   (
 
 ;;; cells.lisp ends here
