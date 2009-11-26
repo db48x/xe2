@@ -102,18 +102,19 @@
   (speed :initform (make-stat :base 10))
   (movement-cost :initform (make-stat :base 10))
   (direction :initform (random-direction))
-  (categories :initform '(:actor)))
+  (categories :initform '(:actor :obstacle)))
 
 (define-method loadout yasichi ()
   [update-position self (random 100) (random 100)])
 
 (define-method run yasichi ()
   [expend-action-points self 10]
-  (setf <direction> (if (zerop (random 100))
-			(random-direction)
-			<direction>))
   (multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction>)
     [update-position self x y]))
+
+(define-method do-collision yasichi (object)
+  (message "COLLIDED")
+  (setf <direction> (random-direction)))
 
 ;;; The player's tail
 
@@ -1413,10 +1414,10 @@ the player gets too close."))
     ;;   (let ((p (clone =particle=)))
     ;; 	[loadout p]
     ;; 	[add-sprite self p]))
-    ;; (dotimes (n 20)
-    ;;   (let ((p (clone =yasichi=)))
-    ;; 	[loadout p]
-    ;; 	[add-sprite self p]))
+    (dotimes (n 3)
+      (let ((p (clone =yasichi=)))
+    	[loadout p]
+    	[add-sprite self p]))
     ;;
     ;;
     (dotimes (n tracers)

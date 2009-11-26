@@ -843,22 +843,20 @@ slot."
     
 (define-method collide-* sprite (x0 y0 w h)
   (with-field-values (x y width height) self
-    (or 
-     ;; consider top left corner of other sprite
-     (and (> x0 x) 
-	  (< x0 (+ x width))
-	  (> y0 y)
-	  (< y0 (+ y height)))
-     ;; now test bottom right corner
-     (and (< x (+ x0 w) (+ x width))
-	  (< y (+ y0 h) (+ y height)))
-     ;; top right
-     (and (< x (+ x0 w) (+ x width))
-	  (< y y0 (+ y height)))
-     ;; bottom left
-     (and (< x x0 (+ x width))
-	  (< y (+ y0 h) (+ y height))))))
-;; this function could obviously be improved.
+    (progn 
+      (or 
+       ;; consider top left corner of other sprite
+       (and (<= x x0 (+ x width))
+	    (<= y y0 (+ y height)))
+       ;; now test bottom right corner
+       (and (<= x (+ x0 w) (+ x width))
+	    (<= y (+ y0 h) (+ y height)))
+       ;; top right
+       (and (<= x (+ x0 w) (+ x width))
+	    (<= y y0 (+ y height)))
+       ;; bottom left
+       (and (<= x x0 (+ x width))
+	    (<= y (+ y0 h) (+ y height)))))))
 
 (define-method do-collision cell (collision)
   nil)

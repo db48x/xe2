@@ -662,8 +662,13 @@ in a roguelike until the user has pressed a key."
 	  (unless (eq spr sprite)
 	    (when [collide sprite spr]
 	      [do-collision sprite spr]
-	      (return-from colliding t))))))))
-
+	      (return-from colliding t)))))
+      ;; now generate a collision in the case that a sprite goes offscreen.
+      (unless (array-in-bounds-p grid 
+				 (truncate (/ (field-value :y sprite) tile-size))
+				 (truncate (/ (field-value :x sprite) tile-size)))
+	[do-collision sprite nil]))))
+				
 ;; (define-method collide-all-sprites world ()
 ;;   (let (obstacle collision-sprites current-sprite)
 ;;     (with-field-values (width height tile-size sprites grid) self
