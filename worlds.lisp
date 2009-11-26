@@ -421,14 +421,16 @@ in a roguelike until the user has pressed a key."
 		(loop while [can-act cell phase-number] do
 		      [run cell]
 		      [process-messages self]
-		      [end-phase cell])
-		;; do sprites
-		(dolist (sprite <sprites>)
-		  [begin-phase sprite]
-		  (loop while [can-act sprite phase-number] do
-			[run sprite]
-			[process-messages self]
-			[end-phase sprite]))))))))))
+		      [end-phase cell])))))
+	;; run sprites
+	(dolist (sprite <sprites>)
+	  [begin-phase sprite]
+	  (loop while [can-act sprite phase-number] do
+		[run sprite]
+		[process-messages self]
+		[end-phase sprite]))
+	;; do sprite collisions
+	[collide-all-sprites self]))))
 
 
 ;; <: lighting :>
@@ -642,23 +644,45 @@ in a roguelike until the user has pressed a key."
   (setf <sprites> (delete sprite <sprites>)))
 
 (define-method collide-all-sprites world ()
-  (let (collision)
-    (with-field-values (width height tile-size sprites grid) self
-      (dotimes (i height)
-	(dotimes (j width)
-	  (let ((obstacle [category-at-p self i j :obstacle]))
-	    (dolist (sprite sprites)
-	      (when [collide-* sprite 
-			       (* j tile-size)
-			       (* i tile-size)
-			       tile-size tile-size]
-		(push sprite collision)))
-	    (when (object-p obstacle)
-	      (push obstacle collision))
-	    ;; report any collisions
-	    (dolist (object collision)
-	      [do-collision object collision])
-	    (setf collision nil)))))))
+  (with-field-values (width height tile-size sprites grid) self
+    (dolist (sprite sprites)
+      ;; find the first world collision for each sprite
+      (block colliding
+	(dotimes (i height)
+	  (dotimes (j width)
+	    (do-cells (cell (aref grid i j))
+	      (when (and (member :obstacle (field-value :categories cell))
+			 [collide-* sprite (* j tile-size) (* i tile-size)
+				    tile-size tile-size])
+		[do-collision sprite cell]
+		(return-from colliding t))))))
+      ;; now find collisions with other sprites.
+      (block colliding
+	(dolist (spr sprites)
+	  (unless (eq spr sprite)
+	    (when [collide sprite spr]
+	      [do-collision sprite spr]
+	      (return-from colliding t))))))))
+
+;; (define-method collide-all-sprites world ()
+;;   (let (obstacle collision-sprites current-sprite)
+;;     (with-field-values (width height tile-size sprites grid) self
+;;       (dotimes (i height)
+;; 	(dotimes (j width)
+;; 	  ;; world collisions happen first
+;; 	  (setf obstacle [category-at-p self i j :obstacle])
+;; 	  ;; then sprites
+;; 	  (dolist (sprite sprites)
+;; 	    (when [collide-* sprite 
+;; 			     (* j tile-size)
+;; 			     (* i tile-size)
+;; 			     tile-size tile-size]
+;; 	      (setf current-sprite sprite)
+;; 	      (push sprite collision-sprites)))
+;; 	  ;; handle any world collision
+	  
+;; 	  (when collision 
+;; 	    [do-collision current-sprite collider]))))))
 
 ;;; Universes are composed of connected worlds.
 
