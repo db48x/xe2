@@ -98,8 +98,8 @@
   send-event-to-widgets play-music halt-music seek-music
   draw-resource-image *event-handler-function* *use-sound*
   trace-rectangle trace-row trace-column trace-octagon trace-line
-  midpoint =asterisk= =gray-asterisk= self *module-widgets*
-  get-some-object-name transform-declaration-field-descriptor
+  midpoint =asterisk= =gray-asterisk= self *module-widgets* defsprite
+  =sprite= get-some-object-name transform-declaration-field-descriptor
   show-widgets no-such-field =narrator= find-modules-in-directory goal
   =mission= =gateway= =launchpad= =environment= directory-is-module-p
   find-all-modules *next-module* transform-tree stat-value draw-line
@@ -108,12 +108,12 @@
   set-music-volume add-message-verbosities with-message-queue
   =minimap= draw-pixel *user-keyboard-layout* *fullscreen* draw-circle
   set-field-option-value =pager= =pager-prompt= load-module
-  field-options world set-frame-rate *frame-rate* =stack= *window-title*
-  set-timer-interval *message-logging* overlay set-screen-width
-  =universe= *active-universe* set-screen-height genseq *zoom-factor*
-  zoom-image is-zoomed-resource *timer-interval* enable-timer
-  disable-timer while enable-held-keys disable-held-keys do-cells
-  draw-box draw-rectangle *quitting* quit reset))
+  field-options world set-frame-rate *frame-rate* =stack=
+  *window-title* set-timer-interval *message-logging* overlay
+  set-screen-width =universe= *active-universe* set-screen-height
+  genseq *zoom-factor* zoom-image is-zoomed-resource *timer-interval*
+  enable-timer disable-timer while enable-held-keys disable-held-keys
+  do-cells draw-box draw-rectangle *quitting* quit reset))
 
 (in-package :rlx)
 

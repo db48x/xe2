@@ -73,6 +73,48 @@
   (when (zerop <clock>)
     [close self]))
 
+;;; Particles
+
+(defsprite particle
+  (image :initform "collider")
+  (speed :initform (make-stat :base 10))
+  (movement-cost :initform (make-stat :base 10))
+  (direction :initform (random-direction))
+  (categories :initform '(:actor)))
+
+(define-method loadout particle ()
+  [update-position self (random 100) (random 100)])
+
+(define-method run particle ()
+  [expend-action-points self 10]
+  (setf <direction> (if (zerop (random 2))
+			(random-direction)
+			(direction-to <y> <x> 
+				      (* 16 [player-row *active-world*])
+				      (* 16 [player-column *active-world*]))))
+  (multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction>)
+    [update-position self x y]))
+
+;;; Yasichi
+
+(defsprite yasichi
+  (image :initform "yasichi")
+  (speed :initform (make-stat :base 10))
+  (movement-cost :initform (make-stat :base 10))
+  (direction :initform (random-direction))
+  (categories :initform '(:actor)))
+
+(define-method loadout yasichi ()
+  [update-position self (random 100) (random 100)])
+
+(define-method run yasichi ()
+  [expend-action-points self 10]
+  (setf <direction> (if (zerop (random 100))
+			(random-direction)
+			<direction>))
+  (multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction>)
+    [update-position self x y]))
+
 ;;; The player's tail
 
 (defcell tail 
@@ -1365,6 +1407,18 @@ the player gets too close."))
 	(multiple-value-bind (r c)
 	    [random-place self :avoiding player :distance 10]
 	  [drop-cell self monitor r c :loadout t])))
+    ;;
+    ;; EXPERIMENTAL
+    ;; (dotimes (n 200)
+    ;;   (let ((p (clone =particle=)))
+    ;; 	[loadout p]
+    ;; 	[add-sprite self p]))
+    ;; (dotimes (n 20)
+    ;;   (let ((p (clone =yasichi=)))
+    ;; 	[loadout p]
+    ;; 	[add-sprite self p]))
+    ;;
+    ;;
     (dotimes (n tracers)
       (let ((tracer (clone =tracer=)))
 	(multiple-value-bind (r c)

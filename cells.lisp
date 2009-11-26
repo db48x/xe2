@@ -794,10 +794,14 @@ slot."
   (tile :initform ".gray-asterisk")
   (name :initform "System"))
 
-;;; Sprites are not restricted to the grid.
+;;; Sprites are not restricted to the grid
+
+;; These sit in a different layer, the <sprite> layer in the world
+;; object.
 
 (defcell sprite 
-  x y 
+  x y image
+  width height ;; cached from SDL measurements of image 
   (type :initform :sprite))
 
 ;; Convenience macro for defining cells:
@@ -806,7 +810,61 @@ slot."
   `(define-prototype ,name (:parent =sprite=)
      ,@args))
 
+(defun is-sprite (ob)
+  (when (eq :sprite (field-value :type ob))))
 
+(defun is-cell (ob)
+  (when (eq :cell (field-value :type ob))))
+
+(define-method update-dimensions sprite ()
+  (clon:with-fields (image height width) self
+    (when image
+      (setf width (image-width image))
+      (setf height (image-height image)))))
+    
+(define-method initialize sprite ()
+  (when <image>
+    [update-image self <image>]))
+
+(define-method update-image sprite (image)
+  (setf <image> image)
+  [update-dimensions self])
+
+(define-method update-position sprite (x y &optional ignore-obstacles)
+  (setf <x> x)
+  (setf <y> y))
+
+(define-method collide sprite (sprite)
+  (let ((x0 (field-value :x sprite))
+	(y0 (field-value :y sprite))
+	(w (field-value :width sprite))
+	(h (field-value :height sprite)))
+    [collide-* self x0 y0 w h]))
+    
+(define-method collide-* sprite (x0 y0 w h)
+  (with-field-values (x y width height) self
+    (or 
+     ;; consider top left corner of other sprite
+     (and (> x0 x) 
+	  (< x0 (+ x width))
+	  (> y0 y)
+	  (< y0 (+ y height)))
+     ;; now test bottom right corner
+     (and (< x (+ x0 w) (+ x width))
+	  (< y (+ y0 h) (+ y height)))
+     ;; top right
+     (and (< x (+ x0 w) (+ x width))
+	  (< y y0 (+ y height)))
+     ;; bottom left
+     (and (< x x0 (+ x width))
+	  (< y (+ y0 h) (+ y height))))))
+;; this function could obviously be improved.
+
+(define-method do-collision cell (collision)
+  nil)
+
+(define-method do-collision sprite (collision)
+  nil)
 
 
 ;;; cells.lisp ends here

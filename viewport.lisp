@@ -85,7 +85,7 @@
 	 (tile-size <tile-size>)
 	 objects cell)
     (with-field-values (grid light-grid environment-grid phase-number
-			     height width
+			     height width sprites 
 			     turn-number ambient-light) world
       ;; blank the display
       [clear self]
@@ -109,12 +109,22 @@
 		;; not in bounds, or not lit; draw blackness
 		(draw-resource-image ".blackness" (* j tile-size) (* i tile-size)
 				     :destination image))))
+      ;; draw the sprites
+      (dolist (sprite sprites)
+	;; pull image and calculate screen coordinates
+	(let* ((graphics (field-value :image sprite))
+	       (x0 (field-value :x sprite))
+	       (x1 (- x0 (* tile-size origin-x)))
+	       (y0 (field-value :y sprite))
+	       (y1 (- y0 (* tile-size origin-y))))
+	(draw-resource-image graphics x1 y1 :destination image)))
       ;; update geometry
       (let ((width (* tile-size origin-width))
 	    (height (* tile-size origin-height)))
 	(unless (and (= width <width>)
 		     (= height <height>))
 	  [resize self :height height :width width]))
+      ;; draw the overlays
       [draw-overlays self])))
 
 (define-method hit viewport (x y)

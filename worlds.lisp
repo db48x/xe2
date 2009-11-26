@@ -38,6 +38,7 @@
   (name :initform "Unknown")
   (paused :initform nil)
   (description :initform "Unknown area.")
+  (tile-size :initform 16)
   (required-modes :initform nil)
   (categories :initform nil)
   (mission-grammar :initform '())
@@ -416,11 +417,19 @@ in a roguelike until the user has pressed a key."
 			 [in-category cell :actor]
 			 (not [in-category player :dead]))
 		[begin-phase cell]
-		;; do turns 
+		;; do cells
 		(loop while [can-act cell phase-number] do
 		      [run cell]
 		      [process-messages self]
-		      [end-phase cell])))))))))
+		      [end-phase cell])
+		;; do sprites
+		(dolist (sprite <sprites>)
+		  [begin-phase sprite]
+		  (loop while [can-act sprite phase-number] do
+			[run sprite]
+			[process-messages self]
+			[end-phase sprite]))))))))))
+
 
 ;; <: lighting :>
  
@@ -505,7 +514,6 @@ in a roguelike until the user has pressed a key."
 	       	     (light-line row column)))))
 	(light-octagon source-row source-column total)
 	(light-octagon source-row source-column (- total 2))))))
-
 
 (define-method clear-light-grid world ()
   (unless <automapped>
@@ -624,6 +632,33 @@ in a roguelike until the user has pressed a key."
 
 (define-method generate-with world (parameters)
   (apply #'send self :generate self parameters))
+
+;;; The sprite layer
+
+(define-method add-sprite world (sprite)
+  (pushnew sprite <sprites> :test 'eq))
+
+(define-method remove-sprite world (sprite)
+  (setf <sprites> (delete sprite <sprites>)))
+
+(define-method collide-all-sprites world ()
+  (let (collision)
+    (with-field-values (width height tile-size sprites grid) self
+      (dotimes (i height)
+	(dotimes (j width)
+	  (let ((obstacle [category-at-p self i j :obstacle]))
+	    (dolist (sprite sprites)
+	      (when [collide-* sprite 
+			       (* j tile-size)
+			       (* i tile-size)
+			       tile-size tile-size]
+		(push sprite collision)))
+	    (when (object-p obstacle)
+	      (push obstacle collision))
+	    ;; report any collisions
+	    (dolist (object collision)
+	      [do-collision object collision])
+	    (setf collision nil)))))))
 
 ;;; Universes are composed of connected worlds.
 

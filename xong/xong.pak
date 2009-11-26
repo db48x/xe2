@@ -9,6 +9,8 @@
  (:name "floor" :type :image :file "floor.png")
  (:name "splash" :type :image :file "xong.png")
  (:name "plus" :type :image :file "plus.png")
+ (:name "collider" :type :image :file "collider.png")
+ (:name "yasichi" :type :image :file "yasichi.png")
  (:name "hole" :type :image :file "hole.png")
  (:name "hole-closed" :type :image :file "hole-closed.png")
  (:name "skull" :type :image :file "skull.png")
