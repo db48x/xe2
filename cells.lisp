@@ -831,8 +831,13 @@ slot."
   [update-dimensions self])
 
 (define-method update-position sprite (x y &optional ignore-obstacles)
-  (setf <x> x)
-  (setf <y> y))
+  (with-field-values (grid tile-size) *active-world*
+    (if (array-in-bounds-p grid
+			   (truncate (/ x tile-size))
+			   (truncate (/ y tile-size)))
+	(setf <x> x
+	      <y> y)
+	[do-collision self nil])))
 
 (define-method collide sprite (sprite)
   (let ((x0 (field-value :x sprite))
@@ -864,5 +869,8 @@ slot."
 (define-method do-collision sprite (collision)
   nil)
 
+(define-method viewport-coordinates cell ()
+  [get-viewport-coordinates-* (field-value :viewport *active-world*)
+			      <x> <y>])
 
 ;;; cells.lisp ends here

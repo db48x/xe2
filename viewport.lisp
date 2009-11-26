@@ -55,6 +55,12 @@
 		    (- cell-row <origin-y>)))))
       (values x0 y0))))
 
+(define-method get-viewport-coordinates-* viewport (x y)
+  (let* ((size <tile-size>)
+	 (x0 (* <origin-x> size))
+	 (y0 (* <origin-y> size)))
+    (values (- x x0) (- y y0))))
+
 (define-method add-overlay viewport (overlay)
   (pushnew overlay <overlays>))
 

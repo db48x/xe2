@@ -86,14 +86,19 @@
   [update-position self (random 100) (random 100)])
 
 (define-method run particle ()
-  [expend-action-points self 10]
-  (setf <direction> (if (zerop (random 2))
-			(random-direction)
-			(direction-to <y> <x> 
-				      (* 16 [player-row *active-world*])
-				      (* 16 [player-column *active-world*]))))
+  [expend-action-points self 5]
   (multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction>)
     [update-position self x y]))
+
+(define-method do-collision particle (object)
+  (labels ((do-circle (image)
+	     (prog1 t
+	       (multiple-value-bind (x y) 
+		   [viewport-coordinates self]
+		 (draw-circle x y 6 :destination image)
+		 (draw-circle x y 8 :destination image)))))
+    [>>add-overlay :viewport #'do-circle])
+  (setf <direction> (opposite-direction <direction>)))
 
 ;;; Yasichi
 
@@ -113,7 +118,6 @@
     [update-position self x y]))
 
 (define-method do-collision yasichi (object)
-  (message "COLLIDED")
   (setf <direction> (random-direction)))
 
 ;;; The player's tail
@@ -1410,10 +1414,10 @@ the player gets too close."))
 	  [drop-cell self monitor r c :loadout t])))
     ;;
     ;; EXPERIMENTAL
-    ;; (dotimes (n 200)
-    ;;   (let ((p (clone =particle=)))
-    ;; 	[loadout p]
-    ;; 	[add-sprite self p]))
+    (dotimes (n 200)
+      (let ((p (clone =particle=)))
+    	[loadout p]
+    	[add-sprite self p]))
     (dotimes (n 3)
       (let ((p (clone =yasichi=)))
     	[loadout p]

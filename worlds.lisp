@@ -432,7 +432,6 @@ in a roguelike until the user has pressed a key."
 	;; do sprite collisions
 	[collide-all-sprites self]))))
 
-
 ;; <: lighting :>
  
 (defvar *lighting-hack-function* nil)
@@ -635,7 +634,7 @@ in a roguelike until the user has pressed a key."
 (define-method generate-with world (parameters)
   (apply #'send self :generate self parameters))
 
-;;; The sprite layer
+;;; The sprite layer. See also viewport.lisp
 
 (define-method add-sprite world (sprite)
   (pushnew sprite <sprites> :test 'eq))
@@ -646,49 +645,32 @@ in a roguelike until the user has pressed a key."
 (define-method collide-all-sprites world ()
   (with-field-values (width height tile-size sprites grid) self
     (dolist (sprite sprites)
+      ;; figure out which grid squares we really need to scan
+      (let* ((x (field-value :x sprite)) 
+	     (y (field-value :y sprite)) 
+	     (left (truncate (/ x tile-size)))
+	     (right (1+ (truncate (/ (+ x (field-value :width sprite)) tile-size))))
+	     (top (truncate (/ y tile-size)))
+	     (bottom (1+ (truncate (/ (+ y (field-value :height sprite)) tile-size)))))
       ;; find the first world collision for each sprite
       (block colliding
-	(dotimes (i height)
-	  (dotimes (j width)
-	    (do-cells (cell (aref grid i j))
+	;; scan all the squares we need to scan
+	(dotimes (i (max 0 (- bottom top)))
+	  (dotimes (j (max 0 (- right left)))
+	    (do-cells (cell (aref grid (+ j top) (+ i left)))
 	      (when (and (member :obstacle (field-value :categories cell))
 			 [collide-* sprite (* j tile-size) (* i tile-size)
 				    tile-size tile-size])
 		[do-collision sprite cell]
-		(return-from colliding t))))))
-      ;; now find collisions with other sprites.
-      (block colliding
-	(dolist (spr sprites)
-	  (unless (eq spr sprite)
-	    (when [collide sprite spr]
-	      [do-collision sprite spr]
-	      (return-from colliding t)))))
-      ;; now generate a collision in the case that a sprite goes offscreen.
-      (unless (array-in-bounds-p grid 
-				 (truncate (/ (field-value :y sprite) tile-size))
-				 (truncate (/ (field-value :x sprite) tile-size)))
-	[do-collision sprite nil]))))
+		(return-from colliding t))))))))))
+      ;; ;; now find collisions with other sprites.
+      ;; (block colliding
+      ;; 	(dolist (spr sprites)
+      ;; 	  (unless (eq spr sprite)
+      ;; 	    (when [collide sprite spr]
+      ;; 	      [do-collision sprite spr]
+      ;; 	      (return-from colliding t)))))
 				
-;; (define-method collide-all-sprites world ()
-;;   (let (obstacle collision-sprites current-sprite)
-;;     (with-field-values (width height tile-size sprites grid) self
-;;       (dotimes (i height)
-;; 	(dotimes (j width)
-;; 	  ;; world collisions happen first
-;; 	  (setf obstacle [category-at-p self i j :obstacle])
-;; 	  ;; then sprites
-;; 	  (dolist (sprite sprites)
-;; 	    (when [collide-* sprite 
-;; 			     (* j tile-size)
-;; 			     (* i tile-size)
-;; 			     tile-size tile-size]
-;; 	      (setf current-sprite sprite)
-;; 	      (push sprite collision-sprites)))
-;; 	  ;; handle any world collision
-	  
-;; 	  (when collision 
-;; 	    [do-collision current-sprite collider]))))))
-
 ;;; Universes are composed of connected worlds.
 
 (defvar *active-universe* nil)
