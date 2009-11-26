@@ -1,6 +1,10 @@
 #+TITLE: A game developer's guide to the RLX Common Lisp Game Engine
 #+AUTHOR: David O'Toole <dto@gnu.org>
 
+* What can RLX do? 
+
+See the first release RLX game at the official [[http://dto.github.com/notebook/xong.html][XONG home page.]] 
+
 * How to use this document
 
 This document explains the RLX roguelike engine's general design and

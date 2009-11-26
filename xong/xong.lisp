@@ -514,9 +514,9 @@ explode with deadly plasma radiation!"))
   (tile :initform "door")
   (name :initform "Level exit")
   (description :initform "Door to the next level of Xong.")
-  (categories :initform '(:gateway :actor :exclusive))
+  (categories :initform '(:gateway :actor :exclusive :obstacle))
   (address :initform nil))
-  
+
 (define-method level door (lev)
   (setf <address> (generate-level-address lev)))
 
@@ -531,7 +531,8 @@ explode with deadly plasma radiation!"))
 	[play-sample self "error"])))
 
 (define-method run door ()
-  (when (zerop *enemies*)
+  (when (and (zerop *enemies*) (not (snake-living-p)))
+    [delete-category self :obstacle]
     (setf <tile> "door-open")))
 	
 ;;; Breakable paint walls re-color the ball

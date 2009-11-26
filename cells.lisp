@@ -776,7 +776,6 @@ slot."
   [get-viewport-coordinates (field-value :viewport *active-world*)
 			  <row> <column>])
 
-
 ;;; User Interaction with keyboard and mouse
 
 (define-method select cell ()
@@ -791,5 +790,13 @@ slot."
 (define-prototype gray-asterisk (:parent =cell=)
   (tile :initform ".gray-asterisk")
   (name :initform "System"))
+
+;;; Sprites are not restricted to the grid.
+
+(defcell sprite 
+  x y image)
+
+(define-method update-coordinates sprite ()
+  (
 
 ;;; cells.lisp ends here

@@ -20,7 +20,7 @@
 ;;; Packaging
 
 (defpackage :vomac
-  (:documentation "VOMAC is a colorful puzzle game in Common Lisp.")
+  (:documentation "VOMAC is an oldschool shmup.")
   (:use :rlx :common-lisp)
   (:export vomac))
 
@@ -31,7 +31,7 @@
 (defun score (points)
   [score-points [get-player *active-world*] points])
 
-;;; There are also energy tanks for replenishing ammo.
+;;; There are energy tanks for replenishing ammo.
 
 (defcell energy 
   (tile :initform "energy")
