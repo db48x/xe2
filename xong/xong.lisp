@@ -583,7 +583,7 @@ reach new areas and items. The puck also picks up the color.")
 			:yellow "player-yellow"
 			 :other "player-other"))
 
-(defparameter *shield-time* 50)
+(defparameter *shield-time* 70)
 
 (defcell player 
   (tile :initform "player")
@@ -632,7 +632,11 @@ reach new areas and items. The puck also picks up the color.")
 	(labels ((draw-shield (image)
 		   (prog1 t (multiple-value-bind (x y)
 				[viewport-coordinates self]
-			      (draw-circle x y 15 :color ".cyan" :destination image)))))
+			      (let ((circles (1+ (truncate (/ shield-clock 5))))
+				    (radius 16))
+				(dotimes (n circles)
+				  (draw-circle x y radius :color ".cyan" :destination image)
+				  (incf radius 2)))))))
 	  [play-sample self "shield-sound"]
 	  [>>add-overlay :viewport #'draw-shield]))))
 	

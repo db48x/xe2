@@ -41,6 +41,7 @@
 
 (define-prototype cell
     (:documentation "An RLX game-world object.")
+  (type :documentation :cell)
   (weight :documentation "Weight of the cell, in kilograms.")
   (tile :initform ".asterisk" :documentation "Resource name of image.")
   (row :documentation "When non-nil, the current row location of the cell.")
@@ -796,9 +797,16 @@ slot."
 ;;; Sprites are not restricted to the grid.
 
 (defcell sprite 
-  x y image)
+  x y 
+  (type :initform :sprite))
 
-;; (define-method update-coordinates sprite ()
-;;   (
+;; Convenience macro for defining cells:
+
+(defmacro defsprite (name &body args)
+  `(define-prototype ,name (:parent =sprite=)
+     ,@args))
+
+
+
 
 ;;; cells.lisp ends here

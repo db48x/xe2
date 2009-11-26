@@ -48,6 +48,8 @@
   (height :documentation "The height of the world map, measured in tiles.")
   ;; cells 
   (grid :documentation "A two-dimensional array of adjustable vectors of cells.")
+  ;; sprite cells
+  (sprites :initform nil :documentation "A list of sprites.")
   ;; environment 
   (environment-grid :documentation "A two-dimensional array of environment data cells.")
   ;; lighting 
@@ -614,6 +616,15 @@ in a roguelike until the user has pressed a key."
     [delete-cell self cell old-row old-column]
     [drop-cell self cell row column]))
 
+(define-method generate world (&rest parameters)
+  "Generate a world, reading generation parameters from the plist
+  PARAMETERS."  
+  (declare (ignore parameters))
+  nil)
+
+(define-method generate-with world (parameters)
+  (apply #'send self :generate self parameters))
+
 ;;; Universes are composed of connected worlds.
 
 (defvar *active-universe* nil)
@@ -707,15 +718,6 @@ represents the z-axis of a euclidean 3-D space."))
 	;; make sure any loadouts or intializers get run with the proper world
 	(let ((*active-world* world)) 
 	  [generate-with world parameters])))))
-
-(define-method generate world (&rest parameters)
-  "Generate a world, reading generation parameters from the plist
-  PARAMETERS."  
-  (declare (ignore parameters))
-  nil)
-
-(define-method generate-with world (parameters)
-  (apply #'send self :generate self parameters))
 
 (define-method find-world universe (address)
   (let ((candidate [get-world self address]))
