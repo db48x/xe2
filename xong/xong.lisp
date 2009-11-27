@@ -485,7 +485,7 @@ explode with deadly plasma radiation!"))
     (setf <tile> res)))
 
 (define-method paint snake (color)
-  (if (eq <color> color)
+  (if (and (eq <color> color) (not <smashed>))
       (progn [play-sample self "lock-opening-sound"]
 	     (score 1000)
 	     (setf <smashed> t)

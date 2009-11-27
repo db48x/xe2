@@ -1,5 +1,4 @@
-
-** TODO SPRITE LAYER WITH BASIC COLLISION DETECTION
+** TODO YOU ARE HERE arrow on game start
 ** TODO OFFTOPIC: melange of nice parts of certain B-side tracks for GOLD
 *** TODO http://common-lisp.net/project/cl-wav-synth/
 ** TODO min action points
