@@ -648,21 +648,34 @@ in a roguelike until the user has pressed a key."
       ;; figure out which grid squares we really need to scan
       (let* ((x (field-value :x sprite)) 
 	     (y (field-value :y sprite)) 
-	     (left (truncate (/ x tile-size)))
-	     (right (1+ (truncate (/ (+ x (field-value :width sprite)) tile-size))))
-	     (top (truncate (/ y tile-size)))
-	     (bottom (1+ (truncate (/ (+ y (field-value :height sprite)) tile-size)))))
+	     (left (1- (floor (/ x tile-size))))
+	     (right (1+ (floor (/ (+ x (field-value :width sprite)) tile-size))))
+	     (top (1- (floor (/ y tile-size))))
+	     (bottom (1+ (floor (/ (+ y (field-value :height sprite)) tile-size)))))
       ;; find the first world collision for each sprite
       (block colliding
-	;; scan all the squares we need to scan
+	;; light all the squares we need to scan
 	(dotimes (i (max 0 (- bottom top)))
 	  (dotimes (j (max 0 (- right left)))
-	    (do-cells (cell (aref grid (+ j top) (+ i left)))
-	      (when (and (member :obstacle (field-value :categories cell))
-			 [collide-* sprite (* j tile-size) (* i tile-size)
-				    tile-size tile-size])
-		[do-collision sprite cell]
-		(return-from colliding t))))))))))
+	    (let ((i0 (+ i top))
+		  (j0 (+ j left)))
+	      [light-square sprite i0 j0])))
+	;;
+	(dotimes (i (max 0 (- bottom top)))
+	  (dotimes (j (max 0 (- right left)))
+	    (let ((i0 (+ i top))
+		  (j0 (+ j left)))
+	      (when (array-in-bounds-p grid i0 j0)
+		(do-cells (cell (aref grid (+ i top) (+ j left)))
+		  (when (and (member :obstacle (field-value :categories cell))
+			     [collide-* sprite 
+					(* i0 tile-size) 
+					(* j0 tile-size)
+					tile-size tile-size])
+		    (when [is-located cell]
+		      [do-collision sprite cell]
+		      (return t)))))))))))))
+
       ;; ;; now find collisions with other sprites.
       ;; (block colliding
       ;; 	(dolist (spr sprites)

@@ -47,12 +47,8 @@
 
 (define-method get-viewport-coordinates viewport (cell-row cell-column)
   (let ((size <tile-size>))
-    (let ((x0 (+ (/ size 2)
-		 (* size
-		    (- cell-column <origin-x>))))
-	  (y0 (+ (/ size 2)
-		 (* size
-		    (- cell-row <origin-y>)))))
+    (let ((x0 (* size (- cell-column <origin-x>)))
+	  (y0 (* size (- cell-row <origin-y>))))
       (values x0 y0))))
 
 (define-method get-viewport-coordinates-* viewport (x y)

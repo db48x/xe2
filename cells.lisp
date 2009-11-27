@@ -776,6 +776,7 @@ slot."
 	(play-sample sample-name)))))
 
 (define-method viewport-coordinates cell ()
+  (assert (and <row> <column>))
   [get-viewport-coordinates (field-value :viewport *active-world*)
 			  <row> <column>])
 
@@ -846,22 +847,19 @@ slot."
 	(h (field-value :height sprite)))
     [collide-* self x0 y0 w h]))
     
-(define-method collide-* sprite (x0 y0 w h)
-  (with-field-values (x y width height) self
-    (progn 
-      (or 
-       ;; consider top left corner of other sprite
-       (and (<= x x0 (+ x width))
-	    (<= y y0 (+ y height)))
-       ;; now test bottom right corner
-       (and (<= x (+ x0 w) (+ x width))
-	    (<= y (+ y0 h) (+ y height)))
-       ;; top right
-       (and (<= x (+ x0 w) (+ x width))
-	    (<= y y0 (+ y height)))
-       ;; bottom left
-       (and (<= x x0 (+ x width))
-	    (<= y (+ y0 h) (+ y height)))))))
+(define-method collide-* sprite (o-top o-left o-width o-height)
+  (let ((o-right (+ o-left o-width))
+	(o-bottom (+ o-top o-height)))
+    (with-field-values (x y width height) self
+      (not (or 
+	    ;; is the top below the other bottom?
+	    (<= o-bottom y)
+	   ;; is bottom above other top?
+	    (<= (+ y height) o-top)
+	   ;; is right to left of other left?
+	    (<= (+ x width) o-left)
+	   ;; is left to right of other right?
+	    (<= o-right x))))))
 
 (define-method do-collision cell (collision)
   nil)
@@ -869,7 +867,7 @@ slot."
 (define-method do-collision sprite (collision)
   nil)
 
-(define-method viewport-coordinates cell ()
+(define-method viewport-coordinates sprite ()
   [get-viewport-coordinates-* (field-value :viewport *active-world*)
 			      <x> <y>])
 

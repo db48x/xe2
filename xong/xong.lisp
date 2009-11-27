@@ -90,27 +90,26 @@
   (multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction>)
     [update-position self x y]))
 
-(define-method do-collision particle (object)
-  (labels ((do-circle (image)
-	     (prog1 t
-	       (multiple-value-bind (x y) 
-		   [viewport-coordinates self]
-		 (draw-circle x y 6 :destination image)
-		 (draw-circle x y 8 :destination image)))))
-    [>>add-overlay :viewport #'do-circle])
-  (setf <direction> (opposite-direction <direction>)))
+;; (define-method do-collision particle (object)
+;;   (labels ((do-light (image)
+;; 	     (prog1 t
+;; 	       (multiple-value-bind (x y) 
+;; 		   [viewport-coordinates self]
+;; 		 (draw-rectangle x y 16 16
+;;     [>>add-overlay :viewport #'do-light])
+;;   (setf <direction> (opposite-direction <direction>)))
 
 ;;; Yasichi
 
 (defsprite yasichi
-  (image :initform "yasichi")
+  (image :initform "yasichi2")
   (speed :initform (make-stat :base 10))
   (movement-cost :initform (make-stat :base 10))
   (direction :initform (random-direction))
   (categories :initform '(:actor :obstacle)))
 
 (define-method loadout yasichi ()
-  [update-position self (random 100) (random 100)])
+  [update-position self (+ 200 (random 100)) (+ 200 (random 100))])
 
 (define-method run yasichi ()
   [expend-action-points self 10]
@@ -118,7 +117,26 @@
     [update-position self x y]))
 
 (define-method do-collision yasichi (object)
-  (setf <direction> (random-direction)))
+  (labels ((do-circle (image)
+	     (prog1 t
+	       (when (clon:object-p object)
+		 (multiple-value-bind (x y) 
+		     [viewport-coordinates self]
+		   (multiple-value-bind (x0 y0)
+		       [viewport-coordinates object]
+		     (draw-box x0 y0 16 16 :color ".cyan" :destination image)))))))
+    [>>add-overlay :viewport #'do-circle])
+  (setf <direction> (opposite-direction <direction>)))
+
+(define-method light-square yasichi (r c)
+  (labels ((do-square (image)
+	     (prog1 t
+	       (multiple-value-bind (x y) 
+		   [get-viewport-coordinates (field-value :viewport *active-world*)
+					      r
+					      c]
+		 (draw-rectangle x y 16 16 :destination image :color ".magenta")))))
+    [>>add-overlay :viewport #'do-square]))
 
 ;;; The player's tail
 
@@ -1414,11 +1432,11 @@ the player gets too close."))
 	  [drop-cell self monitor r c :loadout t])))
     ;;
     ;; EXPERIMENTAL
-    (dotimes (n 200)
-      (let ((p (clone =particle=)))
-    	[loadout p]
-    	[add-sprite self p]))
-    (dotimes (n 3)
+    ;; (dotimes (n 20)			
+    ;;   (let ((p (clone =particle=)))
+    ;; 	[loadout p]
+    ;; 	[add-sprite self p]))
+    (dotimes (n 4)
       (let ((p (clone =yasichi=)))
     	[loadout p]
     	[add-sprite self p]))
