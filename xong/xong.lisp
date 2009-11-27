@@ -73,35 +73,9 @@
   (when (zerop <clock>)
     [close self]))
 
-;;; Particles
-
-(defsprite particle
-  (image :initform "collider")
-  (speed :initform (make-stat :base 10))
-  (movement-cost :initform (make-stat :base 10))
-  (direction :initform (random-direction))
-  (categories :initform '(:actor)))
-
-(define-method loadout particle ()
-  [update-position self (random 100) (random 100)])
-
-(define-method run particle ()
-  [expend-action-points self 5]
-  (multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction>)
-    [update-position self x y]))
-
-;; (define-method do-collision particle (object)
-;;   (labels ((do-light (image)
-;; 	     (prog1 t
-;; 	       (multiple-value-bind (x y) 
-;; 		   [viewport-coordinates self]
-;; 		 (draw-rectangle x y 16 16
-;;     [>>add-overlay :viewport #'do-light])
-;;   (setf <direction> (opposite-direction <direction>)))
-
 ;;; Yasichi
 
-(defparameter *yasichi-bounce-time* 5)
+(defparameter *yasichi-bounce-time* 8)
 
 (defsprite yasichi
   (image :initform "yasichi2")
@@ -1627,6 +1601,7 @@ the player gets too close."))
 	       [set-character *status* player]
 	       ;;
 	       [set-tile-size viewport 16]
+	       (setf (field-value :use-overlays viewport) t)
 	       [resize viewport :height 470 :width *xong-window-width*]
 	       [move viewport :x 0 :y 0]
 	       [set-origin viewport :x 0 :y 0 

@@ -51,6 +51,7 @@
   (grid :documentation "A two-dimensional array of adjustable vectors of cells.")
   ;; sprite cells
   (sprites :initform nil :documentation "A list of sprites.")
+  (sprite-grid :initform nil :documentation "Grid for collecting sprite collision information")
   ;; environment 
   (environment-grid :documentation "A two-dimensional array of environment data cells.")
   ;; lighting 
@@ -125,7 +126,18 @@ At the moment, only 0=off and 1=on are supported.")
 	(setf <environment-grid> environment)
 	(dotimes (i height)
 	  (dotimes (j width)
-	    (setf (aref environment i j) (clone =environment=))))))))
+	    (setf (aref environment i j) (clone =environment=)))))
+      ;; sprite intersection data grid
+      (let ((sprite-grid (make-array dims :element-type 'vector :adjustable t)))
+	;; now put a vector in each square to collect intersecting sprites
+	(dotimes (i height)
+	  (dotimes (j width)
+	    (setf (aref sprite-grid i j)
+		(make-array *default-world-z-size* 
+			    :adjustable t
+			    :fill-pointer 0))))
+	(setf <sprite-grid> sprite-grid)))))
+
 
 (define-method create-default-grid world ()
   (when (and (numberp <width>)
@@ -642,8 +654,14 @@ in a roguelike until the user has pressed a key."
 (define-method remove-sprite world (sprite)
   (setf <sprites> (delete sprite <sprites>)))
 
+(define-method clear-sprite-grid world ()
+  (let ((grid <sprite-grid>))
+    (dotimes (i <height>)
+      (dotimes (j <width>)
+	(setf (fill-pointer (aref grid i j)) 0)))))
+
 (define-method collide-all-sprites world ()
-  (with-field-values (width height tile-size sprites grid) self
+  (with-field-values (width height tile-size sprite-grid sprites grid) self
     (dolist (sprite sprites)
       ;; figure out which grid squares we really need to scan
       (let* ((x (field-value :x sprite)) 
@@ -667,22 +685,27 @@ in a roguelike until the user has pressed a key."
 		  (j0 (+ j left)))
 	      (when (array-in-bounds-p grid i0 j0)
 		(do-cells (cell (aref grid i0 j0))
-		  (when (and (member :obstacle (field-value :categories cell))
-			     [collide-* sprite 
-					(* i0 tile-size) 
-					(* j0 tile-size)
-					tile-size tile-size])
-		    (when [is-located cell]
-		      [do-collision sprite cell]
-		      (return t)))))))))))))
-
-      ;; ;; now find collisions with other sprites.
-      ;; (block colliding
-      ;; 	(dolist (spr sprites)
-      ;; 	  (unless (eq spr sprite)
-      ;; 	    (when [collide sprite spr]
-      ;; 	      [do-collision sprite spr]
-      ;; 	      (return-from colliding t)))))
+		  (when [collide-* sprite 
+				   (* i0 tile-size) 
+				   (* j0 tile-size)
+				   tile-size tile-size]
+		    ;; save this intersection information
+		    (vector-push-extend sprite (aref sprite-grid i0 j0))
+		    (when (and (member :obstacle (field-value :categories cell))
+			       [is-located cell])
+		      [do-collision sprite cell])))))))
+	;; now find collisions with other sprites
+	;; we can re-use the sprite-grid data from earlier.
+	(let (collision)
+	(dotimes (i height)
+	  (dotimes (j width)
+	    (setf collision (aref sprite-grid i j))
+	    (when (< 1 (length collision))
+	      (when [collide (aref collision 0) (aref collision 1)]
+		[do-collision (aref collision 0) (aref collision 1)]
+		(return-from colliding t)))))))))
+    (when sprites 
+      [clear-sprite-grid self])))
 				
 ;;; Universes are composed of connected worlds.
 

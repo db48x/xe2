@@ -36,6 +36,7 @@
     (:parent =widget= :documentation "A map display for RLX worlds.")
   (world :documentation "The world object to be displayed.")
   (overlays :documentation "List of closures.")
+  (use-overlays :initform t)
   (margin :initform 6 :documentation "Scroll margin.")
   (origin-x :initform 0 
 	    :documentation "The world x-coordinate of the tile at the viewport's origin.")
@@ -61,12 +62,13 @@
   (pushnew overlay <overlays>))
 
 (define-method draw-overlays viewport ()
-  ;; draw, removing any overlay that returns non-nil
-  (let ((image <image>))
-    (setf <overlays> 
-	  (remove-if #'(lambda (ov)
-			 (funcall ov image))
-		     <overlays>))))
+  (when <use-overlays>
+    ;; draw, removing any overlay that returns non-nil
+    (let ((image <image>))
+      (setf <overlays> 
+	    (remove-if #'(lambda (ov)
+			   (funcall ov image))
+		       <overlays>)))))
 
 (define-method set-world viewport (world)
   (setf <world> world))
