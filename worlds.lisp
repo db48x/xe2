@@ -666,7 +666,7 @@ in a roguelike until the user has pressed a key."
 	    (let ((i0 (+ i top))
 		  (j0 (+ j left)))
 	      (when (array-in-bounds-p grid i0 j0)
-		(do-cells (cell (aref grid (+ i top) (+ j left)))
+		(do-cells (cell (aref grid i0 j0))
 		  (when (and (member :obstacle (field-value :categories cell))
 			     [collide-* sprite 
 					(* i0 tile-size) 

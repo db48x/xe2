@@ -853,13 +853,13 @@ slot."
     (with-field-values (x y width height) self
       (not (or 
 	    ;; is the top below the other bottom?
-	    (<= o-bottom y)
+	    (< o-bottom y)
 	   ;; is bottom above other top?
-	    (<= (+ y height) o-top)
+	    (< (+ y height) o-top)
 	   ;; is right to left of other left?
-	    (<= (+ x width) o-left)
+	    (< (+ x width) o-left)
 	   ;; is left to right of other right?
-	    (<= o-right x))))))
+	    (< o-right x))))))
 
 (define-method do-collision cell (collision)
   nil)

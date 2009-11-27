@@ -101,8 +101,11 @@
 
 ;;; Yasichi
 
+(defparameter *yasichi-bounce-time* 5)
+
 (defsprite yasichi
   (image :initform "yasichi2")
+  (bounce-clock :initform 0)
   (speed :initform (make-stat :base 10))
   (movement-cost :initform (make-stat :base 10))
   (direction :initform (random-direction))
@@ -112,12 +115,14 @@
   [update-position self (+ 200 (random 100)) (+ 200 (random 100))])
 
 (define-method run yasichi ()
+  (unless (zerop <bounce-clock>)
+    (decf <bounce-clock>))
   [expend-action-points self 10]
   (multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction>)
     [update-position self x y]))
 
 (define-method do-collision yasichi (object)
-  (labels ((do-circle (image)
+  (labels ((do-box (image)
 	     (prog1 t
 	       (when (clon:object-p object)
 		 (multiple-value-bind (x y) 
@@ -125,8 +130,11 @@
 		   (multiple-value-bind (x0 y0)
 		       [viewport-coordinates object]
 		     (draw-box x0 y0 16 16 :color ".cyan" :destination image)))))))
-    [>>add-overlay :viewport #'do-circle])
-  (setf <direction> (opposite-direction <direction>)))
+    [>>add-overlay :viewport #'do-box])
+  (when (zerop <bounce-clock>)
+    (progn 
+      (setf <direction> (opposite-direction <direction>))
+      (setf <bounce-clock> *yasichi-bounce-time*))))
 
 (define-method light-square yasichi (r c)
   (labels ((do-square (image)
