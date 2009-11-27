@@ -105,10 +105,12 @@
 		       [viewport-coordinates object]
 		     (draw-box x0 y0 16 16 :color ".cyan" :destination image)))))))
     [>>add-overlay :viewport #'do-box])
-  (when (zerop <bounce-clock>)
-    (progn 
-      (setf <direction> (opposite-direction <direction>))
-      (setf <bounce-clock> *yasichi-bounce-time*))))
+  (if (zerop <bounce-clock>)
+      (progn 
+	(setf <direction> (opposite-direction <direction>))
+	(setf <bounce-clock> *yasichi-bounce-time*))
+      ;; another collision too soon
+      (setf <direction> (random-direction))))
 
 (define-method light-square yasichi (r c)
   (labels ((do-square (image)
@@ -1418,10 +1420,10 @@ the player gets too close."))
     ;;   (let ((p (clone =particle=)))
     ;; 	[loadout p]
     ;; 	[add-sprite self p]))
-    (dotimes (n 4)
-      (let ((p (clone =yasichi=)))
-    	[loadout p]
-    	[add-sprite self p]))
+    ;; (dotimes (n 4)
+    ;;   (let ((p (clone =yasichi=)))
+    ;; 	[loadout p]
+    ;; 	[add-sprite self p]))
     ;;
     ;;
     (dotimes (n tracers)
