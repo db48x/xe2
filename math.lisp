@@ -66,6 +66,26 @@ So 2d6+2 would be (roll 2 6 2)."
   "Property list mapping direction keywords to their 180-degree
 opposites.")
 
+(defparameter *left-turn* 
+  '(:north :northwest
+    :northwest :west
+    :west :southwest
+    :southwest :south
+    :south :southeast
+    :southeast :east
+    :east :northeast
+    :northeast :north))
+
+(defparameter *right-turn*
+  '(:north :northeast
+    :northeast :east
+    :east :southeast
+    :southeast :south
+    :south :southwest
+    :southwest :west
+    :west :northwest
+    :northwest :north))
+
 (defun opposite-direction (direction)
   "Return the direction keyword that is the opposite direction from
 DIRECTION."

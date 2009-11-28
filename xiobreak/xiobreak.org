@@ -1,0 +1,2 @@
+** TODO Fix paddle squish and no border
+** TODO Fix collision physics
