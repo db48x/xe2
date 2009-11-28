@@ -420,19 +420,23 @@ unproxying. By default, it does nothing."
 	(step-in-direction <row> <column> direction)
       ;; 
       (cond ((null [cells-at world r c]) ;; are we at the edge?
+	     ;; return nil because we didn't move
+	     (prog1 nil
 	     ;; edge conditions only affect player for now
-	     (when [is-player self]
-	       (ecase (field-value :edge-condition world)
-		 (:block [say self "You cannot move in that direction."])
-		 (:wrap nil) ;; TODO implement this for planet maps
-		 (:exit [exit *active-universe*]))))
+	       (when [is-player self]
+		 (ecase (field-value :edge-condition world)
+		   (:block [say self "You cannot move in that direction."])
+		   (:wrap nil) ;; TODO implement this for planet maps
+		   (:exit [exit *active-universe*])))))
 	    (t
 	     (when (or ignore-obstacles 
 		       (not [obstacle-at-p *active-world* r c]))
-	       [expend-action-points self [stat-value self :movement-cost]]
-	       [move-cell world self r c]
-	       (when <stepping>
-		 [step-on-current-square self])))))))
+	       ;; return t because we moved
+	       (prog1 t
+		 [expend-action-points self [stat-value self :movement-cost]]
+		 [move-cell world self r c]
+		 (when <stepping>
+		   [step-on-current-square self]))))))))
 
 (define-method set-location cell (r c)
   (setf <row> r <column> c))

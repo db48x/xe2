@@ -53,6 +53,7 @@
 (defparameter *colors* '(:purple :red :blue :orange :green :yellow :white))
 
 (defparameter *color-schemes* '((:purple :green :blue)
+				(:yellow :purple :blue)
 				(:red :yellow :orange)))
 
 ;;; Floor tiles
@@ -235,7 +236,6 @@
 	[drop self ball]
 	[serve ball direction])
       [play-sound self "error"]))
-
  
 (define-method move paddle (direction &optional slave)
   (assert (member direction '(:east :west)))
