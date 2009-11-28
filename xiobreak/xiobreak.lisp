@@ -156,8 +156,16 @@
   (name :initform "Brick")
   (tile :initform "brick-purple")
   (orientation :initform :horizontal)
-  (categories :initform '(:exclusive :obstacle :brick :horizontal :oriented))
+  (categories :initform '(:exclusive :actor :obstacle :brick :horizontal :oriented))
   (color :initform :purple))
+
+(define-method run brick ()
+  (clon:with-field-values (row column) self
+    (multiple-value-bind (r0 c0) (step-in-direction row column :east)
+      (multiple-value-bind (r1 c1) (step-in-direction row column :west)
+	(unless (and [category-at-p *active-world* r0 c0 :brick]
+		     [category-at-p *active-world* r0 c0 :brick])
+	  (setf <orientation> :vertical))))))
 
 (define-method paint brick (c)
   (setf <color> c)
@@ -200,9 +208,8 @@
     [destroy *active-universe*]
     [set-player *active-universe* player]
     [play *active-universe*
-	  :address (=room)]
-    [loadout player]
-    [play-sample self "go"]))
+	  :address '(=room=)]
+    [loadout player]))
 
 (define-method quit paddle ()
   (rlx:quit :shutdown))
