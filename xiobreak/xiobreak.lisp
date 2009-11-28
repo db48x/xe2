@@ -48,6 +48,10 @@
 
 (defvar *bricks* 0)
 
+;;; Which way the player is going
+
+(defvar *english* :left)
+
 ;;; Colors
 
 (defparameter *colors* '(:purple :red :blue :orange :green :yellow :white))
@@ -110,19 +114,26 @@
   "Choose a new direction based on colliding with the object at DIRECTION."
   [expend-action-points self 1]
   [play-sample self "bip"]
-  (when object
-    (unless (eq object self)
-      (when [in-category object :brick]
-	[hit object])
-      (setf <direction>
-	    (if (has-field :orientation object)
-		(let ((rule (ecase (field-value :orientation object)
-			      (:horizontal *horizontal-collision*)
-			      (:vertical *vertical-collision*))))
-		  (getf rule <direction>))
-		(random-direction)))
-      (multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction> 7)
-	[update-position self x y]))))
+  (block colliding
+    (when object
+      (unless (eq object self)
+	(when [in-category object :brick]
+	  [hit object])
+	(setf <direction>
+	      (if [in-category object :pit]
+		  (progn [die self] (return-from colliding))
+		  (if [in-category object :paddle]
+		      (ecase *english* 
+			(:west :northwest)
+			(:east :northeast))
+		      (if (has-field :orientation object)
+			  (let ((rule (ecase (field-value :orientation object)
+					(:horizontal *horizontal-collision*)
+					(:vertical *vertical-collision*))))
+			    (getf rule <direction>))
+			  (random-direction)))))
+	(multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction> 7)
+	  [update-position self x y])))))
 
 
 (define-method run ball ()
@@ -240,6 +251,7 @@
  
 (define-method move paddle (direction &optional slave)
   (assert (member direction '(:east :west)))
+  (setf *english* direction)
   (if slave
       [parent>>move self direction :ignore-obstacles]
       (progn [parent>>move self direction :ignore-obstacles]

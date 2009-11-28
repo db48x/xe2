@@ -841,6 +841,9 @@ slot."
   (when <image>
     [update-image self <image>]))
 
+(define-method die sprite ()
+  [remove-sprite *active-world* self])
+
 (define-method update-image sprite (image)
   (setf <image> image)
   [update-dimensions self])

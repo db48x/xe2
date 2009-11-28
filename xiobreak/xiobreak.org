@@ -1,2 +1,4 @@
-** TODO Fix paddle squish and no border
-** TODO Fix physics
+** TODO Allow "english"
+** TODO gameplay twist(s)
+** TODO Fix paddle squish 
+
