@@ -684,16 +684,16 @@ in a roguelike until the user has pressed a key."
 	    (let ((i0 (+ i top))
 		  (j0 (+ j left)))
 	      (when (array-in-bounds-p grid i0 j0)
-		(do-cells (cell (aref grid i0 j0))
-		  (when [collide-* sprite 
-				   (* i0 tile-size) 
-				   (* j0 tile-size)
-				   tile-size tile-size]
-		    ;; save this intersection information
-		    (vector-push-extend sprite (aref sprite-grid i0 j0))
-		    (when (and (member :obstacle (field-value :categories cell))
+		(when [collide-* sprite 
+				 (* i0 tile-size) 
+				 (* j0 tile-size)
+				 tile-size tile-size]
+		  ;; save this intersection information
+		  (vector-push-extend sprite (aref sprite-grid i0 j0))
+		  (do-cells (cell (aref grid i0 j0))
+		    (when (and [in-category cell :obstacle]
 			       [is-located cell])
-		      [do-collision sprite cell])))))))
+		      [do-collision sprite cell]))))))))
 	;; now find collisions with other sprites
 	;; we can re-use the sprite-grid data from earlier.
 	(let (collision)
@@ -702,7 +702,7 @@ in a roguelike until the user has pressed a key."
 	    (setf collision (aref sprite-grid i j))
 	    (when (< 1 (length collision))
 	      (when [collide (aref collision 0) (aref collision 1)]
-		[do-collision (aref collision 0) (aref collision 1)]))))))))
+		[do-collision (aref collision 0) (aref collision 1)])))))))
     (when sprites 
       [clear-sprite-grid self])))
 				

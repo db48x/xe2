@@ -434,6 +434,9 @@ unproxying. By default, it does nothing."
 	       (when <stepping>
 		 [step-on-current-square self])))))))
 
+(define-method set-location cell (r c)
+  (setf <row> r <column> c))
+
 (define-method step-on-current-square cell ()
   (when <stepping>
     (do-cells (cell [cells-at *active-world* <row> <column>])

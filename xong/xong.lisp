@@ -1317,7 +1317,9 @@ the player gets too close."))
 	     (drop-wall (r c)
 	       (unless (and (= r 0)
 			    (= c 0))
-		 [replace-cells-at self r c (clone material)])))
+		 (let ((wall (clone =bulkhead=)))
+		   [replace-cells-at self r c wall]
+		   [set-location wall r c]))))
       (trace-rectangle #'collect-point row column height width)
       ;; make sure there are openings
       (dotimes (i 6)
