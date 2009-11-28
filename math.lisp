@@ -95,18 +95,18 @@ DIRECTION."
   (nth (random (length *compass-directions*))
        *compass-directions*))
 
-(defun step-in-direction (row column direction)
-  "Return the point ROW, COLUMN moved by one square in DIRECTION."
+(defun step-in-direction (row column direction &optional (n 1))
+  "Return the point ROW, COLUMN moved by n squares in DIRECTION."
   (ecase direction
     (:here (values row column))
-    (:north (values (- row 1) column))
-    (:south (values (+ row 1) column))
-    (:east  (values row (+ column 1)))
-    (:west  (values row (- column 1)))
-    (:northeast (values (- row 1) (+ column 1)))
-    (:northwest (values (- row 1) (- column 1)))
-    (:southeast (values (+ row 1) (+ column 1)))
-    (:southwest (values (+ row 1) (- column 1)))))
+    (:north (values (- row n) column))
+    (:south (values (+ row n) column))
+    (:east  (values row (+ column n)))
+    (:west  (values row (- column n)))
+    (:northeast (values (- row n) (+ column n)))
+    (:northwest (values (- row n) (- column n)))
+    (:southeast (values (+ row n) (+ column n)))
+    (:southwest (values (+ row n) (- column n)))))
 
 (defun direction-to (r1 c1 r2 c2)
   "Return general direction of the ray from R1,C1 to R2,C2."

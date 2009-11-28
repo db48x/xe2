@@ -80,17 +80,19 @@
 
 ;;; The bouncing ball
 
-(defcell ball 
-  (tile :initform "ball")
+(defparameter *ball-bounce-time* 12)
+
+(defsprite ball 
+  (image :initform "ball")
   (speed :initform (make-stat :base 5))
-  (movement-cost :initform (make-stat :base 10))
+  (bounce-clock :initform 0)
+  (movement-cost :initform (make-stat :base 1))
   (categories :initform '(:actor))
   (direction :initform :north))
 
 (define-method serve ball (direction)
   [play-sample self "serve"]
-  (setf <direction> direction)
-  [move self direction])
+  (setf <direction> direction))
 
 (defparameter *vertical-collision*
   '(:northeast :northwest
@@ -104,44 +106,29 @@
     :southwest :northwest
     :northwest :southwest))
 
-(define-method rebound ball (direction)
+(define-method do-collision ball (object)
   "Choose a new direction based on colliding with the object at DIRECTION."
-  [expend-action-points self 10]
-  (multiple-value-bind (r c)
-      (step-in-direction <row> <column> direction)
-    (message "REBOUNDING ~S" (list r c))
-    (assert [obstacle-at-p *active-world* r c])
-    (let ((rule 
-	   (ecase (field-value :orientation [category-at-p *active-world* r c :oriented])
-	     (:horizontal *horizontal-collision*)
-	     (:vertical *vertical-collision*))))
-      (getf rule direction))))
-	    
-(define-method run ball ()
-  (block running
-    (let (hit)
-      (clon:with-fields (direction row column) self
-	(multiple-value-bind (r c) (rlx:step-in-direction row column direction)
-	  (message "RUNNING ~S" (list r c))
-	  (if [obstacle-at-p *active-world* r c]
-	      (progn 
-		;; is it a wall or character? then hit it
-		(let ((brick [category-at-p *active-world* r c :brick]))
-		  (when brick
-		    (setf hit t))
-		  ;; did we lose a ball?
-		  (let ((pit [category-at-p *active-world* r c :pit]))
-		    (when pit 
-		      [die self]
-		      (return-from running)))
-		  ;; bounce
-		  [play-sample self "bip"]
-		  (setf direction [rebound self direction])
-		  [move self direction]
-		  (when hit [hit brick])))
-	      ;; move
-	      [move self direction]))))))
+  [expend-action-points self 1]
+  [play-sample self "bip"]
+  (when object
+    (unless (eq object self)
+      (when [in-category object :brick]
+	[hit object])
+      (setf <direction>
+	    (if (has-field :orientation object)
+		(let ((rule (ecase (field-value :orientation object)
+			      (:horizontal *horizontal-collision*)
+			      (:vertical *vertical-collision*))))
+		  (getf rule <direction>))
+		(random-direction))))))
 
+(define-method run ball ()
+  (if (zerop <bounce-clock>)
+      (progn [expend-action-points self 2]
+	     (multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction> 7)
+	       [update-position self x y]))
+      (setf <bounce-clock> (max 0 (1- <bounce-clock>)))))
+ 
 ;;; Bust these bricks
 
 (defvar *brick-tiles* '(:purple "brick-purple"
@@ -165,7 +152,7 @@
     (multiple-value-bind (r0 c0) (step-in-direction row column :east)
       (multiple-value-bind (r1 c1) (step-in-direction row column :west)
 	(unless (and [category-at-p *active-world* r0 c0 :brick]
-		     [category-at-p *active-world* r0 c0 :brick])
+		     [category-at-p *active-world* r1 c1 :brick])
 	  (setf <orientation> :vertical))))))
 
 (define-method paint brick (c)
@@ -187,6 +174,8 @@
 
 ;;; The paddle
 
+(defparameter *serve-key-delay* 6)
+
 (defcell paddle 
   (tile :initform "player")
   (next-piece :initform nil)
@@ -194,6 +183,7 @@
   (orientation :initform :horizontal)
   (initialized :initform nil)
   (name :initform "paddle")
+  (serve-key-clock :initform 0)
   (lives :initform (make-stat :base 5))
   (score :initform (make-stat :base 0 :min 0))
   (speed :initform (make-stat :base 10 :min 0 :max 10))
@@ -215,10 +205,10 @@
 (define-method quit paddle ()
   (rlx:quit :shutdown))
 
-;; (define-method run paddle ()
-;;   (unless <initialized>
-;;     [loadout self]
-;;     (setf <initialized> t)))
+(define-method run paddle ()
+  (when (plusp <serve-key-clock>)
+    (decf <serve-key-clock>))
+  (setf <initialized> t))
 
 (define-method lose-life paddle ()
   [stat-effect self :lives -1])
@@ -231,11 +221,15 @@
   (message "created paddle"))
 
 (define-method serve-ball paddle (direction)
-  (if (plusp [stat-value self :lives])
-      (let ((ball (clone =ball=)))
-	[drop self ball]
-	[serve ball direction])
-      [play-sound self "error"]))
+  (if (zerop <serve-key-clock>)
+      (if (plusp [stat-value self :lives])
+	  (let ((ball (clone =ball=)))
+	    (setf <serve-key-clock> *serve-key-delay*)
+	    (multiple-value-bind (x y) [viewport-coordinates self]
+	      [drop-sprite self ball :x (+ x 30) :y (- y 20)]
+	      [serve ball direction]))
+	  [play-sound self "error"])
+      (setf <serve-key-clock> (max 0 (- <serve-key-clock> 1)))))
  
 (define-method move paddle (direction &optional slave)
   (assert (member direction '(:east :west)))
@@ -320,7 +314,7 @@
 (define-prototype room-prompt (:parent rlx:=prompt=))
 
 (defparameter *numpad-keybindings* 
-  '(("KP4" nil "move :west .")
+  '(("KP4" nil "mov :west .")
     ("KP6" nil "move :east .")
     ;;
     ("KP7" (:control) "serve-ball :northwest .")
@@ -358,7 +352,7 @@
 
 (defun init-xiobreak ()
   (rlx:message "Initializing Xiobreak...")
-  (setf clon:*send-parent-depth* 2) ;; i'll fix this
+  (clon:initialize)
   (rlx:set-screen-height *room-window-height*)
   (rlx:set-screen-width *room-window-width*)
   (let* ((prompt (clone =room-prompt=))

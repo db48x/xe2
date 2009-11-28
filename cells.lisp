@@ -450,6 +450,13 @@ unproxying. By default, it does nothing."
 (define-method drop cell (cell)
   [drop-cell *active-world* cell <row> <column>])
 
+(define-method drop-sprite cell (sprite &optional &key x y)
+  (when (numberp x)
+    (setf (field-value :x sprite) x))
+  (when (numberp y)
+    (setf (field-value :y sprite) y))
+  [add-sprite *active-world* sprite])
+
 (define-method step cell (stepper)
   (declare (ignore stepper)))
 
