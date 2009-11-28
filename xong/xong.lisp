@@ -684,7 +684,7 @@ reach new areas and items. The puck also picks up the color.")
 			      (let ((circles (1+ (truncate (/ shield-clock 5))))
 				    (radius 16))
 				(dotimes (n circles)
-				  (draw-circle x y radius :color ".cyan" :destination image)
+				  (draw-circle (+ x 8) (+ y 8) radius :color ".cyan" :destination image)
 				  (incf radius 2)))))))
 	  [play-sample self "shield-sound"]
 	  [>>add-overlay :viewport #'draw-shield]))))

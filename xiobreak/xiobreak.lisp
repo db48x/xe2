@@ -120,14 +120,21 @@
 			      (:horizontal *horizontal-collision*)
 			      (:vertical *vertical-collision*))))
 		  (getf rule <direction>))
-		(random-direction))))))
+		(random-direction)))
+      (multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction> 7)
+	[update-position self x y]))))
+
 
 (define-method run ball ()
   (if (zerop <bounce-clock>)
       (progn [expend-action-points self 2]
 	     (multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction> 7)
 	       [update-position self x y]))
-      (setf <bounce-clock> (max 0 (1- <bounce-clock>)))))
+      (progn 
+	(setf <bounce-clock> (max 0 (1- <bounce-clock>)))
+	(multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction> 7)
+	  [update-position self x y]))))
+
  
 ;;; Bust these bricks
 

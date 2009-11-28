@@ -672,7 +672,7 @@ in a roguelike until the user has pressed a key."
 	     (bottom (1+ (floor (/ (+ y (field-value :height sprite)) tile-size)))))
       ;; find the first world collision for each sprite
       (block colliding
-	;; ;; light all the squares we need to scan
+	;; light all the squares we need to scan
 	;; (dotimes (i (max 0 (- bottom top)))
 	;;   (dotimes (j (max 0 (- right left)))
 	;;     (let ((i0 (+ i top))
@@ -697,15 +697,18 @@ in a roguelike until the user has pressed a key."
 	;; now find collisions with other sprites
 	;; we can re-use the sprite-grid data from earlier.
 	(let (collision)
-	(dotimes (i height)
-	  (dotimes (j width)
-	    (setf collision (aref sprite-grid i j))
-	    (when (< 1 (length collision))
-	      (when [collide (aref collision 0) (aref collision 1)]
-		[do-collision (aref collision 0) (aref collision 1)])))))))
+	  (dotimes (i height)
+	    (dotimes (j width)
+	      (setf collision (aref sprite-grid i j))
+	      (when (< 1 (length collision))
+		(let ((a (aref collision 0))
+		      (b (aref collision 1)))
+		  (unless (eq a b)
+		    (when [collide a b]
+		      [do-collision (aref collision 0) (aref collision 1)])))))))))
     (when sprites 
       [clear-sprite-grid self])))
-				
+    
 ;;; Universes are composed of connected worlds.
 
 (defvar *active-universe* nil)

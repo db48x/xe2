@@ -846,13 +846,16 @@ slot."
   [update-dimensions self])
 
 (define-method update-position sprite (x y &optional ignore-obstacles)
-  (with-field-values (grid tile-size) *active-world*
-    (if (array-in-bounds-p grid
-			   (truncate (/ x tile-size))
-			   (truncate (/ y tile-size)))
-	(setf <x> x
-	      <y> y)
-	[do-collision self nil])))
+  (with-field-values (grid tile-size width height) *active-world*
+    (let ((world-height (* tile-size height))
+	  (world-width (* tile-size width)))
+      (if (and (plusp x)
+	       (plusp y)
+	       (< x world-width)
+	       (< y world-height))
+	  (setf <x> x
+		<y> y)
+	  [do-collision self nil]))))
 
 (define-method collide sprite (sprite)
   (let ((x0 (field-value :x sprite))
