@@ -1,4 +1,4 @@
-** TODO Allow "english"
-** TODO gameplay twist(s)
+** TODO Document "english"
 ** TODO Fix paddle squish 
+** TODO laser fires across screen horizontally between two guns , controlled with up/down and C to fire
 

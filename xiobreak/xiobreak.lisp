@@ -228,7 +228,9 @@
 
 ;;; The paddle
 
-(defparameter *serve-key-delay* 6)
+(defparameter *serve-key-delay* 7)
+
+(defparameter *paddle-size* 5)
 
 (defcell paddle 
   (tile :initform "player")
@@ -287,20 +289,24 @@
       (setf <serve-key-clock> (max 0 (- <serve-key-clock> 1)))))
  
 (define-method move paddle (direction &optional slave)
-  (assert (member direction '(:east :west)))
-  (setf *english* direction)
   (if slave
       [parent>>move self direction :ignore-obstacles]
-      (progn [parent>>move self direction :ignore-obstacles]
-	     (when [obstructed self direction]
-	       (let ((piece <next-piece>))
-		 (loop do (when piece [>>move piece direction t])
-			  (setf piece (clon:field-value :next-piece piece))
-		       while piece))))))
-  
+      (clon:with-field-values (width player) *active-world*
+	(if (ecase direction
+	      (:west (< 1 <column>))
+	      (:east (< <column> (- width *paddle-size* 2))))
+	    (progn (setf *english* direction)
+		   [parent>>move self direction :ignore-obstacles]
+		   (let ((piece <next-piece>))
+		     (loop do (when piece [>>move piece direction t])
+			      (setf piece (clon:field-value :next-piece piece))
+			   while piece)))
+	    [play-sample self "bip"]))))
+
+
 (define-method loadout paddle ()
   (let ((last-piece self))
-    (dotimes (n 4)
+    (dotimes (n *paddle-size*)
       (let ((piece (clone =paddle=)))
 	[drop-cell *active-world* piece <row> (+ n 1 <column>)]
 	[attach last-piece piece]
@@ -347,7 +353,6 @@
 	       [drop-cell self brick r c])))
     (rlx:trace-row #'drop-brick row x0 x1)))
 
-
 (defparameter *classic-layout-horz-margin* 0)
 
 (defparameter *classic-layout-top-margin* 4)
@@ -372,7 +377,7 @@
   [drop-floor self]
   [drop-border self]
   [drop-classic-layout self]
-  [drop-cell self (clone =drop-point=) 25 5])
+  [drop-cell self (clone =drop-point=) 32 5])
 
 (define-method begin-ambient-loop room ()
   (play-music "rappy" :loop t))
