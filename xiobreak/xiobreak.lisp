@@ -39,6 +39,10 @@
 	      (rlx:set-timer-interval 1)
 	      (rlx:enable-held-keys 1 1)))
 
+(defparameter *xiobreak-window-width* 800)
+(defparameter *xiobreak-window-height* 600)
+(defparameter *tile-size* 16)
+
 ;;; Scoring points
 
 (defun score (points)
@@ -56,8 +60,10 @@
 
 (defparameter *colors* '(:purple :red :blue :orange :green :yellow :white))
 
-(defparameter *color-schemes* '((:purple :green :blue)
+(defparameter *color-schemes* '((:red :purple :blue)
 				(:yellow :purple :blue)
+				(:white :red :orange)
+				(:green :yellow :white)
 				(:red :yellow :orange)))
 
 ;;; Floor tiles
@@ -88,7 +94,7 @@
 
 (defsprite ball 
   (image :initform "ball")
-  (speed :initform (make-stat :base 5))
+  (speed :initform (make-stat :base 10))
   (bounce-clock :initform 0)
   (movement-cost :initform (make-stat :base 1))
   (categories :initform '(:actor))
@@ -135,7 +141,6 @@
 	(multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction> 7)
 	  [update-position self x y])))))
 
-
 (define-method run ball ()
   (if (zerop <bounce-clock>)
       (progn [expend-action-points self 2]
@@ -146,7 +151,36 @@
 	(multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction> 7)
 	  [update-position self x y]))))
 
- 
+;;; Plasma
+
+(defparameter *plasma-tiles* '("rezblur5"
+			 "rezblur4"
+			 "rezblur3"
+			 "rezblur2"
+			 "rezblur1"))
+
+(defparameter *plasma-samples* '("zap1" "zap2" "zap3"))
+
+(defcell plasma
+  (tile :initform "rezblur1")
+  (speed :initform (make-stat :base 10))
+  (movement-cost :initform (make-stat :base 10))
+  (clock :initform 5)
+  (categories :initform '(:actor :paint-source :plasma))
+  (description :initform "Spreading toxic paint gas. Avoid at all costs!"))
+
+(define-method set-clock plasma (clock)
+  (setf <clock> clock))
+
+(define-method run plasma ()
+  (decf <clock>)
+  (if (> 0 <clock>)
+      [die self]
+      (let ((dir (random-direction)))
+	(setf <tile> (nth <clock> *plasma-tiles*))
+	[play-sample self (car (one-of *plasma-samples*))]
+	[move self dir])))
+
 ;;; Bust these bricks
 
 (defvar *brick-tiles* '(:purple "brick-purple"
@@ -188,6 +222,8 @@
 (define-method die brick ()
   (score 100)
   (decf *bricks*)
+  (dotimes (n (+ 5 (random 10)))
+    [drop self (clone =plasma=)])
   [parent>>die self])
 
 ;;; The paddle
@@ -198,6 +234,7 @@
   (tile :initform "player")
   (next-piece :initform nil)
   (previous-piece :initform nil)
+  (hearing-range :initform 1000)
   (orientation :initform :horizontal)
   (initialized :initform nil)
   (name :initform "paddle")
@@ -275,8 +312,8 @@
   (categories :initform '(:player-entry-point))
   (tile :initform "floor"))
 
-(defparameter *room-height* 29)
-(defparameter *room-width* 40)
+(defparameter *room-height* (truncate (/ *xiobreak-window-height* *tile-size*)))
+(defparameter *room-width* (truncate (/ *xiobreak-window-width* *tile-size*)))
 
 (define-prototype room (:parent rlx:=world=)
   (height :initform *room-height*)
@@ -303,12 +340,29 @@
       (dotimes (j width)
 	[drop-cell self (clone =floor=) i j]))))
 
-(define-method drop-bricks room (row x0 x1 color)
+(define-method drop-brick-row room (row x0 x1 color)
   (labels ((drop-brick (r c)
 	     (let ((brick (clone =brick=)))
 	       [paint brick color]
 	       [drop-cell self brick r c])))
     (rlx:trace-row #'drop-brick row x0 x1)))
+
+
+(defparameter *classic-layout-horz-margin* 0)
+
+(defparameter *classic-layout-top-margin* 4)
+
+(defparameter *classic-layout-layers* 2)
+
+(define-method drop-classic-layout room ()
+  (let ((left *classic-layout-horz-margin*)
+	(right (- <width> 2 *classic-layout-horz-margin*))
+	(row (+ 1 *classic-layout-top-margin*))
+	(scheme (car (one-of *color-schemes*))))
+    (dotimes (n *classic-layout-layers*)
+      (dolist (color scheme)
+	[drop-brick-row self row left right color]
+	(incf row)))))
 
 (define-method generate room (&key (height *room-height*)
 				   (width *room-width*))
@@ -317,16 +371,11 @@
   [create-default-grid self]
   [drop-floor self]
   [drop-border self]
-  (let ((scheme (car (one-of *color-schemes*))))
-    (let ((row 3))
-      (dotimes (n 3)
-	(dolist (color scheme)
-	  [drop-bricks self row 5 35 color]
-	  (incf row)))))
+  [drop-classic-layout self]
   [drop-cell self (clone =drop-point=) 25 5])
 
-;; (define-method begin-ambient-loop room ()
-;;   (play-music "frantix" :loop t))
+(define-method begin-ambient-loop room ()
+  (play-music "rappy" :loop t))
 
 ;;; Controlling the game
 
@@ -364,16 +413,11 @@
 
 ;;; Main program. 
 
-(defparameter *room-window-width* 800)
-(defparameter *room-window-height* 600)
-
-(defparameter *tile-size* 16)
-
 (defun init-xiobreak ()
   (rlx:message "Initializing Xiobreak...")
   (clon:initialize)
-  (rlx:set-screen-height *room-window-height*)
-  (rlx:set-screen-width *room-window-width*)
+  (rlx:set-screen-height *xiobreak-window-height*)
+  (rlx:set-screen-width *xiobreak-window-width*)
   (let* ((prompt (clone =room-prompt=))
 	 (universe (clone =universe=))
 	 (narrator (clone =narrator=))
@@ -385,8 +429,8 @@
     [hide prompt]
     [install-keybindings prompt]
     ;;
-    [resize narrator :height 80 :width *room-window-width*]
-    [move narrator :x 0 :y (- *room-window-height* 80)]
+    [resize narrator :height 80 :width *xiobreak-window-width*]
+    [move narrator :x 0 :y (- *xiobreak-window-height* 80)]
     [set-verbosity narrator 0]
     ;;
     [play universe
@@ -397,11 +441,11 @@
 	  :viewport viewport]
     [loadout player]
     [set-tile-size viewport *tile-size*]
-    [resize viewport :height 470 :width *room-window-width*]
+    [resize viewport :height 470 :width *xiobreak-window-width*]
     [move viewport :x 0 :y 0]
     [set-origin viewport :x 0 :y 0 
-		:height (truncate (/ (- *room-window-height* 130) *tile-size*))
-		:width (truncate (/ *room-window-width* *tile-size*))]
+		:height (truncate (/ *xiobreak-window-height* *tile-size*))
+		:width (truncate (/ *xiobreak-window-width* *tile-size*))]
     [adjust viewport] 
     (rlx:install-widgets prompt viewport)))
 

@@ -12,6 +12,11 @@
  (:name "rezblur2" :type :image :file "rezblur2.png")
  (:name "rezblur3" :type :image :file "rezblur3.png")
  (:name "rezblur4" :type :image :file "rezblur4.png")
+ (:name "rezblur5" :type :image :file "rezblur5.png")
+
+ (:name "zap1" :type :sample :file "zap1.wav" :properties (:volume 10))
+ (:name "zap2" :type :sample :file "zap2.wav" :properties (:volume 10))
+ (:name "zap3" :type :sample :file "zap3.wav" :properties (:volume 10))
 
  (:name "error" :type :sample :file "error.wav")
  (:name "player" :type :image :file "player.png")
@@ -20,7 +25,10 @@
  (:name "wall" :type :image :file "wall.png")
  (:name "splash" :type :image :file "xiobreak.png")
  (:name "ouch" :type :sample :file "ouch.wav" :properties (:volume 10))
+ (:name "plasma-tone" :type :sample :file "plasma-tone.wav" :properties (:volume 10))
  (:name "frantix" :type :music :file "frantix.ogg" :properties (:volume 20))
+ (:name "rappy" :type :music :file "rappy.ogg" :properties (:volume 20))
+ (:name "radiolarians" :type :music :file "radiolarians-xxx.ogg" :properties (:volume 30))
  (:name "bip" :type :sample :file "bip.wav" :properties (:volume 10))
  (:name "serve" :type :sample :file "serve.wav" :properties (:volume 10))
  (:name "help-message" :type :text :file "README")
