@@ -17,6 +17,10 @@
  (:name "zap1" :type :sample :file "zap1.wav" :properties (:volume 10))
  (:name "zap2" :type :sample :file "zap2.wav" :properties (:volume 10))
  (:name "zap3" :type :sample :file "zap3.wav" :properties (:volume 10))
+ (:name "zap4" :type :sample :file "zap4.wav" :properties (:volume 10))
+ (:name "zap5" :type :sample :file "zap5.wav" :properties (:volume 10))
+ (:name "zap6" :type :sample :file "zap6.wav" :properties (:volume 10))
+ (:name "zap7" :type :sample :file "zap7.wav" :properties (:volume 10))
 
  (:name "error" :type :sample :file "error.wav")
  (:name "player" :type :image :file "player.png")

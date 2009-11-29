@@ -161,11 +161,16 @@
 
 (defparameter *plasma-samples* '("zap1" "zap2" "zap3"))
 
+(defparameter *plasma-alt-samples* '("zap4" "zap5" "zap6" "zap7"))
+
+(defparameter *plasma-sample-schemes* (list *plasma-samples* *plasma-alt-samples*))
+
 (defcell plasma
   (tile :initform "rezblur1")
   (speed :initform (make-stat :base 10))
   (movement-cost :initform (make-stat :base 10))
   (clock :initform 5)
+  (samples :initform *plasma-samples*)
   (categories :initform '(:actor :paint-source :plasma))
   (description :initform "Spreading toxic paint gas. Avoid at all costs!"))
 
@@ -178,7 +183,7 @@
       [die self]
       (let ((dir (random-direction)))
 	(setf <tile> (nth <clock> *plasma-tiles*))
-	[play-sample self (car (one-of *plasma-samples*))]
+	[play-sample self (car (one-of <samples>))]
 	[move self dir])))
 
 ;;; Bust these bricks
@@ -223,7 +228,10 @@
   (score 100)
   (decf *bricks*)
   (dotimes (n (+ 5 (random 10)))
-    [drop self (clone =plasma=)])
+    [drop self (let ((plasma (clone =plasma=)))
+		 (prog1 plasma
+		   (setf (field-value :samples plasma)
+			 (car (one-of *plasma-sample-schemes*)))))])
   [parent>>die self])
 
 ;;; The paddle
@@ -292,6 +300,7 @@
   (if slave
       [parent>>move self direction :ignore-obstacles]
       (clon:with-field-values (width player) *active-world*
+	;; don't allow paddle off screen
 	(if (ecase direction
 	      (:west (< 1 <column>))
 	      (:east (< <column> (- width *paddle-size* 2))))

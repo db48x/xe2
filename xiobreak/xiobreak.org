@@ -2,3 +2,6 @@
 ** TODO Fix paddle squish 
 ** TODO laser fires across screen horizontally between two guns , controlled with up/down and C to fire
 
+(04:34:21 PM) David O'Toole: enemies
+(04:34:42 PM) David O'Toole: also, a city along the bottom that you must protect, like in Missile COmmand
+(04:35:30 PM) David O'Toole: a gun that fires horizontal beam between 2 guns on either side,
