@@ -320,15 +320,83 @@
   [drop self (clone =fuzz=)]
   [delete-from-world self])
 
+;;; Chi energy
+
+(defparameter *chi-tiles* '("chiblur5"
+			       "chiblur4"
+			       "chiblur3"
+			       "chiblur2"
+			       "chiblur1"))
+
+(defparameter *chi-samples* '("bass1" "bass3" "bass3" "bass3" "bass3" "bass3" "bass3"))
+
+(defparameter *chi-alt-samples* '("snare1" "snare2"))
+
+(defvar *beat* 0)
+
+(defparameter *beat-max* 80)
+
+(defparameter *snare-beats* '(19 59))
+
+(defparameter *bd-beats* '(0 19 39 59))
+
+(defparameter *bass-beats* '(0 59))
+
+(defun click-beat ()
+  (incf *beat*)
+  (when (>= *beat-max* *beat*)
+    (setf *beat* 0)))
+
+(defun do-beat (cell)
+  (when (member *beat* *snare-beats*)
+    [play-sample cell (car (one-of *chi-alt-samples*))])
+  (when (member *beat* *bd-beats*)
+    [play-sample cell "bd"])
+  (when (member *beat* *bass-beats*)
+    [play-sample cell (car (one-of *chi-samples*))]))
+
+(defparameter *chi-sample-schemes* (list *chi-samples* *chi-alt-samples*))
+
+(defcell chi
+  (tile :initform "chiblur1")
+  (speed :initform (make-stat :base 10))
+  (movement-cost :initform (make-stat :base 10))
+  (direction :initform (car (one-of '(:north :south :east :west))))
+  (clock :initform 10)
+  (samples :initform *chi-samples*)
+  (categories :initform '(:actor :paint-source :chi)))
+
+(define-method set-clock chi (clock)
+  (setf <direction> (random-direction))
+  (setf <clock> clock))
+
+(define-method run chi ()
+  (decf <clock>)
+  (if (> 0 <clock>)
+      [die self]
+      (progn (setf <tile> (nth (truncate (/ <clock> 2)) *chi-tiles*))
+	     (do-beat self)
+	     [move self <direction>])))
+
+(define-method die chi ()
+;;  [drop self (clone =fuzz=)]
+  [delete-from-world self])
+
 ;;; Level themes
 
 (defparameter *psi-theme* (list :stuff =psi=
 				:sample-schemes *psi-sample-schemes*
 				:music "next"))
 
+(defparameter *chi-theme* (list :stuff =chi=
+				:sample-schemes *chi-sample-schemes*
+				:music "buzzo"))
+
 (defparameter *plasma-theme* (list :stuff =plasma=
 				:sample-schemes *plasma-sample-schemes*
 				:music "rappy"))
+
+(defparameter *themes* (list *plasma-theme* *psi-theme* *chi-theme*))
 
 (defvar *theme* *plasma-theme*)
 
@@ -488,7 +556,7 @@
     (setf *alive* t)
     (setf *balls* 0)
     [destroy *active-universe*]
-    (setf *theme* (car (one-of (list *psi-theme* *plasma-theme*))))
+    (setf *theme* (car (one-of *themes*)))
     [set-player *active-universe* player]
     [set-character *status* player]
     [play *active-universe*
@@ -668,6 +736,7 @@
     (apply #'bind-key-to-prompt-insertion self k))
   ;; we also want to respond to timer events. this is how. 
   [define-key self nil '(:timer) (lambda ()
+				   (click-beat)
 				   [run-cpu-phase *active-world* :timer])])
 
 ;;; A status widget for score display
@@ -741,7 +810,7 @@
 	 (viewport (clone =viewport=)))
     (setf *alive* t)
     (setf *balls* 0)
-    (setf *theme* (car (one-of (list *psi-theme* *plasma-theme*))))
+    (setf *theme* (car (one-of (list *psi-theme* *chi-theme* *plasma-theme*))))
     ;;
     [resize prompt :height 20 :width 100]
     [move prompt :x 0 :y 0]

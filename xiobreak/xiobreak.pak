@@ -26,11 +26,23 @@
  (:name "psiblur4" :type :image :file "psiblur4.png")
  (:name "psiblur5" :type :image :file "psiblur5.png")
 
+ (:name "chiblur1" :type :image :file "chiblur1.png")
+ (:name "chiblur2" :type :image :file "chiblur2.png")
+ (:name "chiblur3" :type :image :file "chiblur3.png")
+ (:name "chiblur4" :type :image :file "chiblur4.png")
+ (:name "chiblur5" :type :image :file "chiblur5.png")
+
  (:name "psifuzz1" :type :image :file "psifuzz1.png")
  (:name "psifuzz2" :type :image :file "psifuzz2.png")
 
- (:name "bass1" :type :sample :file "bass1.wav" :properties (:volume 20))
- (:name "bass2" :type :sample :file "bass2.wav" :properties (:volume 20))
+ (:name "bass1" :type :sample :file "bass1.wav" :properties (:volume 13))
+ (:name "bass2" :type :sample :file "bass2.wav" :properties (:volume 13))
+ (:name "bass3" :type :sample :file "bass3.wav" :properties (:volume 4))
+
+ (:name "snare1" :type :sample :file "snare1.wav" :properties (:volume 20))
+ (:name "snare2" :type :sample :file "snare2.wav" :properties (:volume 20))
+
+ (:name "bd" :type :sample :file "bd.wav" :properties (:volume 20))
 
  (:name "zap1" :type :sample :file "zap1.wav" :properties (:volume 10))
  (:name "zap2" :type :sample :file "zap2.wav" :properties (:volume 10))
@@ -40,7 +52,6 @@
  (:name "zap6" :type :sample :file "zap6.wav" :properties (:volume 10))
  (:name "zap7" :type :sample :file "zap7.wav" :properties (:volume 10))
 
- 
 
  (:name "doom" :type :sample :file "doom.wav" :properties (:volume 30))
 
@@ -66,7 +77,8 @@
  (:name "nextpiano" :type :sample :file "nextpiano.wav" :properties (:volume 10))
  (:name "nextpiano2" :type :sample :file "nextpiano2.wav" :properties (:volume 5))
  (:name "rappy" :type :music :file "rappy.ogg" :properties (:volume 20))
- (:name "radiolarians" :type :music :file "radiolarians-xxx.ogg" :properties (:volume 30))
+ (:name "buzzo" :type :music :file "buzzo.ogg" :properties (:volume 40))
+ (:name "radiolarians" :type :music :file "radiolarians-xxx.ogg" :properties (:volume 60))
  (:name "bip" :type :sample :file "bip.wav" :properties (:volume 3))
  (:name "serve" :type :sample :file "serve.wav" :properties (:volume 10))
  (:name "help-message" :type :text :file "README")
