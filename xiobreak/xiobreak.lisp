@@ -36,7 +36,7 @@
 	  #'(lambda ()
 	      (rlx:enable-timer)
 	      (rlx:set-frame-rate 30)
-	      (rlx:set-timer-interval 1)
+	      (rlx:set-timer-interval 0)
 	      (rlx:enable-held-keys 1 1)))
 
 (defparameter *xiobreak-window-width* 800)
@@ -94,9 +94,9 @@
 
 (defsprite ball 
   (image :initform "ball")
-  (speed :initform (make-stat :base 10))
+  (speed :initform (make-stat :base 20))
   (bounce-clock :initform 0)
-  (movement-cost :initform (make-stat :base 1))
+  (movement-cost :initform (make-stat :base 10))
   (categories :initform '(:actor))
   (direction :initform :north))
 
@@ -138,6 +138,8 @@
 					(:vertical *vertical-collision*))))
 			    (getf rule <direction>))
 			  (random-direction)))))
+	(when (null <direction>)
+	  (setf <direction> (car (one-of '(:northeast :northwest :southeast :southwest)))))
 	(multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction> 7)
 	  [update-position self x y])))))
 
