@@ -149,7 +149,7 @@
   (speed :initform (make-stat :base 20))
   (bounce-clock :initform 0)
   (dead :initform nil)
-  (movement-distance :initform (make-stat :base 7))
+  (movement-distance :initform (make-stat :base 7 :min 0 :max 14))
   (movement-cost :initform (make-stat :base 10))
   (categories :initform '(:actor))
   (direction :initform :north))
