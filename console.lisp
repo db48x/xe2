@@ -51,6 +51,10 @@
 
 (defun genseq (&optional (x 0))
   (+ x (incf *sequence-number*)))
+
+;;; Mixer channels
+
+(defvar *channels* 64)
    
 ;;; Hooks
 
@@ -1144,7 +1148,9 @@ The default destination is the main window."
 			(when (null (sdl-mixer:open-audio :chunksize *audio-chunksize*))
 			  ;; if that didn't work, disable effects/music
 			  (message "Could not open audio driver. Disabling sound effects and music.")
-			  (setf *use-sound* nil)))
+			  (setf *use-sound* nil))
+			;; set to mix lots of sounds
+			(sdl-mixer:allocate-channels *channels*))
 		      (index-module "standard") 
 		      (load-module *next-module*)
 		      (run-main-loop)))

@@ -595,6 +595,12 @@ in a roguelike until the user has pressed a key."
       (replace square square :start1 start :start2 (1+ start))
       (decf (fill-pointer square)))))
 
+(define-method delete-category-at world (row column category)
+  (let* ((grid <grid>))
+    (setf (aref grid row column)
+	  (delete-if #'(lambda (c) [in-category c category])
+		     (aref grid row column)))))
+			       
 (define-method line-of-sight world (r1 c1 r2 c2 &optional (category :obstacle))
   (when (and (array-in-bounds-p <grid> r1 c1) 
 	     (array-in-bounds-p <grid> r2 c2))

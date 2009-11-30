@@ -60,28 +60,73 @@
 
 (defparameter *colors* '(:purple :red :blue :orange :green :yellow :white))
 
-(defparameter *color-schemes* '((:red :purple :blue)
+(defparameter *color-schemes* '((:yellow :orange :blue)
 				(:yellow :purple :blue)
-				(:white :red :orange)
-				(:green :yellow :white)
+				(:purple :red :orange)
+				(:green :yellow :purple)
 				(:red :yellow :orange)))
 
-;;; Floor tiles
+;;; The underlying floor
 
 (defcell floor 
   (tile :initform "floor"))
 
+;;; The dancefloor tiles
+
+(defparameter *light-tiles* '("floor"
+			      "rezlight5"
+			      "rezlight4"
+			      "rezlight3"
+			      "rezlight2"
+			      "rezlight1"))
+
+(defparameter *light-clock* 10)
+
+(defcell dancefloor 
+  (tile :initform nil)
+  (clock :initform *light-clock*)
+  (categories :initform '(:actor :dancefloor)))
+
+(define-method update-tile dancefloor ()
+  (when [is-located self]
+    (unless [category-at-p *active-world* <row> <column> '(:brick :wall)]
+      (setf <tile> (nth (truncate (/ <clock> 2)) *light-tiles*)))))
+
+(define-method light dancefloor (&optional (time *light-clock*))
+  (setf <clock> (max 0 time))
+  [update-tile self])
+
+(define-method light-toward dancefloor (direction)
+  (multiple-value-bind (r c) (step-in-direction <row> <column> direction)
+    (unless [category-at-p *active-world* r c :dancefloor]
+      (let ((dancefloor (clone =dancefloor=)))
+	[drop-cell *active-world* dancefloor r c]
+	[light dancefloor (max 0 (- <clock> 1))]))))
+      
+(define-method light-plus dancefloor ()
+  (dolist (dir '(:north :south :east :west))
+    [light-toward self dir]))
+		
+(define-method run dancefloor ()
+  (setf <clock> (max 0 (- <clock> 1)))
+  (if (plusp <clock>)
+      (progn
+	(when (< 2 <clock>)
+	  [light-plus self])
+	[update-tile self])
+      [die self]))
+  
 ;;; The wall around the gameworld
 
 (defcell wall-horizontal
   (tile :initform "wall")
   (orientation :initform :horizontal)
-  (categories :initform '(:obstacle :oriented)))
+  (categories :initform '(:obstacle :oriented :wall)))
 
 (defcell wall-vertical
   (tile :initform "wall")
   (orientation :initform :vertical)
-  (categories :initform '(:obstacle :oriented)))
+  (categories :initform '(:obstacle :oriented :wall)))
 
 (defcell pit
   (tile :initform "floor")
@@ -96,6 +141,7 @@
   (image :initform "ball")
   (speed :initform (make-stat :base 20))
   (bounce-clock :initform 0)
+  (movement-distance :initform (make-stat :base 7))
   (movement-cost :initform (make-stat :base 10))
   (categories :initform '(:actor))
   (direction :initform :north))
@@ -124,7 +170,7 @@
     (when object
       (unless (eq object self)
 	(when [in-category object :brick]
-	  [hit object])
+	  [hit object self])
 	(setf <direction>
 	      (if [in-category object :pit]
 		  (progn [die self] (return-from colliding))
@@ -140,26 +186,29 @@
 			  (random-direction)))))
 	(when (null <direction>)
 	  (setf <direction> (car (one-of '(:northeast :northwest :southeast :southwest)))))
-	(multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction> 7)
+	(multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction> 
+							  [stat-value self :movement-distance])
 	  [update-position self x y])))))
 
 (define-method run ball ()
   (if (zerop <bounce-clock>)
       (progn [expend-action-points self 2]
-	     (multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction> 7)
+	     (multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction> 
+							       [stat-value self :movement-distance])
 	       [update-position self x y]))
       (progn 
 	(setf <bounce-clock> (max 0 (1- <bounce-clock>)))
-	(multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction> 7)
+	(multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction> 
+							  [stat-value self :movement-distance])
 	  [update-position self x y]))))
 
 ;;; Plasma
 
 (defparameter *plasma-tiles* '("rezblur5"
-			 "rezblur4"
-			 "rezblur3"
-			 "rezblur2"
-			 "rezblur1"))
+			       "rezblur4"
+			       "rezblur3"
+			       "rezblur2"
+			       "rezblur1"))
 
 (defparameter *plasma-samples* '("zap1" "zap2" "zap3"))
 
@@ -223,18 +272,77 @@
 (define-method initialize brick ()
   (incf *bricks*))
 
-(define-method hit brick ()
-  [die self])
+(define-method hit brick (&optional ball)
+  (let ((floor (clone =dancefloor=)))
+    [drop self floor]
+    [light floor]
+    [die self]))
+
+(define-method splash brick (&optional (add 0))
+  (dotimes (n (+ add 5 (random 10)))
+    [drop self (let ((plasma (clone =plasma=)))
+		 (prog1 plasma
+		   (setf (field-value :samples plasma)
+			 (car (one-of *plasma-sample-schemes*)))))]))
 
 (define-method die brick ()
   (score 100)
   (decf *bricks*)
-  (dotimes (n (+ 5 (random 10)))
-    [drop self (let ((plasma (clone =plasma=)))
-		 (prog1 plasma
-		   (setf (field-value :samples plasma)
-			 (car (one-of *plasma-sample-schemes*)))))])
+  [splash self]
   [parent>>die self])
+
+;;; Makes the ball grow
+
+(define-prototype grow-brick (:parent =brick=)
+  (name :initform "Grow brick")
+  (tile :initform "grow")
+  (orientation :initform :horizontal))
+
+(define-method hit grow-brick (&optional ball)
+  (when ball
+    [update-image ball "big-ball"]
+    [die self]))
+
+(define-method die grow-brick ()
+  (score 1000)
+  [splash self]
+  [play-sample self "speedup"]
+  [delete-from-world self])
+
+;;; Explode to score points
+
+(define-prototype bomb-brick (:parent =brick=)
+  (name :initform "Grow brick")
+  (tile :initform "bomb")
+  (orientation :initform :horizontal))
+
+(define-method explode bomb-brick ()
+  [splash self]
+    (labels ((do-circle (image)
+	     (prog1 t
+	       (multiple-value-bind (x y) 
+		   [viewport-coordinates self]
+		 (let ((x0 (+ x 8))
+		       (y0 (+ y 8)))
+		 (draw-circle x0 y0 40 :destination image)
+		 (draw-circle x0 y0 35 :destination image))))))
+    [>>add-overlay :viewport #'do-circle])
+  (dolist (dir '(:north :south :east :west :northeast :southeast :northwest :southwest))
+    (multiple-value-bind (r c) (step-in-direction <row> <column> dir)
+      (let ((brick [category-at-p *active-world* r c :brick]))
+	(when brick [hit brick])))))
+
+(define-method hit bomb-brick (&optional ball)
+  (when ball
+    [explode self]
+    [die ball]
+    [die self]))
+
+(define-method die bomb-brick ()
+  (score 1000)
+  [splash self]
+  [play-sample self "explode"]
+  [delete-from-world self])
 
 ;;; The paddle
 
@@ -329,7 +437,7 @@
   (categories :initform '(:player-entry-point))
   (tile :initform "floor"))
 
-(defparameter *room-height* (truncate (/ *xiobreak-window-height* *tile-size*)))
+(defparameter *room-height* (truncate (/ (- *xiobreak-window-height* 20) *tile-size*)))
 (defparameter *room-width* (truncate (/ *xiobreak-window-width* *tile-size*)))
 
 (define-prototype room (:parent rlx:=world=)
@@ -370,10 +478,10 @@
 
 (defparameter *classic-layout-layers* 2)
 
-(define-method drop-classic-layout room ()
+(define-method drop-classic-layout room (&optional (row-delta 0))
   (let ((left *classic-layout-horz-margin*)
 	(right (- <width> 2 *classic-layout-horz-margin*))
-	(row (+ 1 *classic-layout-top-margin*))
+	(row (+ 1 row-delta *classic-layout-top-margin*))
 	(scheme (car (one-of *color-schemes*))))
     (dotimes (n *classic-layout-layers*)
       (dolist (color scheme)
@@ -381,13 +489,25 @@
 	(incf row)))))
 
 (define-method generate room (&key (height *room-height*)
-				   (width *room-width*))
+				   (width *room-width*)
+				   (grow-bricks 2)
+				   (bomb-bricks 12))
   (setf <height> height)
   (setf <width> width)
   [create-default-grid self]
   [drop-floor self]
   [drop-border self]
   [drop-classic-layout self]
+  (dotimes (n grow-bricks)
+    (let ((row (1+ (random 5)))
+	  (column (1+ (random (- width 1)))))
+      [delete-category-at self row column :brick]
+      [drop-cell self (clone =grow-brick=) row column]))
+  (dotimes (n bomb-bricks)
+    (let ((row (+ 6 (random 5)))
+	  (column (1+ (random (- width 1)))))
+      [delete-category-at self row column :brick]
+      [drop-cell self (clone =bomb-brick=) row column]))
   [drop-cell self (clone =drop-point=) 32 5])
 
 (define-method begin-ambient-loop room ()

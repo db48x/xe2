@@ -86,6 +86,7 @@
 	 (origin-x <origin-x>)
 	 (origin-y <origin-y>)
 	 (image <image>)
+	 (tile nil)
 	 (tile-size <tile-size>)
 	 objects cell)
     (with-field-values (grid light-grid environment-grid phase-number
@@ -107,9 +108,10 @@
 		  (dotimes (k (fill-pointer objects))
 		    (setf cell (aref objects k))
 		    (when (object-p cell)
-		      (draw-resource-image (field-value :tile cell)
-					   (* j tile-size) (* i tile-size)
-					   :destination image))))
+		      (setf tile (field-value :tile cell))
+		      (when tile (draw-resource-image tile
+						      (* j tile-size) (* i tile-size)
+						      :destination image)))))
 		;; not in bounds, or not lit; draw blackness
 		(draw-resource-image ".blackness" (* j tile-size) (* i tile-size)
 				     :destination image))))

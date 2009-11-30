@@ -14,6 +14,12 @@
  (:name "rezblur4" :type :image :file "rezblur4.png")
  (:name "rezblur5" :type :image :file "rezblur5.png")
 
+ (:name "rezlight1" :type :image :file "rezlight1.png")
+ (:name "rezlight2" :type :image :file "rezlight2.png")
+ (:name "rezlight3" :type :image :file "rezlight3.png")
+ (:name "rezlight4" :type :image :file "rezlight4.png")
+ (:name "rezlight5" :type :image :file "rezlight5.png")
+
  (:name "zap1" :type :sample :file "zap1.wav" :properties (:volume 10))
  (:name "zap2" :type :sample :file "zap2.wav" :properties (:volume 10))
  (:name "zap3" :type :sample :file "zap3.wav" :properties (:volume 10))
@@ -22,13 +28,22 @@
  (:name "zap6" :type :sample :file "zap6.wav" :properties (:volume 10))
  (:name "zap7" :type :sample :file "zap7.wav" :properties (:volume 10))
 
+ (:name "speedup" :type :sample :file "speedup.wav" :properties (:volume 30))
+
  (:name "error" :type :sample :file "error.wav")
  (:name "player" :type :image :file "player.png")
  (:name "floor" :type :image :file "floor.png")
+
+ (:name "grow" :type :image :file "grow.png")
  (:name "ball" :type :image :file "ball.png")
+ (:name "big-ball" :type :image :file "big-ball.png")
+ (:name "bomb" :type :image :file "bomb.png")
+ 
+
  (:name "wall" :type :image :file "wall.png")
  (:name "splash" :type :image :file "xiobreak.png")
  (:name "ouch" :type :sample :file "ouch.wav" :properties (:volume 10))
+ (:name "explode" :type :sample :file "explode.wav" :properties (:volume 49))
  (:name "plasma-tone" :type :sample :file "plasma-tone.wav" :properties (:volume 10))
  (:name "frantix" :type :music :file "frantix.ogg" :properties (:volume 20))
  (:name "rappy" :type :music :file "rappy.ogg" :properties (:volume 20))
