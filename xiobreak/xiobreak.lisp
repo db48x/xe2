@@ -449,7 +449,7 @@
 (define-method hit bomb-brick (&optional ball)
   (when ball
     [explode self]
-    [die ball]
+    [stat-effect ball :movement-distance 3]
     [die self]))
 
 (define-method die bomb-brick ()
