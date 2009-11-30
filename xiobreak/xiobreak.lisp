@@ -350,8 +350,8 @@
 (defun do-beat (cell)
   (when (member *beat* *snare-beats*)
     [play-sample cell (car (one-of *chi-alt-samples*))])
-  (when (member *beat* *bd-beats*)
-    [play-sample cell "bd"])
+  ;; (when (member *beat* *bd-beats*)
+  ;;   [play-sample cell "bd"])
   (when (member *beat* *bass-beats*)
     [play-sample cell (car (one-of *chi-samples*))]))
 
