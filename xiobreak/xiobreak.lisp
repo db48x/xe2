@@ -793,6 +793,7 @@
     (when char
 	[print self (format nil "   SCORE: ~S" [stat-value char :score])]
 	[print self (format nil "   BALLS: ~S" [stat-value char :balls])]
+	[print self "       ARROWS: MOVE PADDLE       Z/X: FIRE"]
 	[newline self])))
 
 ;;; Main program. 

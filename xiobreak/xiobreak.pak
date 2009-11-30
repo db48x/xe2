@@ -53,11 +53,11 @@
  (:name "zap7" :type :sample :file "zap7.wav" :properties (:volume 10))
 
 
- (:name "doom" :type :sample :file "doom.wav" :properties (:volume 30))
+ (:name "doom" :type :sample :file "doom.wav" :properties (:volume 40))
 
  (:name "speedup" :type :sample :file "speedup.wav" :properties (:volume 30))
 
- (:name "error" :type :sample :file "error.wav" :properties (:volume 9))
+ (:name "error" :type :sample :file "error.wav" :properties (:volume 3))
  (:name "player" :type :image :file "player.png")
  (:name "floor" :type :image :file "floor.png")
 
