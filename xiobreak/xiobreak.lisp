@@ -84,7 +84,7 @@
 			      "rezlight2"
 			      "rezlight1"))
 
-(defparameter *light-clock* 10)
+(defparameter *light-clock* 12)
 
 (defcell dancefloor 
   (tile :initform nil)
@@ -499,7 +499,6 @@
   (rlx:quit :shutdown))
 
 (define-method run paddle ()
-  (message "BALLS: ~S" *balls*)
   (setf <tile> (if *alive* "player" "floor"))
   [update *status*]
   (when (plusp <serve-key-clock>)
