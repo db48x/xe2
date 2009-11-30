@@ -1,9 +1,9 @@
-** TODO Document "english"
-** TODO Fix paddle squish 
 ** TODO laser fires across screen horizontally between two guns , controlled with up/down and C to fire
-** TODO ball and score display
-** TODO limit balls 
-** TODO extra ball powerup
+** TODO exploding puck powerup
+** TODO powerups that fall out of bricks
+** TODO powerups in better places
+** TODO speedup
+** TODO level gen
 ** TODO cities at bottom
 (04:34:21 PM) David O'Toole: enemies
 (04:34:42 PM) David O'Toole: also, a city along the bottom that you must protect, like in Missile COmmand

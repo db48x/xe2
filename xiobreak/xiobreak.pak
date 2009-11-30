@@ -29,6 +29,9 @@
  (:name "psifuzz1" :type :image :file "psifuzz1.png")
  (:name "psifuzz2" :type :image :file "psifuzz2.png")
 
+ (:name "bass1" :type :sample :file "bass1.wav" :properties (:volume 20))
+ (:name "bass2" :type :sample :file "bass2.wav" :properties (:volume 20))
+
  (:name "zap1" :type :sample :file "zap1.wav" :properties (:volume 10))
  (:name "zap2" :type :sample :file "zap2.wav" :properties (:volume 10))
  (:name "zap3" :type :sample :file "zap3.wav" :properties (:volume 10))
@@ -36,6 +39,8 @@
  (:name "zap5" :type :sample :file "zap5.wav" :properties (:volume 10))
  (:name "zap6" :type :sample :file "zap6.wav" :properties (:volume 10))
  (:name "zap7" :type :sample :file "zap7.wav" :properties (:volume 10))
+
+ 
 
  (:name "doom" :type :sample :file "doom.wav" :properties (:volume 30))
 
@@ -62,7 +67,7 @@
  (:name "nextpiano2" :type :sample :file "nextpiano2.wav" :properties (:volume 5))
  (:name "rappy" :type :music :file "rappy.ogg" :properties (:volume 20))
  (:name "radiolarians" :type :music :file "radiolarians-xxx.ogg" :properties (:volume 30))
- (:name "bip" :type :sample :file "bip.wav" :properties (:volume 10))
+ (:name "bip" :type :sample :file "bip.wav" :properties (:volume 3))
  (:name "serve" :type :sample :file "serve.wav" :properties (:volume 10))
  (:name "help-message" :type :text :file "README")
  (:name ".startup" :type :lisp :file "xiobreak.lisp" :properties (:autoload t))
