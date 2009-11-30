@@ -598,7 +598,8 @@ in a roguelike until the user has pressed a key."
 (define-method delete-category-at world (row column category)
   (let* ((grid <grid>))
     (setf (aref grid row column)
-	  (delete-if #'(lambda (c) [in-category c category])
+	  (delete-if #'(lambda (c) (when [in-category c category]
+				     (prog1 t [cancel c])))
 		     (aref grid row column)))))
 			       
 (define-method line-of-sight world (r1 c1 r2 c2 &optional (category :obstacle))
