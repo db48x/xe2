@@ -43,10 +43,14 @@
 (defparameter *xiobreak-window-height* 600)
 (defparameter *tile-size* 16)
 
+;;; Being alive
+
+(defvar *alive* t)
+
 ;;; Scoring points
 
 (defun score (points)
-  [score-points [get-player *active-world*] points])
+  [stat-effect [get-player *active-world*] :score points])
 
 ;;; Counting bricks
 
@@ -116,6 +120,7 @@
 	[update-tile self])
       [die self]))
   
+
 ;;; The wall around the gameworld
 
 (defcell wall-horizontal
@@ -137,10 +142,13 @@
 
 (defparameter *ball-bounce-time* 12)
 
+(defvar *balls* 0)
+
 (defsprite ball 
   (image :initform "ball")
   (speed :initform (make-stat :base 20))
   (bounce-clock :initform 0)
+  (dead :initform nil)
   (movement-distance :initform (make-stat :base 7))
   (movement-cost :initform (make-stat :base 10))
   (categories :initform '(:actor))
@@ -148,6 +156,7 @@
 
 (define-method serve ball (direction)
   [play-sample self "serve"]
+  (incf *balls*)
   (setf <direction> direction))
 
 (defparameter *vertical-collision*
@@ -201,6 +210,16 @@
 	(multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction> 
 							  [stat-value self :movement-distance])
 	  [update-position self x y]))))
+
+(define-method die ball ()
+  (unless <dead>
+    (setf <dead> t)
+    (decf *balls*)
+    (when (and (zerop [stat-value [get-player *active-world*] :balls])
+	       (zerop *balls*))
+      [play-sample self "doom"]
+      (setf *alive* nil))
+    [remove-sprite *active-world* self]))
 
 ;;; Plasma
 
@@ -387,6 +406,23 @@
   [play-sample self "speedup"]
   [delete-from-world self])
 
+;;; Extra ball
+
+(define-prototype extra-brick (:parent =brick=)
+  (name :initform "Extra brick")
+  (tile :initform "extra")
+  (orientation :initform :horizontal))
+
+(define-method hit extra-brick (&optional ball)
+  [die self])
+
+(define-method die extra-brick ()
+  (score 1000)
+  [splash self]
+  [stat-effect [get-player *active-world*] :balls 1]
+  [play-sample self "speedup"]
+  [delete-from-world self])
+
 ;;; Explode to score points
 
 (define-prototype bomb-brick (:parent =brick=)
@@ -437,7 +473,7 @@
   (initialized :initform nil)
   (name :initform "paddle")
   (serve-key-clock :initform 0)
-  (lives :initform (make-stat :base 5))
+  (balls :initform (make-stat :base 5))
   (score :initform (make-stat :base 0 :min 0))
   (speed :initform (make-stat :base 10 :min 0 :max 10))
   (movement-cost :initform (make-stat :base 10))
@@ -449,9 +485,12 @@
 
 (define-method restart paddle ()
   (let ((player (clone =paddle=)))
+    (setf *alive* t)
+    (setf *balls* 0)
     [destroy *active-universe*]
     (setf *theme* (car (one-of (list *psi-theme* *plasma-theme*))))
     [set-player *active-universe* player]
+    [set-character *status* player]
     [play *active-universe*
 	  :address '(=room=)]
     [loadout player]))
@@ -460,12 +499,12 @@
   (rlx:quit :shutdown))
 
 (define-method run paddle ()
+  (message "BALLS: ~S" *balls*)
+  (setf <tile> (if *alive* "player" "floor"))
+  [update *status*]
   (when (plusp <serve-key-clock>)
     (decf <serve-key-clock>))
   (setf <initialized> t))
-
-(define-method lose-life paddle ()
-  [stat-effect self :lives -1])
 
 (define-method attach paddle (piece)
   (setf <next-piece> piece)
@@ -476,13 +515,14 @@
 
 (define-method serve-ball paddle (direction)
   (if (zerop <serve-key-clock>)
-      (if (plusp [stat-value self :lives])
+      (if (plusp [stat-value self :balls])
 	  (let ((ball (clone =ball=)))
+	    [stat-effect self :balls -1]
 	    (setf <serve-key-clock> *serve-key-delay*)
 	    (multiple-value-bind (x y) [viewport-coordinates self]
 	      [drop-sprite self ball :x (+ x 30) :y (- y 20)]
 	      [serve ball direction]))
-	  [play-sound self "error"])
+	  [play-sample self "error"])
       (setf <serve-key-clock> (max 0 (- <serve-key-clock> 1)))))
  
 (define-method move paddle (direction &optional slave)
@@ -500,7 +540,6 @@
 			      (setf piece (clon:field-value :next-piece piece))
 			   while piece)))
 	    [play-sample self "bip"]))))
-
 
 (define-method loadout paddle ()
   (let ((last-piece self))
@@ -570,7 +609,8 @@
 (define-method generate room (&key (height *room-height*)
 				   (width *room-width*)
 				   (grow-bricks 2)
-				   (bomb-bricks 12))
+				   (bomb-bricks 12)
+				   (extra-bricks 4))
   (setf <height> height)
   (setf <width> width)
   [create-default-grid self]
@@ -582,6 +622,11 @@
 	  (column (1+ (random (- width 1)))))
       [delete-category-at self row column :brick]
       [drop-cell self (clone =grow-brick=) row column]))
+  (dotimes (n extra-bricks)
+    (let ((row (1+ (random 5)))
+	  (column (1+ (random (- width 1)))))
+      [delete-category-at self row column :brick]
+      [drop-cell self (clone =extra-brick=) row column]))
   (dotimes (n bomb-bricks)
     (let ((row (+ 6 (random 5)))
 	  (column (1+ (random (- width 1)))))
@@ -626,6 +671,62 @@
   [define-key self nil '(:timer) (lambda ()
 				   [run-cpu-phase *active-world* :timer])])
 
+;;; A status widget for score display
+
+(defvar *status*)
+
+(define-prototype status (:parent rlx:=formatter=)
+  (character :documentation "The character cell."))
+
+(define-method set-character status (character)
+  (setf <character> character))
+
+(define-method print-stat status (stat-name &key warn-below show-max)
+  (let* ((stat (field-value stat-name <character>))
+	 (value [stat-value <character> stat-name]))
+    (destructuring-bind (&key min max base delta unit) stat
+      (let ((color (if (and (numberp warn-below)
+			    (< value warn-below))
+		       ".red"
+		       ".gray40")))
+	[print self (symbol-name stat-name)
+	       :foreground ".white"]
+	[print self ":["]
+	[print self (format nil "~S" value) 
+	       :foreground ".yellow"
+	       :background color]
+	(when show-max
+	  [print self (format nil "/~S" max)
+		 :foreground ".yellow"
+		 :background color])
+	(when unit 
+	  [print self " "]
+	  [print self (symbol-name unit)])
+	[print self "]"]
+	))))
+
+(defparameter *status-bar-character* " ")
+
+(define-method print-stat-bar status (stat &key 
+					   (color ".yellow")
+					   (background-color ".gray40"))
+  (let ((value (truncate [stat-value <character> stat]))
+	(max (truncate [stat-value <character> stat :max])))
+    (dotimes (i max)
+      [print self *status-bar-character*
+	     :foreground ".yellow"
+	     :background (if (< i value)
+			     color
+			   background-color)])))
+
+(define-method update status ()
+  [delete-all-lines self]
+  (let* ((char <character>))
+    (when char
+	[print self (format nil "   SCORE: ~S" [stat-value char :score])]
+	[print self (format nil "   BALLS: ~S" [stat-value char :balls])]
+	[newline self])))
+
 ;;; Main program. 
 
 (defun init-xiobreak ()
@@ -636,14 +737,22 @@
   (let* ((prompt (clone =room-prompt=))
 	 (universe (clone =universe=))
 	 (narrator (clone =narrator=))
+	 (status (clone =status=))
 	 (player (clone =paddle=))
 	 (viewport (clone =viewport=)))
+    (setf *alive* t)
+    (setf *balls* 0)
     (setf *theme* (car (one-of (list *psi-theme* *plasma-theme*))))
     ;;
     [resize prompt :height 20 :width 100]
     [move prompt :x 0 :y 0]
     [hide prompt]
     [install-keybindings prompt]
+    ;;
+    (setf *status* status)
+    [resize status :height 20 :width *xiobreak-window-width*]
+    [move status :x 0 :y (- *xiobreak-window-height* 20)]
+    [set-character status player]
     ;;
     [resize narrator :height 80 :width *xiobreak-window-width*]
     [move narrator :x 0 :y (- *xiobreak-window-height* 80)]
@@ -663,6 +772,6 @@
 		:height (truncate (/ *xiobreak-window-height* *tile-size*))
 		:width (truncate (/ *xiobreak-window-width* *tile-size*))]
     [adjust viewport] 
-    (rlx:install-widgets prompt viewport)))
+    (rlx:install-widgets prompt viewport status)))
 
 (init-xiobreak)

@@ -37,13 +37,16 @@
  (:name "zap6" :type :sample :file "zap6.wav" :properties (:volume 10))
  (:name "zap7" :type :sample :file "zap7.wav" :properties (:volume 10))
 
+ (:name "doom" :type :sample :file "doom.wav" :properties (:volume 30))
+
  (:name "speedup" :type :sample :file "speedup.wav" :properties (:volume 30))
 
- (:name "error" :type :sample :file "error.wav")
+ (:name "error" :type :sample :file "error.wav" :properties (:volume 9))
  (:name "player" :type :image :file "player.png")
  (:name "floor" :type :image :file "floor.png")
 
  (:name "grow" :type :image :file "grow.png")
+ (:name "extra" :type :image :file "extra.png")
  (:name "ball" :type :image :file "ball.png")
  (:name "big-ball" :type :image :file "big-ball.png")
  (:name "bomb" :type :image :file "bomb.png")

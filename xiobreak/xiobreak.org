@@ -1,8 +1,8 @@
 ** TODO Document "english"
 ** TODO Fix paddle squish 
 ** TODO laser fires across screen horizontally between two guns , controlled with up/down and C to fire
-** TODO limit balls 
 ** TODO ball and score display
+** TODO limit balls 
 ** TODO extra ball powerup
 ** TODO cities at bottom
 (04:34:21 PM) David O'Toole: enemies
