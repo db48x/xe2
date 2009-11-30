@@ -237,6 +237,29 @@
 	[play-sample self (car (one-of <samples>))]
 	[move self dir])))
 
+;;; Fuzz
+
+(defparameter *fuzz-tiles* '("psifuzz2"
+			     "psifuzz1"))
+
+(defcell fuzz
+  (tile :initform "psifuzz1")
+  (speed :initform (make-stat :base 10))
+  (movement-cost :initform (make-stat :base 10))
+  (clock :initform 2)
+  (categories :initform '(:actor :paint-source :fuzz)))
+
+(define-method set-clock fuzz (clock)
+  (setf <clock> clock))
+
+(define-method run fuzz ()
+  (decf <clock>)
+  (if (> 0 <clock>)
+      [die self]
+      (let ((dir (random-direction)))
+	(setf <tile> (nth <clock> *fuzz-tiles*))
+	[move self dir])))
+
 ;;; Psi energy
 
 (defparameter *psi-tiles* '("psiblur5"
@@ -244,6 +267,8 @@
 			       "psiblur3"
 			       "psiblur2"
 			       "psiblur1"))
+
+(defparameter *psi-fuzz-tiles* '("psifuzz1" "psifuzz2"))
 
 (defparameter *psi-samples* '("nextpiano" "nextpiano2"))
 
@@ -271,6 +296,10 @@
       (progn (setf <tile> (nth (truncate (/ <clock> 2)) *psi-tiles*))
 	     [play-sample self (car (one-of <samples>))]
 	     [move self <direction>])))
+
+(define-method die psi ()
+  [drop self (clone =fuzz=)]
+  [delete-from-world self])
 
 ;;; Level themes
 

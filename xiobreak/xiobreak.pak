@@ -26,6 +26,9 @@
  (:name "psiblur4" :type :image :file "psiblur4.png")
  (:name "psiblur5" :type :image :file "psiblur5.png")
 
+ (:name "psifuzz1" :type :image :file "psifuzz1.png")
+ (:name "psifuzz2" :type :image :file "psifuzz2.png")
+
  (:name "zap1" :type :sample :file "zap1.wav" :properties (:volume 10))
  (:name "zap2" :type :sample :file "zap2.wav" :properties (:volume 10))
  (:name "zap3" :type :sample :file "zap3.wav" :properties (:volume 10))
