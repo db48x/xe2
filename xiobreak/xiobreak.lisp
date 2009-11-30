@@ -237,6 +237,53 @@
 	[play-sample self (car (one-of <samples>))]
 	[move self dir])))
 
+;;; Psi energy
+
+(defparameter *psi-tiles* '("psiblur5"
+			       "psiblur4"
+			       "psiblur3"
+			       "psiblur2"
+			       "psiblur1"))
+
+(defparameter *psi-samples* '("nextpiano" "nextpiano2"))
+
+(defparameter *psi-alt-samples* '("nextpiano" "nextpiano2"))
+
+(defparameter *psi-sample-schemes* (list *psi-samples* *psi-alt-samples*))
+
+(defcell psi
+  (tile :initform "psiblur1")
+  (speed :initform (make-stat :base 10))
+  (movement-cost :initform (make-stat :base 10))
+  (direction :initform (random-direction))
+  (clock :initform 10)
+  (samples :initform *psi-samples*)
+  (categories :initform '(:actor :paint-source :psi)))
+
+(define-method set-clock psi (clock)
+  (setf <direction> (random-direction))
+  (setf <clock> clock))
+
+(define-method run psi ()
+  (decf <clock>)
+  (if (> 0 <clock>)
+      [die self]
+      (progn (setf <tile> (nth (truncate (/ <clock> 2)) *psi-tiles*))
+	     [play-sample self (car (one-of <samples>))]
+	     [move self <direction>])))
+
+;;; Level themes
+
+(defparameter *psi-theme* (list :stuff =psi=
+				:sample-schemes *psi-sample-schemes*
+				:music "next"))
+
+(defparameter *plasma-theme* (list :stuff =plasma=
+				:sample-schemes *plasma-sample-schemes*
+				:music "rappy"))
+
+(defvar *theme* *plasma-theme*)
+
 ;;; Bust these bricks
 
 (defvar *brick-tiles* '(:purple "brick-purple"
@@ -279,11 +326,13 @@
     [die self]))
 
 (define-method splash brick (&optional (add 0))
-  (dotimes (n (+ add 5 (random 10)))
-    [drop self (let ((plasma (clone =plasma=)))
-		 (prog1 plasma
-		   (setf (field-value :samples plasma)
-			 (car (one-of *plasma-sample-schemes*)))))]))
+  (let ((stuff-type (getf *theme* :stuff))
+	(schemes (getf *theme* :sample-schemes)))
+    (dotimes (n (+ add 5 (random 10)))
+      [drop self (let ((stuff (clone stuff-type)))
+		   (prog1 stuff
+		     (setf (field-value :samples stuff)
+			   (car (one-of schemes)))))])))
 
 (define-method die brick ()
   (score 100)
@@ -372,6 +421,7 @@
 (define-method restart paddle ()
   (let ((player (clone =paddle=)))
     [destroy *active-universe*]
+    (setf *theme* (car (one-of (list *psi-theme* *plasma-theme*))))
     [set-player *active-universe* player]
     [play *active-universe*
 	  :address '(=room=)]
@@ -511,7 +561,7 @@
   [drop-cell self (clone =drop-point=) 32 5])
 
 (define-method begin-ambient-loop room ()
-  (play-music "rappy" :loop t))
+  (play-music (getf *theme* :music) :loop t))
 
 ;;; Controlling the game
 
@@ -559,6 +609,7 @@
 	 (narrator (clone =narrator=))
 	 (player (clone =paddle=))
 	 (viewport (clone =viewport=)))
+    (setf *theme* (car (one-of (list *psi-theme* *plasma-theme*))))
     ;;
     [resize prompt :height 20 :width 100]
     [move prompt :x 0 :y 0]
