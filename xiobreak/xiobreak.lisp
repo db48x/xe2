@@ -567,21 +567,23 @@
 (define-method quit paddle ()
   (rlx:quit :shutdown))
 
-(define-method joymove paddle (direction)
-  (setf <direction> direction)
-  [move self direction])
-
-(define-method joystop paddle ()
-  (setf <direction> nil))
+(defparameter *joystick-dead-zone* 80)
 
 (define-method run paddle ()
-  (setf <initialized> t)
   (setf <tile> (if *alive* "player" "floor"))
-  [update *status*]
-  (when (plusp <serve-key-clock>)
-    (decf <serve-key-clock>))
-  (when <direction>
-    [move self <direction>]))
+  (when (null <previous-piece>)
+    (setf <initialized> t)
+    [update *status*]
+    (when (plusp <serve-key-clock>)
+      (decf <serve-key-clock>))
+    (let ((value (rlx:poll-joystick-axis 0)))
+      (if (< (abs value) *joystick-dead-zone*)
+	  (setf <direction> nil)
+	  (if (plusp value)
+	      (setf <direction> :east)
+	      (setf <direction> :west))))
+    (when (and <next-piece> <direction>)
+      [move self <direction>])))
 
 (define-method attach paddle (piece)
   (setf <next-piece> piece)
@@ -728,8 +730,8 @@
     ("JOYSTICK" (:left :button-down) "joymove :west .") 
     ("JOYSTICK" (:right :button-up) "joystop .")
     ("JOYSTICK" (:left :button-up) "joystop .")
-    ("JOYSTICK" (:cross :button-down) "serve-ball :northwest .")
-    ("JOYSTICK" (:circle :button-down) "serve-ball :northeast .")
+    ("JOYSTICK" (:square :button-down) "serve-ball :northwest .")
+    ("JOYSTICK" (:cross :button-down) "serve-ball :northeast .")
     ("LEFT" nil "move :west .")
     ("RIGHT" nil "move :east .")
     ;;

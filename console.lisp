@@ -185,7 +185,7 @@ else.")
 
 ;;; Translating SDL key events into RLX event lists
 
-(defparameter *other-modifier-symbols* '(:button-down :button-up))
+(defparameter *other-modifier-symbols* '(:button-down :button-up :axis))
 
 (defun make-key-modifier-symbol (sdl-mod)
   "Translate from the SDL key modifier symbol SDL-MOD to our own
@@ -235,8 +235,11 @@ key event symbols."
   "Create a normalized event out of the SDL data SDL-KEY and SDL-MODS."
   (message "SDL KEY AND MODS: ~A" (list sdl-key sdl-mods))
   (normalize-event
-   (cons (if (eq sdl-key :joystick) "JOYSTICK"
-	     (make-key-string sdl-key))
+   (cons (if (eq sdl-key :joystick) 
+	     "JOYSTICK"
+	     (if (eq sdl-key :axis) 
+		 "AXIS"
+		 (make-key-string sdl-key)))
 	 (mapcar #'make-key-modifier-symbol
 		 (cond ((keywordp sdl-mods)
 			(list sdl-mods))
@@ -270,7 +273,43 @@ key event symbols."
     (14 . :cross)
     (15 . :square)))
 
-(defvar *joystick-mapping* *ps3-joystick-mapping*)
+(defparameter *generic-joystick-mapping*
+  '((1 . :square)
+    (2 . :cross)
+    (3 . :circle)
+    (4 . :triangle)
+    (9 . :select)
+    (10 . :start)))
+
+(defvar *joystick-dead-zone* 80)
+
+(defvar *joystick-axis-mapping* '((0 :left :right)
+				  (1 :up :down)))
+
+(defun axis-value-to-direction (axis value)
+  (let ((entry (assoc axis *joystick-axis-mapping*)))
+    (if entry 
+	(if (plusp value)
+	    (second (cdr entry))
+	    (when (minusp value)
+	      (first (cdr entry)))))))
+
+(defvar *joystick-axis-values* (make-array 100 :initial-element 0))
+
+(defun do-joystick-axis-event (axis value state)
+  (dispatch-event (make-event :axis 
+			      (list (axis-value-to-direction axis value)
+				    state))))
+	
+(defun update-joystick-axis (axis value)
+  (let ((state (if (< (abs value) *joystick-dead-zone*)
+		   :button-up :button-down)))
+    (setf (aref *joystick-axis-values* axis) value)))
+
+(defun poll-joystick-axis (axis)
+  (aref *joystick-axis-values* axis))
+
+(defvar *joystick-mapping* *generic-joystick-mapping*)
 
 (defun translate-joystick-button (button)
   (cdr (assoc button *joystick-mapping*)))
@@ -320,7 +359,8 @@ key event symbols."
 		       :east)
 		      ((pressed :left)
 		       :west))
-		:here)))))
+		:here)))
+    (message "UPDATE-JOYSTICK: BUTTON(~S) STATE(~S)" button state)))
 
 (defun poll-joystick-button (button)
   (sdl-cffi::sdl-joystick-get-button *joystick-device* button))
@@ -332,12 +372,12 @@ key event symbols."
       (update-joystick button (poll-joystick-button button)))))
 
 (defun generate-button-events ()
-  (let ((button 0) state)
+  (let ((button 0) state sym)
     (loop while (< button (length *joystick-buttons*))
 	  do (setf state (aref *joystick-buttons* button))
-	     (when state
-	       (dispatch-event (make-event :joystick 
-					   (translate-joystick-button button))))
+	     (setf sym (translate-joystick-button button))
+	     (when (and state sym)
+	       (dispatch-event (make-event :joystick sym)))
 	     (incf button))))
 
 ;;; The active world
@@ -468,15 +508,19 @@ window. Set this in the game startup file.")
     (:mouse-button-up-event (:button button :state state :x x :y y)
 			    nil)
     (:joy-button-down-event (:which which :button button :state state)
-    			    (update-joystick button state)
-    			    (dispatch-event (make-event :joystick
-    			    				(list (translate-joystick-button button) 
-							      :button-down))))
+			    (when (assoc button *joystick-mapping*)
+			      (update-joystick button state)
+			      (dispatch-event (make-event :joystick
+							  (list (translate-joystick-button button) 
+								:button-down)))))
     (:joy-button-up-event (:which which :button button :state state)  
-    			  (update-joystick button state)
-			  (dispatch-event (make-event :joystick
-						      (list (translate-joystick-button button) 
-							    :button-up))))
+			  (when (assoc button *joystick-mapping*)
+			    (update-joystick button state)
+			    (dispatch-event (make-event :joystick
+							(list (translate-joystick-button button) 
+							      :button-up)))))
+    (:joy-axis-motion-event (:which which :axis axis :value value)
+			    (update-joystick-axis axis value))
     (:video-expose-event () (sdl:update-display))
     (:key-down-event (:key key :mod-key mod)
 		     (sdl:clear-display sdl:*black*)

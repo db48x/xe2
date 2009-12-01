@@ -96,6 +96,7 @@
   *message-sender* =textbox= read-sexp-from-file write-pak *grammar*
   one-of left-hand-side right-hand-side expansions generate
   send-event-to-widgets play-music halt-music seek-music
+  *joystick-mapping* *generic-joystick-mapping* *ps3-joystick-mapping*
   draw-resource-image *event-handler-function* *use-sound*
   trace-rectangle trace-row trace-column trace-octagon trace-line
   midpoint =asterisk= =gray-asterisk= self *module-widgets* defsprite
@@ -109,7 +110,7 @@
   =minimap= draw-pixel *user-keyboard-layout* *fullscreen* draw-circle
   set-field-option-value =pager= =pager-prompt= load-module
   field-options world set-frame-rate *frame-rate* =stack=
-  *window-title* set-timer-interval *message-logging* overlay
+  *window-title* set-timer-interval *message-logging* overlay poll-joystick-axis
   set-screen-width =universe= *active-universe* set-screen-height
   genseq *zoom-factor* zoom-image is-zoomed-resource *timer-interval*
   enable-timer disable-timer while enable-held-keys disable-held-keys
