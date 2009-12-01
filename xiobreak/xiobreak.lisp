@@ -567,7 +567,7 @@
 (define-method quit paddle ()
   (rlx:quit :shutdown))
 
-(defparameter *joystick-dead-zone* 400)
+(defparameter *joystick-dead-zone* 2000)
 
 (define-method run paddle ()
   (setf <tile> (if *alive* "player" "floor"))
