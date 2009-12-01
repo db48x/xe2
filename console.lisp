@@ -330,6 +330,7 @@ key event symbols."
 (defvar *joystick-position* nil "Current position of the joystick.")
 
 (defun reset-joystick ()
+  (setf *joystick-device* (sdl-cffi::sdl-joystick-open 0))
   (setf *joystick-buttons* (make-array 100 :initial-element nil))
   (setf *joystick-position* :here))
 
@@ -476,7 +477,6 @@ window. Set this in the game startup file.")
 		  :flags sdl:SDL-FULLSCREEN)
       (sdl:window *screen-width* *screen-height*
 		  :title-caption *window-title*))
-  (setf *joystick-device* (sdl-cffi::sdl-joystick-open 0))
   (reset-joystick)
   (sdl:clear-display sdl:*black*)
   (show-widgets)

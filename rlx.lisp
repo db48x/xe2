@@ -110,11 +110,12 @@
   =minimap= draw-pixel *user-keyboard-layout* *fullscreen* draw-circle
   set-field-option-value =pager= =pager-prompt= load-module
   field-options world set-frame-rate *frame-rate* =stack=
-  *window-title* set-timer-interval *message-logging* overlay poll-joystick-axis
-  set-screen-width =universe= *active-universe* set-screen-height
-  genseq *zoom-factor* zoom-image is-zoomed-resource *timer-interval*
-  enable-timer disable-timer while enable-held-keys disable-held-keys
-  do-cells draw-box draw-rectangle *quitting* quit reset))
+  *window-title* set-timer-interval *message-logging* overlay
+  poll-joystick-axis reset-joystick set-screen-width =universe=
+  *active-universe* set-screen-height genseq *zoom-factor* zoom-image
+  is-zoomed-resource *timer-interval* enable-timer disable-timer while
+  enable-held-keys disable-held-keys do-cells draw-box draw-rectangle
+  *quitting* quit reset))
 
 (in-package :rlx)
 

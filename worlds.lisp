@@ -796,7 +796,7 @@ represents the z-axis of a euclidean 3-D space."))
 
 (define-method destroy universe ()
   (setf <worlds> (make-hash-table :test 'equal))
-  (setf <stack> nil)
+;;  (setf <stack> nil)
   (setf <current-address> nil))
 
 (define-method generate-world universe (address)

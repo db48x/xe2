@@ -556,13 +556,15 @@
   (let ((player (clone =paddle=)))
     (setf *alive* t)
     (setf *balls* 0)
+    [exit *active-universe*] ;; don't crash
     [destroy *active-universe*]
     (setf *theme* (car (one-of *themes*)))
     [set-player *active-universe* player]
     [set-character *status* player]
     [play *active-universe*
 	  :address '(=room=)]
-    [loadout player]))
+    [loadout player]
+    (rlx:reset-joystick)))
 
 (define-method quit paddle ()
   (rlx:quit :shutdown))

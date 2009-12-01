@@ -1,5 +1,6 @@
 ** TODO fix joystick support (repeated for button hold downs?)
 ** TODO laser fires across screen horizontally between two guns , controlled with up/down and C to fire
+** TODO tone down 8 way explosions
 ** TODO exploding puck powerup
 ** TODO powerups that fall out of bricks
 ** TODO powerups in better places
