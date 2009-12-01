@@ -185,41 +185,46 @@ else.")
 
 ;;; Translating SDL key events into RLX event lists
 
+(defparameter *other-modifier-symbols* '(:button-down :button-up))
+
 (defun make-key-modifier-symbol (sdl-mod)
   "Translate from the SDL key modifier symbol SDL-MOD to our own
 key event symbols."
-  (ecase sdl-mod
-      (:SDL-KEY-MOD-NONE nil)
-      (:SDL-KEY-MOD-LSHIFT :shift)
-      (:SDL-KEY-MOD-RSHIFT :shift)
-      (:SDL-KEY-MOD-LCTRL :control)
-      (:SDL-KEY-MOD-RCTRL :control)
-      (:SDL-KEY-MOD-LALT :alt)
-      (:SDL-KEY-MOD-RALT :alt)
-      (:SDL-KEY-MOD-LMETA :meta)
-      (:SDL-KEY-MOD-RMETA :meta)
-      ;; fix for windows
-      (:SDL-KEY-MOD-NUM nil)
-      (:SDL-KEY-MOD-CAPS :caps-lock)
-      (:SDL-KEY-MOD-MODE nil)
-      (:SDL-KEY-MOD-RESERVED nil)
-      ;; for compatibility:
-      (:SDL-KEY-NONE nil)
-      (:SDL-KEY-LSHIFT :shift)
-      (:SDL-KEY-RSHIFT :shift)
-      (:SDL-KEY-LCTRL :control)
-      (:SDL-KEY-RCTRL :control)
-      (:SDL-KEY-LALT :alt)
-      (:SDL-KEY-RALT :alt)
-      (:SDL-KEY-LMETA :meta)
-      (:SDL-KEY-RMETA :meta)
-      ;; fix for windows
-      (:SDL-KEY-MOD-NUM nil)
-      (:SDL-KEY-CAPS :caps-lock)
-      (:SDL-KEY-MODE nil)
-      (:SDL-KEY-RESERVED nil)
-      ))
-
+  (if (or (member sdl-mod *joystick-button-symbols*)
+	  (member sdl-mod *other-modifier-symbols*))
+      sdl-mod
+      (ecase sdl-mod
+	(:SDL-KEY-MOD-NONE nil)
+	(:SDL-KEY-MOD-LSHIFT :shift)
+	(:SDL-KEY-MOD-RSHIFT :shift)
+	(:SDL-KEY-MOD-LCTRL :control)
+	(:SDL-KEY-MOD-RCTRL :control)
+	(:SDL-KEY-MOD-LALT :alt)
+	(:SDL-KEY-MOD-RALT :alt)
+	(:SDL-KEY-MOD-LMETA :meta)
+	(:SDL-KEY-MOD-RMETA :meta)
+	;; fix for windows
+	(:SDL-KEY-MOD-NUM nil)
+	(:SDL-KEY-MOD-CAPS :caps-lock)
+	(:SDL-KEY-MOD-MODE nil)
+	(:SDL-KEY-MOD-RESERVED nil)
+	;; for compatibility:
+	(:SDL-KEY-NONE nil)
+	(:SDL-KEY-LSHIFT :shift)
+	(:SDL-KEY-RSHIFT :shift)
+	(:SDL-KEY-LCTRL :control)
+	(:SDL-KEY-RCTRL :control)
+	(:SDL-KEY-LALT :alt)
+	(:SDL-KEY-RALT :alt)
+	(:SDL-KEY-LMETA :meta)
+	(:SDL-KEY-RMETA :meta)
+	;; fix for windows
+	(:SDL-KEY-MOD-NUM nil)
+	(:SDL-KEY-CAPS :caps-lock)
+	(:SDL-KEY-MODE nil)
+	(:SDL-KEY-RESERVED nil)
+	)))
+  
 (defun make-key-string (sdl-key)
   "Translate from :SDL-KEY-X to the string \"X\"."
   (let ((prefix "SDL-KEY-"))
@@ -230,7 +235,8 @@ key event symbols."
   "Create a normalized event out of the SDL data SDL-KEY and SDL-MODS."
   (message "SDL KEY AND MODS: ~A" (list sdl-key sdl-mods))
   (normalize-event
-   (cons (make-key-string sdl-key)
+   (cons (if (eq sdl-key :joystick) "JOYSTICK"
+	     (make-key-string sdl-key))
 	 (mapcar #'make-key-modifier-symbol
 		 (cond ((keywordp sdl-mods)
 			(list sdl-mods))
@@ -241,6 +247,10 @@ key event symbols."
 			nil))))))
 
 ;;; Joystick support (gamepad probably required)
+
+(defparameter *joystick-button-symbols*
+  '(:select :l3 :r3 :l2 :r2 :l1 :r1 :start
+    :up :left :right :down :triangle :circle :cross :square))
 
 (defparameter *ps3-joystick-mapping*
   '((0 . :select)
@@ -273,7 +283,7 @@ key event symbols."
     (when entry 
       (car entry))))
 
-(defvar *joystick-device* 0)
+(defvar *joystick-device* nil)
 
 (defvar *joystick-buttons* nil
   "The nth element is non-nil when the nth button is pressed.")
@@ -310,8 +320,25 @@ key event symbols."
 		       :east)
 		      ((pressed :left)
 		       :west))
-		:here)))
-    (message "(JOYSTICK ~A ~A)" *joystick-position* sym)))
+		:here)))))
+
+(defun poll-joystick-button (button)
+  (sdl-cffi::sdl-joystick-get-button *joystick-device* button))
+
+(defun poll-all-buttons ()
+  ;; just look for releases for now
+  (dolist (entry *joystick-mapping*)
+    (destructuring-bind (button . symbol) entry
+      (update-joystick button (poll-joystick-button button)))))
+
+(defun generate-button-events ()
+  (let ((button 0) state)
+    (loop while (< button (length *joystick-buttons*))
+	  do (setf state (aref *joystick-buttons* button))
+	     (when state
+	       (dispatch-event (make-event :joystick 
+					   (translate-joystick-button button))))
+	     (incf button))))
 
 ;;; The active world
 
@@ -441,12 +468,15 @@ window. Set this in the game startup file.")
     (:mouse-button-up-event (:button button :state state :x x :y y)
 			    nil)
     (:joy-button-down-event (:which which :button button :state state)
-			    (update-joystick button state)
-			    (dispatch-event (list :joystick
-						  *joystick-position*
-						  (translate-joystick-button button))))
+    			    (update-joystick button state)
+    			    (dispatch-event (make-event :joystick
+    			    				(list (translate-joystick-button button) 
+							      :button-down))))
     (:joy-button-up-event (:which which :button button :state state)  
-			    (update-joystick button state))
+    			  (update-joystick button state)
+			  (dispatch-event (make-event :joystick
+						      (list (translate-joystick-button button) 
+							    :button-up))))
     (:video-expose-event () (sdl:update-display))
     (:key-down-event (:key key :mod-key mod)
 		     (sdl:clear-display sdl:*black*)
@@ -458,7 +488,12 @@ window. Set this in the game startup file.")
 	     (if (zerop *clock*)
 		 (progn 
 		   (sdl:clear-display sdl:*black*)
+		   ;; send timer event
 		   (dispatch-event *timer-event*)
+		   ;; send any joystick button events
+		   ;; (poll-all-buttons)
+		   ;  (generate-button-events)
+		   ;; update display
 		   (show-widgets)
 		   (sdl:update-display)
 		   (setf *clock* *timer-interval*))

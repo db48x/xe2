@@ -375,9 +375,6 @@ in a roguelike until the user has pressed a key."
   (assert <player>)
   (when (or (eq :quit method-key) 
 	    (not <paused>))
-    (message "FORWARDWORLD: ~S ~S ~S" <phase-number> 
-	     (field-value :phase-number <player>)
-	     method-key)
     (prog1 nil
       (let ((player <player>)
 	    (phase-number <phase-number>))

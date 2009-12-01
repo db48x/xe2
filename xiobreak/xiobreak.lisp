@@ -534,6 +534,7 @@
 
 (defcell paddle 
   (tile :initform "player")
+  (direction :initform nil)
   (next-piece :initform nil)
   (previous-piece :initform nil)
   (hearing-range :initform 1000)
@@ -566,12 +567,21 @@
 (define-method quit paddle ()
   (rlx:quit :shutdown))
 
+(define-method joymove paddle (direction)
+  (setf <direction> direction)
+  [move self direction])
+
+(define-method joystop paddle ()
+  (setf <direction> nil))
+
 (define-method run paddle ()
+  (setf <initialized> t)
   (setf <tile> (if *alive* "player" "floor"))
   [update *status*]
   (when (plusp <serve-key-clock>)
     (decf <serve-key-clock>))
-  (setf <initialized> t))
+  (when <direction>
+    [move self <direction>]))
 
 (define-method attach paddle (piece)
   (setf <next-piece> piece)
@@ -714,6 +724,12 @@
     ;;
     ("KP7" (:control) "serve-ball :northwest .")
     ("KP9" (:control) "serve-ball :northeast .")
+    ("JOYSTICK" (:right :button-down) "joymove :east .")
+    ("JOYSTICK" (:left :button-down) "joymove :west .") 
+    ("JOYSTICK" (:right :button-up) "joystop .")
+    ("JOYSTICK" (:left :button-up) "joystop .")
+    ("JOYSTICK" (:cross :button-down) "serve-ball :northwest .")
+    ("JOYSTICK" (:circle :button-down) "serve-ball :northeast .")
     ("LEFT" nil "move :west .")
     ("RIGHT" nil "move :east .")
     ;;
