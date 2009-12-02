@@ -1,7 +1,5 @@
-** TODO would-intersect method
+** TODO outline bricks that fill in and become indestructible bricks when hit
 ** TODO platformer guy
-*** TODO basic movement
-*** TODO jumping
 *** TODO shooting
 *** TODO enter/exit paddle
 ** TODO jump-up for paddle 

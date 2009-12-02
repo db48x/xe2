@@ -154,7 +154,7 @@
   (dead :initform nil)
   (movement-distance :initform (make-stat :base 7 :min 0 :max 14))
   (movement-cost :initform (make-stat :base 10))
-  (categories :initform '(:actor))
+  (categories :initform '(:actor :ball))
   (direction :initform :north))
 
 (define-method serve ball (direction)
@@ -181,26 +181,35 @@
   (block colliding
     (when object
       (unless (eq object self)
-	(when [in-category object :brick]
-	  [hit object self])
-	(setf <direction>
-	      (if [in-category object :pit]
-		  (progn [die self] (return-from colliding))
-		  (if [in-category object :paddle]
-		      (ecase *english* 
-			(:west :northwest)
-			(:east :northeast))
-		      (if (has-field :orientation object)
-			  (let ((rule (ecase (field-value :orientation object)
-					(:horizontal *horizontal-collision*)
-					(:vertical *vertical-collision*))))
-			    (getf rule <direction>))
-			  (random-direction)))))
-	(when (null <direction>)
-	  (setf <direction> (car (one-of '(:northeast :northwest :southeast :southwest)))))
-	(multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction> 
-							  [stat-value self :movement-distance])
-	  [update-position self x y])))))
+	(if [in-category object :ball]
+	    (progn 
+	      (setf <direction> (car (one-of '(:northeast :northwest :southeast :southwest))))
+	      (multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction> 
+								[stat-value self :movement-distance])
+		[update-position self x y]))
+	    (progn
+	      (when [in-category object :brick]
+		[hit object self])
+	      (when (eq :sprite (field-value :type object))
+		[do-collision object self])
+	      (setf <direction>
+		    (if [in-category object :pit]
+			(progn [die self] (return-from colliding))
+			(if [in-category object :paddle]
+			    (ecase *english* 
+			      (:west :northwest)
+			      (:east :northeast))
+			    (if (has-field :orientation object)
+				(let ((rule (ecase (field-value :orientation object)
+					      (:horizontal *horizontal-collision*)
+					      (:vertical *vertical-collision*))))
+				  (getf rule <direction>))
+				(random-direction)))))
+	      (when (null <direction>)
+		(setf <direction> (car (one-of '(:northeast :northwest :southeast :southwest)))))
+	      (multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction> 
+								[stat-value self :movement-distance])
+		[update-position self x y])))))))
 
 (define-method run ball ()
   (if (zerop <bounce-clock>)
@@ -622,7 +631,7 @@
 (define-method run hero ()
   (let ((dir (or <jumping> <gravity>)))
     (multiple-value-bind (r c) (step-in-direction <y> <x> dir [stat-value self :movement-distance])
-      (if [would-collide-grid self c r]
+      (if [would-collide self c r]
 	  (when <jumping> 
 	    (setf <jumping> nil)
 	    (multiple-value-bind (r1 c1) 
@@ -651,6 +660,33 @@
   ;; 						  (opposite-direction dir) 
   ;; 						  [stat-value self :movement-distance])
   ;;     [update-position self c r])))
+
+
+;;; Platforms to jump on 
+
+(defparameter *platform-delay-time* 10)
+
+(defsprite platform 
+  (open :initform nil)
+  (image :initform "plat1-closed")
+  (clock :initform 0)
+  (orientation :initform :horizontal)
+  (categories :initform '(:obstacle :oriented)))
+
+(define-method do-collision platform (&optional ball)
+  (message "PLATFORM COLLIDED")
+  (unless (eq self ball)
+    (if (zerop <clock>)
+      (progn 
+	(setf <clock> *platform-delay-time*)
+	(when [in-category ball :ball]
+	  (setf <open> (if <open> nil t))
+	  [update-image self (if <open> "plat1-open" "plat1-closed")]))
+	(progn
+	  (setf <clock> (max 0 (- <clock> 1)))))))
+  
+(define-method run platform ()
+  nil)
 
 ;;; The paddle
 
@@ -833,7 +869,8 @@
 				   (width *room-width*)
 				   (grow-bricks 2)
 				   (bomb-bricks 12)
-				   (extra-bricks 2))
+				   (extra-bricks 2)
+				   (platforms 3))
   (setf <height> height)
   (setf <width> width)
   [create-default-grid self]
@@ -845,6 +882,10 @@
 	  (column (1+ (random (- width 1)))))
       [delete-category-at self row column :brick]
       [drop-cell self (clone =grow-brick=) row column]))
+  (dotimes (n platforms)
+    (let ((platform (clone =platform=)))
+      [add-sprite self platform]
+      [update-position platform (+ 400 (random 100)) (+ 100 (random 500))]))
   (dotimes (n extra-bricks)
     (let ((row (1+ (random 5)))
 	  (column (1+ (random (- width 1)))))

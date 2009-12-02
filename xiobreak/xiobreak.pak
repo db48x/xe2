@@ -77,6 +77,9 @@
  (:name "hero" :type :image :file "hero.png")
  (:name "bullet" :type :image :file "bullet.png")
 
+ (:name "plat1-closed" :type :image :file "plat1-closed.png")
+ (:name "plat1-open" :type :image :file "plat1-open.png")
+
  (:name "wall" :type :image :file "wall.png")
  (:name "splash" :type :image :file "xiobreak.png")
  (:name "ouch" :type :sample :file "ouch.wav" :properties (:volume 10))

@@ -872,13 +872,16 @@ slot."
       [update-position self x y])))
 
 (define-method collide sprite (sprite)
+  (message "COLLIDING A=~S B=~S"
+	   (object-name (object-parent self))
+	   (object-name (object-parent sprite)))
   (let ((x0 (field-value :x sprite))
 	(y0 (field-value :y sprite))
 	(w (field-value :width sprite))
 	(h (field-value :height sprite)))
-    [collide-* self x0 y0 w h]))
+    [collide-* self y0 x0 w h]))
     
-(define-method would-collide-grid sprite (x0 y0)
+(define-method would-collide sprite (x0 y0)
   (clon:with-field-values (tile-size grid sprite-grid) *active-world*
     (clon:with-field-values (width height x y) self
       ;; determine squares sprite would intersect
@@ -887,23 +890,49 @@ slot."
 	    (top (1- (floor (/ y0 tile-size))))
 	    (bottom (1+ (floor (/ (+ y0 height) tile-size)))))
 	;; search intersected squares for any obstacle
-	(block colliding
-	  (dotimes (i (max 0 (- bottom top)))
-	    (dotimes (j (max 0 (- right left)))
-	      (let ((i0 (+ i top))
-		    (j0 (+ j left)))
-		(when (array-in-bounds-p grid i0 j0)
-		  (when [collide-* self
-				   (* i0 tile-size) 
-				   (* j0 tile-size)
-				   tile-size tile-size]
-		    ;; ;; save this intersection information
-		    ;; (vector-push-extend sprite (aref sprite-grid i0 j0))
-		    ;; quit when obstacle found
-		    (let ((obstacle [obstacle-at-p *active-world* i0 j0]))
-		      (when obstacle
-			(return-from colliding obstacle)))))))))))))
-
+	(or (block colliding
+	      (dotimes (i (max 0 (- bottom top)))
+		(dotimes (j (max 0 (- right left)))
+		  (let ((i0 (+ i top))
+			(j0 (+ j left)))
+		    (when (array-in-bounds-p grid i0 j0)
+		      (when [collide-* self
+				       (* i0 tile-size) 
+				       (* j0 tile-size)
+				       tile-size tile-size]
+			;; save this intersection information
+			(vector-push-extend self (aref sprite-grid i0 j0))
+			;; quit when obstacle found
+			(let ((obstacle [obstacle-at-p *active-world* i0 j0]))
+			  (when obstacle
+			    (return-from colliding obstacle)))))))))
+	    ;; scan for sprite intersections
+	    (block intersecting 
+	      (let (collision num-sprites ix)
+		(dotimes (i (max 0 (- bottom top)))
+		  (dotimes (j (max 0 (- right left)))
+		    (let ((i0 (+ i top))
+			  (j0 (+ j left)))
+		      (when (array-in-bounds-p grid i0 j0)
+			(setf collision (aref sprite-grid i0 j0))
+			(setf num-sprites (length collision))
+			(when (< 1 num-sprites)
+			  (message "SCANNING COLLISION len=~S AT ~S ~S" (length collision) i j)
+			  (dotimes (i (- num-sprites 1))
+			    (setf ix (1+ i))
+			    (loop do (let ((a (aref collision i))
+					   (b (aref collision ix)))
+				       (message "I:~S  IX:~S" i ix)
+				       (incf ix)
+				       (assert (not (eq a b)))
+				       (assert (and (clon:object-p a) (clon:object-p b)))
+				       (when [collide a b]
+					 (message "COLLISION DETECTED. ABORTING")
+					 (return-from intersecting t)))
+				  while (< ix num-sprites))
+			    nil)))))))))))))
+      
+	    
 (define-method collide-* sprite (o-top o-left o-width o-height)
   (let ((o-right (+ o-left o-width))
 	(o-bottom (+ o-top o-height)))

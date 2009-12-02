@@ -442,6 +442,7 @@ in a roguelike until the user has pressed a key."
 	    (grid <grid>))
 	[run player]
 	[clear-light-grid self]
+	[clear-sprite-grid self]
 	(dotimes (i <height>)
 	  (dotimes (j <width>)
 	    (setf cells (aref grid i j))
@@ -720,24 +721,33 @@ in a roguelike until the user has pressed a key."
 				 tile-size tile-size]
 		  ;; save this intersection information
 		  (vector-push-extend sprite (aref sprite-grid i0 j0))
+		  ;; collide the sprites and the cells on this square
 		  (do-cells (cell (aref grid i0 j0))
 		    (when (and [in-category cell :obstacle]
 			       [is-located cell])
 		      [do-collision sprite cell]))))))))
 	;; now find collisions with other sprites
 	;; we can re-use the sprite-grid data from earlier.
-	(let (collision)
+	(let (collision num-sprites ix)
 	  (dotimes (i height)
 	    (dotimes (j width)
 	      (setf collision (aref sprite-grid i j))
-	      (when (< 1 (length collision))
-		(let ((a (aref collision 0))
-		      (b (aref collision 1)))
-		  (unless (eq a b)
-		    (when [collide a b]
-		      [do-collision (aref collision 0) (aref collision 1)])))))))))
-    (when sprites 
-      [clear-sprite-grid self])))
+	      (setf num-sprites (length collision))
+	      (when (< 1 num-sprites)
+		(message "SCANNING COLLISION len=~S AT ~S ~S" (length collision) i j)
+		(dotimes (i (- num-sprites 1))
+		  (setf ix (1+ i))
+		  (loop do (let ((a (aref collision i))
+				 (b (aref collision ix)))
+			     (message "I:~S  IX:~S" i ix)
+			     (incf ix)
+			     (assert (not (eq a b)))
+			     (assert (and (clon:object-p a) (clon:object-p b)))
+			     (when [collide a b]
+			       (message "DOING COLLISION")
+			       [do-collision a b]))
+			while (< ix num-sprites)))))))))))
+			
     
 ;;; Universes are composed of connected worlds.
 
