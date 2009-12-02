@@ -220,34 +220,41 @@ together. If PROBE is non-nil, try to place the cell in the immediate
 neighborhood.  Return T if a cell is placed; nil otherwise. If both
 NO-COLLISIONS and EXCLUSIVE are both non-nil, an error is signaled."
   (assert (not (and no-collisions exclusive)))
-  (assert (eq :cell (field-value :type cell)))
   (when (array-in-bounds-p <grid> row column)
-    (labels ((drop-it (row column)
-	       (prog1 t
-		 (vector-push-extend cell (aref <grid> row column))
-		 (setf (field-value :row cell) row)
-		 (setf (field-value :column cell) column)
-		 (when loadout
-		   [loadout cell])
-		 (unless no-stepping
-		   [step-on-current-square cell]))))
-      (if (or no-collisions exclusive)
-	  (progn 
-	    (when no-collisions
-	      (when (not [obstacle-at-p self row column])
-		(drop-it row column)))
-	    (when exclusive
-	      (if [category-at-p self row column :exclusive]
-		  (when probe
-		    (block probing
-		      (dolist (dir *compass-directions*)
+    (ecase (field-value :type cell)
+      (:cell
+	 (labels ((drop-it (row column)
+		    (prog1 t
+		      (vector-push-extend cell (aref <grid> row column))
+		      (setf (field-value :row cell) row)
+		      (setf (field-value :column cell) column)
+		      (when loadout
+			[loadout cell])
+		      (unless no-stepping
+			[step-on-current-square cell]))))
+	   (if (or no-collisions exclusive)
+	       (progn 
+		 (when no-collisions
+		   (when (not [obstacle-at-p self row column])
+		     (drop-it row column)))
+		 (when exclusive
+		   (if [category-at-p self row column :exclusive]
+		       (when probe
+			 (block probing
+			   (dolist (dir *compass-directions*)
 			(multiple-value-bind (r c) 
 			    (step-in-direction row column dir)
 			  (when (not [category-at-p self row column :exclusive])
 			    (return-from probing (drop-it r c)))))))
-		  (drop-it row column))))
-	  (drop-it row column)))))
-
+		       (drop-it row column))))
+	       (drop-it row column))))
+      ;; handle sprites
+      (:sprite
+	 [add-sprite self cell]
+	 [update-position cell 
+			  (* column <tile-size>)
+			  (* row <tile-size>)]))))
+    
 (define-method replace-cell world (cell new-cell row column
 					&optional &key loadout no-collisions)
   (let* ((cells [cells-at self row column])
@@ -318,6 +325,9 @@ NO-COLLISIONS and EXCLUSIVE are both non-nil, an error is signaled."
 				       (field-value :categories cell))
 		     cell))
 	       (aref <grid> row column)))))
+
+;; (define-method category-at-xy-p world (x y category)
+;;   (let ((
 
 (define-method in-bounds-p world (row column)
   (array-in-bounds-p <grid> row column))
@@ -458,7 +468,7 @@ in a roguelike until the user has pressed a key."
 		[process-messages self]
 		[end-phase sprite]))
 	;; do sprite collisions
-	[collide-all-sprites self]))))
+	[collide-sprites self]))))
 
 ;; <: lighting :>
  
@@ -595,8 +605,8 @@ in a roguelike until the user has pressed a key."
     (incf <phase-number>)
     [start <player>]
     [begin-phase <player>]
-    (when (has-method :show-location <player>)
-      [show-location <player>])
+    ;; (when (has-method :show-location <player>)
+    ;;   [show-location <player>])
     [process-messages self])
   [begin-ambient-loop self])
     
@@ -604,13 +614,17 @@ in a roguelike until the user has pressed a key."
   (setf <viewport> viewport))
 
 (define-method delete-cell world (cell row column)
-  (let* ((grid <grid>)
-	 (square (aref grid row column))
-	 (start (position cell square :test #'eq)))
-    (when start
-      (replace square square :start1 start :start2 (1+ start))
-      (decf (fill-pointer square)))))
-
+  (ecase (field-value :type cell)
+    (:cell
+       (let* ((grid <grid>)
+	      (square (aref grid row column))
+	      (start (position cell square :test #'eq)))
+	 (when start
+	   (replace square square :start1 start :start2 (1+ start))
+	   (decf (fill-pointer square)))))
+    (:sprite
+       [remove-sprite self cell])))
+    
 (define-method delete-category-at world (row column category)
   (let* ((grid <grid>))
     (setf (aref grid row column)
@@ -683,9 +697,9 @@ in a roguelike until the user has pressed a key."
       (dotimes (j <width>)
 	(setf (fill-pointer (aref grid i j)) 0)))))
 
-(define-method collide-all-sprites world ()
-  (with-field-values (width height tile-size sprite-grid sprites grid) self
-    (dolist (sprite sprites)
+(define-method collide-sprites world (&optional sprites)
+  (with-field-values (width height tile-size sprite-grid grid) self
+    (dolist (sprite (or sprites <sprites>))
       ;; figure out which grid squares we really need to scan
       (let* ((x (field-value :x sprite)) 
 	     (y (field-value :y sprite)) 
@@ -695,13 +709,6 @@ in a roguelike until the user has pressed a key."
 	     (bottom (1+ (floor (/ (+ y (field-value :height sprite)) tile-size)))))
       ;; find the first world collision for each sprite
       (block colliding
-	;; light all the squares we need to scan
-	;; (dotimes (i (max 0 (- bottom top)))
-	;;   (dotimes (j (max 0 (- right left)))
-	;;     (let ((i0 (+ i top))
-	;; 	  (j0 (+ j left)))
-	;;       [light-square sprite i0 j0])))
-	;; ;;
 	(dotimes (i (max 0 (- bottom top)))
 	  (dotimes (j (max 0 (- right left)))
 	    (let ((i0 (+ i top))

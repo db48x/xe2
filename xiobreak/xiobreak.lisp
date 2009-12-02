@@ -51,9 +51,10 @@
 
 ;;; Scoring points
 
+(defvar *score* 0)
+
 (defun score (points)
-  (when *hero*
-    [stat-effect *hero* :score points]))
+  (incf *score* points))
 
 ;;; Counting bricks
 
@@ -549,9 +550,11 @@
       [die self]
       (progn [play-sample self "spark"]
 	     (setf <tile> (car (one-of *spark-tiles*)))
-	     [move self (random-direction)])))
+	     [move self (random-direction) :ignore-obstacles])))
 
 (define-method die spark ()
+  (let ((brick [category-at-p *active-world* <row> <column> :brick]))
+    (when brick [hit brick]))
   [delete-from-world self])
 
 ;;; Unbreakable bricks
@@ -559,6 +562,9 @@
 (define-prototype hard-brick (:parent =brick=)
   (tile :initform "hard-brick")
   (orientation :initform :horizontal))
+
+(define-method initialize hard-brick ()
+  nil)
 
 (define-method hit hard-brick (&optional ball)
   (when ball
@@ -569,6 +575,12 @@
     [play-sample self "spark-pop"]
     [drop self (clone =spark=)]))
 
+(define-method die hard-brick ()
+  [delete-from-world self])
+
+(define-method cancel hard-brick ()
+  nil)
+
 ;;; The hero
 
 (defsprite hero 
@@ -577,28 +589,68 @@
   (score :initform (make-stat :base 0 :min 0))
   (x :initform 0)
   (y :initform 0)
+  (delta-y :initform 0)
+  (delta-x :initform 0)
+  (balls :initform (make-stat :base 5 :min 0))
   (dead :initform nil)
   (speed :initform (make-stat :base 10 :min 0 :max 15))
   (hearing-range :initform 100000)
   (movement-cost :initform (make-stat :base 10))
   (movement-distance :initform (make-stat :base 5))
+  (jumping :initform nil)
+  (jump-time :initform (make-stat :base 15))
+  (jump-clock :initform 0)
   (direction :initform nil)
-  (rising :initform nil)
-  (falling :initform nil)
+  (grabbing :initform nil)
   (gravity :initform :south)
   (categories :initform '(:actor :player :massive)))
 
+(define-method quit hero ()
+  (rlx:quit :shutdown))
+
 (define-method move hero (direction)
-  (assert (member direction '(:east :west)))
-  (let ((delta (* <movement-distance> 
-		  (ecase direction
-		    (:east 1)
-		    (:west -1)))))
-    (destructuring-bind (y x) (step-in-direction y x direction delta)
+  (let ((dist [stat-value self :movement-distance]))
+    (multiple-value-bind (y x) (step-in-direction <y> <x> direction dist)
       [update-position self x y])))
 
+(define-method start-grabbing hero ()
+  (setf <grabbing> t))
+
+(define-method stop-grabbing hero ()
+  (setf <grabbing> nil))
+
 (define-method run hero ()
+  (let ((dir (or <jumping> <gravity>)))
+    (multiple-value-bind (r c) (step-in-direction <y> <x> dir [stat-value self :movement-distance])
+      (if [would-collide-grid self c r]
+	  (when <jumping> 
+	    (setf <jumping> nil)
+	    (multiple-value-bind (r1 c1) 
+		(step-in-direction <y> <x> (opposite-direction dir) (1+ [stat-value self :movement-distance]))
+	      [update-position self c1 r1]))
+	  [update-position self c r]))
+    (when <jumping>
+      (decf <jump-clock>)
+      (when (zerop <jump-clock>)
+	(setf <jumping> (ecase <jumping>
+			  (:northeast :southeast)
+			  (:northwest :southwest)))))
+    (when (< [stat-value self :jump-time] (abs <jump-clock>))
+      (setf <jump-clock> 0)
+      (setf <jumping> nil))))
+
+(define-method jump hero (direction)
+  (unless <jumping> 
+    (setf <jumping> direction)
+    (setf <jump-clock> [stat-value self :jump-time])))
+
+(define-method do-collision hero (&optional object)
   nil)
+  ;; (let ((dir (or <jumping> <gravity>)))
+  ;;   (multiple-value-bind (r c) (step-in-direction <y> <x> 
+  ;; 						  (opposite-direction dir) 
+  ;; 						  [stat-value self :movement-distance])
+  ;;     [update-position self c r])))
 
 ;;; The paddle
 
@@ -630,6 +682,7 @@
   (let ((player (clone =paddle=)))
     (setf *alive* t)
     (setf *balls* 0)
+    (setf *bricks* 0)
     [exit *active-universe*] ;; don't crash
     [destroy *active-universe*]
     (setf *theme* (car (one-of *themes*)))
@@ -703,6 +756,9 @@
 	[drop-cell *active-world* piece <row> (+ n 1 <column>)]
 	[attach last-piece piece]
 	(setf last-piece piece)))))
+	
+(define-method disembark paddle ()
+  [unproxy self :dy -40])
 
 ;;; The xiobreak room
 
@@ -824,6 +880,11 @@
     ("LEFT" nil "move :west .")
     ("RIGHT" nil "move :east .")
     ;;
+    ("C" nil "jump :northwest .")
+    ("V" nil "jump :northeast .")
+    ;;
+    ("N" nil "embark .")
+    ("M" nil "disembark .")
     ("Z" nil "serve-ball :northwest .")
     ("X" nil "serve-ball :northeast .")))
 
@@ -898,7 +959,7 @@
   [delete-all-lines self]
   (let* ((char <character>))
     (when char
-	[print self (format nil "   SCORE: ~S" [stat-value char :score])]
+	[print self (format nil "   SCORE: ~S" *score*)]
 	[print self (format nil "   BALLS: ~S" [stat-value char :balls])]
 	[print self (format nil "   BRICKS: ~S" *bricks*)]
 	[print self "       ARROWS: MOVE PADDLE       Z/X: FIRE"]
@@ -915,13 +976,14 @@
 	 (universe (clone =universe=))
 	 (narrator (clone =narrator=))
 	 (status (clone =status=))
-	 (player (clone =hero=))
+	 (hero (clone =hero=))
 	 (paddle (clone =paddle=))
 	 (viewport (clone =viewport=)))
-    (setf *hero* player)
+    (setf *hero* hero)
     (setf *alive* t)
     (setf *balls* 0)
     (setf *bricks* 0)
+    (setf *score* 0)
     (setf *theme* (car (one-of (list *psi-theme* *chi-theme* *plasma-theme*))))
     ;;
     [resize prompt :height 20 :width 100]
@@ -945,12 +1007,14 @@
 	  :prompt prompt
 	  :viewport viewport]
     [loadout paddle]
+    [loadout hero]
+    [proxy paddle hero]
     [set-tile-size viewport *tile-size*]
     [resize viewport :height 470 :width *xiobreak-window-width*]
     [move viewport :x 0 :y 0]
     [set-origin viewport :x 0 :y 0 
 		:height (truncate (/ *xiobreak-window-height* *tile-size*))
-		:width (truncate (/ *xiobreak-window-width* *tile-size*))]
+		:width (truncate (/ *xiobreak-window-width* *tile-size*))] 
     [adjust viewport] 
     (rlx:install-widgets prompt viewport status)))
 

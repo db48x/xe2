@@ -351,13 +351,21 @@ action during PHASE."
       [set-player world self]
       (setf <phase-number> (1- [get-phase-number world])))))
 
-(define-method unproxy cell ()
+(define-method unproxy cell (&key dr dc dx dy)
   "Remove the occupant from this cell, dropping it on top."  
   (let ((world *active-world*)
 	(occupant <occupant>))
     (when (null occupant)
       (error "Attempt to unproxy empty cell."))
-    [drop-cell world occupant <row> <column>]
+    (ecase (field-value :type occupant)
+      (:cell
+	 (multiple-value-bind (r c) [grid-coordinates self]
+	   [drop-cell world occupant r c]))
+      (:sprite
+	 (multiple-value-bind (x y) [xy-coordinates self]
+	   [drop-sprite self occupant 
+			(+ x (or dx 0))
+			(+ y (or dy 0))])))
     [delete-category occupant :proxied]
     (setf (field-value :proxy occupant) nil)
     [do-post-unproxied occupant]
@@ -385,8 +393,8 @@ unproxying. By default, it does nothing."
 	  (error "Cannot forward message without an occupant cell to send it to."))
 	(apply #'send self method occupant args))))
   
-(define-method embark cell ()
-  (let ((vehicle [category-at-p *active-world* <row> <column> :vehicle]))
+(define-method embark cell (&optional v)
+  (let ((vehicle (or v [category-at-p *active-world* <row> <column> :vehicle])))
     (if (null vehicle)
 	[>>say :narrator "No vehicle to embark."]
 	(if (null (field-value :occupant vehicle))
@@ -870,6 +878,32 @@ slot."
 	(h (field-value :height sprite)))
     [collide-* self x0 y0 w h]))
     
+(define-method would-collide-grid sprite (x0 y0)
+  (clon:with-field-values (tile-size grid sprite-grid) *active-world*
+    (clon:with-field-values (width height x y) self
+      ;; determine squares sprite would intersect
+      (let ((left (1- (floor (/ x0 tile-size))))
+	    (right (1+ (floor (/ (+ x0 width) tile-size))))
+	    (top (1- (floor (/ y0 tile-size))))
+	    (bottom (1+ (floor (/ (+ y0 height) tile-size)))))
+	;; search intersected squares for any obstacle
+	(block colliding
+	  (dotimes (i (max 0 (- bottom top)))
+	    (dotimes (j (max 0 (- right left)))
+	      (let ((i0 (+ i top))
+		    (j0 (+ j left)))
+		(when (array-in-bounds-p grid i0 j0)
+		  (when [collide-* self
+				   (* i0 tile-size) 
+				   (* j0 tile-size)
+				   tile-size tile-size]
+		    ;; ;; save this intersection information
+		    ;; (vector-push-extend sprite (aref sprite-grid i0 j0))
+		    ;; quit when obstacle found
+		    (let ((obstacle [obstacle-at-p *active-world* i0 j0]))
+		      (when obstacle
+			(return-from colliding obstacle)))))))))))))
+
 (define-method collide-* sprite (o-top o-left o-width o-height)
   (let ((o-right (+ o-left o-width))
 	(o-bottom (+ o-top o-height)))
@@ -898,8 +932,8 @@ slot."
   (values <row> <column>))
 
 (define-method grid-coordinates sprite ()
-  (values (truncate (/ y (field-value :tile-size *active-world*)))
-	  (truncate (/ x (field-value :tile-size *active-world*)))))
+  (values (truncate (/ <y> (field-value :tile-size *active-world*)))
+	  (truncate (/ <x> (field-value :tile-size *active-world*)))))
 
 (define-method xy-coordinates cell ()
   (values (* <column> (field-value :tile-size *active-world*))

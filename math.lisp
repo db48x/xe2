@@ -97,6 +97,9 @@ DIRECTION."
 
 (defun step-in-direction (row column direction &optional (n 1))
   "Return the point ROW, COLUMN moved by n squares in DIRECTION."
+  ;; (when (minusp n)
+  ;;   (setf n (abs n))
+  ;;   (setf direction (opposite-direction direction)))
   (ecase direction
     (:here (values row column))
     (:north (values (- row n) column))
