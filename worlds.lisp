@@ -44,7 +44,7 @@
   (mission-grammar :initform '())
   (scale :initform '(1 m)
 	 :documentation "Scale per square side in the form (N UNIT) where UNIT is m, km, ly etc.")
-  (player :documentation "The player cell.")
+  (player :documentation "The player cell (or sprite).")
   (width :documentation "The width of the world map, measured in tiles.")
   (height :documentation "The height of the world map, measured in tiles.")
   ;; cells 
@@ -200,18 +200,27 @@ At the moment, only 0=off and 1=on are supported.")
 			   (prog1 cells
 			     (vector-push-extend data cells))))))))
 
+(define-method drop-sprite world (sprite x y &key no-collisions)
+  (assert (eq :sprite (field-value :type sprite)))
+  [add-sprite self sprite]
+  [update-position sprite x y]
+  (unless no-collisions
+    ;; TODO do collision test
+    nil))
+
 (define-method drop-cell world (cell row column 
 				     &optional &key 
 				     loadout no-stepping no-collisions exclusive probe)
-  "Put CELL on top of the stack of cells at ROW, COLUMN. If LOADOUT is
-non-nil, then the `loadout' method of the dropped cell is invoked
-after dropping. If NO-COLLISIONS is non-nil, then an object is not
-dropped on top of an obstacle. If EXCLUSIVE is non-nil, then two
-objects with category :exclusive will not be placed together. If PROBE
-is non-nil, try to place the cell in the immediate neighborhood.
-Return T if a cell is placed; nil otherwise. If both NO-COLLISIONS and
-EXCLUSIVE are both non-nil, an error is signaled."
+  "Put the cell CELL on top of the stack of cells at ROW,
+COLUMN. If LOADOUT is non-nil, then the `loadout' method of the
+dropped cell is invoked after dropping. If NO-COLLISIONS is non-nil,
+then an object is not dropped on top of an obstacle. If EXCLUSIVE is
+non-nil, then two objects with category :exclusive will not be placed
+together. If PROBE is non-nil, try to place the cell in the immediate
+neighborhood.  Return T if a cell is placed; nil otherwise. If both
+NO-COLLISIONS and EXCLUSIVE are both non-nil, an error is signaled."
   (assert (not (and no-collisions exclusive)))
+  (assert (eq :cell (field-value :type cell)))
   (when (array-in-bounds-p <grid> row column)
     (labels ((drop-it (row column)
 	       (prog1 t
@@ -248,7 +257,7 @@ EXCLUSIVE are both non-nil, an error is signaled."
 	(error "Could not find cell to replace."))))
 
 (define-method drop-player-at-entry world (player)
-  (with-field-values (width height grid) self
+  (with-field-values (width height grid tile-size) self
     (multiple-value-bind (dest-row dest-column)
 	(block seeking
 	  (dotimes (i height)
@@ -257,8 +266,12 @@ EXCLUSIVE are both non-nil, an error is signaled."
 		(return-from seeking (values i j)))))
 	  (return-from seeking (values 0 0)))
       (setf <player> player)
-      [drop-cell self player dest-row dest-column :no-stepping t])))
-
+      (ecase (field-value :type player)
+	(:cell [drop-cell self player dest-row dest-column :no-stepping t])
+	(:sprite [drop-sprite self player 
+			      (* dest-column tile-size)
+			      (* dest-row tile-size)])))))
+			      
 (define-method drop-player-at-last-location world (player)
   (setf <player> player)
   [drop-cell self player <player-exit-row> <player-exit-column>])
@@ -270,10 +283,16 @@ EXCLUSIVE are both non-nil, an error is signaled."
   <player>)
 
 (define-method player-row world ()
-  (field-value :row <player>))
+  (clon:with-field-values (player tile-size) self
+    (ecase (field-value :type player)
+      (:sprite (truncate (/ (field-value :y player) tile-size))) 
+      (:cell (field-value :row player)))))
 
 (define-method player-column world ()
-  (field-value :column <player>))
+  (clon:with-field-values (player tile-size) self
+    (ecase (field-value :type player)
+      (:sprite (truncate (/ (field-value :x player) tile-size))) 
+      (:cell (field-value :column player)))))
 
 (define-method exit world ()
   (setf <exited> t) ;; see also `forward' method

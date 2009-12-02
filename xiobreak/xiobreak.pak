@@ -74,6 +74,8 @@
  (:name "big-ball" :type :image :file "big-ball.png")
  (:name "bomb" :type :image :file "bomb.png")
  
+ (:name "hero" :type :image :file "hero.png")
+ (:name "bullet" :type :image :file "bullet.png")
 
  (:name "wall" :type :image :file "wall.png")
  (:name "splash" :type :image :file "xiobreak.png")

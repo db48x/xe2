@@ -1,5 +1,9 @@
-** TODO display brick count
-** TODO unbreakable bricks (except by gun)
+** TODO platformer guy
+*** TODO basic movement
+*** TODO jumping
+*** TODO shooting
+*** TODO enter/exit paddle
+** TODO jump-up for paddle 
 ** TODO gun
 ** TODO level with 2 unbreakable masses inside
 ** TODO laser fires across screen horizontally between two guns , controlled with up/down and C to fire

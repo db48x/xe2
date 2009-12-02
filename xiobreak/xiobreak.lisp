@@ -47,10 +47,13 @@
 
 (defvar *alive* t)
 
+(defvar *hero* nil)
+
 ;;; Scoring points
 
 (defun score (points)
-  [stat-effect [get-player *active-world*] :score points])
+  (when *hero*
+    [stat-effect *hero* :score points]))
 
 ;;; Counting bricks
 
@@ -566,6 +569,37 @@
     [play-sample self "spark-pop"]
     [drop self (clone =spark=)]))
 
+;;; The hero
+
+(defsprite hero 
+  (name :initform "Hero")
+  (image :initform "hero")
+  (score :initform (make-stat :base 0 :min 0))
+  (x :initform 0)
+  (y :initform 0)
+  (dead :initform nil)
+  (speed :initform (make-stat :base 10 :min 0 :max 15))
+  (hearing-range :initform 100000)
+  (movement-cost :initform (make-stat :base 10))
+  (movement-distance :initform (make-stat :base 5))
+  (direction :initform nil)
+  (rising :initform nil)
+  (falling :initform nil)
+  (gravity :initform :south)
+  (categories :initform '(:actor :player :massive)))
+
+(define-method move hero (direction)
+  (assert (member direction '(:east :west)))
+  (let ((delta (* <movement-distance> 
+		  (ecase direction
+		    (:east 1)
+		    (:west -1)))))
+    (destructuring-bind (y x) (step-in-direction y x direction delta)
+      [update-position self x y])))
+
+(define-method run hero ()
+  nil)
+
 ;;; The paddle
 
 (defparameter *serve-key-delay* 7)
@@ -586,7 +620,7 @@
   (score :initform (make-stat :base 0 :min 0))
   (speed :initform (make-stat :base 10 :min 0 :max 10))
   (movement-cost :initform (make-stat :base 10))
-  (categories :initform '(:actor :player :obstacle :paddle :oriented)))
+  (categories :initform '(:actor :proxy :player :obstacle :paddle :oriented)))
 
 (define-method obstructed paddle (direction)
   (or (when <next-piece> [obstructed <next-piece> direction])
@@ -641,7 +675,7 @@
 	    [stat-effect self :balls -1]
 	    (setf <serve-key-clock> *serve-key-delay*)
 	    (multiple-value-bind (x y) [viewport-coordinates self]
-	      [drop-sprite self ball :x (+ x 30) :y (- y 20)]
+	      [drop-sprite self ball (+ x 30) (- y 20)]
 	      [serve ball direction]))
 	  [play-sample self "error"])
       (setf <serve-key-clock> (max 0 (- <serve-key-clock> 1)))))
@@ -734,23 +768,22 @@
 	       [drop-cell self (clone =hard-brick=) r c])))
     (trace-rectangle #'drop-wall row column height width t))) 
 
-(define-method drop-neo-layout room ()
-  [drop-classic-layout self]
+(define-method drop-masses room ()
   (dotimes (i 3)
-    [drop-unbreakable-mass self (+ 5 (random 4)) (+ 3 (random (- <width> 9)))
-			   (+ 3 (random 3)) (+ 2 (random 4))]))
+    [drop-unbreakable-mass self (+ 5 (random 4)) (+ 3 (random (- <width> 15)))
+			   (+ 3 (random 3)) (+ 5 (random 7))]))
 
 (define-method generate room (&key (height *room-height*)
 				   (width *room-width*)
 				   (grow-bricks 2)
 				   (bomb-bricks 12)
-				   (extra-bricks 4))
+				   (extra-bricks 2))
   (setf <height> height)
   (setf <width> width)
   [create-default-grid self]
   [drop-floor self]
   [drop-border self]
-  [drop-neo-layout self]
+  [drop-classic-layout self]
   (dotimes (n grow-bricks)
     (let ((row (1+ (random 5)))
 	  (column (1+ (random (- width 1)))))
@@ -766,6 +799,7 @@
 	  (column (1+ (random (- width 1)))))
       [delete-category-at self row column :brick]
       [drop-cell self (clone =bomb-brick=) row column]))
+  [drop-masses self]
   [drop-cell self (clone =drop-point=) 32 5])
 
 (define-method begin-ambient-loop room ()
@@ -866,6 +900,7 @@
     (when char
 	[print self (format nil "   SCORE: ~S" [stat-value char :score])]
 	[print self (format nil "   BALLS: ~S" [stat-value char :balls])]
+	[print self (format nil "   BRICKS: ~S" *bricks*)]
 	[print self "       ARROWS: MOVE PADDLE       Z/X: FIRE"]
 	[newline self])))
 
@@ -880,10 +915,13 @@
 	 (universe (clone =universe=))
 	 (narrator (clone =narrator=))
 	 (status (clone =status=))
-	 (player (clone =paddle=))
+	 (player (clone =hero=))
+	 (paddle (clone =paddle=))
 	 (viewport (clone =viewport=)))
+    (setf *hero* player)
     (setf *alive* t)
     (setf *balls* 0)
+    (setf *bricks* 0)
     (setf *theme* (car (one-of (list *psi-theme* *chi-theme* *plasma-theme*))))
     ;;
     [resize prompt :height 20 :width 100]
@@ -894,7 +932,7 @@
     (setf *status* status)
     [resize status :height 20 :width *xiobreak-window-width*]
     [move status :x 0 :y (- *xiobreak-window-height* 20)]
-    [set-character status player]
+    [set-character status paddle]
     ;;
     [resize narrator :height 80 :width *xiobreak-window-width*]
     [move narrator :x 0 :y (- *xiobreak-window-height* 80)]
@@ -902,11 +940,11 @@
     ;;
     [play universe
 	  :address '(=room=)
-	  :player player
+	  :player paddle
 	  :narrator narrator
 	  :prompt prompt
 	  :viewport viewport]
-    [loadout player]
+    [loadout paddle]
     [set-tile-size viewport *tile-size*]
     [resize viewport :height 470 :width *xiobreak-window-width*]
     [move viewport :x 0 :y 0]

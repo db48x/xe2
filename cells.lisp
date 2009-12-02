@@ -41,7 +41,7 @@
 
 (define-prototype cell
     (:documentation "An RLX game-world object.")
-  (type :documentation :cell)
+  (type :initform :cell)
   (weight :documentation "Weight of the cell, in kilograms.")
   (tile :initform ".asterisk" :documentation "Resource name of image.")
   (row :documentation "When non-nil, the current row location of the cell.")
@@ -94,7 +94,7 @@
 (define-method dislocate cell ()
   (setf <row> nil <column> nil))
 
-;; Convenience macro for defining cells:
+;;; Convenience macro for defining cells:
 
 (defmacro defcell (name &body args)
   `(define-prototype ,name (:parent =cell=)
@@ -450,12 +450,9 @@ unproxying. By default, it does nothing."
 (define-method drop cell (cell)
   [drop-cell *active-world* cell <row> <column>])
 
-(define-method drop-sprite cell (sprite &optional &key x y)
-  (when (numberp x)
-    (setf (field-value :x sprite) x))
-  (when (numberp y)
-    (setf (field-value :y sprite) y))
-  [add-sprite *active-world* sprite])
+(define-method drop-sprite cell (sprite x y)
+  [add-sprite *active-world* sprite]
+  [update-position sprite x y])
 
 (define-method step cell (stepper)
   (declare (ignore stepper)))
@@ -849,6 +846,7 @@ slot."
   [update-dimensions self])
 
 (define-method update-position sprite (x y &optional ignore-obstacles)
+  (assert (and (integerp x) (integerp y)))
   (with-field-values (grid tile-size width height) *active-world*
     (let ((world-height (* tile-size height))
 	  (world-width (* tile-size width)))
@@ -859,6 +857,11 @@ slot."
 	  (setf <x> x
 		<y> y)
 	  [do-collision self nil]))))
+
+(define-method move sprite (direction &optional movement-distance)
+  (let ((dist (or movement-distance <movement-distance>)))
+    (multiple-value-bind (y x) (rlx:step-in-direction <y> <x> direction dist)
+      [update-position self x y])))
 
 (define-method collide sprite (sprite)
   (let ((x0 (field-value :x sprite))
@@ -890,5 +893,20 @@ slot."
 (define-method viewport-coordinates sprite ()
   [get-viewport-coordinates-* (field-value :viewport *active-world*)
 			      <x> <y>])
+
+(define-method grid-coordinates cell ()
+  (values <row> <column>))
+
+(define-method grid-coordinates sprite ()
+  (values (truncate (/ y (field-value :tile-size *active-world*)))
+	  (truncate (/ x (field-value :tile-size *active-world*)))))
+
+(define-method xy-coordinates cell ()
+  (values (* <column> (field-value :tile-size *active-world*))
+	  (* <row> (field-value :tile-size *active-world*))))
+
+(define-method xy-coordinates sprite ()
+  (values <x> <y>))
+	  
 
 ;;; cells.lisp ends here
