@@ -120,8 +120,7 @@
 	[update-tile self])
       [die self]))
   
-
-;;; The wall around the gameworld
+;;; The borders around the gameworld
 
 (defcell wall-horizontal
   (tile :initform "wall")
@@ -140,7 +139,7 @@
 
 ;;; The bouncing ball
 
-(defparameter *ball-bounce-time* 12)
+(defparameter *ball-bounce-time* 20)
 
 (defvar *balls* 0)
 
@@ -390,7 +389,7 @@
 
 (defparameter *chi-theme* (list :stuff =chi=
 				:sample-schemes *chi-sample-schemes*
-				:music "buzzo"))
+				:music "kodama"))
 
 (defparameter *plasma-theme* (list :stuff =plasma=
 				:sample-schemes *plasma-sample-schemes*
@@ -456,6 +455,9 @@
   [splash self]
   [parent>>die self])
 
+(define-method cancel brick ()
+  (decf *bricks*))
+
 ;;; Makes the ball grow
 
 (define-prototype grow-brick (:parent =brick=)
@@ -494,7 +496,7 @@
 ;;; Explode to score points
 
 (define-prototype bomb-brick (:parent =brick=)
-  (name :initform "Grow brick")
+  (name :initform "Bomb")
   (tile :initform "bomb")
   (orientation :initform :horizontal))
 
@@ -525,6 +527,44 @@
   [splash self]
   [play-sample self "explode"]
   [delete-from-world self])
+
+;;; Sparks
+
+(defvar *spark-tiles* '("sparkblur" "sparkblur2" "sparkblur3"))
+
+(defcell spark
+  (tile :initform "sparkblur")
+  (speed :initform (make-stat :base 10))
+  (movement-cost :initform (make-stat :base 10))
+  (direction :initform (random-direction))
+  (clock :initform 4)
+  (categories :initform '(:actor :paint-source :spark)))
+
+(define-method run spark ()
+  (decf <clock>)
+  (if (> 0 <clock>)
+      [die self]
+      (progn [play-sample self "spark"]
+	     (setf <tile> (car (one-of *spark-tiles*)))
+	     [move self (random-direction)])))
+
+(define-method die spark ()
+  [delete-from-world self])
+
+;;; Unbreakable bricks
+
+(define-prototype hard-brick (:parent =brick=)
+  (tile :initform "hard-brick")
+  (orientation :initform :horizontal))
+
+(define-method hit hard-brick (&optional ball)
+  (when ball
+    [spark self]))
+
+(define-method spark hard-brick ()
+  (dotimes (n 10)
+    [play-sample self "spark-pop"]
+    [drop self (clone =spark=)]))
 
 ;;; The paddle
 
@@ -687,6 +727,19 @@
 	[drop-brick-row self row left right color]
 	(incf row)))))
 
+(define-method drop-unbreakable-mass room (row column height width)
+  (labels ((drop-wall (r c)
+	     (prog1 nil
+	       [delete-category-at self r c :brick]
+	       [drop-cell self (clone =hard-brick=) r c])))
+    (trace-rectangle #'drop-wall row column height width t))) 
+
+(define-method drop-neo-layout room ()
+  [drop-classic-layout self]
+  (dotimes (i 3)
+    [drop-unbreakable-mass self (+ 5 (random 4)) (+ 3 (random (- <width> 9)))
+			   (+ 3 (random 3)) (+ 2 (random 4))]))
+
 (define-method generate room (&key (height *room-height*)
 				   (width *room-width*)
 				   (grow-bricks 2)
@@ -697,7 +750,7 @@
   [create-default-grid self]
   [drop-floor self]
   [drop-border self]
-  [drop-classic-layout self]
+  [drop-neo-layout self]
   (dotimes (n grow-bricks)
     (let ((row (1+ (random 5)))
 	  (column (1+ (random (- width 1)))))
