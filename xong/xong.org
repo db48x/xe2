@@ -73,6 +73,7 @@ win... maybe i need those?
 bird sound. short story. exploring an abandoned house. path through
 woods to clearing. follow the bird. watercolor look.
 lighting effects. game occurs, you explore ruins at night , re-use vm0 art
+lightning bugs
 
 
 * TODO Atari Basic Programming Livecoding REPL

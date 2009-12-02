@@ -891,21 +891,23 @@ slot."
 	    (bottom (1+ (floor (/ (+ y0 height) tile-size)))))
 	;; search intersected squares for any obstacle
 	(or (block colliding
-	      (dotimes (i (max 0 (- bottom top)))
-		(dotimes (j (max 0 (- right left)))
-		  (let ((i0 (+ i top))
-			(j0 (+ j left)))
-		    (when (array-in-bounds-p grid i0 j0)
-		      (when [collide-* self
-				       (* i0 tile-size) 
-				       (* j0 tile-size)
-				       tile-size tile-size]
-			;; save this intersection information
-			(vector-push-extend self (aref sprite-grid i0 j0))
-			;; quit when obstacle found
-			(let ((obstacle [obstacle-at-p *active-world* i0 j0]))
-			  (when obstacle
-			    (return-from colliding obstacle)))))))))
+	      (let (found)
+		(dotimes (i (max 0 (- bottom top)))
+		  (dotimes (j (max 0 (- right left)))
+		    (let ((i0 (+ i top))
+			  (j0 (+ j left)))
+		      (when (array-in-bounds-p grid i0 j0)
+			(when [collide-* self
+					 (* i0 tile-size) 
+					 (* j0 tile-size)
+					 tile-size tile-size]
+			  ;; save this intersection information
+			  (vector-push-extend self (aref sprite-grid i0 j0))
+			  ;; quit when obstacle found
+			  (let ((obstacle [obstacle-at-p *active-world* i0 j0]))
+			    (when obstacle
+			      (setf found obstacle))))))))
+		(return-from colliding found)))
 	    ;; scan for sprite intersections
 	    (block intersecting 
 	      (let (collision num-sprites ix)
@@ -917,35 +919,40 @@ slot."
 			(setf collision (aref sprite-grid i0 j0))
 			(setf num-sprites (length collision))
 			(when (< 1 num-sprites)
-			  (message "SCANNING COLLISION len=~S AT ~S ~S" (length collision) i j)
+			  (message "SCANNING POTENTIAL COLLISION len=~S AT ~S ~S" (length collision) i j)
 			  (dotimes (i (- num-sprites 1))
 			    (setf ix (1+ i))
 			    (loop do (let ((a (aref collision i))
 					   (b (aref collision ix)))
 				       (message "I:~S  IX:~S" i ix)
 				       (incf ix)
-				       (assert (not (eq a b)))
 				       (assert (and (clon:object-p a) (clon:object-p b)))
-				       (when [collide a b]
-					 (message "COLLISION DETECTED. ABORTING")
-					 (return-from intersecting t)))
-				  while (< ix num-sprites))
-			    nil)))))))))))))
-      
+				       (when (not (eq a b))
+					 (let ((bt (field-value :y b))
+					       (bl (field-value :x b))
+					       (bh (field-value :height b))
+					       (bw (field-value :width b)))
+					   (when (collide y0 x0 width height bt bl bw bh)
+					     (return-from intersecting t)))))
+				  while (< ix num-sprites)))))))))
+	      nil))))))
 	    
 (define-method collide-* sprite (o-top o-left o-width o-height)
+  (with-field-values (x y width height) self
+    (collide x y width height o-top o-left o-width o-height)))
+
+(defun collide (x y width height o-top o-left o-width o-height)
   (let ((o-right (+ o-left o-width))
 	(o-bottom (+ o-top o-height)))
-    (with-field-values (x y width height) self
-      (not (or 
-	    ;; is the top below the other bottom?
-	    (< o-bottom y)
-	   ;; is bottom above other top?
-	    (< (+ y height) o-top)
-	   ;; is right to left of other left?
-	    (< (+ x width) o-left)
-	   ;; is left to right of other right?
-	    (< o-right x))))))
+    (not (or 
+	  ;; is the top below the other bottom?
+	  (< o-bottom y)
+	  ;; is bottom above other top?
+	  (< (+ y height) o-top)
+	  ;; is right to left of other left?
+	  (< (+ x width) o-left)
+	  ;; is left to right of other right?
+	  (< o-right x)))))
 
 (define-method do-collision cell (collision)
   nil)

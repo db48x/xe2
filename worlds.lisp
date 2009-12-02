@@ -741,9 +741,8 @@ in a roguelike until the user has pressed a key."
 				 (b (aref collision ix)))
 			     (message "I:~S  IX:~S" i ix)
 			     (incf ix)
-			     (assert (not (eq a b)))
 			     (assert (and (clon:object-p a) (clon:object-p b)))
-			     (when [collide a b]
+			     (when (and (not (eq a b)) [collide a b])
 			       (message "DOING COLLISION")
 			       [do-collision a b]))
 			while (< ix num-sprites)))))))))))

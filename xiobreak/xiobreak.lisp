@@ -154,7 +154,7 @@
   (dead :initform nil)
   (movement-distance :initform (make-stat :base 7 :min 0 :max 14))
   (movement-cost :initform (make-stat :base 10))
-  (categories :initform '(:actor :ball))
+  (categories :initform '(:actor :ball :obstacle))
   (direction :initform :north))
 
 (define-method serve ball (direction)
@@ -632,11 +632,12 @@
   (let ((dir (or <jumping> <gravity>)))
     (multiple-value-bind (r c) (step-in-direction <y> <x> dir [stat-value self :movement-distance])
       (if [would-collide self c r]
-	  (when <jumping> 
-	    (setf <jumping> nil)
-	    (multiple-value-bind (r1 c1) 
-		(step-in-direction <y> <x> (opposite-direction dir) (1+ [stat-value self :movement-distance]))
-	      [update-position self c1 r1]))
+	  (progn (message "WOULD COLLIDE T")
+		 (when <jumping> 
+		   (setf <jumping> nil)
+		   (multiple-value-bind (r1 c1) 
+		       (step-in-direction <y> <x> (opposite-direction dir) (1+ [stat-value self :movement-distance]))
+		     [update-position self c1 r1])))
 	  [update-position self c r]))
     (when <jumping>
       (decf <jump-clock>)
@@ -654,12 +655,11 @@
     (setf <jump-clock> [stat-value self :jump-time])))
 
 (define-method do-collision hero (&optional object)
-  nil)
-  ;; (let ((dir (or <jumping> <gravity>)))
-  ;;   (multiple-value-bind (r c) (step-in-direction <y> <x> 
-  ;; 						  (opposite-direction dir) 
-  ;; 						  [stat-value self :movement-distance])
-  ;;     [update-position self c r])))
+  (let ((dir (or <jumping> <gravity>)))
+    (multiple-value-bind (r c) (step-in-direction <y> <x> 
+  						  (opposite-direction dir) 
+  						  [stat-value self :movement-distance])
+      [update-position self c r])))
 
 
 ;;; Platforms to jump on 
@@ -675,7 +675,7 @@
 
 (define-method do-collision platform (&optional ball)
   (message "PLATFORM COLLIDED")
-  (unless (eq self ball)
+  (unless (or (null ball) (eq self ball))
     (if (zerop <clock>)
       (progn 
 	(setf <clock> *platform-delay-time*)
@@ -715,7 +715,8 @@
       [category-in-direction-p *active-world* <row> <column> direction :obstacle]))
 
 (define-method restart paddle ()
-  (let ((player (clone =paddle=)))
+  (let ((player (clone =paddle=))
+	(hero (clone =hero=)))
     (setf *alive* t)
     (setf *balls* 0)
     (setf *bricks* 0)
@@ -726,7 +727,9 @@
     [set-character *status* player]
     [play *active-universe*
 	  :address '(=room=)]
+    [proxy player hero]
     [loadout player]
+    [loadout hero]
     (rlx:reset-joystick)))
 
 (define-method quit paddle ()
