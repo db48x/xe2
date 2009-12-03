@@ -614,11 +614,17 @@
   (bounce-time :initform 5)
   (direction :initform nil)
   (grabbing :initform nil)
+  (walking :initform nil)
   (gravity :initform :south)
   (categories :initform '(:actor :player :massive)))
 
 (define-method quit hero ()
   (rlx:quit :shutdown))
+
+(define-method walk hero (direction)
+  (assert (member direction '(:east :west)))
+  (setf <walking> direction)
+  [move self direction])
 
 (define-method move hero (&optional direction distance)
   [expend-action-points self [stat-value self :movement-cost]]
@@ -630,12 +636,14 @@
 
 (define-method jump hero (direction)
   (unless <jumping> 
+    (setf <walking> nil)
     (setf <jumping> direction)
     (setf <jump-clock> [stat-value self :jump-time])))
 
 (define-method do-collision hero (&optional object)
-  (message "COLLIDING HERO WITH ~S" (object-name (object-parent object))) 
-  [undo-excursion self])
+  (when object
+    (message "COLLIDING HERO WITH ~S" (object-name (object-parent object))) 
+    [undo-excursion self]))
   	
 (define-method run hero ()
   (let ((dir (or <jumping> <gravity>)))
@@ -782,6 +790,10 @@
 	      [serve ball direction]))
 	  [play-sample self "error"])
       (setf <serve-key-clock> (max 0 (- <serve-key-clock> 1)))))
+
+(define-method walk paddle (direction)
+  ;; for hero keybinding compatibility
+  [move self direction])
  
 (define-method move paddle (direction &optional slave)
   (if slave
@@ -921,19 +933,19 @@
 (define-prototype room-prompt (:parent rlx:=prompt=))
 
 (defparameter *numpad-keybindings* 
-  '(("KP4" nil "move :west .")
-    ("KP6" nil "move :east .")
+  '(("KP4" nil "walk :west .")
+    ("KP6" nil "walk :east .")
     ;;
     ("KP7" (:control) "serve-ball :northwest .")
     ("KP9" (:control) "serve-ball :northeast .")
-    ("JOYSTICK" (:right :button-down) "joymove :east .")
-    ("JOYSTICK" (:left :button-down) "joymove :west .") 
+    ("JOYSTICK" (:right :button-down) "joywaslk :east .")
+    ("JOYSTICK" (:left :button-down) "joywaslk :west .") 
     ("JOYSTICK" (:right :button-up) "joystop .")
     ("JOYSTICK" (:left :button-up) "joystop .")
     ("JOYSTICK" (:square :button-down) "serve-ball :northwest .")
     ("JOYSTICK" (:cross :button-down) "serve-ball :northeast .")
-    ("LEFT" nil "move :west .")
-    ("RIGHT" nil "move :east .")
+    ("LEFT" nil "walk :west .")
+    ("RIGHT" nil "walk :east .")
     ;;
     ("C" nil "jump :northwest .")
     ("F" nil "jump :north .")
@@ -946,8 +958,8 @@
 
 (defparameter *qwerty-keybindings*
   (append *numpad-keybindings*
-	  '(("H" nil "move :west .")
-	    ("L" nil "move :east .")
+	  '(("H" nil "walk :west .")
+	    ("L" nil "walk :east .")
 	    ;;
 	    ("Y" (:control) "serve-ball :northwest .")
 	    ("U" (:control) "serve-ball :northeast .")

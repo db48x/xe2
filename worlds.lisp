@@ -51,7 +51,8 @@
   (grid :documentation "A two-dimensional array of adjustable vectors of cells.")
   ;; sprite cells
   (sprites :initform nil :documentation "A list of sprites.")
-  (sprite-grid :initform nil :documentation "Grid for collecting sprite collision information")
+  (sprite-grid :initform nil :documentation "Grid for collecting sprite collision information.")
+  (sprite-table :initform nil :documentation "Hash table to prevent redundant collisions.")
   ;; environment 
   (environment-grid :documentation "A two-dimensional array of environment data cells.")
   ;; lighting 
@@ -136,7 +137,8 @@ At the moment, only 0=off and 1=on are supported.")
 		(make-array *default-world-z-size* 
 			    :adjustable t
 			    :fill-pointer 0))))
-	(setf <sprite-grid> sprite-grid)))))
+	(setf <sprite-grid> sprite-grid)
+	(setf <sprite-table> (make-hash-table :test 'equal))))))
 
 
 (define-method create-default-grid world ()
@@ -469,7 +471,8 @@ in a roguelike until the user has pressed a key."
 		[process-messages self]
 		[end-phase sprite]))
 	;; do sprite collisions
-	[collide-sprites self]))))
+	(when <sprite-table>
+	  [collide-sprites self])))))
 
 ;; <: lighting :>
  
@@ -687,7 +690,7 @@ in a roguelike until the user has pressed a key."
 ;;; The sprite layer. See also viewport.lisp
 
 (define-method add-sprite world (sprite)
-  (pushnew sprite <sprites> :test 'eq))
+  (pushnew sprite <sprites> :test 'equal))
 
 (define-method remove-sprite world (sprite)
   (setf <sprites> (delete sprite <sprites>)))
@@ -699,7 +702,7 @@ in a roguelike until the user has pressed a key."
 	(setf (fill-pointer (aref grid i j)) 0)))))
 
 (define-method collide-sprites world (&optional sprites)
-  (with-field-values (width height tile-size sprite-grid grid) self
+  (with-field-values (width height tile-size sprite-grid sprite-table grid) self
     (dolist (sprite (or sprites <sprites>))
       ;; figure out which grid squares we really need to scan
       (let* ((x (field-value :x sprite)) 
@@ -708,43 +711,50 @@ in a roguelike until the user has pressed a key."
 	     (right (1+ (floor (/ (+ x (field-value :width sprite)) tile-size))))
 	     (top (1- (floor (/ y tile-size))))
 	     (bottom (1+ (floor (/ (+ y (field-value :height sprite)) tile-size)))))
-      ;; find out which scanned squares actually intersect the sprite
-      (block colliding
-	(dotimes (i (max 0 (- bottom top)))
-	  (dotimes (j (max 0 (- right left)))
-	    (let ((i0 (+ i top))
-		  (j0 (+ j left)))
-	      (when (array-in-bounds-p grid i0 j0)
-		(when [collide-* sprite 
-				 (* i0 tile-size) 
-				 (* j0 tile-size)
-				 tile-size tile-size]
-		  ;; save this intersection information
-		  (vector-push-extend sprite (aref sprite-grid i0 j0))
-		  ;; collide the sprite with the cells on this square
-		  (do-cells (cell (aref grid i0 j0))
-		    (when (and [in-category cell :obstacle]
-			       [is-located cell])
-		      [do-collision sprite cell]))))))))
+	;; find out which scanned squares actually intersect the sprite
+	(block colliding
+	  (dotimes (i (max 0 (- bottom top)))
+	    (dotimes (j (max 0 (- right left)))
+	      (let ((i0 (+ i top))
+		    (j0 (+ j left)))
+		(when (array-in-bounds-p grid i0 j0)
+		  (when [collide-* sprite 
+				   (* i0 tile-size) 
+				   (* j0 tile-size)
+				   tile-size tile-size]
+		    ;; save this intersection information
+		    (vector-push-extend sprite (aref sprite-grid i0 j0))
+		    ;; collide the sprite with the cells on this square
+		    (do-cells (cell (aref grid i0 j0))
+		      (when (and [in-category cell :obstacle]
+				 [is-located cell])
+			[do-collision sprite cell]))))))))
 	;; now find collisions with other sprites
 	;; we can re-use the sprite-grid data from earlier.
 	(let (collision num-sprites ix)
-	  (dotimes (i height)
-	    (dotimes (j width)
-	      (setf collision (aref sprite-grid i j))
-	      (setf num-sprites (length collision))
-	      (when (< 1 num-sprites)
-		(dotimes (i (- num-sprites 1))
-		  (setf ix (1+ i))
-		  (loop do (let ((a (aref collision i))
-				 (b (aref collision ix)))
-			     (incf ix)
-			     (assert (and (clon:object-p a) (clon:object-p b)))
-			     (when (and (not (eq a b)) [collide a b])
-			       [do-collision a b]))
-			while (< ix num-sprites)))))))))))
-			
-    
+	  ;; prepare to detect redundant collisions
+	  (clrhash sprite-table)
+	  (labels ((collide-first (&rest args)
+		     (unless (gethash args sprite-table)
+		       (setf (gethash args sprite-table) t)
+		       (destructuring-bind (a b) args
+			 [do-collision a b]))))
+	    ;; iterate over grid, reporting collisions
+	    (dotimes (i height)
+	      (dotimes (j width)
+		(setf collision (aref sprite-grid i j))
+		(setf num-sprites (length collision))
+		(when (< 1 num-sprites)
+		  (dotimes (i (- num-sprites 1))
+		    (setf ix (1+ i))
+		    (loop do (let ((a (aref collision i))
+				   (b (aref collision ix)))
+			       (incf ix)
+			       (assert (and (clon:object-p a) (clon:object-p b)))
+			       (when (and (not (eq a b)) [collide a b])
+				 (collide-first a b)))
+			  while (< ix num-sprites))))))))))))
+
 ;;; Universes are composed of connected worlds.
 
 (defvar *active-universe* nil)
