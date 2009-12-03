@@ -600,6 +600,7 @@
   (y :initform 0)
   (delta-y :initform 0)
   (delta-x :initform 0)
+  (last-direction :initform nil)
   (balls :initform (make-stat :base 5 :min 0))
   (dead :initform nil)
   (speed :initform (make-stat :base 10 :min 0 :max 15))
@@ -609,6 +610,8 @@
   (jumping :initform nil)
   (jump-time :initform (make-stat :base 15))
   (jump-clock :initform 0)
+  (bounce-clock :initform 0)
+  (bounce-time :initform 5)
   (direction :initform nil)
   (grabbing :initform nil)
   (gravity :initform :south)
@@ -617,37 +620,13 @@
 (define-method quit hero ()
   (rlx:quit :shutdown))
 
-(define-method move hero (direction)
-  (let ((dist [stat-value self :movement-distance]))
-    (multiple-value-bind (y x) (step-in-direction <y> <x> direction dist)
-      [update-position self x y])))
-
-(define-method start-grabbing hero ()
-  (setf <grabbing> t))
-
-(define-method stop-grabbing hero ()
-  (setf <grabbing> nil))
-
-(define-method run hero ()
-  (let ((dir (or <jumping> <gravity>)))
-    (multiple-value-bind (r c) (step-in-direction <y> <x> dir [stat-value self :movement-distance])
-      (if [would-collide self c r]
-	  (progn (message "WOULD COLLIDE T")
-		 (when <jumping> 
-		   (setf <jumping> nil)
-		   (multiple-value-bind (r1 c1) 
-		       (step-in-direction <y> <x> (opposite-direction dir) (1+ [stat-value self :movement-distance]))
-		     [update-position self c1 r1])))
-	  [update-position self c r]))
-    (when <jumping>
-      (decf <jump-clock>)
-      (when (zerop <jump-clock>)
-	(setf <jumping> (ecase <jumping>
-			  (:northeast :southeast)
-			  (:northwest :southwest)))))
-    (when (< [stat-value self :jump-time] (abs <jump-clock>))
-      (setf <jump-clock> 0)
-      (setf <jumping> nil))))
+(define-method move hero (&optional direction distance)
+  [expend-action-points self [stat-value self :movement-cost]]
+  (let ((dir (or direction <jumping> <gravity>))
+	(dist (or distance [stat-value self :movement-distance])))
+    (multiple-value-bind (y x) (step-in-direction <y> <x> dir dist)
+      [update-position self x y]
+      (setf <last-direction> dir))))
 
 (define-method jump hero (direction)
   (unless <jumping> 
@@ -655,12 +634,44 @@
     (setf <jump-clock> [stat-value self :jump-time])))
 
 (define-method do-collision hero (&optional object)
+  (message "COLLIDING HERO WITH ~S" (object-name (object-parent object))) 
+  [undo-excursion self])
+  	
+(define-method run hero ()
   (let ((dir (or <jumping> <gravity>)))
-    (multiple-value-bind (r c) (step-in-direction <y> <x> 
-  						  (opposite-direction dir) 
-  						  [stat-value self :movement-distance])
-      [update-position self c r])))
+    (when <jumping>
+      (decf <jump-clock>)
+      (when (zerop <jump-clock>)
+	(setf <jumping> (ecase <jumping>
+			  (:north :south)
+			  (:northeast :southeast)
+			  (:northwest :southwest)))))
+    (when (< [stat-value self :jump-time] (abs <jump-clock>))
+      (setf <jump-clock> 0)
+      (setf <jumping> nil))
+    [save-excursion self]
+    [move self dir]))
 
+;; (define-method run hero ()
+;;   (let ((dir (or <jumping> <gravity>)))
+;;     (multiple-value-bind (r c) (step-in-direction <y> <x> dir [stat-value self :movement-distance])
+;;       (if [would-collide self c r]
+;; 	  (progn (message "WOULD COLLIDE T")
+;; 		 (when <jumping> 
+;; 		   (setf <jumping> nil)
+;; 		   (multiple-value-bind (r1 c1) 
+;; 		       (step-in-direction <y> <x> (opposite-direction dir) (1+ [stat-value self :movement-distance]))
+;; 		     [update-position self c1 r1])))
+;; 	  [update-position self c r]))
+;;     (when <jumping>
+;;       (decf <jump-clock>)
+;;       (when (zerop <jump-clock>)
+;; 	(setf <jumping> (ecase <jumping>
+;; 			  (:northeast :southeast)
+;; 			  (:northwest :southwest)))))
+;;     (when (< [stat-value self :jump-time] (abs <jump-clock>))
+;;       (setf <jump-clock> 0)
+;;       (setf <jumping> ninnl))))
 
 ;;; Platforms to jump on 
 
@@ -686,7 +697,7 @@
 	  (setf <clock> (max 0 (- <clock> 1)))))))
   
 (define-method run platform ()
-  nil)
+  (setf <clock> (max 0 (- <clock> 1))))
 
 ;;; The paddle
 
@@ -797,7 +808,7 @@
 	(setf last-piece piece)))))
 	
 (define-method disembark paddle ()
-  [unproxy self :dy -40])
+  [unproxy self :dy -50 :dx 20])
 
 ;;; The xiobreak room
 
@@ -888,7 +899,7 @@
   (dotimes (n platforms)
     (let ((platform (clone =platform=)))
       [add-sprite self platform]
-      [update-position platform (+ 400 (random 100)) (+ 100 (random 500))]))
+      [update-position platform (+ 100 (random 400)) (+ 400 (random 120))]))
   (dotimes (n extra-bricks)
     (let ((row (1+ (random 5)))
 	  (column (1+ (random (- width 1)))))
@@ -910,7 +921,7 @@
 (define-prototype room-prompt (:parent rlx:=prompt=))
 
 (defparameter *numpad-keybindings* 
-  '(("KP4" nil "mov :west .")
+  '(("KP4" nil "move :west .")
     ("KP6" nil "move :east .")
     ;;
     ("KP7" (:control) "serve-ball :northwest .")
@@ -925,6 +936,7 @@
     ("RIGHT" nil "move :east .")
     ;;
     ("C" nil "jump :northwest .")
+    ("F" nil "jump :north .")
     ("V" nil "jump :northeast .")
     ;;
     ("N" nil "embark .")

@@ -708,7 +708,7 @@ in a roguelike until the user has pressed a key."
 	     (right (1+ (floor (/ (+ x (field-value :width sprite)) tile-size))))
 	     (top (1- (floor (/ y tile-size))))
 	     (bottom (1+ (floor (/ (+ y (field-value :height sprite)) tile-size)))))
-      ;; find the first world collision for each sprite
+      ;; find out which scanned squares actually intersect the sprite
       (block colliding
 	(dotimes (i (max 0 (- bottom top)))
 	  (dotimes (j (max 0 (- right left)))
@@ -721,7 +721,7 @@ in a roguelike until the user has pressed a key."
 				 tile-size tile-size]
 		  ;; save this intersection information
 		  (vector-push-extend sprite (aref sprite-grid i0 j0))
-		  ;; collide the sprites and the cells on this square
+		  ;; collide the sprite with the cells on this square
 		  (do-cells (cell (aref grid i0 j0))
 		    (when (and [in-category cell :obstacle]
 			       [is-located cell])
@@ -734,16 +734,13 @@ in a roguelike until the user has pressed a key."
 	      (setf collision (aref sprite-grid i j))
 	      (setf num-sprites (length collision))
 	      (when (< 1 num-sprites)
-		(message "SCANNING COLLISION len=~S AT ~S ~S" (length collision) i j)
 		(dotimes (i (- num-sprites 1))
 		  (setf ix (1+ i))
 		  (loop do (let ((a (aref collision i))
 				 (b (aref collision ix)))
-			     (message "I:~S  IX:~S" i ix)
 			     (incf ix)
 			     (assert (and (clon:object-p a) (clon:object-p b)))
 			     (when (and (not (eq a b)) [collide a b])
-			       (message "DOING COLLISION")
 			       [do-collision a b]))
 			while (< ix num-sprites)))))))))))
 			

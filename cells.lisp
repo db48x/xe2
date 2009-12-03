@@ -820,7 +820,9 @@ slot."
 ;; object.
 
 (defcell sprite 
-  x y image
+  x y 
+  saved-x saved-y
+  image
   width height ;; cached from SDL measurements of image 
   (type :initform :sprite))
 
@@ -872,9 +874,9 @@ slot."
       [update-position self x y])))
 
 (define-method collide sprite (sprite)
-  (message "COLLIDING A=~S B=~S"
-	   (object-name (object-parent self))
-	   (object-name (object-parent sprite)))
+  ;; (message "COLLIDING A=~S B=~S"
+  ;; 	   (object-name (object-parent self))
+  ;; 	   (object-name (object-parent sprite)))
   (let ((x0 (field-value :x sprite))
 	(y0 (field-value :y sprite))
 	(w (field-value :width sprite))
@@ -919,12 +921,10 @@ slot."
 			(setf collision (aref sprite-grid i0 j0))
 			(setf num-sprites (length collision))
 			(when (< 1 num-sprites)
-			  (message "SCANNING POTENTIAL COLLISION len=~S AT ~S ~S" (length collision) i j)
 			  (dotimes (i (- num-sprites 1))
 			    (setf ix (1+ i))
 			    (loop do (let ((a (aref collision i))
 					   (b (aref collision ix)))
-				       (message "I:~S  IX:~S" i ix)
 				       (incf ix)
 				       (assert (and (clon:object-p a) (clon:object-p b)))
 				       (when (not (eq a b))
@@ -959,6 +959,13 @@ slot."
 
 (define-method do-collision sprite (collision)
   nil)
+
+(define-method save-excursion sprite ()
+  (setf <saved-x> <x>)
+  (setf <saved-y> <y>))
+
+(define-method undo-excursion sprite ()
+  [update-position self <saved-x> <saved-y>])
 
 (define-method viewport-coordinates sprite ()
   [get-viewport-coordinates-* (field-value :viewport *active-world*)
