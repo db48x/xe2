@@ -20,7 +20,7 @@
 
 ;;; Commentary:
 
-;; Worlds are the focus of the action in RLX. A world is a 3-D grid of
+;; Worlds are the focus of the action in XE2. A world is a 3-D grid of
 ;; interacting cells. The world object performs the following tasks:
 
 ;; - Keeps track of a single player in a world of cells
@@ -31,10 +31,10 @@
 
 ;;; Code:
 
-(in-package :rlx)
+(in-package :xe2)
 
 (define-prototype world
-    (:documentation "An RLX game world filled with cells.")
+    (:documentation "An XE2 game world filled with cells.")
   (name :initform "Unknown")
   (paused :initform nil)
   (description :initform "Unknown area.")
@@ -757,7 +757,7 @@ in a roguelike until the user has pressed a key."
 
 ;;; Universes are composed of connected worlds.
 
-(defvar *active-universe* nil)
+(defvar *universe* nil)
 
 (defun normalize-address (address)
   "Sort the plist ADDRESS so that its keys come in alphabetical order
@@ -846,7 +846,7 @@ represents the z-axis of a euclidean 3-D space."))
     (let ((world (clone (symbol-value prototype))))
       (prog1 world
 	;; make sure any loadouts or intializers get run with the proper world
-	(let ((*active-world* world)) 
+	(let ((*world* world)) 
 	  [generate-with world parameters])))))
 
 (define-method find-world universe (address)
@@ -871,8 +871,8 @@ represents the z-axis of a euclidean 3-D space."))
       [exit previous-world])
     ;; make the new world the current world
     (push world <stack>)
-    (setf *active-world* world)
-    (setf *active-universe* self)
+    (setf *world* world)
+    (setf *universe* self)
     [set-viewport world <viewport>]
     [drop-player-at-entry world player]
     [set-receiver <prompt> world]
@@ -887,8 +887,8 @@ represents the z-axis of a euclidean 3-D space."))
     ;; 
     (let ((world (car stack)))
       (when world
-	(setf *active-world* world)
-	(setf *active-universe* self)
+	(setf *world* world)
+	(setf *universe* self)
 	;; resume at previous play coordinates
 	[drop-player-at-last-location world <player>]
 	[start world]
@@ -906,7 +906,7 @@ represents the z-axis of a euclidean 3-D space."))
   (address :initform nil))
 
 (define-method activate gateway ()
-  [play *active-universe* :address <address> :player [get-player *active-world*]])
+  [play *universe* :address <address> :player [get-player *world*]])
 
 (define-prototype launchpad (:parent =gateway=)
   (tile :initform "launchpad")
@@ -914,7 +914,7 @@ represents the z-axis of a euclidean 3-D space."))
   (description :initform "Press RETURN here to exit this area."))
 
 (define-method activate launchpad ()
-  [exit *active-universe* :player [get-player *active-world*]])
+  [exit *universe* :player [get-player *world*]])
 
 (define-method drop-entry-point world (row column)
   [replace-cells-at self row column (clone =launchpad=)])

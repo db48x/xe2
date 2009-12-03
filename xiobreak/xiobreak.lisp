@@ -23,21 +23,21 @@
 
 ;;; Packaging
 
-(defpackage :rlx-xiobreak
-  (:documentation "Xiobreak rlx game.")
-  (:use :rlx :common-lisp)
-  (:export rlx-xiobreak))
+(defpackage :xe2-xiobreak
+  (:documentation "Xiobreak xe2 game.")
+  (:use :xe2 :common-lisp)
+  (:export xe2-xiobreak))
 
-(in-package :rlx-xiobreak)
+(in-package :xe2-xiobreak)
 
 ;;; Turn on timing after SDL init
 
-(add-hook 'rlx:*initialization-hook*
+(add-hook 'xe2:*initialization-hook*
 	  #'(lambda ()
-	      (rlx:enable-timer)
-	      (rlx:set-frame-rate 30)
-	      (rlx:set-timer-interval 0)
-	      (rlx:enable-held-keys 1 1)))
+	      (xe2:enable-timer)
+	      (xe2:set-frame-rate 30)
+	      (xe2:set-timer-interval 0)
+	      (xe2:enable-held-keys 1 1)))
 
 (defparameter *xiobreak-window-width* 800)
 (defparameter *xiobreak-window-height* 600)
@@ -97,7 +97,7 @@
 
 (define-method update-tile dancefloor ()
   (when [is-located self]
-    (unless [category-at-p *active-world* <row> <column> '(:brick :wall)]
+    (unless [category-at-p *world* <row> <column> '(:brick :wall)]
       (setf <tile> (nth (truncate (/ <clock> 2)) *light-tiles*)))))
 
 (define-method light dancefloor (&optional (time *light-clock*))
@@ -106,9 +106,9 @@
 
 (define-method light-toward dancefloor (direction)
   (multiple-value-bind (r c) (step-in-direction <row> <column> direction)
-    (unless [category-at-p *active-world* r c :dancefloor]
+    (unless [category-at-p *world* r c :dancefloor]
       (let ((dancefloor (clone =dancefloor=)))
-	[drop-cell *active-world* dancefloor r c]
+	[drop-cell *world* dancefloor r c]
 	[light dancefloor (max 0 (- <clock> 1))]))))
       
 (define-method light-plus dancefloor ()
@@ -184,7 +184,7 @@
 	(if [in-category object :ball]
 	    (progn 
 	      (setf <direction> (car (one-of '(:northeast :northwest :southeast :southwest))))
-	      (multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction> 
+	      (multiple-value-bind (y x) (xe2:step-in-direction <y> <x> <direction> 
 								[stat-value self :movement-distance])
 		[update-position self x y]))
 	    (progn
@@ -207,19 +207,19 @@
 				(random-direction)))))
 	      (when (null <direction>)
 		(setf <direction> (car (one-of '(:northeast :northwest :southeast :southwest)))))
-	      (multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction> 
+	      (multiple-value-bind (y x) (xe2:step-in-direction <y> <x> <direction> 
 								[stat-value self :movement-distance])
 		[update-position self x y])))))))
 
 (define-method run ball ()
   (if (zerop <bounce-clock>)
       (progn [expend-action-points self 2]
-	     (multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction> 
+	     (multiple-value-bind (y x) (xe2:step-in-direction <y> <x> <direction> 
 							       [stat-value self :movement-distance])
 	       [update-position self x y]))
       (progn 
 	(setf <bounce-clock> (max 0 (1- <bounce-clock>)))
-	(multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction> 
+	(multiple-value-bind (y x) (xe2:step-in-direction <y> <x> <direction> 
 							  [stat-value self :movement-distance])
 	  [update-position self x y]))))
 
@@ -227,11 +227,11 @@
   (unless <dead>
     (setf <dead> t)
     (decf *balls*)
-    (when (and (zerop [stat-value [get-player *active-world*] :balls])
+    (when (and (zerop [stat-value [get-player *world*] :balls])
 	       (zerop *balls*))
       [play-sample self "doom"]
       (setf *alive* nil))
-    [remove-sprite *active-world* self]))
+    [remove-sprite *world* self]))
 
 ;;; Plasma
 
@@ -434,8 +434,8 @@
   (clon:with-field-values (row column) self
     (multiple-value-bind (r0 c0) (step-in-direction row column :east)
       (multiple-value-bind (r1 c1) (step-in-direction row column :west)
-	(unless (and [category-at-p *active-world* r0 c0 :brick]
-		     [category-at-p *active-world* r1 c1 :brick])
+	(unless (and [category-at-p *world* r0 c0 :brick]
+		     [category-at-p *world* r1 c1 :brick])
 	  (setf <orientation> :vertical))))))
 
 (define-method paint brick (c)
@@ -502,7 +502,7 @@
 (define-method die extra-brick ()
   (score 1000)
   [splash self]
-  [stat-effect [get-player *active-world*] :balls 1]
+  [stat-effect [get-player *world*] :balls 1]
   [play-sample self "speedup"]
   [delete-from-world self])
 
@@ -526,7 +526,7 @@
     [>>add-overlay :viewport #'do-circle])
   (dolist (dir '(:north :south :east :west :northeast :southeast :northwest :southwest))
     (multiple-value-bind (r c) (step-in-direction <row> <column> dir)
-      (let ((brick [category-at-p *active-world* r c :brick]))
+      (let ((brick [category-at-p *world* r c :brick]))
 	(when brick [hit brick])))))
 
 (define-method hit bomb-brick (&optional ball)
@@ -562,7 +562,7 @@
 	     [move self (random-direction) :ignore-obstacles])))
 
 (define-method die spark ()
-  (let ((brick [category-at-p *active-world* <row> <column> :brick]))
+  (let ((brick [category-at-p *world* <row> <column> :brick]))
     (when brick [hit brick]))
   [delete-from-world self])
 
@@ -619,7 +619,7 @@
   (categories :initform '(:actor :player :massive)))
 
 (define-method quit hero ()
-  (rlx:quit :shutdown))
+  (xe2:quit :shutdown))
 
 (define-method walk hero (direction)
   (assert (member direction '(:east :west)))
@@ -731,7 +731,7 @@
 
 (define-method obstructed paddle (direction)
   (or (when <next-piece> [obstructed <next-piece> direction])
-      [category-in-direction-p *active-world* <row> <column> direction :obstacle]))
+      [category-in-direction-p *world* <row> <column> direction :obstacle]))
 
 (define-method restart paddle ()
   (let ((player (clone =paddle=))
@@ -739,20 +739,20 @@
     (setf *alive* t)
     (setf *balls* 0)
     (setf *bricks* 0)
-    [exit *active-universe*] ;; don't crash
-    [destroy *active-universe*]
+    [exit *universe*] ;; don't crash
+    [destroy *universe*]
     (setf *theme* (car (one-of *themes*)))
-    [set-player *active-universe* player]
+    [set-player *universe* player]
     [set-character *status* player]
-    [play *active-universe*
+    [play *universe*
 	  :address '(=room=)]
     [proxy player hero]
     [loadout player]
     [loadout hero]
-    (rlx:reset-joystick)))
+    (xe2:reset-joystick)))
 
 (define-method quit paddle ()
-  (rlx:quit :shutdown))
+  (xe2:quit :shutdown))
 
 (defparameter *joystick-dead-zone* 2000)
 
@@ -763,7 +763,7 @@
     [update *status*]
     (when (plusp <serve-key-clock>)
       (decf <serve-key-clock>))
-    (let ((value (rlx:poll-joystick-axis 0)))
+    (let ((value (xe2:poll-joystick-axis 0)))
       (if (< (abs value) *joystick-dead-zone*)
 	  (setf <direction> nil)
 	  (if (plusp value)
@@ -798,7 +798,7 @@
 (define-method move paddle (direction &optional slave)
   (if slave
       [parent>>move self direction :ignore-obstacles]
-      (clon:with-field-values (width player) *active-world*
+      (clon:with-field-values (width player) *world*
 	;; don't allow paddle off screen
 	(if (ecase direction
 	      (:west (< 1 <column>))
@@ -815,7 +815,7 @@
   (let ((last-piece self))
     (dotimes (n *paddle-size*)
       (let ((piece (clone =paddle=)))
-	[drop-cell *active-world* piece <row> (+ n 1 <column>)]
+	[drop-cell *world* piece <row> (+ n 1 <column>)]
 	[attach last-piece piece]
 	(setf last-piece piece)))))
 	
@@ -831,7 +831,7 @@
 (defparameter *room-height* (truncate (/ (- *xiobreak-window-height* 20) *tile-size*)))
 (defparameter *room-width* (truncate (/ *xiobreak-window-width* *tile-size*)))
 
-(define-prototype room (:parent rlx:=world=)
+(define-prototype room (:parent xe2:=world=)
   (height :initform *room-height*)
   (width :initform *room-width*)
   (edge-condition :initform :block))
@@ -861,7 +861,7 @@
 	     (let ((brick (clone =brick=)))
 	       [paint brick color]
 	       [drop-cell self brick r c])))
-    (rlx:trace-row #'drop-brick row x0 x1)))
+    (xe2:trace-row #'drop-brick row x0 x1)))
 
 (defparameter *classic-layout-horz-margin* 0)
 
@@ -930,7 +930,7 @@
 
 ;;; Controlling the game
 
-(define-prototype room-prompt (:parent rlx:=prompt=))
+(define-prototype room-prompt (:parent xe2:=prompt=))
 
 (defparameter *numpad-keybindings* 
   '(("KP4" nil "walk :west .")
@@ -973,13 +973,13 @@
   ;; we also want to respond to timer events. this is how. 
   [define-key self nil '(:timer) (lambda ()
 				   (click-beat)
-				   [run-cpu-phase *active-world* :timer])])
+				   [run-cpu-phase *world* :timer])])
 
 ;;; A status widget for score display
 
 (defvar *status*)
 
-(define-prototype status (:parent rlx:=formatter=)
+(define-prototype status (:parent xe2:=formatter=)
   (character :documentation "The character cell."))
 
 (define-method set-character status (character)
@@ -1036,10 +1036,10 @@
 ;;; Main program. 
 
 (defun init-xiobreak ()
-  (rlx:message "Initializing Xiobreak...")
+  (xe2:message "Initializing Xiobreak...")
   (clon:initialize)
-  (rlx:set-screen-height *xiobreak-window-height*)
-  (rlx:set-screen-width *xiobreak-window-width*)
+  (xe2:set-screen-height *xiobreak-window-height*)
+  (xe2:set-screen-width *xiobreak-window-width*)
   (let* ((prompt (clone =room-prompt=))
 	 (universe (clone =universe=))
 	 (narrator (clone =narrator=))
@@ -1084,6 +1084,6 @@
 		:height (truncate (/ *xiobreak-window-height* *tile-size*))
 		:width (truncate (/ *xiobreak-window-width* *tile-size*))] 
     [adjust viewport] 
-    (rlx:install-widgets prompt viewport status)))
+    (xe2:install-widgets prompt viewport status)))
 
 (init-xiobreak)

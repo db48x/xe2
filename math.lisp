@@ -22,7 +22,7 @@
 
 ;;; Code:
 
-(in-package :rlx)
+(in-package :xe2)
 
 ;;; Probability
 

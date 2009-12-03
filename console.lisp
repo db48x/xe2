@@ -1,4 +1,4 @@
-;;; console.lisp --- basic operations for RLX
+;;; console.lisp --- core operations for XE2
 
 ;; Copyright (C) 2006, 2007, 2008, 2009  David O'Toole
 
@@ -22,18 +22,18 @@
 
 ;;; Commentary:
 
-;; The "console" is the library which provides all RLX system
+;; The "console" is the library which provides all XE2 system
 ;; services. Primitive operations such as setting the resolution,
 ;; displaying bitmaps, drawing lines, playing sounds, file access, and
 ;; keyboard/mouse input are handled here. 
 
 ;; Currently it uses the cross-platform SDL library (via
 ;; LISPBUILDER-SDL) as its device driver, and wraps the library for
-;; use by the rest of RLX.
+;; use by the rest of XE2.
 
 ;; http://lispbuilder.sourceforge.net/
 
-(in-package :rlx) 
+(in-package :xe2) 
 
 ;;; Message logging
 
@@ -115,7 +115,7 @@ Do not set this variable directly from a module; instead, call
 
 (defun install-widgets (&rest widgets)
   "User-level function for setting the active widget set. Note that
-RLX may override the current widget set at any time for system menus
+XE2 may override the current widget set at any time for system menus
 and the like."
   (setf *module-widgets* widgets)
   (setf *active-widgets* widgets))
@@ -159,7 +159,7 @@ The modifier list is sorted; thus, events can be compared for
 equality with `equal' and used as hashtable keys.
 
 The default event handler is `send-event-to-widgets', which see. An
-RLX game can use the widget framework to do its drawing and event
+XE2 game can use the widget framework to do its drawing and event
 handling, or override `*event-handler-function*' and do something
 else.")
 
@@ -183,7 +183,7 @@ else.")
 	    [hit widget x y])
 	(reverse widgets)))
 
-;;; Translating SDL key events into RLX event lists
+;;; Translating SDL key events into XE2 event lists
 
 (defparameter *other-modifier-symbols* '(:button-down :button-up :axis))
 
@@ -383,14 +383,14 @@ key event symbols."
 
 ;;; The active world
 
-(defvar *active-world* nil 
+(defvar *world* nil 
 "The current world object. Only one may be active at a time. See also
-worlds.lisp. Cells are free to send messages to `*active-world*' at
+worlds.lisp. Cells are free to send messages to `*world*' at
 any time, because it is always bound to the world containing the cell
 at the time the cell method is run.")
 
 (defun world ()
-  *active-world*)
+  *world*)
 
 ;;; Auto-zooming images
 
@@ -460,7 +460,7 @@ window. Set this in the game startup file.")
 (defun set-screen-height (height)
   (setf *screen-height* height))
 
-;;; The main loop of RLX
+;;; The main loop of XE2
 
 (defvar *next-module* "standard")
 
@@ -468,7 +468,7 @@ window. Set this in the game startup file.")
 
 (defvar *fullscreen* nil)
 
-(defvar *window-title* "RLX")
+(defvar *window-title* "XE2")
 
 (defun run-main-loop ()
   (if *fullscreen*
@@ -493,15 +493,15 @@ window. Set this in the game startup file.")
 				    (progn 
 				      ;; deliver messages in a queued environment
 				      (sdl:clear-display sdl:*black*)
-				      (when *active-world*
-					(when (field-value :message-queue *active-world*)
-					  (with-message-queue (field-value :message-queue *active-world*)
+				      (when *world*
+					(when (field-value :message-queue *world*)
+					  (with-message-queue (field-value :message-queue *world*)
 					    (case button
 					      (1 (when (has-method :select object) 
 						   [select object]))
 					      (2 (when (has-method :activate object) 
 						   [activate object]))))
-					  [process-messages *active-world*]))
+					  [process-messages *world*]))
 				      ;; (dispatch-event *timer-event*)
 				      (show-widgets)
 				      (sdl:update-display)))))
@@ -543,9 +543,9 @@ window. Set this in the game startup file.")
 		   (setf *clock* *timer-interval*))
 		 (decf *clock*))))))
 
-;;; The .rlxrc user init file
+;;; The .xe2rc user init file
 
-(defparameter *user-init-file-name* ".rlxrc")
+(defparameter *user-init-file-name* ".xe2rc")
 
 (defvar *initialization-hook* nil)
 
@@ -706,7 +706,7 @@ resource is stored; see also `find-resource'."
 		       (pathname-directory 
 			(load-time-value 
 			 (or #.*compile-file-truename* *load-truename*))))))
-;;   "List of directories where RLX will search for modules.
+;;   "List of directories where XE2 will search for modules.
 ;; Directories are searched in list order.")
 
 (defun find-module-path (module-name)
@@ -723,7 +723,7 @@ name MODULE-NAME. Returns the pathname if found, otherwise nil."
 			    :defaults dir))
        when path return path)
      (error "Cannot find module ~s in paths ~S. 
-You must set the variable RLX:*MODULE-DIRECTORIES* in the configuration file ~~/.rlxrc
+You must set the variable XE2:*MODULE-DIRECTORIES* in the configuration file ~~/.xe2rc
 Please see the included file BINARY-README for instructions."
 	    module-name dirs))))
 
@@ -1113,15 +1113,15 @@ found."
 
 ;;; Creating and displaying images
 
-;; The "driver dependent objects" for RLX images are just SDL:SURFACE
-;; objects. (The situation is the same for RLX colors, fonts, and so
+;; The "driver dependent objects" for XE2 images are just SDL:SURFACE
+;; objects. (The situation is the same for XE2 colors, fonts, and so
 ;; on). So long as the clients treat the driver-dependent resource
 ;; objects as opaque, this thin wrapper is sufficient.
 
 ;; Below are some image handling functions.
 
 (defun create-image (width height)
-  "Create a new RLX image of size (* WIDTH HEIGHT)."
+  "Create a new XE2 image of size (* WIDTH HEIGHT)."
   (sdl:create-surface width height))
 
 (defun draw-image (image x y &key (destination sdl:*default-surface*))

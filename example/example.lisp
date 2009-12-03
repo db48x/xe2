@@ -1,4 +1,4 @@
-;;; example.lisp --- simple rlx example game
+;;; example.lisp --- simple xe2 example game
 
 ;; Copyright (C) 2009  David O'Toole
 
@@ -23,21 +23,21 @@
 
 ;;; Packaging
 
-(defpackage :rlx-example
-  (:documentation "Example rlx game.")
-  (:use :rlx :common-lisp)
-  (:export rlx-example))
+(defpackage :xe2-example
+  (:documentation "Example xe2 game.")
+  (:use :xe2 :common-lisp)
+  (:export xe2-example))
 
-(in-package :rlx-example)
+(in-package :xe2-example)
 
 ;;; Turn on timing after SDL init
 
-(add-hook 'rlx:*initialization-hook*
+(add-hook 'xe2:*initialization-hook*
 	  #'(lambda ()
-	      (rlx:enable-timer)
-	      (rlx:set-frame-rate 30)
-	      (rlx:set-timer-interval 1)
-	      (rlx:enable-held-keys 1 3)))
+	      (xe2:enable-timer)
+	      (xe2:set-frame-rate 30)
+	      (xe2:set-timer-interval 1)
+	      (xe2:enable-held-keys 1 3)))
 
 ;;; Floor tiles
 
@@ -61,7 +61,7 @@
 (defcell ball 
   (tile :initform "ball")
   (categories :initform '(:actor))
-  (direction :initform (rlx:random-direction))
+  (direction :initform (xe2:random-direction))
   (hit-points :initform (make-stat :base 5 :min 0)))
 
 (define-method serve ball (direction)
@@ -71,7 +71,7 @@
 (define-method run ball ()
   (when (eq <direction> :here) (setf <direction> (random-direction)))
   (clon:with-fields (direction row column) self
-    (multiple-value-bind (r c) (rlx:step-in-direction row column direction)
+    (multiple-value-bind (r c) (xe2:step-in-direction row column direction)
       (if [obstacle-at-p *active-world* r c]
 	  (progn 
 	    ;; is it a wall or character? then hit it
@@ -81,7 +81,7 @@
 		[damage self 1]))
 	    ;; bounce
 	    [play-sample self "bip"]
-	    (setf direction (rlx:random-direction)))
+	    (setf direction (xe2:random-direction)))
 	  ;; move along
 	  [move self direction]))))
 
@@ -96,7 +96,7 @@
   (categories :initform '(:actor :player :obstacle)))
 
 (define-method quit player ()
-  (rlx:quit :shutdown))
+  (xe2:quit :shutdown))
 
 (define-method run player ()
   ;; if you are in category :actor, this is called every turn
@@ -129,7 +129,7 @@
 
 (defparameter *room-size* 40)
 
-(define-prototype room (:parent rlx:=world=)
+(define-prototype room (:parent xe2:=world=)
   (height :initform *room-size*)
   (width :initform *room-size*)
   (edge-condition :initform :block))
@@ -183,7 +183,7 @@
 
 ;;; Controlling the game
 
-(define-prototype room-prompt (:parent rlx:=prompt=))
+(define-prototype room-prompt (:parent xe2:=prompt=))
 
 (defparameter *numpad-keybindings* 
   '(("KP7" nil "move :northwest .")
@@ -239,10 +239,10 @@
 (defparameter *room-window-height* 600)
 
 (defun init-example ()
-  (rlx:message "Initializing Example...")
+  (xe2:message "Initializing Example...")
   (setf clon:*send-parent-depth* 2) ;; i'll fix this
-  (rlx:set-screen-height *room-window-height*)
-  (rlx:set-screen-width *room-window-width*)
+  (xe2:set-screen-height *room-window-height*)
+  (xe2:set-screen-width *room-window-width*)
   (let* ((prompt (clone =room-prompt=))
 	 (universe (clone =universe=))
 	 (narrator (clone =narrator=))
@@ -274,6 +274,6 @@
     [narrateln narrator "You are the green guy."]
     [narrateln narrator "Use the numpad or nethack keys to move; Control-direction to fire."]
    ;;
-    (rlx:install-widgets prompt viewport narrator)))
+    (xe2:install-widgets prompt viewport narrator)))
 
 (init-example)

@@ -24,7 +24,7 @@
 
 (defpackage :xong
   (:documentation "XONG is a colorful puzzle game in Common Lisp.")
-  (:use :rlx :common-lisp)
+  (:use :xe2 :common-lisp)
   (:export xong))
 
 (in-package :xong)
@@ -36,7 +36,7 @@
 ;;; Scoring points
 
 (defun score (points)
-  [score-points [get-player *active-world*] points])
+  [score-points [get-player *world*] points])
 
 ;;; Colors
 
@@ -92,7 +92,7 @@
   (unless (zerop <bounce-clock>)
     (decf <bounce-clock>))
   [expend-action-points self 10]
-  (multiple-value-bind (y x) (rlx:step-in-direction <y> <x> <direction>)
+  (multiple-value-bind (y x) (xe2:step-in-direction <y> <x> <direction>)
     [update-position self x y]))
 
 (define-method do-collision yasichi (object)
@@ -116,7 +116,7 @@
   (labels ((do-square (image)
 	     (prog1 t
 	       (multiple-value-bind (x y) 
-		   [get-viewport-coordinates (field-value :viewport *active-world*)
+		   [get-viewport-coordinates (field-value :viewport *world*)
 					      r
 					      c]
 		 (draw-rectangle x y 16 16 :destination image :color ".magenta")))))
@@ -264,14 +264,14 @@ Use chevrons to direct tracers into Black Holes."))
     
 (define-method run tracer ()
   (clon:with-field-values (row column) self
-    (let ((world *active-world*))
+    (let ((world *world*))
       (when [obstacle-in-direction-p world row column <direction>]
 	(setf <direction> (car (one-of '(:north :south :east :west)))))
       [expend-action-points self 25]
       [move self <direction>])))
 
 (define-method drop-wire tracer ()
-  [drop-cell *active-world* (clone =wire= :direction <direction> :clock 5)
+  [drop-cell *world* (clone =wire= :direction <direction> :clock 5)
 	     <row> <column>])
 
 (define-method move tracer (direction)
@@ -354,11 +354,11 @@ squeezing by in between pulses!"))
 		 (draw-circle x y 35 :destination image)))))
     [>>add-overlay :viewport #'do-circle])
   (when (< [distance-to-player self] 3.5)
-    [damage [get-player *active-world*] 1]))
+    [damage [get-player *world*] 1]))
 
 (define-method run monitor ()
   (clon:with-field-values (row column) self
-    (let ((world *active-world*))
+    (let ((world *world*))
       (if (and (< [distance-to-player world row column] 7)
 	       [line-of-sight world row column 
 			      [player-row world]
@@ -425,9 +425,9 @@ explode with deadly plasma radiation!"))
 	    (block placing
 	      (loop do (let ((r (+ row (- (random 3) (random 5))))
 			     (c (+ column (- (random 3) (random 5)))))
-			 (if [line-of-sight *active-world* row column r c]
+			 (if [line-of-sight *world* row column r c]
 			     (progn 
-			       [drop-cell *active-world* plasma r c]
+			       [drop-cell *world* plasma r c]
 			       (return-from placing))
 			     ;; try again
 			     (decf limit)))
@@ -501,7 +501,7 @@ explode with deadly plasma radiation!"))
     (block searching
       (dolist (dir '(:north :south :east :west))
 	(multiple-value-bind (r c) (step-in-direction row column dir)
-	  (let ((gate [category-at-p *active-world* r c :gate]))
+	  (let ((gate [category-at-p *world* r c :gate]))
 	    (when (and (clon:object-p gate)
 		       [is-open gate]
 		       (zerop <escape-clock>))
@@ -511,14 +511,14 @@ explode with deadly plasma radiation!"))
 (define-method probe snake (direction)
   (let ((retval (clon:with-field-values (row column) self
 		  (multiple-value-bind (r c) (step-in-direction row column direction)
-		    (if (and [in-bounds-p *active-world* r c]
-			     (not [category-at-p *active-world* r c :obstacle]))
+		    (if (and [in-bounds-p *world* r c]
+			     (not [category-at-p *world* r c :obstacle]))
 			;; all clear
 			direction
 			;; allow overlapping self
-			(when (or [category-at-p *active-world* r c :snake]
+			(when (or [category-at-p *world* r c :snake]
 				  ;; try to escape the room
-				  (and (let ((gate [category-at-p *active-world* r c :gate]))
+				  (and (let ((gate [category-at-p *world* r c :gate]))
 					 (when (clon:object-p gate)
 					   [is-open gate]))))
 			  direction))))))
@@ -531,7 +531,7 @@ explode with deadly plasma radiation!"))
     (when (null <ahead>)
       ;; kill player if adjacent
       (when [adjacent-to-player self]
-	[damage [get-player *active-world*] 1])
+	[damage [get-player *world*] 1])
       ;; we are the head of the snake
       (let ((dir (or [adjacent-gate self] <direction>)))
 	(if [probe self dir]
@@ -555,11 +555,11 @@ explode with deadly plasma radiation!"))
 ;; 	(snake (clone =snake=)))
 ;;     (multiple-value-bind (r c)
 ;; 	(step-in-direction <row> <column> dir)
-;;       [drop-cell *active-world* snake r c :probe t :exclusive t])))
+;;       [drop-cell *world* snake r c :probe t :exclusive t])))
 
 ;;; Door to next level
 
-(define-prototype door (:parent rlx:=gateway=)
+(define-prototype door (:parent xe2:=gateway=)
   (tile :initform "door")
   (name :initform "Level exit")
   (description :initform "Door to the next level of Xong.")
@@ -698,7 +698,7 @@ reach new areas and items. The puck also picks up the color.")
   [>>narrateln :narrator (format nil "Scored ~S points." points)])
 
 (define-method quit player ()
-  (rlx:quit :shutdown))
+  (xe2:quit :shutdown))
 
 (define-method step player (stepper)
   (when [in-category stepper :item]
@@ -713,10 +713,10 @@ reach new areas and items. The puck also picks up the color.")
 
 (define-method restart player ()
   (let ((player (clone =player=)))
-    [destroy *active-universe*]
-    [set-player *active-universe* player]
+    [destroy *universe*]
+    [set-player *universe* player]
     [set-character *status* player]
-    [play *active-universe*
+    [play *universe*
 	  :address (generate-level-address 1)]
     [loadout player]
     [play-sample self "go"]))
@@ -726,7 +726,7 @@ reach new areas and items. The puck also picks up the color.")
     (if (zerop [stat-value self :chevrons])
 	(progn [play-sample self "error"]
 	       [say self "You don't have any chevrons to drop."])
-	(if [category-at-p *active-world* <row> <column> :chevron]
+	(if [category-at-p *world* <row> <column> :chevron]
 	    (progn [play-sample self "error"]
 		   [say self "You can't drop a chevron on top of another chevron."])
 	    (let ((chevron (clone =chevron=)))
@@ -749,7 +749,7 @@ reach new areas and items. The puck also picks up the color.")
   (unless <dead>
     (clon:with-fields (puck) self
       (when puck
-	[drop-cell *active-world* puck <row> <column> :no-stepping t]
+	[drop-cell *world* puck <row> <column> :no-stepping t]
 	[kick puck direction]
 	(setf puck nil)
 	[play-sample self "serve"]))))
@@ -769,7 +769,7 @@ reach new areas and items. The puck also picks up the color.")
 
 ;;; Controlling the game
 
-(define-prototype xong-prompt (:parent rlx:=prompt=))
+(define-prototype xong-prompt (:parent xe2:=prompt=))
 
 (defparameter *numpad-keybindings* 
   '(("KP8" nil "move :north .")
@@ -845,7 +845,7 @@ reach new areas and items. The puck also picks up the color.")
       (apply #'bind-key-to-prompt-insertion self k))
   ;; we also want to respond to timer events. this is how. 
   [define-key self nil '(:timer) (lambda ()
-				   [run-cpu-phase *active-world* :timer])])
+				   [run-cpu-phase *world* :timer])])
 
 ;;; The floor
 
@@ -881,8 +881,8 @@ reach new areas and items. The puck also picks up the color.")
   (setf <direction> (opposite-direction <direction>))
   [play-sample self "bounce"])
   ;; ;; check player collision; this happens when shooting an adjacent wall
-  ;; (when [category-at-p *active-world* <row> <column> :player]
-  ;;   [grab [get-player *active-world*] self]))
+  ;; (when [category-at-p *world* <row> <column> :player]
+  ;;   [grab [get-player *world*] self]))
 
 (define-method paint puck (color)
   (setf <color> color)
@@ -891,7 +891,7 @@ reach new areas and items. The puck also picks up the color.")
 (define-method move puck (direction)
   (multiple-value-bind (r c) 
       (step-in-direction <row> <column> direction)
-    (let ((obstacle [obstacle-at-p *active-world* r c]))
+    (let ((obstacle [obstacle-at-p *world* r c]))
       (when obstacle
 	[bounce self]
 	(when (clon:object-p obstacle)
@@ -909,7 +909,7 @@ reach new areas and items. The puck also picks up the color.")
 		  [parent>>move self direction])
 		(when [in-category obstacle :gate]
 		  [open obstacle]
-		  (when [category-at-p *active-world* <row> <column> :player]
+		  (when [category-at-p *world* <row> <column> :player]
 		    [parent>>move self direction]))
 		(when [in-category obstacle :bulkhead]
 		  [parent>>move self direction :ignore-obstacles]))))))
@@ -959,7 +959,7 @@ reach new areas and items. The puck also picks up the color.")
 (define-method move snowflake (direction)
   (multiple-value-bind (r c) 
       (step-in-direction <row> <column> direction)
-    (let ((obstacle [obstacle-at-p *active-world* r c]))
+    (let ((obstacle [obstacle-at-p *world* r c]))
       (when obstacle
 	[bounce self]
 	(when (clon:object-p obstacle)
@@ -977,7 +977,7 @@ reach new areas and items. The puck also picks up the color.")
 
 (define-method kick snowflake (direction)
   (setf <direction> direction)
-  (when [category-at-p *active-world* <row> <column> :player]
+  (when [category-at-p *world* <row> <column> :player]
     [move self direction]))
 
 (define-method freeze snowflake (enemy)
@@ -1069,12 +1069,12 @@ reach new areas and items. The puck also picks up the color.")
   (if (> 0 <clock>)
       [die self]
       (progn 
-	(do-cells (cell [cells-at *active-world* <row> <column>])
+	(do-cells (cell [cells-at *world* <row> <column>])
 	  (when (has-field :hit-points cell)
 	    [damage cell 1]))
 	(let ((dir (random-direction)))
 	  (multiple-value-bind (r c) (step-in-direction <row> <column> dir)
-	    (let ((brick [category-at-p *active-world* r c :wall]))
+	    (let ((brick [category-at-p *world* r c :wall]))
 	      (if brick
 		  (progn 
 		    [paint brick <color>]
@@ -1158,7 +1158,7 @@ reach new areas and items. The puck also picks up the color.")
     [drop self trail]))
 
 (define-method find-target muon-particle ()
-  (let ((target [category-in-direction-p *active-world* 
+  (let ((target [category-in-direction-p *world* 
 					 <row> <column> <direction>
 					 '(:obstacle :target)]))
     (if target
@@ -1170,7 +1170,7 @@ reach new areas and items. The puck also picks up the color.")
 	  [>>die self])
 	(multiple-value-bind (r c) 
 	    (step-in-direction <row> <column> <direction>)
-	  (if (not (array-in-bounds-p (field-value :grid *active-world*) r c))
+	  (if (not (array-in-bounds-p (field-value :grid *world*) r c))
 	      [die self]
 	      (progn [drop-trail self <direction>]
 		     [>>move self <direction>]))))))
@@ -1214,7 +1214,7 @@ reach new areas and items. The puck also picks up the color.")
 the player gets too close."))
 
 (define-method get-nasty oscillator ()
-  [damage [get-player *active-world*] 1])
+  [damage [get-player *world*] 1])
 
 (define-method loadout oscillator ()
   (incf *enemies*))
@@ -1223,13 +1223,13 @@ the player gets too close."))
   (decf *enemies*))
 
 (define-method run oscillator ()
-  (if [obstacle-in-direction-p *active-world* <row> <column> <direction>]
+  (if [obstacle-in-direction-p *world* <row> <column> <direction>]
       (setf <direction> (opposite-direction <direction>))
       (progn [move self <direction>]
 	     (if (and (> 8 [distance-to-player self])
-		      [line-of-sight *active-world* <row> <column> 
-				     [player-row *active-world*]
-				     [player-column *active-world*]])
+		      [line-of-sight *world* <row> <column> 
+				     [player-row *world*]
+				     [player-column *world*]])
 		 [fire self [direction-to-player self]]))))
 
 (define-method fire oscillator (direction)
@@ -1282,7 +1282,7 @@ the player gets too close."))
 
 ;; (generate-level-address 1)
 
-(define-prototype xong (:parent rlx:=world=)
+(define-prototype xong (:parent xe2:=world=)
   (name :initform "Xong board")
   (description :initform 
 	       '((("Welcome to Xong." :foreground ".white" :background ".blue")
@@ -1302,7 +1302,7 @@ the player gets too close."))
 	       (progn nil
 		      (setf piece (clone =snake=))
 		      (push piece *snake*)
-		      [drop-cell *active-world* piece r c]
+		      [drop-cell *world* piece r c]
 		      [set-color piece (car (one-of *colors*))]
 		      (when last-piece
 			[attach last-piece piece])
@@ -1461,7 +1461,7 @@ the player gets too close."))
 (define-prototype splash (:parent =widget=))
 
 (define-method render splash ()
-  (rlx:draw-resource-image "splash" 0 0 
+  (xe2:draw-resource-image "splash" 0 0 
 			   :destination <image>))
 
 (defvar *space-bar-function*)
@@ -1471,7 +1471,7 @@ the player gets too close."))
   (when (functionp *space-bar-function*)
     (funcall *space-bar-function*))
   ;; TODO ugh this is a hack!
-  (rlx:show-widgets))
+  (xe2:show-widgets))
 
 (define-prototype splash-prompt (:parent =prompt=)
   (default-keybindings :initform '(("SPACE" nil "dismiss ."))))
@@ -1480,7 +1480,7 @@ the player gets too close."))
 
 (defvar *status* nil)
 
-(define-prototype status (:parent rlx:=formatter=)
+(define-prototype status (:parent xe2:=formatter=)
   (character :documentation "The character cell."))
 
 (define-method set-character status (character)
@@ -1531,7 +1531,7 @@ the player gets too close."))
 	[print-stat self :chevrons :warn-below 3 :show-max t]
 	[print-stat-bar self :chevrons :color ".yellow"]
 	[space self]
-	[print self (format nil "   LEVEL:~S" (field-value :level *active-world*))]
+	[print self (format nil "   LEVEL:~S" (field-value :level *world*))]
 	[print self (format nil "   ENEMIES:~S" *enemies*)]
 	[print self "     HOLDING:"]
 	(if (field-value :puck char)
@@ -1549,11 +1549,11 @@ the player gets too close."))
 (defvar *viewport*)
 
 (defun xong ()
-  (rlx:message "Initializing Xong...")
-  (setf rlx:*window-title* "Xong")
+  (xe2:message "Initializing Xong...")
+  (setf xe2:*window-title* "Xong")
   (setf clon:*send-parent-depth* 2) 
-  (rlx:set-screen-height *xong-window-height*)
-  (rlx:set-screen-width *xong-window-width*)
+  (xe2:set-screen-height *xong-window-height*)
+  (xe2:set-screen-width *xong-window-width*)
   ;; go!
   (let* ((prompt (clone =xong-prompt=))
 	 (universe (clone =universe=))
@@ -1589,10 +1589,10 @@ the player gets too close."))
     (labels ((spacebar ()
 	       ;;
 	       ;; enable pseudo timing
-	       (rlx:enable-timer)
-	       (rlx:set-frame-rate 30)
-	       (rlx:set-timer-interval 1)
-	       (rlx:enable-held-keys 1 3)
+	       (xe2:enable-timer)
+	       (xe2:set-frame-rate 30)
+	       (xe2:set-timer-interval 1)
+	       (xe2:enable-held-keys 1 3)
 	       ;;
 	       [set-player universe player]
 	       [play universe
@@ -1652,11 +1652,11 @@ the player gets too close."))
     					 :color color)
 			      (draw-circle x y 5 :destination image)))))
     		 [add-overlay *viewport* #'hack-overlay]))))
-;;      (setf rlx::*lighting-hack-function* #'light-hack))
+;;      (setf xe2::*lighting-hack-function* #'light-hack))
     ;; END HACK
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
-    (rlx:install-widgets splash-prompt splash)
+    (xe2:install-widgets splash-prompt splash)
     [add-page *pager* :game prompt stack viewport terminal *status* quickhelp]
     [add-page *pager* :help help]))
 

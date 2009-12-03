@@ -36,7 +36,7 @@
 
 ;;; Code:
 
-(in-package :rlx)
+(in-package :xe2)
 
 (define-prototype menu-item (:parent =widget=)
   (tile :initform ".asterisk")

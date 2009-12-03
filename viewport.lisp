@@ -28,12 +28,12 @@
 
 ;;; Code:
 
-(in-package :rlx)
+(in-package :xe2)
 
 (defstruct overlay func parameters clock)
 
 (define-prototype viewport 
-    (:parent =widget= :documentation "A map display for RLX worlds.")
+    (:parent =widget= :documentation "A map display for XE2 worlds.")
   (world :documentation "The world object to be displayed.")
   (overlays :documentation "List of closures.")
   (use-overlays :initform t)
@@ -80,7 +80,7 @@
 (define-method render viewport ()
 ;;  (declare (optimize (speed 3)))
   [adjust self] ;; hehe
-  (let* ((world (or <world> *active-world*))
+  (let* ((world (or <world> *world*))
 	 (origin-width <origin-width>)
 	 (origin-height <origin-height>)
 	 (origin-x <origin-x>)
@@ -140,7 +140,7 @@
 	   (y0 (- y <y>))
 	   (r (truncate (/ y0 <tile-size>)))
 	   (c (truncate (/ x0 <tile-size>)))
-	   (cells (aref (field-value :grid (or <world> *active-world*))
+	   (cells (aref (field-value :grid (or <world> *world*))
 			(+ <origin-y> r) (+ <origin-x> c))))
       (aref cells (1- (fill-pointer cells))))))
 
@@ -152,7 +152,7 @@
 
 (define-method adjust viewport ()
   "Move the viewport's origin if required to keep the player onscreen."
-  (let* ((world (or <world> *active-world*))
+  (let* ((world (or <world> *world*))
 	 (world-width (field-value :width world))
 	 (world-height (field-value :height world))
 	 (player (field-value :player world))
@@ -207,7 +207,7 @@
 		
 (define-method render minimap ()
   [adjust self] ;; hehe
-  (let* ((world (or <world> *active-world*))
+  (let* ((world (or <world> *world*))
 	 (origin-width <origin-width>)
 	 (origin-height <origin-height>)
 	 (origin-x <origin-x>)
@@ -249,7 +249,7 @@
 				   :destination image 
 				   :color ".yellow"))
 		    (when (member category categories)
-		      (rlx:draw-box (* tile-size j) 
+		      (xe2:draw-box (* tile-size j) 
 				    (* tile-size i)
 				    tile-size tile-size
 				    :destination image 

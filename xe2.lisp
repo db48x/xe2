@@ -1,10 +1,11 @@
-;;; rlx.lisp --- a next-generation tile-based virtual home video-game console
-;;  ____  _    __  __
-;; |  _ \| |   \ \/ /
-;; | |_) | |    \  /
-;; |  _ <| |___ /  \
-;; |_| \_\_____/_/\_\
+;;; xe2.lisp --- a next-generation tile-based virtual home video-game console
 
+;; __  _______ ____  
+;; \ \/ / ____|___ \ 
+;;  \  /|  _|   __) |
+;;  /  \| |___ / __/ 
+;; /_/\_\_____|_____|
+               
 ;; Copyright (C) 2006, 2007, 2008  David O'Toole
 
 ;; Author: David O'Toole <dto@gnu.org>
@@ -55,8 +56,9 @@
 
 ;;; Code:
 
-(defpackage :rlx 
+(defpackage :xiomacs-engine-2 
   (:documentation "A graphical roguelike game engine for Common Lisp.")  
+  (:nicknames :xe2)
   (:use :common-lisp :clon) 
   (:export *default-frame-width* *default-frame-height* =viewport=
   =equipment= *default-world-axis-size* *default-world-z-size*
@@ -76,7 +78,7 @@
   *choose-direction-menu* set-field-options field-option-value
   index-resource find-module-path index-module load-image-resource
   load-lisp-resource *resource-handlers* load-resource find-resource
-  find-resource-object *colors* *active-world* load-user-init-file
+  find-resource-object *colors* *world* load-user-init-file
   *module-directories* resource-to-plist make-event =widget=
   *active-widgets* bind-key-to-prompt-insertion make-field-initializer
   clone make-field-initializer-body make-key-modifier-symbol
@@ -112,16 +114,16 @@
   field-options world set-frame-rate *frame-rate* =stack=
   *window-title* set-timer-interval *message-logging* overlay
   poll-joystick-axis reset-joystick set-screen-width =universe=
-  *active-universe* set-screen-height genseq *zoom-factor* zoom-image
+  *universe* set-screen-height genseq *zoom-factor* zoom-image
   is-zoomed-resource *timer-interval* enable-timer disable-timer while
   enable-held-keys disable-held-keys do-cells draw-box draw-rectangle
   *quitting* quit reset))
 
-(in-package :rlx)
+(in-package :xe2)
 
 ;;; Emacs Lisp compatibilty macro 
 
 (defmacro while (test &body body)
   `(loop while ,test do ,@body))
 
-;;; rlx.lisp ends here
+;;; xe2.lisp ends here

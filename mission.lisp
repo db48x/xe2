@@ -24,7 +24,7 @@
 
 ;;; Code:
 
-(in-package :rlx)
+(in-package :xe2)
 
 (defparameter *test-grammar* 
   '((mission >> (at location please goal+ in exchange for reward))

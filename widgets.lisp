@@ -26,7 +26,7 @@
 ;; `handle-key' method; `define-key' and `undefine-key' can be used to
 ;; manage keybindings.
 
-;; The main RLX loop is set up to dispatch event messages to
+;; The main XE2 loop is set up to dispatch event messages to
 ;; widgets. After the events have been processed and the widgets have
 ;; drawn their images to their respective offscreen buffers, the
 ;; engine copies the buffers to the screen. (see console.lisp)
@@ -36,7 +36,7 @@
 
 ;;; Code:
 
-(in-package :rlx)
+(in-package :xe2)
 
 (define-prototype widget
     (:documentation "A basic widget that renders to an offscreen image.")
@@ -236,7 +236,7 @@ Example: [print my-formatter \"hello\" :foreground \"red\"]"
   [print self nil :image image])
 
 (define-method println formatter (&rest args)
-  (apply #'rlx:send self :print self args)
+  (apply #'xe2:send self :print self args)
   [newline self])
 
 (define-method space formatter ()
@@ -376,7 +376,7 @@ auto-updated displays."
 (defvar *numeric-characters* "0123456789")
 
 (define-prototype prompt
-    (:parent rlx:=widget= :documentation "A command prompt.")
+    (:parent xe2:=widget= :documentation "A command prompt.")
   (mode :documentation "Either :direct or :forward." :initform :direct)
   (default-keybindings :documentation "Default keybindings bound during initialization.
 These are the arguments to `bind-key-to-prompt-insertion', which see.")
@@ -712,11 +712,11 @@ This method allocates a new SDL surface when necessary."
 	(progn 
 	  (setf <current-page> newpage)
 	  ;; insert self always as first widget
-	  (apply #'rlx:install-widgets self (cdr (assoc newpage <pages>)))))))
+	  (apply #'xe2:install-widgets self (cdr (assoc newpage <pages>)))))))
 
-(define-method auto-position pager (&key (width rlx:*screen-width*))
+(define-method auto-position pager (&key (width xe2:*screen-width*))
   [resize self :width width :height <pager-height>]
-  [move self :x 0 :y (- rlx:*screen-height* <pager-height>)])
+  [move self :x 0 :y (- xe2:*screen-height* <pager-height>)])
 
 (define-method add-page pager (keyword &rest widgets)
   (push (cons keyword widgets) <pages>))

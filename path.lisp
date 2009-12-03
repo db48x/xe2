@@ -1,4 +1,4 @@
-;;; path.lisp --- A* pathfinding for RLX
+;;; path.lisp --- A* pathfinding for XE2
 
 ;; Copyright (C) 2009  David O'Toole
 
@@ -27,7 +27,7 @@
 
 ;;; Code:
 
-(in-package :rlx)
+(in-package :xe2)
 
 (defstruct path
   world ;; Pointer to associated world. 

@@ -20,7 +20,7 @@
 
 ;;; Code:
 
-(in-package :rlx)
+(in-package :xe2)
 
 ;;; Verbosity determines when a message is important enough to output.
 
@@ -123,10 +123,10 @@ http://en.wikipedia.org/wiki/Passive_voice"
 
 (define-method narrate-message narrator (sender action receiver args &optional force)
   (unless (zerop <verbosity>)
-    (let ((A (or sender rlx:=asterisk=))
+    (let ((A (or sender xe2:=asterisk=))
 	  (B (if (has-field :tile receiver) 
 		 receiver 
-		 rlx:=gray-asterisk=))
+		 xe2:=gray-asterisk=))
 	  (action-verbosity (getf *message-verbosities* action t)))
       (when (member action <passive-voice-actions>)
 	(rotatef A B))

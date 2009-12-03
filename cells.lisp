@@ -32,7 +32,7 @@
 
 ;;; Code:
 
-(in-package :rlx)
+(in-package :xe2)
 
 ;;; Base cell prototype
 
@@ -40,7 +40,7 @@
 ;; features of the roguelike engine:
 
 (define-prototype cell
-    (:documentation "An RLX game-world object.")
+    (:documentation "An XE2 game-world object.")
   (type :initform :cell)
   (weight :documentation "Weight of the cell, in kilograms.")
   (tile :initform ".asterisk" :documentation "Resource name of image.")
@@ -182,7 +182,7 @@ field named by STAT-NAME. The default is to change the :base value."
 ;; symbols; if a symbol `:foo' is in the list, then the cell is in the
 ;; category `:foo'.
 
-;; Although a game built on RLX can define whatever categories are
+;; Although a game built on XE2 can define whatever categories are
 ;; needed, certain base categories are built-in and have a fixed
 ;; interpretation:
 
@@ -233,7 +233,7 @@ field named by STAT-NAME. The default is to change the :base value."
 
 ;; <: action-points :>
 
-;; The Action Points system is RLX's model of roguelike time; Time is
+;; The Action Points system is XE2's model of roguelike time; Time is
 ;; divided into discrete episodes called phases.  Each phase consists
 ;; of one or more actions, each of which lasts a certain number of
 ;; action points' worth of time. During an action, the cell may modify
@@ -250,7 +250,7 @@ field named by STAT-NAME. The default is to change the :base value."
 ;; have an <actions> field; this is a list of method keywords
 ;; identifying the actions the player can trigger.
 
-;; First your turn comes up, and RLX waits for your input.  Once you
+;; First your turn comes up, and XE2 waits for your input.  Once you
 ;; issue a command, some AP may be used up. When your AP is gone, the
 ;; computer's phase begins; the results are displayed, and if you're
 ;; still alive, the player phase begins again.
@@ -313,24 +313,24 @@ action during PHASE."
   [expend-action-points self [stat-value self :default-cost]])
 
 (define-method end-phase cell ()
-  (setf <phase-number> [get-phase-number *active-world*]))
+  (setf <phase-number> [get-phase-number *world*]))
 
 ;;; Player orientation
 
 (define-method distance-to-player cell ()
-  [distance-to-player *active-world* <row> <column>])
+  [distance-to-player *world* <row> <column>])
 
 (define-method direction-to-player cell ()
-  [direction-to-player *active-world* <row> <column>])
+  [direction-to-player *world* <row> <column>])
 
 (define-method adjacent-to-player cell ()
-  [adjacent-to-player *active-world* <row> <column>])
+  [adjacent-to-player *world* <row> <column>])
 
 ;;; Proxying and vehicles
 
 (define-method proxy cell (occupant)
   "Make this cell a proxy for OCCUPANT."
-  (let ((world *active-world*))
+  (let ((world *world*))
     (when <occupant> 
       (error "Attempt to overwrite existing occupant cell in proxying."))
     (setf <occupant> occupant)
@@ -353,7 +353,7 @@ action during PHASE."
 
 (define-method unproxy cell (&key dr dc dx dy)
   "Remove the occupant from this cell, dropping it on top."  
-  (let ((world *active-world*)
+  (let ((world *world*)
 	(occupant <occupant>))
     (when (null occupant)
       (error "Attempt to unproxy empty cell."))
@@ -394,7 +394,7 @@ unproxying. By default, it does nothing."
 	(apply #'send self method occupant args))))
   
 (define-method embark cell (&optional v)
-  (let ((vehicle (or v [category-at-p *active-world* <row> <column> :vehicle])))
+  (let ((vehicle (or v [category-at-p *world* <row> <column> :vehicle])))
     (if (null vehicle)
 	[>>say :narrator "No vehicle to embark."]
 	(if (null (field-value :occupant vehicle))
@@ -415,15 +415,15 @@ unproxying. By default, it does nothing."
 		     <hearing-range>
 		     *default-sample-hearing-range*))
 	  (dist (distance (or <column> 0) (or <row> 0)
-			  [player-column *active-world*]
-			  [player-row *active-world*])))
+			  [player-column *world*]
+			  [player-row *world*])))
       (when (> range dist)
 	(apply #'send-queue self :say :narrator format-string args)))))
 
 ;;; Cell movement
 
 (define-method move cell (direction &optional ignore-obstacles)
-  (let ((world *active-world*))
+  (let ((world *world*))
     (multiple-value-bind (r c) 
 	(step-in-direction <row> <column> direction)
       ;; 
@@ -438,7 +438,7 @@ unproxying. By default, it does nothing."
 		   (:exit [exit *active-universe*])))))
 	    (t
 	     (when (or ignore-obstacles 
-		       (not [obstacle-at-p *active-world* r c]))
+		       (not [obstacle-at-p *world* r c]))
 	       ;; return t because we moved
 	       (prog1 t
 		 [expend-action-points self [stat-value self :movement-cost]]
@@ -451,15 +451,15 @@ unproxying. By default, it does nothing."
 
 (define-method step-on-current-square cell ()
   (when <stepping>
-    (do-cells (cell [cells-at *active-world* <row> <column>])
+    (do-cells (cell [cells-at *world* <row> <column>])
       (unless (eq cell self) 
 	[step cell self]))))
 
 (define-method drop cell (cell)
-  [drop-cell *active-world* cell <row> <column>])
+  [drop-cell *world* cell <row> <column>])
 
 (define-method drop-sprite cell (sprite x y)
-  [add-sprite *active-world* sprite]
+  [add-sprite *world* sprite]
   [update-position sprite x y])
 
 (define-method step cell (stepper)
@@ -558,7 +558,7 @@ Return ITEM if successful, nil otherwise."
 
 ;; TODO split into find-direction, find-z, find & key :dir :z
 (define-method find cell (&key (direction :here) (index :top) category)
-  (let ((world *active-world*))
+  (let ((world *world*))
     (multiple-value-bind (nrow ncol)
 	(step-in-direction <row> <column> direction)
       (if [in-bounds-p world nrow ncol]
@@ -584,7 +584,7 @@ Return ITEM if successful, nil otherwise."
   (setf <row> nil <column> nil))
 
 (define-method delete-from-world cell ()
-  [delete-cell *active-world* self <row> <column>])
+  [delete-cell *world* self <row> <column>])
 ;;  [clear-location self])
 		       
 (define-method take cell (&key (direction :here) index category)
@@ -606,7 +606,7 @@ slot."
 		 [find self :direction reference :category category]
 		 [equipment-slot self reference]))
     (integer [item-at self reference])
-    (rlx:object reference)))
+    (xe2:object reference)))
 
 ;;; Knowledge of objects
 
@@ -781,22 +781,22 @@ slot."
 (defparameter *default-sample-hearing-range* 15)
 
 (define-method play-sample cell (sample-name)
-  (when [get-player *active-world*]
-    (let* ((player [get-player *active-world*])
+  (when [get-player *world*]
+    (let* ((player [get-player *world*])
 	   (range (if (clon:has-field :hearing-range player)
 		      (clon:field-value :hearing-range player)
 		      *default-sample-hearing-range*))
 	   (dist (if [is-located self]
 		     (distance <column> <row> 
-			       [player-column *active-world*]
-			       [player-row *active-world*])
+			       [player-column *world*]
+			       [player-row *world*])
 		     0)))
       (when (> range dist)
 	(play-sample sample-name)))))
 
 (define-method viewport-coordinates cell ()
   (assert (and <row> <column>))
-  [get-viewport-coordinates (field-value :viewport *active-world*)
+  [get-viewport-coordinates (field-value :viewport *world*)
 			  <row> <column>])
 
 ;;; User Interaction with keyboard and mouse
@@ -849,7 +849,7 @@ slot."
     [update-image self <image>]))
 
 (define-method die sprite ()
-  [remove-sprite *active-world* self])
+  [remove-sprite *world* self])
 
 (define-method update-image sprite (image)
   (setf <image> image)
@@ -857,7 +857,7 @@ slot."
 
 (define-method update-position sprite (x y &optional ignore-obstacles)
   (assert (and (integerp x) (integerp y)))
-  (with-field-values (grid tile-size width height) *active-world*
+  (with-field-values (grid tile-size width height) *world*
     (let ((world-height (* tile-size height))
 	  (world-width (* tile-size width)))
       (if (and (plusp x)
@@ -870,7 +870,7 @@ slot."
 
 (define-method move sprite (direction &optional movement-distance)
   (let ((dist (or movement-distance <movement-distance>)))
-    (multiple-value-bind (y x) (rlx:step-in-direction <y> <x> direction dist)
+    (multiple-value-bind (y x) (xe2:step-in-direction <y> <x> direction dist)
       [update-position self x y])))
 
 (define-method collide sprite (sprite)
@@ -884,7 +884,7 @@ slot."
     [collide-* self y0 x0 w h]))
     
 (define-method would-collide sprite (x0 y0)
-  (clon:with-field-values (tile-size grid sprite-grid) *active-world*
+  (clon:with-field-values (tile-size grid sprite-grid) *world*
     (clon:with-field-values (width height x y) self
       ;; determine squares sprite would intersect
       (let ((left (1- (floor (/ x0 tile-size))))
@@ -906,7 +906,7 @@ slot."
 			  ;; save this intersection information
 			  (vector-push-extend self (aref sprite-grid i0 j0))
 			  ;; quit when obstacle found
-			  (let ((obstacle [obstacle-at-p *active-world* i0 j0]))
+			  (let ((obstacle [obstacle-at-p *world* i0 j0]))
 			    (when obstacle
 			      (setf found obstacle))))))))
 		(return-from colliding found)))
@@ -968,19 +968,19 @@ slot."
   [update-position self <saved-x> <saved-y>])
 
 (define-method viewport-coordinates sprite ()
-  [get-viewport-coordinates-* (field-value :viewport *active-world*)
+  [get-viewport-coordinates-* (field-value :viewport *world*)
 			      <x> <y>])
 
 (define-method grid-coordinates cell ()
   (values <row> <column>))
 
 (define-method grid-coordinates sprite ()
-  (values (truncate (/ <y> (field-value :tile-size *active-world*)))
-	  (truncate (/ <x> (field-value :tile-size *active-world*)))))
+  (values (truncate (/ <y> (field-value :tile-size *world*)))
+	  (truncate (/ <x> (field-value :tile-size *world*)))))
 
 (define-method xy-coordinates cell ()
-  (values (* <column> (field-value :tile-size *active-world*))
-	  (* <row> (field-value :tile-size *active-world*))))
+  (values (* <column> (field-value :tile-size *world*))
+	  (* <row> (field-value :tile-size *world*))))
 
 (define-method xy-coordinates sprite ()
   (values <x> <y>))
