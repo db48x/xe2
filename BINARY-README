@@ -1,10 +1,11 @@
 This is the special README file for GNU/Linux users of precompiled
-binaries of Blast Tactics.
+XE2 games. 
 
 (1) You must have installed your distribution's packages of SDL,
-    SDL_image, and SDL_mixer.
+    SDL_image, and SDL_mixer, also SDL_gfx.
 
-(2) RLX unfortunately needs a config file "~/.rlxrc" in your home dir.
-    The file "example-rlxrc" can be edited and copied there.
+(2) XE2 may need a configuration file "~/.xe2rc" in your home dir.
+    The file "example-xe2rc" can be copied there and edited to reflect
+    your system's configuration.
 
 (3) Enjoy!
