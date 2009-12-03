@@ -1,4 +1,4 @@
-This is the INSTALL file for the RLX roguelike engine.
+This is the INSTALL file for the XE2 roguelike engine.
 Installation and basic playing instructions are provided. 
 
 1. You need a Common Lisp implementation. Only tested on SBCL right
@@ -11,15 +11,15 @@ Installation and basic playing instructions are provided.
    Your Linux distribution will have SDL packages for sdl, sdl-image,
    and sdl-mixer, all of which are required libraries.
 
-2. If you have not already done so, download RLX:
+2. If you have not already done so, download XE2:
   
    mkdir ~/src
    cd ~/src
-   git clone git://github.com/dto/rlx.git 
+   git clone git://github.com/dto/xe2.git 
 
-3. Then link the rlx.asd file into your ~/.sbcl/systems directory:
+3. Then link the xe2.asd file into your ~/.sbcl/systems directory:
 
-   ln -s ~/src/rlx/rlx.asd ~/.sbcl/systems
+   ln -s ~/src/xe2/xe2.asd ~/.sbcl/systems
 
 4. Download and install a required library called CLON. Example
    commands:
@@ -59,20 +59,20 @@ Installation and basic playing instructions are provided.
 
 6. OPTIONAL: configure module directories
 
-   Add something like this to a new file called ~/.rlxrc:
+   Add something like this to a new file called ~/.xe2rc:
 
-  (setf rlx:*module-directories* '(#P"/home/dto/src/rlx/"))
+  (setf xe2:*module-directories* '(#P"/home/dto/src/xe2/"))
 
-The filename should be wherever you installed the RLX source
+The filename should be wherever you installed the XE2 source
 tree. This is auto-detected as the current directory if you don't set
 it. NOTE: These must be pathnames (prefixed with #P) and must contain
 a trailing slash.
 
-7. At the shell, cd to the install directory for RLX, run SBCL, and
+7. At the shell, cd to the install directory for XE2, run SBCL, and
    then at the REPL:
 
-    (require :rlx)
-    (rlx:play "blast")
+    (require :xe2)
+    (xe2:play "blast")
 
   If you get an error about TRIVIAL-FEATURES-TESTS, try this:
   (require :trivial-features-tests)
@@ -80,17 +80,17 @@ a trailing slash.
 See the separate file $INSTALLDIR/invader/manual.org for playing
 instructions.
 
-8. Here is my example .rlxrc:
+8. Here is my example .xe2rc:
 
     ;; -*- Mode: lisp -*-
 
-    (setf rlx:*module-directories* '(#P"/home/dto/rlx/" 
-    	  			     #P"/home/dto/rlx-modules/"))
-    (setf rlx:*user-keyboard-layout* :qwerty)
-    (setf rlx:*use-sound* t)
-    (setf rlx:*message-logging* t)
-     ;; fullscreen is a pain if RLX hangs
-    (setf rlx:*fullscreen* nil)
+    (setf xe2:*module-directories* '(#P"/home/dto/xe2/" 
+    	  			     #P"/home/dto/xe2-modules/"))
+    (setf xe2:*user-keyboard-layout* :qwerty)
+    (setf xe2:*use-sound* t)
+    (setf xe2:*message-logging* t)
+     ;; fullscreen is a pain if XE2 hangs
+    (setf xe2:*fullscreen* nil)
 
 9. For dvorak users: 
 
@@ -100,5 +100,5 @@ instructions.
     /|\ 
    m w v
 
-   Add (setf rlx:*user-keyboard-layout* :dvorak) to your ~/.rlxrc.
+   Add (setf xe2:*user-keyboard-layout* :dvorak) to your ~/.xe2rc.
 
