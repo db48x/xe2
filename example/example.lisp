@@ -72,10 +72,10 @@
   (when (eq <direction> :here) (setf <direction> (random-direction)))
   (clon:with-fields (direction row column) self
     (multiple-value-bind (r c) (xe2:step-in-direction row column direction)
-      (if [obstacle-at-p *active-world* r c]
+      (if [obstacle-at-p *world* r c]
 	  (progn 
 	    ;; is it a wall or character? then hit it
-	    (let ((object [category-at-p *active-world* r c '(:wall :person)]))
+	    (let ((object [category-at-p *world* r c '(:wall :person)]))
 	      (when object
 		[hit object]
 		[damage self 1]))
@@ -231,7 +231,7 @@
     (apply #'bind-key-to-prompt-insertion self k))
   ;; we also want to respond to timer events. this is how. 
   [define-key self nil '(:timer) (lambda ()
-				   [run-cpu-phase *active-world* :timer])])
+				   [run-cpu-phase *world* :timer])])
 
 ;;; Main program. 
 
