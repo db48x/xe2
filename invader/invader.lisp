@@ -50,7 +50,7 @@
 (defcell wall
   (name :initform "Wall")
   (tile :initform "tech-wall")
-  (categories :initform '(:obstacle)))
+  (categories :initform '(:obstacle :opaque)))
 
 (defcell corridor
   (name :initform "Airless Corridor")
@@ -295,7 +295,7 @@
 
 (define-method step rusty-wrench (stepper)
   (when [is-player stepper]
-    [>>take stepper :direction :here :category :item]))
+    [take stepper :direction :here :category :item]))
 
 ;;; An explosion
 
@@ -587,7 +587,7 @@
 
 (define-method step ankh (stepper)
   (when [is-player stepper]
-    [>>take stepper :direction :here :category :item]))
+    [take stepper :direction :here :category :item]))
 
 ;;; Dead crewmember with random oxygen or possibly health.
 
@@ -744,7 +744,7 @@
 
 (define-method step muon-pistol (stepper)
   (when [is-player stepper]
-    [>>take stepper :direction :here :category :item]))
+    [take stepper :direction :here :category :item]))
 
 ;;; Lepton Seeker Cannon
 
@@ -909,7 +909,7 @@
 (define-method step ion-shield (stepper)
   (when [is-player stepper]
     [>>say :narrator "You've found the Ion Shield Belt."]
-    [>>take stepper :direction :here :category :item]))
+    [take stepper :direction :here :category :item]))
 
 ;;; The deadly Scanner can be avoided because it moves (mostly) predictably
 
@@ -1036,7 +1036,7 @@
 (define-prototype factory-world (:parent xe2:=world=)
   (width :initform 48)
   (height :initform 300)
-  (ambient-light :initform :total)
+  (ambient-light :initform 4)
   (pallet-size :initform 10))
 
 (define-method generate factory-world (&optional parameters)

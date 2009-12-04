@@ -922,7 +922,7 @@
       [drop-cell self (clone =extra-brick=) row column :loadout t]))
   (dotimes (n bomb-bricks)
     (let ((row (+ 6 (random 5)))
-	  (column (1+ (random (- width 1)))))
+	  (column (1+ (random (- width 3)))))
       [delete-category-at self row column :brick]
       [drop-cell self (clone =bomb-brick=) row column :loadout t]))
   [drop-masses self]

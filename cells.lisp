@@ -1026,10 +1026,12 @@ world, and collision detection is performed between sprites and cells.")
 	  ;; is left to right of other right?
 	  (< o-right x)))))
 
-(define-method do-collision cell (collision)
+(define-method do-collision cell (object)
+  "Respond to a collision detected with OBJECT."
   nil)
 
-(define-method do-collision sprite (collision)
+(define-method do-collision sprite (object)
+  "Respond to a collision detected with OBJECT."
   nil)
 
 (define-method save-excursion sprite ()

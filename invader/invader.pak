@@ -195,6 +195,8 @@
  (:name "polaris" :type :image :file "polaris.png")
  (:name "wall" :type :image :file "wall.png")
  (:name "tech-wall" :type :image :file "tech-wall.png")
+ (:name "ankh" :type :image :file "ankh.png")
+ (:name "power" :type :sample :file "power.wav" :properties (:volume 20))
 
  (:name "wall-debris1" :type :image :file "wall-debris1.png")
  (:name "wall-debris2" :type :image :file "wall-debris2.png")

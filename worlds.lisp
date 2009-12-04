@@ -18,29 +18,28 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;;; Commentary:
-
-;; Worlds are the focus of the action in XE2. A world is a 3-D grid of
-;; interacting cells. The world object performs the following tasks:
-
-;; - Keeps track of a single player in a world of cells
-;; - Receives command messages from the user
-;; - Handles some messages, forwards the rest on to the player cell.
-;; - Runs the CPU phase so that all non-player :actor cells get their turns
-;; - Keeps track of lit squares :. lighting >
-
-;;; Code:
-
 (in-package :xe2)
 
 (define-prototype world
-    (:documentation "An XE2 game world filled with cells and sprites.")
-  (name :initform "Unknown")
-  (paused :initform nil)
-  (description :initform "Unknown area.")
-  (tile-size :initform 16)
-  (required-modes :initform nil)
-  (categories :initform nil)
+    (:documentation "An XE2 game world filled with cells and sprites.
+Worlds are the focus of the action in XE2. A world is a 3-D grid of
+interacting cells. The world object performs the following tasks:
+
+  - Keeps track of a single player in a world of cells
+  - Receives command messages from the user
+  - Handles some messages, forwards the rest on to the player cell.
+  - Runs the CPU phase so that all non-player :actor cells get their turns
+  - Keeps track of lit squares 
+  - Performs collision detection for sprites and cells
+")
+  (name :initform "Unknown" :documentation "Name of the world.")
+  (paused :initform nil :documentation "Non-nil when the game is paused.")
+  (description :initform "Unknown area." :documentation "Brief description of area.")
+  (tile-size :initform 16 :documentation "Size in pixels of a grid tile.")
+  (required-modes :initform nil :documentation 
+"A list of keywords specifying which modes of transportation are
+required for travel here." )
+  (categories :initform "The set of categories this world is in.")
   (mission-grammar :initform '())
   (scale :initform '(1 m)
 	 :documentation "Scale per square side in the form (N UNIT) where UNIT is m, km, ly etc.")
@@ -73,7 +72,7 @@ At the moment, only 0=off and 1=on are supported.")
   ;; browsing 
   (browser :documentation "The browser object.")
   ;; viewing
-  (viewport :initform nil)
+  (viewport :initform nil :documentation "The viewport object.")
   ;; space
   (edge-condition :initform :exit
 		  :documentation "Either :block the player, :exit the world, or :wrap around.")
@@ -90,6 +89,7 @@ At the moment, only 0=off and 1=on are supported.")
   (member category <categories>))
     
 (define-method pause world ()
+  "Toggle the pause state of the world."
   (setf <paused> (if <paused> (prog1 nil [narrateln <narrator> "Resuming game."]
 			      (prog1 t [narrateln <narrator> 
 						  "The game is now paused. Press Control-P or PAUSE to un-pause."])))))
@@ -148,6 +148,7 @@ initialize the arrays for a world of the size specified there."
     [create-grid self :width <width> :height <height>]))
 
 (define-method location-name world ()
+  "Return the location name."
   <name>)
      
 (define-method environment-at world (row column)
@@ -192,6 +193,8 @@ initialize the arrays for a world of the size specified there."
       (values r c found))))
 		  
 (define-method replace-cells-at world (row column data)
+  "Destroy the cells at ROW, COLUMN, invoking CANCEL on each,
+replacing them with the single cell (or vector of cells) DATA."
   (when (array-in-bounds-p <grid> row column)
     (do-cells (cell (aref <grid> row column))
       [cancel cell])
@@ -204,10 +207,16 @@ initialize the arrays for a world of the size specified there."
 			   (prog1 cells
 			     (vector-push-extend data cells))))))))
 
-(define-method drop-sprite world (sprite x y &key no-collisions)
+(define-method drop-sprite world (sprite x y &key no-collisions loadout)
+  "Add a sprite to the world. When NO-COLLISIONS is non-nil, then the
+object will not be dropped when there is an obstacle. When LOADOUT is
+non-nil, the :loadout method is invoked on the sprite after
+placement."
   (assert (eq :sprite (field-value :type sprite)))
   [add-sprite self sprite]
   [update-position sprite x y]
+  (when loadout
+    [loadout sprite])
   (unless no-collisions
     ;; TODO do collision test
     nil))
@@ -261,6 +270,7 @@ NO-COLLISIONS and EXCLUSIVE are both non-nil, an error is signaled."
     
 (define-method replace-cell world (cell new-cell row column
 					&optional &key loadout no-collisions)
+  "Replace the CELL with NEW-CELL at ROW, COLUMN in this world."
   (let* ((cells [cells-at self row column])
 	 (pos (position cell cells)))
     (if (numberp pos)
@@ -268,6 +278,7 @@ NO-COLLISIONS and EXCLUSIVE are both non-nil, an error is signaled."
 	(error "Could not find cell to replace."))))
 
 (define-method drop-player-at-entry world (player)
+  "Drop the PLAYER at the first entry point."
   (with-field-values (width height grid tile-size) self
     (multiple-value-bind (dest-row dest-column)
 	(block seeking
@@ -294,18 +305,21 @@ NO-COLLISIONS and EXCLUSIVE are both non-nil, an error is signaled."
   <player>)
 
 (define-method player-row world ()
+  "Return the grid row the player is on."
   (clon:with-field-values (player tile-size) self
     (ecase (field-value :type player)
       (:sprite (truncate (/ (field-value :y player) tile-size))) 
       (:cell (field-value :row player)))))
 
 (define-method player-column world ()
+  "Return the grid column the player is on."
   (clon:with-field-values (player tile-size) self
     (ecase (field-value :type player)
       (:sprite (truncate (/ (field-value :x player) tile-size))) 
       (:cell (field-value :column player)))))
 
 (define-method exit world ()
+  "Leave the current world."
   (setf <exited> t) ;; see also `forward' method
   ;; record current location so we can exit back to it
   (setf <player-exit-row> (field-value :row <player>))
@@ -313,6 +327,7 @@ NO-COLLISIONS and EXCLUSIVE are both non-nil, an error is signaled."
   [delete-cell self <player> <player-exit-row> <player-exit-column>])
   
 (define-method obstacle-at-p world (row column)
+  "Returns non-nil if there is any obstacle in the grid at ROW, COLUMN."
   (or (not (array-in-bounds-p <grid> row column))
       (some #'(lambda (cell)
 		(when [in-category cell :obstacle]
@@ -320,6 +335,8 @@ NO-COLLISIONS and EXCLUSIVE are both non-nil, an error is signaled."
 	    (aref <grid> row column))))
 
 (define-method category-at-p world (row column category)
+  "Returns non-nil if there is any cell in CATEGORY at ROW, COLUMN.
+CATEGORY may be a list of keyword symbols or one keyword symbol."
   (let ((catlist (etypecase category
 		   (keyword (list category))
 		   (list category))))
@@ -334,32 +351,40 @@ NO-COLLISIONS and EXCLUSIVE are both non-nil, an error is signaled."
 ;;   (let ((
 
 (define-method in-bounds-p world (row column)
+  "Return non-nil if ROW and COLUMN are valid coordinates."
   (array-in-bounds-p <grid> row column))
 
 (define-method direction-to-player world (row column)
+  "Return the general compass direction of the player from ROW, COLUMN."
   (direction-to row column 
 		[player-row self]
 		[player-column self]))
 
 (define-method distance-to-player world (row column)
+  "Return the straight-line distance to the player from ROW, COLUMN."
   (distance row column
 	    [player-row self]
 	    [player-column self]))
 	    
 (define-method adjacent-to-player world (row column)
+  "Return non-nil when ROW, COLUMN is adjacent to the player."
   (<= [distance-to-player self row column] 1.5))
 	
 (define-method obstacle-in-direction-p world (row column direction)
+  "Return non-nil when there is an obstacle one step in DIRECTION from ROW, COLUMN."
   (multiple-value-bind (nrow ncol)
       (step-in-direction row column direction)
     [obstacle-at-p self nrow ncol]))
 
 (define-method category-in-direction-p world (row column direction category)
+  "Return non-nil when there is a cell in CATEGORY one step in
+DIRECTION from ROW, COLUMN. CATEGORY may be a list as well."
   (multiple-value-bind (nrow ncol)
       (step-in-direction row column direction)
     [category-at-p self nrow ncol category]))
 
 (define-method target-in-direction-p world (row column direction)
+  "Return non-nil when there is a target one step in DIRECTION from ROW, COLUMN."
   (multiple-value-bind (nrow ncol)
       (step-in-direction row column direction)
     [category-at-p self nrow ncol :target]))
@@ -476,11 +501,11 @@ in a roguelike until the user has pressed a key."
 	(when <sprite-table>
 	  [collide-sprites self])))))
 
-;; <: lighting :>
- 
 (defvar *lighting-hack-function* nil)
   
 (define-method render-lighting world (cell)
+  "When lighting is activated, calculate lit squares using light
+sources and ray casting."
   (let* ((light-radius (field-value :light-radius cell))
 	 (ambient <ambient-light>)
 	 (light-grid <light-grid>)
@@ -573,6 +598,7 @@ in a roguelike until the user has pressed a key."
   nil)
 
 (define-method begin-ambient-loop world ()
+  "Begin looping your music for this world here."
   nil)
 
 (define-method describe world ()
@@ -588,6 +614,7 @@ in a roguelike until the user has pressed a key."
 	  (send-queue nil :newline :narrator)))))
 
 (define-method start world ()
+  "Prepare the world for play."
   (assert <player>)
   ;; start player at same phase (avoid free catch-up turns)
   (message "STARTWORLD: ~S ~S" <phase-number> (field-value :phase-number <player>))
@@ -617,9 +644,11 @@ in a roguelike until the user has pressed a key."
   [begin-ambient-loop self])
     
 (define-method set-viewport world (viewport)
+  "Set the viewport widget."
   (setf <viewport> viewport))
 
 (define-method delete-cell world (cell row column)
+  "Delete CELL from the grid at ROW, COLUMN."
   (ecase (field-value :type cell)
     (:cell
        (let* ((grid <grid>)
@@ -632,6 +661,8 @@ in a roguelike until the user has pressed a key."
        [remove-sprite self cell])))
     
 (define-method delete-category-at world (row column category)
+  "Delete all cells in CATEGORY at ROW, COLUMN in the grid.
+The cells' :cancel method is invoked."
   (let* ((grid <grid>))
     (setf (aref grid row column)
 	  (delete-if #'(lambda (c) (when [in-category c category]
@@ -639,6 +670,8 @@ in a roguelike until the user has pressed a key."
 		     (aref grid row column)))))
 			       
 (define-method line-of-sight world (r1 c1 r2 c2 &optional (category :obstacle))
+  "Return non-nil when there is a direct Bresenham's line of sight
+along grid squares between R1,C1 and R2,C2."
   (when (and (array-in-bounds-p <grid> r1 c1) 
 	     (array-in-bounds-p <grid> r2 c2))
     (let ((line (make-array 100 :initial-element nil :adjustable t :fill-pointer 0))
@@ -675,6 +708,7 @@ in a roguelike until the user has pressed a key."
 	      (message "tracing ~S" retval))))))))
 
 (define-method move-cell world (cell row column)
+  "Move CELL to ROW, COLUMN."
   (let* ((old-row (field-value :row cell))
 	 (old-column (field-value :column cell)))
     [delete-cell self cell old-row old-column]
@@ -704,6 +738,8 @@ in a roguelike until the user has pressed a key."
 	(setf (fill-pointer (aref grid i j)) 0)))))
 
 (define-method collide-sprites world (&optional sprites)
+  "Perform collision detection between sprites and the grid.
+Sends a :do-collision message for every detected collision."
   (with-field-values (width height tile-size sprite-grid sprite-table grid) self
     (dolist (sprite (or sprites <sprites>))
       ;; figure out which grid squares we really need to scan
@@ -859,6 +895,9 @@ represents the z-axis of a euclidean 3-D space."))
 	candidate)))
 
 (define-method play universe (&key address player prompt narrator viewport)
+  "Prepare a universe for play at the world identified by ADDRESS with
+PLAYER as the player, PROMPT as the prompt, NARRATOR as the
+narrator, and VIEWPORT as the viewport."
   (setf <current-address> address)
   (when player (setf <player> player))
   (when prompt (setf <prompt> prompt))
@@ -882,6 +921,7 @@ represents the z-axis of a euclidean 3-D space."))
     [start world]))
 
 (define-method exit universe (&key player)
+  "Return the player to the previous world on the stack."
   (when player (setf <player> player))
   (with-fields (stack) self
     ;; exit and discard current world

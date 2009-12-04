@@ -93,6 +93,7 @@
  (:name "plasma-tone" :type :sample :file "plasma-tone.wav" :properties (:volume 10))
  (:name "next" :type :music :file "next.ogg" :properties (:volume 56))
  (:name "kodama" :type :music :file "kodama.ogg" :properties (:volume 95))
+
  (:name "nextpiano" :type :sample :file "nextpiano.wav" :properties (:volume 10))
  (:name "nextpiano2" :type :sample :file "nextpiano2.wav" :properties (:volume 5))
  (:name "rappy" :type :music :file "rappy.ogg" :properties (:volume 20))

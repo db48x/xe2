@@ -20,26 +20,28 @@
 
 ;;; Commentary:
 
-;; A game can draw directly to the screen if it wants. This file
-;; defines a reusable "widget" object where you draw to an offscreen
-;; image. Widgets are also designed to receive input events via the
-;; `handle-key' method; `define-key' and `undefine-key' can be used to
-;; manage keybindings.
-
-;; The main XE2 loop is set up to dispatch event messages to
-;; widgets. After the events have been processed and the widgets have
-;; drawn their images to their respective offscreen buffers, the
-;; engine copies the buffers to the screen. (see console.lisp)
-
-;; This file contains the basic widget code and some standard widgets,
-;; including an output formatter and a configurable command prompt. 
 
 ;;; Code:
 
 (in-package :xe2)
 
 (define-prototype widget
-    (:documentation "A basic widget that renders to an offscreen image.")
+    (:documentation "A graphical element that responds to events and renders to an offscreen image.
+
+A game can draw directly to the screen if it wants. Widgets.lisp
+defines a reusable `widget' object where you draw to an offscreen
+image. Widgets are also designed to receive input events via the
+`handle-key' method; `define-key' and `undefine-key' can be used to
+manage keybindings.
+
+The main XE2 loop is set up to dispatch event messages to
+widgets. After the events have been processed and the widgets have
+drawn their images to their respective offscreen buffers, the
+engine copies the buffers to the screen. (see console.lisp)
+
+This module contains the basic widget code and some standard widgets,
+including an output formatter and a configurable command prompt.
+")
   (keymap :documentation "A hash table mapping keylists to lambdas.")
   (image :documentation "The offscreen image buffer containing the widget's rendered output.")
   (width :documentation "The current allocated image width of the widget, in pixels.")
@@ -57,17 +59,20 @@
   (setf <image> (create-image width height)))
 
 (define-method move widget (&key x y)
+  "Move the widget to the location X, Y."
   (setf <x> x <y> y))
 
 (define-method render widget ()
-  "Render the widget to its image."
-  ;; The default implementation leaves the image blank.
-  nil)
+  "Render the widget to its image. The default implementation leaves
+the image blank."  nil)
 
 (define-method get-image widget ()
+  "Return the widget's offscreen drawing image."
   <image>)
 
 (define-method clear widget (&optional (color ".black"))
+  "Clear the widget's offscreen buffer by drawing a rectangle of COLOR
+that covers the entire buffer."
   (draw-box 0 0 <width> <height> :color color :stroke-color color :destination <image>))
 
 (define-method define-key widget (key-name modifiers func)
@@ -130,26 +135,6 @@ possibly return one of them."
   (hit-widgets x y <children>))
 
 ;;; Formatted display widget
-
-;; This section implements a simple output formatting widget for the
-;; presentation of messages and other in-game data. Foreground and
-;; background colors are supported, as well as displaying images
-;; in-line with text of different fonts.
-
-;; A formatted line is a list of formatted strings. A formatted 
-;; string is a cons of (STRING . PROPERTIES), where the keys in
-;; PROPERTIES are chosen from:
-
-;;   :FOREGROUND       Foreground color. A color resource name.
-;;   :BACKGROUND       Background color. A color resource name.
-;;   :IMAGE            Image to be displayed instead of STRING.
-;;                     If this is a string, the corresponding resource image is 
-;;                     found and displayed. If this is an image object, the image 
-;;                     itself is displayed.
-;;   :FONT             Font name. Defaults to *default-font*.
-
-;; First the utility functions for rendering individual formatted
-;; strings and lists (lines) of such strings. 
 
 (defvar *default-formatter-scrollback-size* 1000)
 
@@ -220,7 +205,24 @@ Return the height of the rendered line."
 ;; functions just defined.
 
 (define-prototype formatter 
-    (:parent =widget= :documentation "Output formatter.")
+    (:parent =widget= :documentation 
+"=FORMATTER= is a simple output formatting widget for the
+presentation of messages and other in-game data. Foreground and
+background colors are supported, as well as displaying images
+in-line with text of different fonts.
+
+A formatted line is a list of formatted strings. A formatted 
+string is a cons of (STRING . PROPERTIES), where the keys in
+PROPERTIES are chosen from:
+
+  - :FOREGROUND --- Foreground color. A color resource name.
+  - :BACKGROUND --- Background color. A color resource name.
+  - :IMAGE --- Image to be displayed instead of STRING.
+      If this is a string, the corresponding resource image is 
+      found and displayed. If this is an image object, the image 
+      itself is displayed.
+  - :FONT ---  Font name. Defaults to *default-font*.
+")
   (lines :documentation "Vector of lines.")
   (current-line :documentation "Formatted line currently being composed."))
 
@@ -236,6 +238,7 @@ Example: [print my-formatter \"hello\" :foreground \"red\"]"
   [print self nil :image image])
 
 (define-method println formatter (&rest args)
+  "Print the ARGS as a formatted string, following up with a newline."
   (apply #'xe2:send self :print self args)
   [newline self])
 
@@ -311,58 +314,6 @@ auto-updated displays."
 	   
 ;;; Command prompt widget
 
-;; The command prompt widget is a text input area with Emacs-like
-;; keybindings. It is used to send messages to objects. (For ease of
-;; use, prompt commands may also be bound to single keystrokes.)
-;;
-;;  The command syntax is:
-;; 
-;;   command-name arg1 arg2 ...
-;;
-;; All tokens must be Lisp-readable symbols, strings, or numbers.
-;;
-;; The command prompt will change its commands into message sends, and
-;; send them to a designated command receiver:
-;; 
-;;   yes             -->   [yes <receiver>]
-;;   move :north     -->   [move <receiver> :north]
-;;   attack :west :with :left-hand  --> [attack <receiver> :west 
-;;                                              :with :left-hand]
-;;
-;; So the commands are just the receiver's methods. The command
-;; line's HELP system is just a method documentation browser
-;; (i.e. SLOT-DESCRIPTORS.) 
-
-;; The prompt can bind single keystrokes (i.e. one or more modifiers
-;; and a keypress code) to the insertion of an arbitrary string at
-;; point in the prompt. A string that ends in a period is a
-;; "terminating" keybinding; a terminating keybinding also completes
-;; the command input, causing the resulting command to be executed.
-
-;; Examples: 
-
-;;    <up>      -->    move :north .
-;;   shift-<up> -->    push :north .
-;;     C-q      -->    quaff         ;; also shows potion list as output
-;;     M-1      -->    choose 1 .    ;; choose option 1 from output
-
-;; The prompt has two input modes; direct mode and forward mode. In
-;; direct mode, the prompt widget's own keymap is used. In forward
-;; mode, all keypresses (except for the mode escape key) are rejected
-;; by returning `nil' from `handle-key'.
-
-;; In the typical setup, the first widget to receive the keypress
-;; would be the default command prompt; a customized prompt, with
-;; game-specific keybindings, would come second. During play, the
-;; command prompt would reject all keypresses, which would pass on to
-;; the next widget in the frame (the customized prompt.) To "escape"
-;; this and enter commands, hit ESCAPE (and again to return to forward
-;; mode.)
-
-;; The modes can be toggled with the ESCAPE key.
-
-;; The modes have different prompt strings:
-
 (defparameter *direct-prompt-string* "COMMAND> ")
 (defparameter *forward-prompt-string* "> ")
 
@@ -376,7 +327,57 @@ auto-updated displays."
 (defvar *numeric-characters* "0123456789")
 
 (define-prototype prompt
-    (:parent xe2:=widget= :documentation "A command prompt.")
+    (:parent xe2:=widget= :documentation 
+"The command prompt widget is a text input area with Emacs-like
+keybindings. It is used to send messages to objects. (For ease of
+use, prompt commands may also be bound to single keystrokes.)
+
+ The command syntax is:
+
+:  command-name arg1 arg2 ...
+
+All tokens must be Lisp-readable symbols, strings, or numbers.
+
+The command prompt will change its commands into message sends, and
+send them to a designated command receiver:
+
+:  yes             -->   [yes <receiver>]
+:  move :north     -->   [move <receiver> :north]
+:  attack :west :with :left-hand  --> [attack <receiver> :west 
+:                                             :with :left-hand]
+
+So the commands are just the receiver's methods. The command
+line's HELP system is just a method documentation browser
+ (i.e. SLOT-DESCRIPTORS.) 
+
+The prompt can bind single keystrokes (i.e. one or more modifiers
+and a keypress code) to the insertion of an arbitrary string at
+point in the prompt. A string that ends in a period is a
+"terminating" keybinding; a terminating keybinding also completes
+the command input, causing the resulting command to be executed.
+
+Examples: 
+
+:   <up>      -->    move :north .
+:  shift-<up> -->    push :north .
+:    C-q      -->    quaff         ;; also shows potion list as output
+:    M-1      -->    choose 1 .    ;; choose option 1 from output
+
+The prompt has two input modes; direct mode and forward mode. In
+direct mode, the prompt widget's own keymap is used. In forward
+mode, all keypresses (except for the mode escape key) are rejected
+by returning `nil' from `handle-key'.
+
+In the typical setup, the first widget to receive the keypress
+would be the default command prompt; a customized prompt, with
+game-specific keybindings, would come second. During play, the
+command prompt would reject all keypresses, which would pass on to
+the next widget in the frame (the customized prompt.) To 'escape'
+this and enter commands, hit ESCAPE (and again to return to forward
+mode.)
+
+The modes can be toggled with the ESCAPE key.
+")
   (mode :documentation "Either :direct or :forward." :initform :direct)
   (default-keybindings :documentation "Default keybindings bound during initialization.
 These are the arguments to `bind-key-to-prompt-insertion', which see.")
@@ -389,7 +390,9 @@ These are the arguments to `bind-key-to-prompt-insertion', which see.")
   (history-position :initform 0))
 
 (defun bind-key-to-prompt-insertion (p key modifiers &optional (insertion key))
-  [define-key p (string-upcase key) modifiers
+  "For prompt P ensure that the event (KEY MODIFIERS) causes the
+text INSERTION to be inserted at point."
+ [define-key p (string-upcase key) modifiers
 	      #'(lambda ()
 		  [insert p insertion])])
 
@@ -745,6 +748,5 @@ This method allocates a new SDL surface when necessary."
       (incf n))
     ;; draw the string
     (render-formatted-line (nreverse line) 0 0 :destination <image>)))
-    
-
+   
 ;;; widgets.lisp ends here
