@@ -332,6 +332,22 @@ that an object has no handler for a particular method. This is akin to
 
 [[file:../clon/clon.html#Message_forwarding][See also clon.lisp, "Message forwarding"]]
 
+* A simple example
 
+Before we move on to the reference dictionary of the objects,
+functions, and variables of XE2, here's an example game to
+peek at: [[http://github.com/dto/xe2/blob/master/example/example.lisp][example.lisp]]
 
+You can try it by running (xe2:play "example") at the SLIME REPL.
+
+* Symbol dictionary
+
+The remainder of this reference lists documentation for all the
+exported symbols, in the following order:
+
+  - Prototypes 
+    + Fields
+    + Methods, in alphabetical order
+  - Special variables, in alphabetical order
+  - Macros, functions, and variables, in alphabetical order
 
