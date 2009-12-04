@@ -314,7 +314,7 @@ issue a command, some AP may be used up. When your AP is gone, the
 computer's phase begins. The results are displayed, and if you're
 still alive, the player phase begins again.
 
-(In realtime mode, XE2 does not wait for input.)
+ (In realtime mode, XE2 does not wait for input.)
 
 The queued messages' targets can be keywords like :world, :browser,
 or :narrator instead of direct references to objects; the world
@@ -336,6 +336,7 @@ place. (See also worlds.lisp)
   [expend-action-points self [stat-value self :default-cost]])
 
 (define-method end-phase cell ()
+  "End this cell's phase."
   (setf <phase-number> [get-phase-number *world*]))
 
 ;;; Player orientation
@@ -485,22 +486,27 @@ is in the way."
   (setf <row> r <column> c))
 
 (define-method step-on-current-square cell ()
+  "Send :step events to all the cells on the current square."
   (when <stepping>
     (do-cells (cell [cells-at *world* <row> <column>])
       (unless (eq cell self) 
 	[step cell self]))))
 
 (define-method drop cell (cell)
+  "Add CELL to the world at the current location."
   [drop-cell *world* cell <row> <column>])
 
 (define-method drop-sprite cell (sprite x y)
+  "Add SPRITE to the world at location X,Y."
   [add-sprite *world* sprite]
   [update-position sprite x y])
 
 (define-method step cell (stepper)
+  "Respond to being stepped on by the STEPPER."
   (declare (ignore stepper)))
 
 (define-method is-light-source cell ()
+  "Returns non-nil if this cell is a light source."
   [in-category self :light-source])
 
 ;;; Containers
@@ -518,29 +524,37 @@ is in the way."
 				:adjustable nil)))
 
 (define-method make-equipment cell ()
+  "Create an empty equipment property list."
   (setf <equipment> (mapcon #'(lambda (slot)
 				(list slot nil))
 			    <equipment-slots>)))
 
 (define-method get-max-items cell ()
+  "Return the maximum number of items this container can hold."
   (assert <max-items>)
   [stat-value self :max-items])
 
 (define-method set-container cell (container)
+  "Set the container pointer of this cell to CONTAINER.
+All contained cells maintain a pointer to their containers."
   (setf <container> container))
 
 (define-method is-container cell ()
+  "Returns non-nil if this cell is a container."
   [in-category self :container])
 
 (define-method is-item cell ()
+  "Returns non-nil if this cell is a potential inventory item."
   [in-category self :item])
 
 (define-method first-open-slot cell ()
+  "Return the integer position of the first open inventory slot, or
+nil if none."
   (position nil <inventory>))
 
 (define-method add-item cell (item)
   "Add the ITEM to the cell's <inventory>.
-Return the new position if successful, nil otherwise."
+Return the new integer position if successful, nil otherwise."
   ;; TODO check whether we can combine items
   (let ((pos [first-open-slot self]))
     (when (and (numberp pos) [in-category item :item])
@@ -560,13 +574,16 @@ Return ITEM if successful, nil otherwise."
 	[set-container item nil]))))
 
 (define-method item-at cell (pos)
+  "Return the item at inventory position POS."
   (assert <inventory>)
   (aref <inventory> pos))
 
 (define-method replace-item-at cell (item pos)
+  "Replace the inventory item at position POS with ITEM."
   (setf (aref <inventory> pos) item))
 
 (define-method weight cell ()
+  "Recursively calculate the weight of this cell."
   (let ((total 0)
 	(inventory <inventory>)
 	(cell nil))
@@ -582,6 +599,7 @@ Return ITEM if successful, nil otherwise."
 	(or <weight> 0))))
 
 (define-method drop-item cell (pos)
+  "Drop the item at inventory position POS."
   (let ((item [item-at self pos]))
     (when item
       [remove-item self item]
@@ -589,9 +607,6 @@ Return ITEM if successful, nil otherwise."
 
 ;;; Finding and manipulating objects
 
-;; <: finding :> 
-
-;; TODO split into find-direction, find-z, find & key :dir :z
 (define-method find cell (&key (direction :here) (index :top) category)
   (let ((world *world*))
     (multiple-value-bind (nrow ncol)
@@ -660,16 +675,18 @@ slot."
 
 ;;; Equipment
 
-;; <: equipment :>
-
 (define-method is-equipment cell ()
+  "Return non-nil if this cell is a piece of equipment."
   [in-category self :equipment])
 
 (define-method equipment-slot cell (slot)
+  "Return the equipment item (if any) in the slot named SLOT."
   (assert (member slot <equipment-slots>))
   (getf <equipment> slot))
 
 (define-method equipment-match cell (item)
+  "Return a list of possible slots on which this cell could equip
+ITEM. Returns nil if no such match is possible."
   (when [is-equipment item]
     (intersection <equipment-slots> 
 		  (field-value :equip-for item))))
@@ -682,6 +699,8 @@ slot."
   		
 (define-method delete-equipment cell (slot)
   (setf (getf <equipment> slot) nil))
+
+;; todo rewrite this and decouple the messaging
 
 (define-method equip cell (&optional reference slot)
   (unless reference
@@ -738,13 +757,17 @@ slot."
 ;; See how this is used in worlds.lisp.
 
 (define-method loadout cell ()
-  nil) 
+  "This is called for cells after being dropped in a world, with a
+non-nil :loadout argument. It can also be triggered manually.  Use
+`loadout' for things that have to be done while in a world. (During
+your cell's normal CLON `initialize' method, the cell will not be in a
+world or have a location."
+  nil)
 
 ;;;; Starting
 
-;; Player cells get a :start message when entering a new world.
-
 (define-method start cell ()
+  "This method is invoked on the player whenever entering a new world map."
   nil)
 
 ;;; Combat
@@ -798,6 +821,7 @@ slot."
       ;; 	[>>say :narrator "You take ~D hit points of damage." damage-points]))))
 	
 (define-method die cell ()
+  "Abandon this cell to the garbage collector."
   (if [in-category self :dead]
       (message "Warning: called die on dead cell!")
       (progn
@@ -806,7 +830,9 @@ slot."
 	[delete-from-world self])))
 
 (define-method cancel cell ()
-  nil)
+  "This cell was scheduled for drop and possible loadout in a world,
+but this was canceled. A canceled cell should update any global state
+to reflect its disappearance; this is different from a dying cell." nil)
 
 (define-method expend-energy cell (amount)
   (when (< amount [stat-value self :energy])
@@ -816,6 +842,8 @@ slot."
 (defparameter *default-sample-hearing-range* 15)
 
 (define-method play-sample cell (sample-name)
+  "Play the sample SAMPLE-NAME.
+May be affected by the player's :hearing-range stat, if any."
   (when [get-player *world*]
     (let* ((player [get-player *world*])
 	   (range (if (clon:has-field :hearing-range player)
@@ -830,6 +858,7 @@ slot."
 	(play-sample sample-name)))))
 
 (define-method viewport-coordinates cell ()
+  "Return the values ROW, COLUMN of this cell."
   (assert (and <row> <column>))
   [get-viewport-coordinates (field-value :viewport *world*)
 			  <row> <column>])
@@ -854,11 +883,19 @@ slot."
 ;; These sit in a different layer, the <sprite> layer in the world
 ;; object.
 
-(defcell sprite 
-  x y 
-  saved-x saved-y
-  image
-  width height ;; cached from SDL measurements of image 
+(define-prototype sprite (:parent =cell=
+				  :documentation 
+"Sprites are XE2 game objects derived from cells. Although most
+behaviors are compatible, sprites can take any pixel location in the
+world, and collision detection is performed between sprites and cells.")
+  (x :initform nil :documentation "The world x-coordinate of the sprite.") 
+  (y :initform nil :documentation "The world y-coordinate of the sprite.") 
+  (saved-x :initform nil :documentation "Saved x-coordinate used to jump back from a collision.")
+  (saved-y :initform nil :documentation "Saved y-coordinate used to jump back from a collision.")
+  (image :initform nil :documentation "The arbitrarily sized image
+  resource. This determines the bounding box.")
+  (width :initform nil :documentation "The cached width of the bounding box.")
+  (height :initform nil :documentation "The cached height of the bounding box.")
   (type :initform :sprite))
 
 ;; Convenience macro for defining cells:
