@@ -6,11 +6,11 @@
 ;;  /  \| |___ / __/ 
 ;; /_/\_\_____|_____|
                
-;; Copyright (C) 2006, 2007, 2008  David O'Toole
+;; Copyright (C) 2006, 2007, 2008, 2009  David O'Toole
 
 ;; Author: David O'Toole <dto@gnu.org>
 ;; Keywords: multimedia, games
-;; Version: 0.903
+;; Version: 2.0
 
 ;; This file is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by

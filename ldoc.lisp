@@ -20,6 +20,8 @@
 
 (in-package :xe2)
 
+;; todo show parent name if any
+
 (defun clon-prototype-p (form)
   (when (symbolp form)
     (let* ((name (symbol-name form))
@@ -87,8 +89,14 @@
   (format stream "* ~A" name)
   (fresh-line stream))
 
-(defun document-package (package-name stream)
-  (let (syms protos methods proto-hashes)
+(defun document-package (package-name stream &optional preamble-file)
+  (let (syms protos methods proto-hashes preamble-lines)
+    (when preamble-file 
+      (setf preamble-lines (with-open-file (file preamble-file
+						 :direction :input
+						 :if-does-not-exist nil)
+			     (loop for line = (read-line file nil)
+				   while line collect line))))
     (do-external-symbols (sym package-name)
       (when (< 3 (length (symbol-name sym)))
 	(push sym syms)))
@@ -97,6 +105,10 @@
     (fresh-line stream)
     (format stream "#+TITLE: DOCUMENTATION FOR PACKAGE ~S" package-name) 
     (fresh-line stream)
+    ;; print preamble
+    (dolist (line preamble-lines)
+      (format stream "~A" line)
+      (fresh-line stream))
     ;; sort symbols
     (setf syms (remove-if #'(lambda (s)
     			       (when (clon-prototype-p s)
@@ -157,9 +169,9 @@
     (dolist (sym syms)
       (document-symbol sym stream))))
 
-(defun document-package-to-file (package-name output-file)
+(defun document-package-to-file (package-name output-file &optional preamble-file)
   (with-open-file (stream output-file :direction :output :if-exists :supersede)
-    (document-package package-name stream)))
+    (document-package package-name stream preamble-file)))
 			    
 ;; (document-package :clon t)
 ;; (document-package-to-file :xe2 #P"/home/dto/notebook/xe2-reference.org")
