@@ -269,9 +269,12 @@ interpretation:
   <actions>)
 
 (define-method is-actor cell ()
+  "Return non-nil if this cell is an actor. Actor cells receive a :run
+message every frame."
   [in-category self :actor])
 
 (define-method is-player cell ()
+  "Return non-nil if this is the player."
   [in-category self :player])
 
 (defvar *action-points-over-p* nil 

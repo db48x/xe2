@@ -38,6 +38,13 @@
       (when (numberp delimiter-pos)
 	(values (subseq name 0 delimiter-pos)
 		(subseq name (+ 2 delimiter-pos)))))))
+
+(defun clon-parent-name (form)
+  (when (and (symbolp form) (boundp form))
+    (assert (symbol-value form))
+    (let ((parent (object-parent (symbol-value form))))
+      (when parent 
+	(object-name parent)))))
     
 (defun remove-delimiters (form)
   (let* ((name (symbol-name form))
@@ -123,7 +130,8 @@
     (dolist (p protos)
       (let (pile
 	    (field-descriptors (when (and (clon-prototype-p p) (boundp p))
-				 (field-value :field-descriptors (symbol-value p)))))
+				 (field-value :field-descriptors (symbol-value p))))
+	    (parent-name (clon-parent-name p)))
 	(dolist (m methods)
 	  (multiple-value-bind (method-name proto-name) 
 	      (clon-method-p m)
@@ -138,6 +146,12 @@
 				      (string> method-name1 method-name2))))))
 	(when pile
 	  (do-heading (format nil "~A (prototype)" (symbol-name p)) stream)
+	  (when parent-name
+	    (fresh-line stream)
+	    (format stream "** Parent prototype")
+	    (fresh-line stream)
+	    (format stream ": ~A" parent-name)
+	    (fresh-line stream))
 	  (let ((doc (field-value :documentation (symbol-value p))))
 	    (when (stringp doc)
 	      (format stream "** Documentation")
@@ -174,6 +188,6 @@
     (document-package package-name stream preamble-file)))
 			    
 ;; (document-package :clon t)
-;; (document-package-to-file :xe2 #P"/home/dto/notebook/xe2-reference.org")
+;; (document-package-to-file :xe2 #P"/home/dto/notebook/xe2-reference.org" #P"/home/dto/xe2/doc-preamble.org")
 
 ;;; ldoc.lisp ends here

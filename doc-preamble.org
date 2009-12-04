@@ -1,36 +1,3 @@
-#+TITLE: A game developer's guide to the XE2 Game Engine
-#+AUTHOR: David O'Toole <dto@gnu.org>
-
-* What can XE2 do? 
-
-See the first release XE2 game at the official [[http://dto.github.com/notebook/xong.html][XONG home page.]] 
-
-* How to use this document
-
-This document explains the XE2 engine's general design and programming
-interface from the game developer's perspective, and is meant to
-assist in writing XE2 game modules.
-
-These links help us avoid duplicating documentation from the codebase:
-some sections of this Guide explain an area of functionality at length
-before diving into implementation code, while other sections consist
-of just a link to the relevant Lisp code and documentation.
-
-The final part of the developer's guide links to an example game
-module, which demonstrates all the basics, and other game modules that
-demonstrate more features.
-
-** Notes
-
-  1. This document is incomplete and under construction.
-
-  2. Familiarity with Common Lisp is assumed.
-
-  3. The links below are specified as relative to the location of the
-     present file; for cross-file references to work, you should have
-     CLON and XE2 installed in the same directory, and open this file
-     in Emacs.
-
 * Introducing XE2
 
 XE2 is a portable [[http://en.wikipedia.org/wiki/Free_software][free-software]] graphical 2D game engine written in
@@ -45,14 +12,20 @@ collide with each other and with grid cell objects. Both turn-based
 and realtime play are supported. XE2 uses LISPBUILDER-SDL for
 cross-platform graphics and audio; games built with XE2 can be
 distributed as binaries for GNU/Linux, Mac OSX, and Microsoft
-Windows. (For an example, see [[http://dto.github.com/notebook/xong.html][XONG]]. 
+Windows. (For an example, see [[http://dto.github.com/notebook/xong.html][XONG]].)
 
-Other features include basic random terrain generation tools, simple
-AI support, GUI widgets with flexible keybindings, mouse and joystick
-support, ray-casting based lighting and shadow effects, Bresenham's
-line-of-sight implementation. Features in the process of being ported
-from an older Emacs Lisp version include A-star pathfinding,
-rule-based map generation, map editor, and a menu system.
+Other features include:
+
+  - Basic random terrain generation tools 
+  - Simple AI support
+  - GUI widgets with flexible keybindings
+  - Mouse and joystick support
+  - Ray-casting light and shadow effects
+  - Bresenham's line-of-sight 
+
+Features in the process of being ported from the 1.0 codebase include
+A-star pathfinding, rule-based map generation, a map editor, and a
+menu system.
 
 * Setting up your development environment
 
@@ -189,9 +162,7 @@ See also [[file:../xe2/worlds.html][worlds.lisp]].
 
 Not yet fully ported. See [[file:../xe2/path.html][path.lisp.]]
 
-* CLON: Common Lisp Object Network
-
-** Overview
+* Introducing CLON 
 
 CLON stands for Common Lisp Object Network. CLON is a prototype-based
 object system for Common Lisp. It is different from CLOS in several
@@ -361,71 +332,6 @@ that an object has no handler for a particular method. This is akin to
 
 [[file:../clon/clon.html#Message_forwarding][See also clon.lisp, "Message forwarding"]]
 
-* Immersion: an example game module
 
-See the =example= subdirectory, and use =(xe2:play "example") to try it out. 
-You can also read the code at http://github.com/dto/xe2/tree/master/example/
-
-* XE2: A Common Lisp Game Engine
-
-** The "console" is a pretend home computer in 80's style
-*** Basic input and output functions
-
-**** LISPBUILDER-SDL
-
-**** Drawing to the screen (list of active widgets)
-**** Responding to key press events
-
-*** Resources and Modules
-
-**** From "driver-dependent objects" to string handles
-**** The PAK file format
-
-**** Load-on-demand
-
-**** The different resource types and their loading handlers
-
-**** Not just links to other files: the "data" field
-
-**** Standard resources (colors, icons)
-
-**** Resource aliases and transformations
-
-** Widgets: interactive graphical elements with offscreen drawing
-
-*** Widget basics
-*** Keymaps
-*** Formatted text display
-*** Command prompts
-** Cells: the atoms of the game world
-*** Overview
-*** Statistics
-*** Categories
-*** Managing turns with the "Action Points System"
-*** Cell movement
-*** Containers
-*** Manipulating and picking up objects
-*** Modeling player knowledge (not yet ported)
-*** Equipment
-*** Simple combat
-*** Proxying (not yet ported)
-** Worlds composed of cells
-*** The center of the action: space, time, events
-*** Space: the grid
-*** Time: action points and turns
-*** Events and narration
-*** Environmental conditions
-*** Lighting
-*** Schemes for automatic world generation
-*** Viewports
-** Mathematics
-*** Geometry calculations
-*** Shape tracing
-*** Line of sight
-*** Lighting
-*** Plasma 
-*** Pathfinding with A*
-
-[[http://en.wikipedia.org/wiki/A-star_search_algorithm][Wikipedia page on A-star search]]
 
 
