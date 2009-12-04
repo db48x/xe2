@@ -1,15 +1,12 @@
-** TODO outline bricks that fill in and become indestructible bricks when hit
-** TODO platformer guy
-*** DONE movement
-CLOSED: [2009-12-03 Thu 11:54]
-*** DONE jumping
-CLOSED: [2009-12-03 Thu 11:54]
-*** TODO shooting
-*** TODO enter/exit paddle
+** TODO RELEASE CRITERIA
+*** TODO ONSCREEN QUICKHELP of 2 lines
+*** TODO score/ball display
+*** TODO multi-ball score multiplier
 ** TODO jump-up for paddle 
 ** TODO gun
 ** TODO level with 2 unbreakable masses inside
-** TODO laser fires across screen horizontally between two guns , controlled with up/down and C to fire
+** TODO outline bricks that fill in and become indestructible bricks when hit
+** TODO platformer guy
 ** TODO tone down 8 way explosions
 ** TODO exploding puck powerup
 ** TODO powerups that fall out of bricks
@@ -17,6 +14,13 @@ CLOSED: [2009-12-03 Thu 11:54]
 ** TODO speedup
 ** TODO level gen
 ** TODO cities at bottom
+*** DONE movement
+CLOSED: [2009-12-03 Thu 11:54]
+*** DONE jumping
+CLOSED: [2009-12-03 Thu 11:54]
+*** TODO shooting
+*** TODO enter/exit paddle
+** TODO laser fires across screen horizontally between two guns , controlled with up/down and C to fire
 (04:34:21 PM) David O'Toole: enemies
 (04:34:42 PM) David O'Toole: also, a city along the bottom that you must protect, like in Missile COmmand
 (04:35:30 PM) David O'Toole: a gun that fires horizontal beam between 2 guns on either side,

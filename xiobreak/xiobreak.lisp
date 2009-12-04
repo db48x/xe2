@@ -340,7 +340,7 @@
 			       "chiblur2"
 			       "chiblur1"))
 
-(defparameter *chi-samples* '("bass1" "bass3" "bass3" "bass3" "bass3" "bass3" "bass3"))
+(defparameter *chi-samples* '("bass1" "bass3" "bass3" "bass3" "bass3" "bass3" "bass3" "ohoh"))
 
 (defparameter *chi-alt-samples* '("snare1" "snare2"))
 
@@ -444,7 +444,7 @@
     (assert (stringp res))
     (setf <tile> res)))
 
-(define-method initialize brick ()
+(define-method loadout brick ()
   (incf *bricks*))
 
 (define-method hit brick (&optional ball)
@@ -575,7 +575,7 @@
   (tile :initform "hard-brick")
   (orientation :initform :horizontal))
 
-(define-method initialize hard-brick ()
+(define-method loadout hard-brick ()
   nil)
 
 (define-method hit hard-brick (&optional ball)
@@ -863,7 +863,7 @@
   (labels ((drop-brick (r c)
 	     (let ((brick (clone =brick=)))
 	       [paint brick color]
-	       [drop-cell self brick r c])))
+	       [drop-cell self brick r c :loadout t])))
     (xe2:trace-row #'drop-brick row x0 x1)))
 
 (defparameter *classic-layout-horz-margin* 0)
@@ -897,7 +897,7 @@
 (define-method generate room (&key (height *room-height*)
 				   (width *room-width*)
 				   (grow-bricks 2)
-				   (bomb-bricks 12)
+				   (bomb-bricks 22)
 				   (extra-bricks 2)
 				   (platforms 3))
   (setf <height> height)
@@ -910,7 +910,7 @@
     (let ((row (1+ (random 5)))
 	  (column (1+ (random (- width 1)))))
       [delete-category-at self row column :brick]
-      [drop-cell self (clone =grow-brick=) row column]))
+      [drop-cell self (clone =grow-brick=) row column :loadout t]))
   ;; (dotimes (n platforms)
   ;;   (let ((platform (clone =platform=)))
   ;;     [add-sprite self platform]
@@ -919,12 +919,12 @@
     (let ((row (1+ (random 5)))
 	  (column (1+ (random (- width 1)))))
       [delete-category-at self row column :brick]
-      [drop-cell self (clone =extra-brick=) row column]))
+      [drop-cell self (clone =extra-brick=) row column :loadout t]))
   (dotimes (n bomb-bricks)
     (let ((row (+ 6 (random 5)))
 	  (column (1+ (random (- width 1)))))
       [delete-category-at self row column :brick]
-      [drop-cell self (clone =bomb-brick=) row column]))
+      [drop-cell self (clone =bomb-brick=) row column :loadout t]))
   [drop-masses self]
   [drop-cell self (clone =drop-point=) 32 5])
 
@@ -1030,10 +1030,11 @@
   [delete-all-lines self]
   (let* ((char <character>))
     (when char
-	[print self (format nil "~S" *score*) :font "fat-bits" :foreground ".white" :background ".black"]
-	;; [print self (format nil "~S" [stat-value char :balls])]
-	;; [print self (format nil "~S" *bricks*)]
-	;; [print self "       ARROWS: MOVE PADDLE       Z/X: FIRE"]
+      ;; :font "fat-bits"
+	[print self (format nil "SCORE: ~S   " *score*)  :foreground ".white" :background ".black"]
+	[print self (format nil "BALLS: ~S   " [stat-value char :balls])]
+	[print self (format nil "BRICKS: ~S   " *bricks*)]
+	[print self "---   ARROWS: MOVE PADDLE       Z/X: FIRE     CONTROL-Q to QUIT"]
 	[newline self])))
 
 ;;; Main program. 
