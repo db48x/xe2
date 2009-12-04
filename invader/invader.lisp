@@ -21,7 +21,7 @@
 ;;; Commentary
 
 ;; Invader is a mini roguelike intended as an example game module for
-;; RLX, which will (hopefully) also be fun to play. 
+;; XE2, which will (hopefully) also be fun to play. 
 
 ;; Basic features:
 
@@ -40,7 +40,7 @@
 
 (defpackage :invader
   (:documentation "A sci-fi roguelike for Common Lisp.")
-  (:use :rlx :common-lisp)
+  (:use :xe2 :common-lisp)
   (:export invader))
 
 (in-package :invader)
@@ -49,7 +49,7 @@
 
 (defcell wall
   (name :initform "Wall")
-  (tile :initform "wall")
+  (tile :initform "tech-wall")
   (categories :initform '(:obstacle)))
 
 (defcell corridor
@@ -64,7 +64,7 @@
 
 (define-method step oxygen-tank (stepper)
   (when [is-player stepper]
-    (rlx:play-sample "pop-ssh")
+    (xe2:play-sample "pop-ssh")
     [>>say :narrator "You recover 40 points from the oxygen tank."]
     [>>stat-effect stepper :oxygen 40]
     [>>die self]))
@@ -143,18 +143,18 @@
 ;;; When you fight a monster close-up, you use more oxygen.
 
 (define-method attack player (target)
-  (rlx:play-sample "knock")
+  (xe2:play-sample "knock")
   [>>stat-effect self :oxygen -2]
   [parent>>attack self target])
 
 (define-method damage player (damage-points)
-  (rlx:play-sample "warn")
+  (xe2:play-sample "warn")
   [parent>>damage self (- damage-points (truncate (/ [stat-value self :defense]
 						     3)))])
 
 ;;; The player's remains are a skull and crossbones. 
 
-(define-prototype skull (:parent rlx:=cell=)
+(define-prototype skull (:parent xe2:=cell=)
   (tile :initform "skull")
   (categories :initform '(:dead :player :actor))
   (action-points :initform 0))
@@ -176,22 +176,22 @@
  [queue>>narrateln :narrator "You are dead. You can't do anything!"])
 
 (define-method die player ()
-  (rlx:play-sample "death")	       
+  (xe2:play-sample "death")	       
   (let ((skull (clone =skull=)))
-    [drop-cell *active-world* skull <row> <column> :loadout t :no-collisions nil]
+    [drop-cell *world* skull <row> <column> :loadout t :no-collisions nil]
     (setf <action-points> 0)
     [add-category self :dead]
     [>>delete-from-world self]
     [>>narrateln :narrator "You die."]
-    [set-player *active-world* skull]))
+    [set-player *world* skull]))
 
 ;;; About quitting the game
 
 (define-method quit player ()
-  (rlx:quit :shutdown))
+  (xe2:quit :shutdown))
 
 (define-method quit skull ()
-  (rlx:quit :shutdown))
+  (xe2:quit :shutdown))
 
 ;;; The medical healing hypo restores hit points.
 
@@ -283,7 +283,7 @@
 
 ;;; The rusty wrench; basic melee weapon
 
-(define-prototype rusty-wrench (:parent rlx:=cell=)
+(define-prototype rusty-wrench (:parent xe2:=cell=)
   (name :initform "Rusty wrench")
   (categories :initform '(:item :weapon :equipment))
   (tile :initform "rusty-wrench")
@@ -299,7 +299,7 @@
 
 ;;; An explosion
 
-(define-prototype explosion (:parent rlx:=cell=)
+(define-prototype explosion (:parent xe2:=cell=)
   (name :initform "Explosion")
   (categories :initform '(:actor))
   (tile :initform "explosion")
@@ -313,7 +313,7 @@
       (progn
 	(decf <clock>)
 	[expend-action-points self 10]
-	(let* ((cells [cells-at *active-world* <row> <column>])
+	(let* ((cells [cells-at *world* <row> <column>])
 	       (x (1- (fill-pointer cells))))
 	  (play-sample "crunch")
 	  (loop while (not (minusp x))
@@ -339,7 +339,7 @@
   (stepping :initform t)
   (attacking-with :initform :robotic-arm)
   (max-weight :initform (make-stat :base 25))
-  (direction :initform (rlx:random-direction))
+  (direction :initform (xe2:random-direction))
   (strength :initform (make-stat :base 12 :min 0 :max 30))
   (dexterity :initform (make-stat :base 9 :min 0 :max 30))
   (intelligence :initform (make-stat :base 11 :min 0 :max 30))
@@ -351,14 +351,14 @@
 
 (define-method run berserker ()
   (clon:with-field-values (row column) self
-    (let ((world *active-world*))
+    (let ((world *world*))
       (if (< [distance-to-player world row column] 5)
 	  (let ((player-dir [direction-to-player world row column]))
 	    (if [adjacent-to-player world row column]
 		[>>attack self player-dir]
 		[>>move self player-dir]))
 	  (progn (when [obstacle-in-direction-p world row column <direction>]
-		   (setf <direction> (rlx:random-direction)))
+		   (setf <direction> (xe2:random-direction)))
 		 [>>move self <direction>])))))
 
 (define-method die berserker ()
@@ -379,7 +379,7 @@
 
 ;;; The radar-equipped Biclops is more dangerous.  
 
-(define-prototype biclops (:parent rlx:=cell=)
+(define-prototype biclops (:parent xe2:=cell=)
   (name :initform "Biclops")
   (strength :initform (make-stat :base 20 :min 0 :max 50))
   (dexterity :initform (make-stat :base 15 :min 0 :max 30))
@@ -409,8 +409,8 @@
 
 (define-method run biclops ()
   (clon:with-field-values (row column) self
-    (let* ((world *active-world*)
-	   (direction [direction-to-player *active-world* row column]))
+    (let* ((world *world*)
+	   (direction [direction-to-player *world* row column]))
       (if [adjacent-to-player world row column]
 	  [>>attack self direction]
 	  (if [obstacle-in-direction-p world row column direction]
@@ -452,9 +452,9 @@
 
 (define-method run rook ()
   (clon:with-field-values (row column) self
-    (when (< [distance-to-player *active-world* row column] 10)
-      (let ((direction [direction-to-player *active-world* row column])
-	    (world *active-world*))
+    (when (< [distance-to-player *world* row column] 10)
+      (let ((direction [direction-to-player *world* row column])
+	    (world *world*))
 	(if [adjacent-to-player world row column]
 	    [>>attack self direction]
 	    (if [obstacle-in-direction-p world row column direction]
@@ -516,7 +516,7 @@
 (defvar *mine-explosion-sensitivity* 3)
 
 (define-method run mine ()
-  (let ((distance [distance-to-player *active-world* <row> <column>]))
+  (let ((distance [distance-to-player *world* <row> <column>]))
     (if (< distance *mine-warning-sensitivity*)
 	(progn
 	  (when (string= <tile> "mine")
@@ -531,9 +531,9 @@
   (labels ((boom (r c &optional (probability 50))
 	     (prog1 nil
 	       (when (and (< (random 100) probability)
-			  [in-bounds-p *active-world* r c])
-		 [drop-cell *active-world* (clone =explosion=) r c :no-collisions nil]))))
-    (dolist (dir rlx:*compass-directions*)
+			  [in-bounds-p *world* r c])
+		 [drop-cell *world* (clone =explosion=) r c :no-collisions nil]))))
+    (dolist (dir xe2:*compass-directions*)
       (multiple-value-bind (r c)
 	  (step-in-direction <row> <column> dir)
 	(boom r c 100)))
@@ -667,7 +667,7 @@
 
 (defvar *trail-tile-map* (list *trail-end-tiles* *trail-middle-tiles* *trail-middle-tiles*))
 
-(define-prototype muon-trail (:parent rlx:=cell=)
+(define-prototype muon-trail (:parent xe2:=cell=)
   (categories :initform '(:actor))
   (clock :initform 2)
   (speed :initform (make-stat :base 10))
@@ -687,7 +687,7 @@
   (when (minusp <clock>)
     [die self]))
 
-(define-prototype muon-particle (:parent rlx:=cell=)
+(define-prototype muon-particle (:parent xe2:=cell=)
   (categories :initform '(:actor))
   (speed :initform (make-stat :base 15))
   (default-cost :initform (make-stat :base 5))
@@ -696,7 +696,7 @@
   (clock :initform 9))
 
 (define-method find-target muon-particle ()
-  (let ((target [category-in-direction-p *active-world* 
+  (let ((target [category-in-direction-p *world* 
 					 <row> <column> <direction>
 					 '(:obstacle :target)]))
     (if target
@@ -723,7 +723,7 @@
   ;; don't hit the player
   [find-target self])
 
-(define-prototype muon-pistol (:parent rlx:=cell=)
+(define-prototype muon-pistol (:parent xe2:=cell=)
   (name :initform "Muon energy pistol")
   (tile :initform "gun")
   (categories :initform '(:item :weapon :equipment))
@@ -777,7 +777,7 @@
 
 (defvar *lepton-trail-tile-map* (list *lepton-trail-end-tiles* *lepton-trail-middle-tiles* *lepton-trail-middle-tiles*))
 
-(define-prototype lepton-trail (:parent rlx:=cell=)
+(define-prototype lepton-trail (:parent xe2:=cell=)
   (categories :initform '(:actor))
   (clock :initform 2)
   (speed :initform (make-stat :base 10))
@@ -797,7 +797,7 @@
   (when (minusp <clock>)
     [die self]))
 
-(define-prototype lepton-particle (:parent rlx:=cell=)
+(define-prototype lepton-particle (:parent xe2:=cell=)
   (categories :initform '(:actor :target))
   (speed :initform (make-stat :base 14))
   (hit-damage :initform (make-stat :base 14))
@@ -809,7 +809,7 @@
   (clock :initform 10))
 
 (define-method find-target lepton-particle ()
-  (let ((target [category-in-direction-p *active-world* 
+  (let ((target [category-in-direction-p *world* 
 					 <row> <column> <direction>
 					 '(:obstacle :target)]))
     (if target
@@ -824,8 +824,8 @@
 (define-method run lepton-particle ()
   (setf <tile> (getf *lepton-tiles* <direction>))
   (clon:with-field-values (row column) self
-    (let* ((world *active-world*)
-	   (direction [direction-to-player *active-world* row column]))
+    (let* ((world *world*)
+	   (direction [direction-to-player *world* row column]))
       (setf <direction> direction)
       [find-target self])
     (decf <clock>)
@@ -844,7 +844,7 @@
   ;; don't hit the player
   [find-target self])
 
-(define-prototype lepton-cannon (:parent rlx:=cell=)
+(define-prototype lepton-cannon (:parent xe2:=cell=)
   (name :initform "Xiong Les Fleurs Lepton(TM) energy cannon")
   (tile :initform "lepton-cannon")
   (categories :initform '(:item :weapon :equipment))
@@ -858,7 +858,7 @@
 (define-method fire lepton-cannon (direction)
   (if [expend-energy <equipper> [stat-value self :energy-cost]]
       (let ((lepton (clone =lepton-particle=)))
-	(rlx:play-sample "bloup")
+	(xe2:play-sample "bloup")
 	[queue>>drop <equipper> lepton]
 	[queue>>impel lepton direction]
 	[expend-action-points <equipper> [stat-value self :attack-cost]]
@@ -873,7 +873,7 @@
   (clock :initform (+ 12 (random 4))))
 
 (define-method die ion-shield-wall ()
-  [queue>>drop-cell *active-world* (clone =flash=) <row> <column>]
+  [queue>>drop-cell *world* (clone =flash=) <row> <column>]
   [parent>>die self])
 
 (define-method run ion-shield-wall ()
@@ -891,7 +891,7 @@
 (defparameter *ion-shield-energy-cost* 60)
 
 (define-method activate ion-shield ()
-  (let* ((world *active-world*)
+  (let* ((world *world*)
 	 (row [player-row world])
 	 (column [player-column world])
 	 (size <size>))
@@ -950,7 +950,7 @@
 
 (define-method run scanner ()
   (clon:with-field-values (row column) self
-    (let ((world *active-world*))
+    (let ((world *world*))
       (if (< [distance-to-player world row column] 8)
 	  (let ((player-dir [direction-to-player world row column]))
 	    [queue>>fire self player-dir])
@@ -1005,7 +1005,7 @@
 
 (define-method run station-base ()
   (clon:with-field-values (row column) self
-    (let ((world *active-world*))
+    (let ((world *world*))
       (if (< [distance-to-player world row column] 10)
 	  (let ((player-dir [direction-to-player world row column]))
 	    [expend-default-action-points self]
@@ -1033,7 +1033,7 @@
 
 ;;; The sinister robot factory is defined here. 
 
-(define-prototype factory-world (:parent rlx:=world=)
+(define-prototype factory-world (:parent xe2:=world=)
   (width :initform 48)
   (height :initform 300)
   (ambient-light :initform :total)
@@ -1122,7 +1122,7 @@
 
 ;;; Controlling the game.
 
-(define-prototype invader-prompt (:parent rlx:=prompt=))
+(define-prototype invader-prompt (:parent xe2:=prompt=))
 
 (defparameter *qwerty-keybindings*
   '(("Y" nil "move :northwest .")
@@ -1266,7 +1266,7 @@
     ("Q" (:control) "quit .")))
 
 (define-method install-keybindings invader-prompt ()
-  (let ((keys (ecase rlx:*user-keyboard-layout* 
+  (let ((keys (ecase xe2:*user-keyboard-layout* 
 		(:qwerty *qwerty-keybindings*)
 		(:alternate-qwerty *alternate-qwerty-keybindings*)
 		(:dvorak *dvorak-keybindings*))))
@@ -1275,7 +1275,7 @@
 
 ;;; A character status widget.
 
-(define-prototype status (:parent rlx:=formatter=)
+(define-prototype status (:parent xe2:=formatter=)
   (character :documentation "The character cell."))
 
 (define-method set-character status (character)
@@ -1284,7 +1284,7 @@
 (define-method print-stat status (stat-name &key warn-below)
   (let* ((stat (field-value stat-name <character>))
 	 (value [stat-value <character> stat-name]))
-    (destructuring-bind (&key min max base delta) stat
+    (destructuring-bind (&key min max base delta unit) stat
       (let ((color (if (and (numberp warn-below)
 			    (< value warn-below))
 		       ".red"
@@ -1353,13 +1353,13 @@
 (define-prototype splash (:parent =widget=))
 
 (define-method render splash ()
-  (rlx:draw-resource-image "invader-splash" 0 0 
+  (xe2:draw-resource-image "invader-splash" 0 0 
 			   :destination <image>))
 
 (define-method dismiss splash ()
   (set-music-volume 255)	       
   (play-music "xiomacs2" :loop t)
-  (apply #'rlx:install-widgets *play-widgets*))
+  (apply #'xe2:install-widgets *play-widgets*))
 
 (define-prototype splash-prompt (:parent =prompt=)
   (default-keybindings :initform '(("SPACE" nil "dismiss ."))))
@@ -1368,9 +1368,9 @@
 
 (defun invader ()
   (setf clon:*send-parent-depth* 2)
-  (rlx:set-screen-height 600)
-  (rlx:set-screen-width 800)
-  (rlx:disable-timer)
+  (xe2:set-screen-height 600)
+  (xe2:set-screen-width 800)
+  (xe2:disable-timer)
   (let* ((prompt (clone =invader-prompt=))
 	 (world (clone =factory-world=))
 	 (player (clone =player=))
@@ -1379,7 +1379,7 @@
 	 (status (clone =status=))
 	 (splash (clone =splash=))
 	 (splash-prompt (clone =splash-prompt=)))
-    (setf *active-world* world)
+    (setf *world* world)
     ;;
     [resize splash :height 300 :width 420]
     [move splash :x 200 :y 100]

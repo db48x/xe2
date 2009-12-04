@@ -209,6 +209,11 @@ To set up clon.el, add the following to your Emacs initialization file:
 
 *** What is an object in CLON?
 
+An object in CLON consists of a set of fields (keyword/value pairs),
+and optionally: 
+      - a name (a symbol)
+      - a link to a parent object from which this object delegates slot lookups
+
 [[file:../clon/clon.html#Object_data_structure][See also clon.lisp, "Object data structure"]]
 
 *** Defclass-like prototype definitions

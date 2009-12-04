@@ -541,6 +541,9 @@
   [play-sample self "explode"]
   [delete-from-world self])
 
+(define-method cancel bomb-brick ()
+  (decf *bricks*))
+
 ;;; Sparks
 
 (defvar *spark-tiles* '("sparkblur" "sparkblur2" "sparkblur3"))

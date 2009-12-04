@@ -1,6 +1,6 @@
 (
- (:name "fat-bits" :type :bitmap-font :file "fat-bits.png" 
- 	:properties (:width 16 :height 16
+ (:name "fat-bits" :type :bitmap-font :file "fat-bits.bmp" 
+ 	:properties (:width 15 :height 15
 		     :character-map "0123456789"
                      :color-key (:r 0 :g 0 :b 0)))
 
@@ -44,7 +44,7 @@
  (:name "psifuzz1" :type :image :file "psifuzz1.png")
  (:name "psifuzz2" :type :image :file "psifuzz2.png")
 
- (:name "spark-pop" :type :sample :file "spark-pop.wav" :properties (:volume 7))
+ (:name "spark-pop" :type :sample :file "spark-pop.wav" :properties (:volume 4))
  (:name "spark" :type :sample :file "spark.wav" :properties (:volume 2))
  (:name "hard-brick" :type :image :file "hard-brick.png")
  (:name "bass1" :type :sample :file "bass1.wav" :properties (:volume 13))
