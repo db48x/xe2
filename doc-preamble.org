@@ -1,4 +1,9 @@
+#+OPTIONS: toc:2 *:nil 
+#+TITLE: XE2 Developer's Guide and Reference
+
 * Introducing XE2
+
+file:../images/xe2.png
 
 XE2 is a portable [[http://en.wikipedia.org/wiki/Free_software][free-software]] graphical 2D game engine written in
 [[http://en.wikipedia.org/wiki/Common_lisp][Common Lisp]].
@@ -339,6 +344,21 @@ functions, and variables of XE2, here's an example game to
 peek at: [[http://github.com/dto/xe2/blob/master/example/example.lisp][example.lisp]]
 
 You can try it by running (xe2:play "example") at the SLIME REPL.
+
+There's more to making an XE2 module than just a Lisp file; you must
+have resource files (.png, .ogg) and a resource index (.pak file).
+
+See http://github.com/dto/xe2/tree/master/example/ for the full list
+of files in the example game.
+
+* Support links
+
+If you have questions about XE2 or have problems, feel free to use the
+following lines of support:
+
+ - IRC channel #lispgames on irc.freenode.net
+ - [[mailto:dto@gnu.org][email me]].
+ - Join our [[http://common-lisp.net/mailman/listinfo/lisp-game-dev][mailing list]].
 
 * Symbol dictionary
 

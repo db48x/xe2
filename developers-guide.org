@@ -47,10 +47,16 @@ cross-platform graphics and audio; games built with XE2 can be
 distributed as binaries for GNU/Linux, Mac OSX, and Microsoft
 Windows. (For an example, see [[http://dto.github.com/notebook/xong.html][XONG]]. 
 
-Other features include basic random terrain generation tools, simple
-AI support, GUI widgets with flexible keybindings, mouse and joystick
-support, ray-casting based lighting and shadow effects, Bresenham's
-line-of-sight implementation. Features in the process of being ported
+Other features include:
+
+  - Basic random terrain generation tools 
+  - Simple AI support
+  - GUI widgets with flexible keybindings
+  - Mouse and joystick support
+  - Ray-casting light and shadow effects
+  - Bresenham's line-of-sight 
+
+Features in the process of being ported
 from an older Emacs Lisp version include A-star pathfinding,
 rule-based map generation, map editor, and a menu system.
 

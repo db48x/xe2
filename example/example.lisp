@@ -240,7 +240,7 @@
 
 (defun init-example ()
   (xe2:message "Initializing Example...")
-  (setf clon:*send-parent-depth* 2) ;; i'll fix this
+  (clon:initialize)
   (xe2:set-screen-height *room-window-height*)
   (xe2:set-screen-width *room-window-width*)
   (let* ((prompt (clone =room-prompt=))

@@ -108,10 +108,6 @@
       (when (< 3 (length (symbol-name sym)))
 	(push sym syms)))
     (setf syms (sort syms #'string<))
-    (format stream "#+OPTIONS: toc:2 *:nil")
-    (fresh-line stream)
-    (format stream "#+TITLE: DOCUMENTATION FOR PACKAGE ~S" package-name) 
-    (fresh-line stream)
     ;; print preamble
     (dolist (line preamble-lines)
       (format stream "~A" line)

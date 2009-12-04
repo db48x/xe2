@@ -1027,10 +1027,10 @@
   [delete-all-lines self]
   (let* ((char <character>))
     (when char
-	[print self (format nil "   SCORE: ~S" *score*)]
-	[print self (format nil "   BALLS: ~S" [stat-value char :balls])]
-	[print self (format nil "   BRICKS: ~S" *bricks*)]
-	[print self "       ARROWS: MOVE PADDLE       Z/X: FIRE"]
+	[print self (format nil "~S" *score*) :font "fat-bits" :foreground ".white" :background ".black"]
+	;; [print self (format nil "~S" [stat-value char :balls])]
+	;; [print self (format nil "~S" *bricks*)]
+	;; [print self "       ARROWS: MOVE PADDLE       Z/X: FIRE"]
 	[newline self])))
 
 ;;; Main program. 

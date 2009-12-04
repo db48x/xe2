@@ -594,57 +594,53 @@ Set timer parameters and other settings here.")
 
 ;;; PAK resource interchange files
 
-;; PAK is a simple Lisp data interchange file format readable and
-;; writable by both Emacs Lisp and Common Lisp. A PAK file can contain
-;; one or more data resources. A "resource" is an image, sound, text,
-;; font, lisp program, or other data whose interpretation is up to the
-;; client.
+(defparameter *pak-file-extension* ".pak"
+"PAK is a simple Lisp data interchange file format readable and
+writable by both Emacs Lisp and Common Lisp. A PAK file can contain
+one or more data resources. A 'resource' is an image, sound, text,
+font, lisp program, or other data whose interpretation is up to the
+client.
 
-;; A PAK resource can be either self-contained, or point to an
-;; external file for its data.
+A PAK resource can be either self-contained, or point to an
+external file for its data.
 
-;; The syntax of PAK files is a subset of the Common Lisp reader
-;; syntax that is also acceptable to the GNU Emacs reader (reasonably
-;; small decimal integers and floating-point numbers, strings, lists,
-;; and symbols).
+The syntax of PAK files is a subset of the Common Lisp reader
+syntax that is also acceptable to the GNU Emacs reader (reasonably
+small decimal integers and floating-point numbers, strings, lists,
+and symbols).
 
-;; A "resource record" defines a resource. A resource record is a
-;; structure with the following elements:
+A 'resource record' defines a resource. A resource record is a
+structure with the following elements:
 
-;;  :NAME    A string; the name of the resource.
-;;           The colon character : is reserved and used to specify 
-;;           resource transformations; see below.
-;;  :TYPE    A keyword symbol identifying the data type.
-;;           Corresponding handlers are the responsibility of the client.
-;;           See also `*resource-handlers*' and `load-resource'.
+ :NAME    A string; the name of the resource.
+          The colon character : is reserved and used to specify 
+          resource transformations; see below.
+ :TYPE    A keyword symbol identifying the data type.
+          Corresponding handlers are the responsibility of the client.
+          See also `*resource-handlers*' and `load-resource'.
 
-;;           The special type :pak is used to load the pak file
-;;           specified in :FILE, from (optionally) another module
-;;           whose name is given in :DATA.
+          The special type :pak is used to load the pak file
+          specified in :FILE, from (optionally) another module
+          whose name is given in :DATA.
 
-;;           The special type :alias is used to provide multiple names
-;;           for a resource. The :DATA field contains the name of the
-;;           target resource.
+          The special type :alias is used to provide multiple names
+          for a resource. The :DATA field contains the name of the
+          target resource.
 
-;;  :PROPERTIES  Property list with extra data; for example :copyright,
-;;               :license, :author. 
-;;               The special property :AUTOLOAD, when non-nil causes
-;;               the resource to be loaded automatically.
+ :PROPERTIES  Property list with extra data; for example :copyright,
+              :license, :author. 
+              The special property :AUTOLOAD, when non-nil causes
+              the resource to be loaded automatically.
 
-;;  :FILE    Name of file to load data from, if any. 
-;;           Relative to directory of PAK file.
-;;  :DATA    Lisp data encoding the resource itself, if any.
+ :FILE    Name of file to load data from, if any. 
+          Relative to directory of PAK file.
+ :DATA    Lisp data encoding the resource itself, if any.
 
-;; In memory, these will be represented by resource structs (see
-;; below).  On disk, it's a property list printed as text. Unknown
-;; keys will trigger an error. 
+In memory, these will be represented by resource structs (see
+below).  On disk, it's a property list printed as text. Unknown
+keys will trigger an error. 
 
-;; The string "()" is a valid .PAK file; it contains no resources.
-
-;; First we need a structure for resource records. The client can use
-;; these to feed resources to the PAK routines for serialization; the
-;; PAK routines also return these structures when reading records from
-;; a PAK file.
+The string '()' is a valid .PAK file; it contains no resources.")
 
 (defstruct resource 
   name type properties file data object)
@@ -692,8 +688,11 @@ This prepares it for printing as part of a PAK file."
 
 ;;; Resources and modules
 
-(defparameter *pak-file-extension* ".pak"
-"The `resource table' maps resource names to their corresponding
+(defvar *resource-table* nil 
+  "A hash table mapping resource names to resource records. All loaded
+resources go in this one hash table.
+
+The `resource table' maps resource names to their corresponding
 records. `Indexing' a resource means that its resource record is
 added to the resource table. `Loading' a resource means that any
 associated driver-dependent object (SDL image surface, audio buffer
@@ -710,15 +709,11 @@ A lookup failure results in an error. See `find-resource'.
 
 A `module' is a directory full of resource files. The name of the
 module is the name of the directory. Each module must contain a
-file called ={module-name}.pak=, which should contain an index of
+file called {module-name}.pak, which should contain an index of
 all the module's resources. Multiple modules may be loaded at one
-time. In addition the special resource =.startup= will be loaded;
+time. In addition the special resource .startup will be loaded;
 if this is type :lisp, the startup code for your game can go in
 that external lisp file.")
-
-(defvar *resource-table* nil 
-  "A hash table mapping resource names to resource records. All loaded
-resources go in this one hash table.")
 
 (defun initialize-resource-table ()
   "Create a new empty resource table."
@@ -842,6 +837,18 @@ table."
 	image
 	(zoom-image image *zoom-factor*))))
 
+(defun load-bitmap-font-resource (resource)
+  (let ((props (resource-properties resource)))
+    (if (null props)
+	(error "Must set properties for bitmap font.")
+	(destructuring-bind (&key width height character-map color-key) props
+	  (sdl-gfx:initialise-font (make-instance 'SDL:simple-font-definition
+						  :width width :height height
+						  :character-map character-map
+						  :color-key (apply #'sdl:color color-key)
+						  :filename (resource-file resource)
+						  :pad-x 0 :pad-y 0))))))
+    
 (defun load-text-resource (resource)
   (with-open-file (file (resource-file resource)
 			:direction :input
@@ -907,6 +914,7 @@ table."
 				  :lisp #'load-lisp-resource
 				  :color #'load-color-resource
 				  :music #'load-music-resource
+				  :bitmap-font #'load-bitmap-font-resource
 				  :text #'load-text-resource
 				  :formatted-text #'load-formatted-text-resource
 				  :sample #'load-sample-resource

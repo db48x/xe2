@@ -1,4 +1,9 @@
 (
+ (:name "fat-bits" :type :bitmap-font :file "fat-bits.png" 
+ 	:properties (:width 16 :height 16
+		     :character-map "0123456789"
+                     :color-key (:r 0 :g 0 :b 0)))
+
  (:name "brick-purple" :type :image :file "brick-purple.png")
  (:name "brick-black" :type :image :file "brick-black.png")
  (:name "brick-red" :type :image :file "brick-red.png")
