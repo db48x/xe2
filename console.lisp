@@ -40,7 +40,11 @@
 (defparameter *message-logging* nil)
 
 (defun message (format-string &rest args)
-  "Print a log message to the standard output."
+  "Print a log message to the standard output. The FORMAT-STRING and
+remaining arguments are passed to `format'.
+
+When the variable `*message-logging*' is nil, this output is
+disabled."
   (when *message-logging*
     (apply #'format t format-string args)
     (fresh-line)))
@@ -50,21 +54,22 @@
 (defvar *sequence-number* 0)
 
 (defun genseq (&optional (x 0))
+  "Generate an all-purpose sequence number."
   (+ x (incf *sequence-number*)))
 
 ;;; Mixer channels
 
-(defvar *channels* 64)
+(defvar *channels* 64 "Number of audio mixer channels to use.")
    
 ;;; Hooks
 
-;; Hooks are special variables whose names are of the form
-;; `*foo-hook*' and whose values are lists of functions taking no
-;; arguments. The functions of a given hook are all invoked (in list
-;; order) whenever the hook is run with `run-hook'.
-
 (defun add-hook (hook func)
-  "Arrange for FUNC to be invoked whenever HOOK is triggered with
+  "Hooks are special variables whose names are of the form
+`*foo-hook*' and whose values are lists of functions taking no
+arguments. The functions of a given hook are all invoked (in list
+order) whenever the hook is run with `run-hook'.
+
+This function arranges for FUNC to be invoked whenever HOOK is triggered with
 `run-hook'. The function should have no arguments."
   (pushnew func (symbol-value hook)))
 
@@ -81,6 +86,8 @@
 ;;; Vector utility macro 
 
 (defmacro do-cells ((var expr) &body body)
+  "Execute the forms in BODY with VAR bound successively to the
+elements of the vector produced by evaluating EXPR."
   (let ((counter (gensym))
 	(vector (gensym)))
     `(progn
@@ -124,20 +131,20 @@ and the like."
 
 ;;; Event handling and widgets
 
-;; Keyboard, mouse, joystick, and timer events are represented as
-;; event lists of the form:
-;;
-;;       (STRING . MODIFIERS)
-;; 
-;; Where MODIFIERS is a list of symbols like :shift, :control, :alt,
-;; :timer, :system, :mouse, and so on.
-;;
-;; The default event handler attempts to deliver a keypress to one of
-;; the widgets in `*active-widgets*'. See widgets.lisp and the docstrings
-;; below for more information.
-
 (defun send-event-to-widgets (event)
-  "Attempt to deliver EVENT to each of the *active-widgets*
+  "Keyboard, mouse, joystick, and timer events are represented as
+event lists of the form:
+
+:      (STRING . MODIFIERS)
+
+Where MODIFIERS is a list of symbols like :shift, :control, :alt,
+ :timer, :system, :mouse, and so on.
+
+The default event handler attempts to deliver a keypress to one of
+the widgets in `*active-widgets*'. See widgets.lisp and the docstrings
+below for more information.
+
+This function attempts to deliver EVENT to each of the *active-widgets*
 one at a time (in list order) until one of them is found to have a
 matching keybinding, in which case the keybinding's corresponding
 function is triggered. If none of the widgets have a matching
@@ -232,7 +239,9 @@ key event symbols."
             (length prefix))))
 
 (defun make-event (sdl-key sdl-mods)
-  "Create a normalized event out of the SDL data SDL-KEY and SDL-MODS."
+  "Create a normalized event out of the SDL data SDL-KEY and SDL-MODS.
+The purpose of putting events in a normal form is to enable their use
+as hash keys."
   (message "SDL KEY AND MODS: ~A" (list sdl-key sdl-mods))
   (normalize-event
    (cons (if (eq sdl-key :joystick) 
@@ -281,7 +290,7 @@ key event symbols."
     (9 . :select)
     (10 . :start)))
 
-(defvar *joystick-dead-zone* 80)
+(defvar *joystick-dead-zone* 2000)
 
 (defvar *joystick-axis-mapping* '((0 :left :right)
 				  (1 :up :down)))
@@ -327,14 +336,17 @@ key event symbols."
 (defvar *joystick-buttons* nil
   "The nth element is non-nil when the nth button is pressed.")
 
-(defvar *joystick-position* nil "Current position of the joystick.")
+(defvar *joystick-position* nil "Current position of the joystick, as a direction keyword.")
 
 (defun reset-joystick ()
+  "Re-open the joystick device and re-initialize the state."
   (setf *joystick-device* (sdl-cffi::sdl-joystick-open 0))
   (setf *joystick-buttons* (make-array 100 :initial-element nil))
   (setf *joystick-position* :here))
 
 (defun update-joystick (button state)
+  "Update the table in `*joystick-buttons*' to reflect the STATE of
+the BUTTON. STATE should be either 1 (on) or 0 (off)."
   (setf (aref *joystick-buttons* button) (ecase state
 					   (1 t)
 					   (0 nil)))
@@ -364,10 +376,10 @@ key event symbols."
     (message "UPDATE-JOYSTICK: BUTTON(~S) STATE(~S)" button state)))
 
 (defun poll-joystick-button (button)
+  "Return 1 if the button numbered BUTTON is pressed, otherwise 0."
   (sdl-cffi::sdl-joystick-get-button *joystick-device* button))
 
 (defun poll-all-buttons ()
-  ;; just look for releases for now
   (dolist (entry *joystick-mapping*)
     (destructuring-bind (button . symbol) entry
       (update-joystick button (poll-joystick-button button)))))
@@ -390,34 +402,42 @@ any time, because it is always bound to the world containing the cell
 at the time the cell method is run.")
 
 (defun world ()
+  "Return the current world."
   *world*)
 
 ;;; Auto-zooming images
 
-(defvar *zoom-factor* 1)
+(defvar *zoom-factor* 1 
+"When set to some integer greater than 1, all image resources are
+scaled by that factor unless marked with the property :nozoom t.")
 
 (defun is-zoomed-resource (resource)
+  "Return non-nil if the RESOURCE should be zoomed by `*zoom-factor*'."
   (not (getf (resource-properties resource)
 	     :nozoom)))
 
 (defun zoom-image (image factor)
+  "Return a zoomed version of IMAGE, zoomed by FACTOR.
+Allocates a new image."
   (assert (integerp *zoom-factor*))
   (lispbuilder-sdl-gfx:zoom-surface *zoom-factor* *zoom-factor*
 				    :surface image
 				    :smooth nil))
 
-;;; Timer events
+;;; Timing
 
-;; This can be used for pseudo-realtime roguelike play (see
-;; also blast.lisp) or for on-screen animations.
-
-(defvar *frame-rate* 30)
+(defvar *frame-rate* 30 
+"The intended frame rate of the game. Recommended value is 30.
+Don't set this variable directly; use `set-frame-rate' instead.")
 
 (defun set-frame-rate (rate)
+  "Set the frame rate for the game. The recommended default is 30.
+You only need to set the frame rate if you are using the timer; see
+`enable-timer'."
   (setf *frame-rate* rate)
   (setf (sdl:frame-rate) rate))
 
-(defvar *clock* 0 "Number of SDL frames until next timer event.")
+(defvar *clock* 0 "Number of frames until next timer event.")
 
 (defvar *timer-p* nil "Non-nil if timer events are actually being sent.")
 
@@ -429,21 +449,30 @@ at the time the cell method is run.")
   "Disable timer events."
   (setf *timer-p* nil))
 
-(defvar *timer-event* (list nil :timer) "We only need one of these for now.")
+(defvar *timer-event* (list nil :timer) 
+  "Since all timer events are identical, this is the only one we need.")
 
-(defvar *timer-interval* 15 "Number of frames to wait before sending each timer event.")
+(defvar *timer-interval* 15 
+"Number of frames to wait before sending each timer event.
+Set this to 0 to get a timer event every frame.
+Don't set this yourself; use `set-timer-interval'.")
 
 (defun set-timer-interval (interval)
+  "Set the number of frames to wait before sending each timer event.
+Set it to 0 to get a timer event every frame."
   (setf *timer-interval* interval))
 
 ;;; Key repeat
 
 (defun enable-held-keys (delay interval)
+  "Enable key repeat. After a nonzero DELAY in milliseconds, held keys
+repeat every INTERVAL milliseconds."
   (let ((delay-milliseconds (truncate (* delay (/ 1000.0 *frame-rate*))))
 	(interval-milliseconds (truncate (* interval (/ 1000.0 *frame-rate*)))))
     (sdl:enable-key-repeat delay-milliseconds interval-milliseconds)))
 
 (defun disable-held-keys ()
+  "Disable key repeat."
   (sdl:disable-key-repeat))
 
 ;;; Screen dimensions
@@ -466,11 +495,12 @@ window. Set this in the game startup file.")
 
 (defvar *quitting* nil)
 
-(defvar *fullscreen* nil)
+(defvar *fullscreen* nil "When non-nil, attempt to use fullscreen mode.")
 
 (defvar *window-title* "XE2")
 
 (defun run-main-loop ()
+  "Initialize the console, open a window, and play."
   (if *fullscreen*
       (sdl:window *screen-width* *screen-height*
 		  :title-caption *window-title*
@@ -547,7 +577,9 @@ window. Set this in the game startup file.")
 
 (defparameter *user-init-file-name* ".xe2rc")
 
-(defvar *initialization-hook* nil)
+(defvar *initialization-hook* nil 
+"This hook is run after the XE2 console is initialized.
+Set timer parameters and other settings here.")
 
 (defun load-user-init-file ()
   (let ((file (merge-pathnames (make-pathname :name *user-init-file-name*)
@@ -557,7 +589,8 @@ window. Set this in the game startup file.")
 			     (user-homedir-pathname))))))
 
 (defparameter *user-keyboard-layout* :qwerty)
-(defparameter *use-sound* t)
+
+(defparameter *use-sound* t "Non-nil (the default) is to use sound. Nil disables sound.")
 
 ;;; PAK resource interchange files
 
@@ -659,34 +692,36 @@ This prepares it for printing as part of a PAK file."
 
 ;;; Resources and modules
 
-;; The "resource table" maps resource names to their corresponding
-;; records. "Indexing" a resource means that its resource record is
-;; added to the resource table. "Loading" a resource means that any
-;; associated driver-dependent object (SDL image surface, audio buffer
-;; object, etc) is created. This value is stored into the OBJECT field
-;; of the resource record upon loading; see `load-resource'.
+(defparameter *pak-file-extension* ".pak"
+"The `resource table' maps resource names to their corresponding
+records. `Indexing' a resource means that its resource record is
+added to the resource table. `Loading' a resource means that any
+associated driver-dependent object (SDL image surface, audio buffer
+object, etc) is created. This value is stored into the OBJECT field
+of the resource record upon loading; see `load-resource'.
 
-;; The loading operation may be driver-dependent, so each resource
-;; type (i.e. :image, :text, :sound) is handled by its own plugin
-;; function (see `*resource-handlers*').
+The loading operation may be driver-dependent, so each resource
+type (i.e. :image, :text, :sound) is handled by its own plugin
+function (see `*resource-handlers*').
 
-;; "Finding" a resource means looking up its record in the resource
-;; table, and loading the resource if it hasn't been loaded already.
-;; A lookup failure results in an error. See `find-resource'.
+`Finding' a resource means looking up its record in the resource
+table, and loading the resource if it hasn't been loaded already.
+A lookup failure results in an error. See `find-resource'.
 
-;; A "module" is a directory full of resource files. The name of the
-;; module is the name of the directory. Each module must contain a
-;; file called "{module-name}.pak", which should contain an index of
-;; all the module's resources. Multiple modules may be loaded at one
-;; time. In addition the special resource ".startup" will be loaded;
-;; if this is type :lisp, the startup code for your game can go in
-;; that external lisp file.
+A `module' is a directory full of resource files. The name of the
+module is the name of the directory. Each module must contain a
+file called ={module-name}.pak=, which should contain an index of
+all the module's resources. Multiple modules may be loaded at one
+time. In addition the special resource =.startup= will be loaded;
+if this is type :lisp, the startup code for your game can go in
+that external lisp file.")
 
 (defvar *resource-table* nil 
   "A hash table mapping resource names to resource records. All loaded
 resources go in this one hash table.")
 
 (defun initialize-resource-table ()
+  "Create a new empty resource table."
    (setf *resource-table* (make-hash-table :test 'equal)))
 
 (defun index-resource (resource)
@@ -705,9 +740,9 @@ resource is stored; see also `find-resource'."
   (list (make-pathname :directory 
 		       (pathname-directory 
 			(load-time-value 
-			 (or #.*compile-file-truename* *load-truename*))))))
-;;   "List of directories where XE2 will search for modules.
-;; Directories are searched in list order.")
+			 (or #.*compile-file-truename* *load-truename*)))))
+  "List of directories where XE2 will search for modules.
+Directories are searched in list order.")
 
 (defun find-module-path (module-name)
   "Search the `*module-directories*' path for a directory with the
@@ -735,7 +770,7 @@ Please see the included file BINARY-README for instructions."
   "Test whether a PAK index file exists in a directory."
   (let ((index-filename (concatenate 'string
 				     (file-namestring dir)
-				     ".pak")))
+				     *pak-file-extension*)))
     (probe-file (make-pathname :name index-filename
 			       :directory (if (stringp dir)
 					      dir
@@ -988,9 +1023,11 @@ found."
 
 ;;; Loading modules as a whole and autoloading resources
 
-(defvar *loaded-modules* nil)
+(defvar *loaded-modules* nil 
+"List of loaded modules.")
 
 (defun load-module (module)
+  "Load the module named MODULE."
   (setf *pending-autoload-resources* nil)
   (index-module module)
   (mapc #'load-resource (nreverse *pending-autoload-resources*))
@@ -999,10 +1036,14 @@ found."
 ;;; Playing music and sound effects
 
 (defun set-music-volume (number)
+  "Set the mixer music volume between 0 (silent) and 255 (full volume)."
   (when *use-sound*
     (setf (sdl-mixer:music-volume) number)))
 
 (defun play-music (music-name &rest args)
+  "Begin playing the music resource MUSIC-NAME. If the resource
+MUSIC-NAME has the property :volume, its value is used as the volume
+of the music."
   (when *use-sound*
     (let ((resource (find-resource music-name))
 	  (volume (find-resource-property music-name :volume)))
@@ -1013,12 +1054,14 @@ found."
 	     args))))
 
 (defun halt-music (fade-milliseconds)
+  "Stop all music playing."
   (when *use-sound*
     (sdl-mixer:halt-music fade-milliseconds)))
 
 ;; TODO (defun seek-music 
 
 (defun play-sample (sample-name &rest args)
+  "When sound is enabled, play the sample resource SAMPLE-NAME."
   (when *use-sound*
     (let ((resource (find-resource sample-name)))
       (assert (eq :sample (resource-type resource)))
@@ -1175,6 +1218,8 @@ The default destination is the main window."
 (defparameter *audio-chunksize* 512)
 
 (defun play (&optional (module-name "standard"))
+  "This is the main entry point to XE2. MODULE-NAME is loaded 
+and its .startup resource is loaded."
   (setf *initialization-hook* nil)
   (setf *random-state* (make-random-state t))
   ;; override module to play?
@@ -1247,7 +1292,7 @@ The default destination is the main window."
   ;; 		 (sdl-mixer:free (resource-object resource))))
   ;; 	   *resource-table*))
   
-  
+
 ;;; Saving and loading data 
 ;;; Taking screenshots
 

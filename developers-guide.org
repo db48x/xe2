@@ -1,17 +1,17 @@
-#+TITLE: A game developer's guide to the RLX Common Lisp Game Engine
+#+TITLE: A game developer's guide to the XE2 Game Engine
 #+AUTHOR: David O'Toole <dto@gnu.org>
 
-* What can RLX do? 
+* What can XE2 do? 
 
-See the first release RLX game at the official [[http://dto.github.com/notebook/xong.html][XONG home page.]] 
+See the first release XE2 game at the official [[http://dto.github.com/notebook/xong.html][XONG home page.]] 
 
 * How to use this document
 
-This document explains the RLX roguelike engine's general design and
+This document explains the XE2 roguelike engine's general design and
 programming interface from the game developer's perspective, and is
-meant to assist in writing RLX game modules. The document is written
+meant to assist in writing XE2 game modules. The document is written
 in [[http://orgmode.org/][Emacs Org-mode]] syntax, with active links to functions and
-documentation in relevant RLX source code files. You are probably
+documentation in relevant XE2 source code files. You are probably
 reading the HTML version of this page, which includes clickable links
 to nicely formatted source code---thanks to a Lisp program called
 [[http://rtfm.etla.org/emacs/htmlfontify/][htmlfontify]].
@@ -22,7 +22,8 @@ before diving into implementation code, while other sections consist
 of just a link to the relevant Lisp code and documentation.
 
 The final part of the developer's guide links to an example game
-module, "Blast Tactics", which demonstrates all the basics.
+module, which demonstrates all the basics, and other game modules that
+demonstrate more features.
 
 ** Notes
 
@@ -32,38 +33,37 @@ module, "Blast Tactics", which demonstrates all the basics.
 
   3. The links below are specified as relative to the location of the
      present file; for cross-file references to work, you should have
-     CLON and RLX installed in the same directory, and open this file
+     CLON and XE2 installed in the same directory, and open this file
      in Emacs.
 
-* Introducing RLX
+* Introducing XE2
 
-RLX is a portable [[http://en.wikipedia.org/wiki/Free_software][free-software]] graphical [[http://en.wikipedia.org/wiki/Roguelike][roguelike]] engine written in
-[[http://en.wikipedia.org/wiki/Common_lisp][Common Lisp]]. The system provides a number of tools to build graphical
-roguelikes.
+XE2 is a portable [[http://en.wikipedia.org/wiki/Free_software][free-software]] graphical 2D game engine written in
+[[http://en.wikipedia.org/wiki/Common_lisp][Common Lisp]].
 
 The engine supports tile-based 2.5-D worlds with a limited z-axis and
 interacting, independent agents called "cells". These cells are
 programmed with the help of a library called CLON (Common Lisp Object
 Network) which adds prototype-oriented objects to Common Lisp with a
-custom syntax. Both turn-based and pseudo-realtime play (i.e. a simple
-timeout) are supported. RLX uses LISPBUILDER-SDL for cross-platform
-graphics and audio; the example game [[http://dto.github.com/notebook/blast.html][Blast Tactics]] works on GNU/Linux,
-Mac OSX, and Windows so far. (Precompiled binaries are not yet
-available for all platforms.) Other features include basic random
-terrain generation tools, simple AI support, GUI widgets with flexible
-keybindings, mouse and joystick support, ray-casting based lighting
-and shadow effects, Bresenham's line-of-sight implementation. Features
-in the process of being ported from an older Emacs Lisp version
-include A-star pathfinding, rule-based map generation, map editor, and
-a menu system.
+custom syntax. Sprites are also supported, and these may collide with
+each other and with grid cell object. Both turn-based and realtime
+play are supported. XE2 uses LISPBUILDER-SDL for cross-platform
+graphics and audio; games built with XE2 can be distributed as
+binaries for GNU/Linux, Mac OSX, and Microsoft Windows. Other features
+include basic random terrain generation tools, simple AI support, GUI
+widgets with flexible keybindings, mouse and joystick support,
+ray-casting based lighting and shadow effects, Bresenham's
+line-of-sight implementation. Features in the process of being ported
+from an older Emacs Lisp version include A-star pathfinding,
+rule-based map generation, map editor, and a menu system.
 
 * Setting up your development environment
 
-First you need an operating system. Because RLX runs on Linux, Mac,
+First you need an operating system. Because XE2 runs on Linux, Mac,
 and Windows, you can develop games on any of those platforms. (All the
 development tools and libraries mentioned below are cross-platform).
 
- - GNU Emacs is strongly recommended for developing RLX games, because of
+ - GNU Emacs is strongly recommended for developing XE2 games, because of
    CLON's special syntax requirements (see below) and also because SLIME
    allows you to develop and debug interactively from within the editor.
  - SLIME (Superior Lisp Interaction Mode for Emacs)
@@ -75,14 +75,11 @@ development tools and libraries mentioned below are cross-platform).
  - GIMP, Audacity, Ardour, and so on can be used to edit audio and
    image files used as game resources.
 
-Visit the repository to see the latest [[http://github.com/dto/rlx/tree/master/INSTALL][installation instructions]] for
-getting started with LISPBUILDER-SDL, CLON, and RLX. Installing GNU
+Visit the repository to see the latest [[http://github.com/dto/xe2/tree/master/INSTALL][installation instructions]] for
+getting started with LISPBUILDER-SDL, CLON, and XE2. Installing GNU
 Emacs, SLIME, or the other programs mentioned above is beyond the
 scope of this document, but most of them will have downloads available
 on their websites.
-
-** TODO add links to all those sites
-
 
 * Design overview
 
@@ -103,14 +100,14 @@ See also [[file:../clon/clon.html][clon.lisp]].
 ** The console
 
 The "console" is an imaginary video game machine whose native language
-is Common Lisp. RLX games are implemented as "modules" that plug in to
+is Common Lisp. XE2 games are implemented as "modules" that plug in to
 the system, akin to old cartridges or tapes. All services of the
 engine (opening the screen, drawing text and images, playing sounds,
 joystick input) are provided here with a platform-neutral Common Lisp
 interface. Currently the console uses LISPBUILDER-SDL as a
 backend, but other backends are possible.
 
-See also [[file:../rlx/console.html][console.lisp]].
+See also [[file:../xe2/console.html][console.lisp]].
 
 ** Interactive graphical widgets
 
@@ -121,7 +118,7 @@ widgets. Events are things like keystrokes, joystick buttons, timers,
 or mouse clicks. The keybinding system (where events are mapped to
 responses) draws inspiration from Emacs.
 
-Also included in [[file:../rlx/widgets.html][widgets.lisp]]:
+Also included in [[file:../xe2/widgets.html][widgets.lisp]]:
 
   - basic layout widgets 
   - an interactive command prompt 
@@ -131,17 +128,17 @@ Also included in [[file:../rlx/widgets.html][widgets.lisp]]:
 
 ** Cells
 
-"Cells" are CLON objects. Each cell represents some in-game entity;
-player characters, enemies, weapons, items, walls and floors are all
-different types of cells. Game play occurs in a three-dimensional grid
-of cells called a World (see below).
+"Cells" are interacting CLON objects. Each cell represents some
+in-game entity; player characters, enemies, weapons, items, walls and
+floors are all different types of cells. Game play occurs in a
+three-dimensional grid of cells called a World (see below).
 
 Cells may be stacked along the z-axis, and may also contain other
 cells. Cells interact by sending messages to one another and to other
 objects in the environment; these messages are queued and processed by
 the world for delivery to their recipients.
 
-In [[file:../rlx/cells.html][cells.lisp]] you will find some basic roguelike logic built into
+In [[file:../xe2/cells.html][cells.lisp]] you will find some basic roguelike logic built into
 cells.
 
   - Basic features like name, description, and discovery.
@@ -167,7 +164,7 @@ run the game the way you want.
 
 ** Worlds composed of cells
 
-A World object ties together all the elements of RLX into a playable
+A World object ties together all the elements of XE2 into a playable
 situation. A World is a 2.5D grid of interacting cells. This object
 performs the following tasks:
 
@@ -179,7 +176,7 @@ performs the following tasks:
 
 There are also Universe objects composed of interlinked worlds.
 
-See also [[file:../rlx/worlds.html][worlds.lisp]].
+See also [[file:../xe2/worlds.html][worlds.lisp]].
 
 ** Math routines
 
@@ -189,11 +186,11 @@ See also [[file:../rlx/worlds.html][worlds.lisp]].
  - Bresenham's line algorithm
  - Random midpoint displacement "plasma"
 
- See also [[file:../rlx/math.html][math.lisp.]]
+ See also [[file:../xe2/math.html][math.lisp.]]
 
 ** Pathfinding
 
-Not yet fully ported. See [[file:../rlx/path.html][path.lisp.]]
+Not yet fully ported. See [[file:../xe2/path.html][path.lisp.]]
 
 * CLON: Common Lisp Object Network
 
@@ -369,10 +366,10 @@ that an object has no handler for a particular method. This is akin to
 
 * Immersion: an example game module
 
-See the =example= subdirectory, and use =(rlx:play "example") to try it out. 
-You can also read the code at http://github.com/dto/rlx/tree/master/example/
+See the =example= subdirectory, and use =(xe2:play "example") to try it out. 
+You can also read the code at http://github.com/dto/xe2/tree/master/example/
 
-* RLX: A Common Lisp Game Engine
+* XE2: A Common Lisp Game Engine
 
 ** The "console" is a pretend home computer in 80's style
 *** Basic input and output functions

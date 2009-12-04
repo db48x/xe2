@@ -40,7 +40,40 @@
 ;; features of the roguelike engine:
 
 (define-prototype cell
-    (:documentation "An XE2 game-world object.")
+    (:documentation 
+"`Cells' are interacting CLON objects. Each cell represents some
+in-game entity; player characters, enemies, weapons, items, walls and
+floors are all different types of cells. Game play occurs in a
+three-dimensional grid of cells called a World (see below).
+
+Cells may be stacked along the z-axis, and may also contain other
+cells. Cells interact by sending messages to one another and to other
+objects in the environment; these messages are queued and processed by
+the world for delivery to their recipients.
+
+In cells.lisp you will find some basic roguelike logic built into
+cells.
+
+  - Basic features like name, description, and discovery.
+  - Unified container, inventory, and equipment system.
+  - Cells have an optional weight in kilograms, and the calculation
+    recursively includes containers and equipment.
+  - The `action points' system allocates game turns to different
+    cells. 
+  - Basic melee and ranged combat support.
+  - Equipment slot system (i.e. `paper doll') not restricted to humanoid actors.
+  - `Proxying', a feature used to implement drivable vehicles and/or demonic possession.
+  - `Stats', for numeric-valued attributes susceptible to temporary
+    and permanent effects (i.e. stat increases and drains, or
+    encumbrance). Also supports setting minimum and maximum values,
+    and keeping track of units (meters, kilograms.)
+  - `Categories' allow arbitrary tagging of objects, with some
+    categories having special interpretation by the engine.
+
+These are in effect a basic set of mostly optional roleplaying
+rules. By defining new prototypes based on cells, you can change the
+rules and run the game the way you want.
+Sprites are also based on cells. See `defsprite'.")
   (type :initform :cell)
   (weight :documentation "Weight of the cell, in kilograms.")
   (tile :initform ".asterisk" :documentation "Resource name of image.")
@@ -89,21 +122,31 @@
   (combination-key :initform nil :documentation "Only items matching this key will be combined."))
     
 (define-method is-located cell ()
-  (and (integerp <row>) (integerp <column>)))
+  "Returns non-nil if this cell is located somewhere on the grid."
+  (or (and (integerp <row>) (integerp <column>))))
 
 (define-method dislocate cell ()
-  (setf <row> nil <column> nil))
-
+  "Remove any location data from the cell."
+  (when (integerp <row>)
+    (setf <row> nil <column> nil))
+  (when (integerp <x>)
+    (setf <x> nil <y> nil)))
+    
 ;;; Convenience macro for defining cells:
 
 (defmacro defcell (name &body args)
+  "Define a cell named NAME, with the fields ARGS as in a normal
+prototype declaration. This is a convenience macro for defining new
+cells."
   `(define-prototype ,name (:parent =cell=)
      ,@args))
 
 ;;; Names, knowledge, and descriptions
 
 (define-method describe cell ()
-  [>>print-object-tag :narrator self]
+  "Narrate a description of the object. By default, uses
+the :description field of the cell."
+  [>>print-object-tag :narrator  self] 
   [>>newline :narrator]
   (if (stringp <description>)
       (dolist (line (split-string-on-lines <description>))
@@ -116,22 +159,20 @@
 
 ;;; Statistics 
 
-;; <: stats :>
-
-;; Characters and objects may have numeric-valued attributes like
-;; Strength and Dexterity that have a minimum and maximum value
-;; (perhaps decided on the basis of class) as well as temporary and
-;; permanent effects. In this case you want to store a base value,
-;; minimum, maximum, and current delta, and compute the value at run
-;; time.
-;;
-;; Stats are just property lists with four different components: :base
-;; :min :max and :delta. 
-
 (define-method stat-value cell (stat-name &optional component (clamping t))
   "Compute the current value of the statistic in field STAT-NAME.
 If a COMPONENT keyword is provided, return that component of the stat
-instead of computing the value."
+instead of computing the value.
+
+Characters and objects may have numeric-valued attributes like
+Strength and Dexterity that have a minimum and maximum value
+ (perhaps decided on the basis of class) as well as temporary and
+permanent effects. In this case you want to store a base value,
+minimum, maximum, and current delta, and compute the value at run
+time.
+
+Stats are just property lists with four different components: :base
+:min :max and :delta."
   (let ((stat (field-value stat-name self)))
     (if (member component '(:base :min :max :delta :unit))
 	(getf stat component)
@@ -165,6 +206,8 @@ field named by STAT-NAME. The default is to change the :base value."
 	(setf (field-value stat-name self) stat)))))
   
 (defun make-stat (&key base min max delta unit)
+  "Create a stat. Use this as an initialization form in cell declarations.
+You must provide at least a :base value."
   (assert (numberp base))
   (list :base base :min min :max max :delta delta :unit unit))
 
@@ -175,50 +218,41 @@ field named by STAT-NAME. The default is to change the :base value."
 
 ;;; Cell categories
 
-;; <: categories :>
-
-;; Cells may be placed into categories that influence their processing
-;; by the engine. The field `<categories>' is a set of keyword
-;; symbols; if a symbol `:foo' is in the list, then the cell is in the
-;; category `:foo'.
-
-;; Although a game built on XE2 can define whatever categories are
-;; needed, certain base categories are built-in and have a fixed
-;; interpretation:
-
-(defparameter *standard-categories*
-  '(;; <: action-points :> 
-    :actor ;; This cell is active and may be controlled by either the
-	   ;; user or the CPU. Only actor cells receive `:run'
-	   ;; messages every turn. Other cells are purely "reactive".
-	   ;; Actor cells participate in the Action Points system.
-    :target ;; This cell is susceptible to targeting.
-    :proxy ;; This cell is a proxy for another cell.
-    :proxied ;; This cell is an occupant of a proxy.
-    :dead  ;; This cell is no longer receiving run messages.
-    :player ;; Only one cell (your player avatar) has this category.
-    :enemy ;; This cell is playing against you.
-    :exclusive ;; Prevent some objects from stacking.
-    ;; see also the method `drop-cell' in worlds.lisp
-    :obstacle ;; Blocks <: movement :>
-    :pushable ;; Can be pushed by impacts.
-    :ephemeral ;; This cell is not preserved when exiting a world.
-    :combining ;; This cell automatically combines units with other cells in a container.
-    ;; <: lighting :>
-    :light-source ;; This object casts light. 
-    :opaque ;; Blocks line-of-sight, casts shadows. 
-    ;; <: containers :>
-    :container ;; This cell contains other cells, and has an <inventory> field
-    :contained ;; This cell is contained in another cell (i.e. not in open space on the map)
-    :item ;; A potential inventory item. 
-    ;; <: equipment :>
-    :equipper ;; Uses equipment. 
-    :equipped ;; This item is currently equipped.
-    :equipment ;; This item can be equipped. 
-    ))   
-
 (define-method in-category cell (category) 
-  "Return non-nil if this cell is in the specified CATEGORY."
+  "Return non-nil if this cell is in the specified CATEGORY.
+
+Cells may be placed into categories that influence their processing by
+the engine. The field `<categories>' is a set of keyword symbols; if a
+symbol `:foo' is in the list, then the cell is in the category `:foo'.
+
+Although a game built on XE2 can define whatever categories are
+needed, certain base categories are built-in and have a fixed
+interpretation:
+
+ -    :actor --- This cell is active and may be controlled by either the
+      user or the CPU. Only actor cells receive `:run' messages
+      every turn. Other cells are purely `reactive'. Actor
+      cells participate in the Action Points system.
+ -    :target --- This cell is susceptible to targeting.
+ -    :proxy --- This cell is a proxy for another cell.
+ -    :proxied  --- This cell is an occupant of a proxy.
+ -    :dead --- This cell is no longer receiving run messages.
+ -    :player --- Only one cell (your player avatar) has this category.
+ -    :enemy --- This cell is playing against you.
+ -    :exclusive --- Prevent some objects from stacking. See also the method `drop-cell' in worlds.lisp
+ -    :obstacle --- Blocks movement and causes collisions
+ -    :pushable --- Can be pushed by impacts.
+ -    :ephemeral --- This cell is not preserved when exiting a world.
+ -    :combining --- This cell automatically combines units with other cells in a container.
+ -    :light-source --- This object casts light. 
+ -    :opaque --- Blocks line-of-sight, casts shadows. 
+ -    :container --- This cell contains other cells, and has an <inventory> field
+ -    :contained ---  This cell is contained in another cell (i.e. not in open space on the map)
+ -    :item --- A potential inventory item. 
+ -    :equipper --- Uses equipment. 
+ -    :equipped --- This item is currently equipped.
+ -    :equipment --- This item can be equipped. 
+"
   (member category <categories>))
 
 (define-method add-category cell (category)
@@ -230,46 +264,6 @@ field named by STAT-NAME. The default is to change the :base value."
   (setf <categories> (remove category <categories>)))
 
 ;;; Action Points
-
-;; <: action-points :>
-
-;; The Action Points system is XE2's model of roguelike time; Time is
-;; divided into discrete episodes called phases.  Each phase consists
-;; of one or more actions, each of which lasts a certain number of
-;; action points' worth of time. During an action, the cell may modify
-;; its own fields, invoke methods on itself, or send queued messages
-;; to other cells in the environment. When a cell runs out of action
-;; points, its phase ends and another cell's phase begins.
-
-;; "Action points" (or "AP") control an actor cell's ability to take
-;; actions during a phase. The AP score for a cell's phase starts at
-;; [stat-value cell :speed]. The AP cost of an action is determined by
-;; the corresponding method's use of `expend-action-points'; see below. 
-
-;; An "action" is a method that may consume action points. Actor cells
-;; have an <actions> field; this is a list of method keywords
-;; identifying the actions the player can trigger.
-
-;; First your turn comes up, and XE2 waits for your input.  Once you
-;; issue a command, some AP may be used up. When your AP is gone, the
-;; computer's phase begins; the results are displayed, and if you're
-;; still alive, the player phase begins again.
-
-;; The queued messages' targets can be keywords like :world, :browser,
-;; or :narrator instead of direct references to objects; the world
-;; processes the messages before delivery and sends them to the right
-;; place. (See also worlds.lisp)
-
-;; Actions should follow these conventions:
-
-;;    1. Do something meaningful when invoked without arguments, 
-;;       whatever other arguments may be accepted.
-;;    2. Queue appropriate narration messages. <: queueing :>
-;;    3. Have a short docstring (under 40 characters or so) that can be 
-;;       displayed on a single line in a menu system. (See browser.lisp)
-
-;; A cell does not have to be an Actor cell to participate in the
-;; Action Points system. 
 
 (define-method get-actions cell ()
   <actions>)
@@ -297,7 +291,33 @@ negative, then you'll come up that much short."
 
 (define-method can-act cell (phase)
   "Determine whether the cell has enough action points to take some
-action during PHASE."
+action during PHASE.
+
+The Action Points system is XE2's model of roguelike time; Time is
+divided into discrete episodes called phases.  Each phase consists
+of one or more actions, each of which lasts a certain number of
+action points' worth of time. During an action, the cell may modify
+its own fields, invoke methods on itself, or send queued messages
+to other cells in the environment. When a cell runs out of action
+points, its phase ends and another cell's phase begins.
+
+`Action points' (or `AP') control an actor cell's ability to take
+actions during a phase. The AP score for a cell's phase starts at
+ [stat-value cell :speed]. The AP cost of an action is determined by
+the corresponding method's use of `expend-action-points'; see below. 
+
+First your turn comes up, and XE2 waits for your input.  Once you
+issue a command, some AP may be used up. When your AP is gone, the
+computer's phase begins. The results are displayed, and if you're
+still alive, the player phase begins again.
+
+(In realtime mode, XE2 does not wait for input.)
+
+The queued messages' targets can be keywords like :world, :browser,
+or :narrator instead of direct references to objects; the world
+processes the messages before delivery and sends them to the right
+place. (See also worlds.lisp)
+"
   (when (and (not [in-category self :dead])
 	     (< <phase-number> phase)
 	     (plusp <action-points>))
@@ -318,9 +338,12 @@ action during PHASE."
 ;;; Player orientation
 
 (define-method distance-to-player cell ()
+  "Calculate the distance from the current location to the player."
+  ;; todo fix for sprites
   [distance-to-player *world* <row> <column>])
 
 (define-method direction-to-player cell ()
+  "Calculate the general compass direction of the player."
   [direction-to-player *world* <row> <column>])
 
 (define-method adjacent-to-player cell ()
@@ -383,6 +406,7 @@ unproxying. By default, it does nothing."
   nil)
 
 (define-method forward cell (method &rest args)
+  "Attempt to deliver the failed message to the occupant, if any."
   (if (and [is-player self]
 	   (not (has-method method self))
 	   (null <occupant>))
@@ -394,6 +418,7 @@ unproxying. By default, it does nothing."
 	(apply #'send self method occupant args))))
   
 (define-method embark cell (&optional v)
+  "Enter a vehicle V."
   (let ((vehicle (or v [category-at-p *world* <row> <column> :vehicle])))
     (if (null vehicle)
 	[>>say :narrator "No vehicle to embark."]
@@ -403,6 +428,7 @@ unproxying. By default, it does nothing."
 	    [>>say :narrator "Already in vehicle."]))))
 
 (define-method disembark cell ()
+  "Eject the occupant."
   (let ((occupant <occupant>))
     (when (and occupant [in-category self :proxy])
 	  [unproxy self])))
@@ -410,6 +436,8 @@ unproxying. By default, it does nothing."
 ;;; Narrator
 
 (define-method say cell (format-string &rest args)
+  "Print a string to the message narration window. Arguments
+are as with `format'."
   (unless [in-category self :dead]
     (let ((range (if (clon:has-field :hearing-range self)
 		     <hearing-range>
@@ -423,6 +451,9 @@ unproxying. By default, it does nothing."
 ;;; Cell movement
 
 (define-method move cell (direction &optional ignore-obstacles)
+  "Move this cell one step in DIRECTION on the grid. If
+IGNORE-OBSTACLES is non-nil, the move will occur even if an obstacle
+is in the way."
   (let ((world *world*))
     (multiple-value-bind (r c) 
 	(step-in-direction <row> <column> direction)
@@ -447,6 +478,7 @@ unproxying. By default, it does nothing."
 		   [step-on-current-square self]))))))))
 
 (define-method set-location cell (r c)
+  "Set the row R and column C of the cell."
   (setf <row> r <column> c))
 
 (define-method step-on-current-square cell ()

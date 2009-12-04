@@ -1,4 +1,4 @@
-;;; worlds.lisp --- turn-based roguelike grid worlds
+;;; worlds.lisp --- turn-based cell/sprite worlds
 
 ;; Copyright (C) 2008  David O'Toole
 
@@ -34,7 +34,7 @@
 (in-package :xe2)
 
 (define-prototype world
-    (:documentation "An XE2 game world filled with cells.")
+    (:documentation "An XE2 game world filled with cells and sprites.")
   (name :initform "Unknown")
   (paused :initform nil)
   (description :initform "Unknown area.")
@@ -86,15 +86,14 @@ At the moment, only 0=off and 1=on are supported.")
 (defparameter *default-world-z-size* 4)
 
 (define-method in-category world (category)
+  "Returns non-nil when the cell SELF is in the category CATEGORY."
   (member category <categories>))
     
 (define-method pause world ()
   (setf <paused> (if <paused> (prog1 nil [narrateln <narrator> "Resuming game."]
-				     (play-sample "go"))
 			      (prog1 t [narrateln <narrator> 
-						  "The game is now paused. Press Control-P or PAUSE to un-pause."]))))
+						  "The game is now paused. Press Control-P or PAUSE to un-pause."])))))
 
-;; <: environment :>
 (define-prototype environment
     (:documentation "A cell giving general environmental conditions at a world location.")
   (temperature :initform nil :documentation "Temperature at this location, in degrees Celsius.")
@@ -105,6 +104,7 @@ At the moment, only 0=off and 1=on are supported.")
 	   :documentation "Possibly transparent image overlay to be drawn at this location."))
   
 (define-method create-grid world (&key width height)
+  "Initialize all the arrays for a world of WIDTH by HEIGHT cells."
   (let ((dims (list height width)))
     (let ((grid (make-array dims 
 		 :element-type 'vector :adjustable t)))
@@ -140,8 +140,9 @@ At the moment, only 0=off and 1=on are supported.")
 	(setf <sprite-grid> sprite-grid)
 	(setf <sprite-table> (make-hash-table :test 'equal))))))
 
-
 (define-method create-default-grid world ()
+  "If height and width have been set in a world's definition,
+initialize the arrays for a world of the size specified there."
   (when (and (numberp <width>)
 	     (numberp <height>))
     [create-grid self :width <width> :height <height>]))
@@ -169,6 +170,7 @@ At the moment, only 0=off and 1=on are supported.")
   (setf <browser> browser))
 
 (define-method cells-at world (row column)
+  "Return the vector of cells at ROW, COLUMN in the world SELF."
   (when (array-in-bounds-p <grid> row column)
     (aref <grid> row column)))
 

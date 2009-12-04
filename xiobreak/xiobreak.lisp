@@ -908,10 +908,10 @@
 	  (column (1+ (random (- width 1)))))
       [delete-category-at self row column :brick]
       [drop-cell self (clone =grow-brick=) row column]))
-  (dotimes (n platforms)
-    (let ((platform (clone =platform=)))
-      [add-sprite self platform]
-      [update-position platform (+ 100 (random 400)) (+ 400 (random 120))]))
+  ;; (dotimes (n platforms)
+  ;;   (let ((platform (clone =platform=)))
+  ;;     [add-sprite self platform]
+  ;;     [update-position platform (+ 100 (random 400)) (+ 400 (random 120))]))
   (dotimes (n extra-bricks)
     (let ((row (1+ (random 5)))
 	  (column (1+ (random (- width 1)))))

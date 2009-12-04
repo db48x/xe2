@@ -1,5 +1,9 @@
 ** TODO outline bricks that fill in and become indestructible bricks when hit
 ** TODO platformer guy
+*** DONE movement
+CLOSED: [2009-12-03 Thu 11:54]
+*** DONE jumping
+CLOSED: [2009-12-03 Thu 11:54]
 *** TODO shooting
 *** TODO enter/exit paddle
 ** TODO jump-up for paddle 
