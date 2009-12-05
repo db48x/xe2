@@ -35,7 +35,7 @@
 (add-hook 'xe2:*initialization-hook*
 	  #'(lambda ()
 	      (xe2:enable-timer)
-	      (xe2:set-frame-rate 30)
+	      (xe2:set-frame-rate 15)
 	      (xe2:set-timer-interval 0)
 	      (xe2:enable-held-keys 1 1)))
 
@@ -715,7 +715,7 @@
 
 ;;; The paddle
 
-(defparameter *serve-key-delay* 7)
+(defparameter *serve-key-delay* 18)
 
 (defparameter *paddle-size* 5)
 

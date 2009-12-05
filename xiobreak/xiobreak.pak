@@ -1,4 +1,6 @@
 (
+ (:name ".default-font" :type :font :properties (:height 14 :width 7) :data "7x14b")
+
  (:name "fat-bits" :type :bitmap-font :file "fat-bits.bmp" 
  	:properties (:width 14 :height 15
 		     :character-map "0123456789"

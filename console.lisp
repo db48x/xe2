@@ -434,6 +434,7 @@ Don't set this variable directly; use `set-frame-rate' instead.")
   "Set the frame rate for the game. The recommended default is 30.
 You only need to set the frame rate if you are using the timer; see
 `enable-timer'."
+  (message "Setting frame rate to ~S" rate)
   (setf *frame-rate* rate)
   (setf (sdl:frame-rate) rate))
 

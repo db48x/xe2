@@ -1,4 +1,3 @@
-** TODO RELEASE CRITERIA
 ** TODO jump-up for paddle 
 ** TODO gun
 ** TODO level with 2 unbreakable masses inside
