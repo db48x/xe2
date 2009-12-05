@@ -397,14 +397,17 @@
 ;;; Level themes
 
 (defparameter *psi-theme* (list :stuff =psi=
+				:name "PSI"
 				:sample-schemes *psi-sample-schemes*
 				:music "next"))
 
 (defparameter *chi-theme* (list :stuff =chi=
+				:name "CHI"
 				:sample-schemes *chi-sample-schemes*
 				:music "kodama"))
 
 (defparameter *plasma-theme* (list :stuff =plasma=
+				   :name "PLASMA"
 				:sample-schemes *plasma-sample-schemes*
 				:music "rappy"))
 
@@ -1031,10 +1034,11 @@
   (let* ((char <character>))
     (when char
       ;; :font "fat-bits"
+      [print self (format nil "THEME: ~6A   " (getf *theme* :name))]
 	[print self (format nil "SCORE: ~S   " *score*)  :foreground ".white" :background ".black"]
 	[print self (format nil "BALLS: ~S   " [stat-value char :balls])]
 	[print self (format nil "BRICKS: ~S   " *bricks*)]
-	[print self "---   ARROWS: MOVE PADDLE       Z/X: FIRE     CONTROL-Q to QUIT"]
+	[print self " ARROWS: MOVE / Z+X: FIRE / CONTROL-Q: QUIT / ESC: RESET"]
 	[newline self])))
 
 ;;; Main program. 

@@ -1,7 +1,4 @@
 ** TODO RELEASE CRITERIA
-*** TODO ONSCREEN QUICKHELP of 2 lines
-*** TODO score/ball display
-*** TODO multi-ball score multiplier
 ** TODO jump-up for paddle 
 ** TODO gun
 ** TODO level with 2 unbreakable masses inside
