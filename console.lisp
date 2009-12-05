@@ -501,7 +501,9 @@ window. Set this in the game startup file.")
 (defvar *window-title* "XE2")
 
 (defun run-main-loop ()
-  "Initialize the console, open a window, and play."
+  "Initialize the console, open a window, and play.
+We want to process all inputs, update the game state, then update the
+display."
   (if *fullscreen*
       (sdl:window *screen-width* *screen-height*
 		  :title-caption *window-title*
@@ -513,66 +515,62 @@ window. Set this in the game startup file.")
   (show-widgets)
   (sdl:update-display)
   (run-hook '*initialization-hook*)
-  (sdl:with-events ()
-    (:quit-event () (prog1 t))
-    (:mouse-motion-event (:state state :x x :y y :x-rel x-rel :y-rel y-rel)
-			 nil)
-    (:mouse-button-down-event (:button button :state state :x x :y y)
-			      (let ((object (hit-widgets x y *active-widgets*)))
-				(if (null object)
-				    (message "")
-				    (progn 
-				      ;; deliver messages in a queued environment
-				      (sdl:clear-display sdl:*black*)
-				      (when *world*
-					(when (field-value :message-queue *world*)
-					  (with-message-queue (field-value :message-queue *world*)
-					    (case button
-					      (1 (when (has-method :select object) 
-						   [select object]))
-					      (2 (when (has-method :activate object) 
-						   [activate object]))))
-					  [process-messages *world*]))
-				      ;; (dispatch-event *timer-event*)
-				      (show-widgets)
-				      (sdl:update-display)))))
-    (:mouse-button-up-event (:button button :state state :x x :y y)
-			    nil)
-    (:joy-button-down-event (:which which :button button :state state)
+  (let ((events-this-frame 0))
+    (sdl:with-events ()
+      (:quit-event () (prog1 t))
+      (:mouse-motion-event (:state state :x x :y y :x-rel x-rel :y-rel y-rel)
+			   nil)
+      (:mouse-button-down-event (:button button :state state :x x :y y)
+				(let ((object (hit-widgets x y *active-widgets*)))
+				  (if (null object)
+				      (message "")
+				      (progn 
+					;; deliver messages in a queued environment
+					(sdl:clear-display sdl:*black*)
+					(when *world*
+					  (when (field-value :message-queue *world*)
+					    (with-message-queue (field-value :message-queue *world*)
+					      (case button
+						(1 (when (has-method :select object) 
+						     [select object]))
+						(2 (when (has-method :activate object) 
+						     [activate object]))))
+					    [process-messages *world*]))))))
+      (:mouse-button-up-event (:button button :state state :x x :y y)
+			      nil)
+      (:joy-button-down-event (:which which :button button :state state)
+			      (when (assoc button *joystick-mapping*)
+				(update-joystick button state)
+				(dispatch-event (make-event :joystick
+							    (list (translate-joystick-button button) 
+								  :button-down)))))
+      (:joy-button-up-event (:which which :button button :state state)  
 			    (when (assoc button *joystick-mapping*)
 			      (update-joystick button state)
 			      (dispatch-event (make-event :joystick
-							  (list (translate-joystick-button button) 
-								:button-down)))))
-    (:joy-button-up-event (:which which :button button :state state)  
-			  (when (assoc button *joystick-mapping*)
-			    (update-joystick button state)
-			    (dispatch-event (make-event :joystick
 							(list (translate-joystick-button button) 
 							      :button-up)))))
-    (:joy-axis-motion-event (:which which :axis axis :value value)
-			    (update-joystick-axis axis value))
-    (:video-expose-event () (sdl:update-display))
-    (:key-down-event (:key key :mod-key mod)
+      (:joy-axis-motion-event (:which which :axis axis :value value)
+			      (update-joystick-axis axis value))
+      (:video-expose-event () (sdl:update-display))
+      (:key-down-event (:key key :mod-key mod)
+		       (sdl:clear-display sdl:*black*)
+		       (dispatch-event (make-event key mod)))
+      (:idle ()
+	     (when *timer-p*
+	       (if (zerop *clock*)
+		   (progn 
 		     (sdl:clear-display sdl:*black*)
-		     (dispatch-event (make-event key mod))
+		     ;; send timer event
+		     (dispatch-event *timer-event*)
+		     ;; send any joystick button events
+		     ;; (poll-all-buttons)
+					;  (generate-button-events)
+		     ;; update display
 		     (show-widgets)
-		     (sdl:update-display))
-    (:idle ()
-	   (when *timer-p*
-	     (if (zerop *clock*)
-		 (progn 
-		   (sdl:clear-display sdl:*black*)
-		   ;; send timer event
-		   (dispatch-event *timer-event*)
-		   ;; send any joystick button events
-		   ;; (poll-all-buttons)
-		   ;  (generate-button-events)
-		   ;; update display
-		   (show-widgets)
-		   (sdl:update-display)
-		   (setf *clock* *timer-interval*))
-		 (decf *clock*))))))
+		     (sdl:update-display)
+		     (setf *clock* *timer-interval*))
+		   (decf *clock*)))))))
 
 ;;; The .xe2rc user init file
 

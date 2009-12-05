@@ -1,4 +1,5 @@
-** TODO jump-up for paddle 
+** TODO subtle random 1-pixel permutations on position of ball to prevent loops
+** TODO jump-up for paddle allows 30degree angles
 ** TODO gun
 ** TODO level with 2 unbreakable masses inside
 ** TODO outline bricks that fill in and become indestructible bricks when hit

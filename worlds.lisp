@@ -426,10 +426,11 @@ so on, until no more messages are generated."
 					;(when (not [in-category player :dead])
 	       (apply #'send sender method-key rec args)))))))
 
+(define-method get-phase-number world ()
+  <phase-number>)
+
 (define-method forward world (method-key &rest args)
-  "Send unhandled messages to the player object.
-This is where most world computations start, because nothing happens
-in a roguelike until the user has pressed a key."
+  "Send unhandled messages to the player object."
   (assert <player>)
   (when (or (eq :quit method-key) 
 	    (not <paused>))
@@ -444,19 +445,19 @@ in a roguelike until the user has pressed a key."
 	  ;; send the message to the player, possibly generating queued messages
 	  (apply #'send self method-key player args)
 	  ;; process any messages that were generated
-	  [process-messages self]
-	  ;; if this is the player's last turn, begin the cpu phase
-	  ;; otherwise, stay in player phase and exit
-	  (unless [can-act player phase-number]
-	    [end-phase player]
-	    (unless <exited>
-	      (incf <phase-number>)
-	      (when (not [in-category <player> :dead])
-		[run-cpu-phase self])
-	      [begin-phase player])))))))
-  
-(define-method get-phase-number world ()
-  <phase-number>)
+	  [process-messages self])))))
+
+(define-method run-cpu-phase-maybe world ()
+    "If this is the player's last turn, run the cpu phase. otherwise,
+stay in player phase and exit. Always runs cpu when the engine is in
+realtime mode."
+    (when (or *timer-p* (not [can-act player <phase-number>]))
+      [end-phase player]
+      (unless <exited>
+	(incf <phase-number>)
+	(when (not [in-category <player> :dead])
+	  [run-cpu-phase self])
+	[begin-phase player])))
 
 (define-method run-cpu-phase world (&optional timer-p)
   "Run all non-player actor cells."

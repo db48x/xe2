@@ -2,10 +2,10 @@
 
 ;; You can copy this file to ~/.rlxrc and edit it to get rlx working 
 
-;; Edit the following line to reflect the path where you installed RLX
-(setf rlx:*module-directories* '(#P"/home/dto/rlx/"))
-(setf rlx:*user-keyboard-layout* :qwerty)
-(setf rlx:*use-sound* t)
-(setf rlx:*message-logging* t)
-;; fullscreen is a pain if RLX hangs
-(setf rlx:*fullscreen* nil)
+;; Edit the following line to reflect the path where you installed XE2
+(setf xe2:*module-directories* '(#P"/home/dto/xe2/"))
+(setf xe2:*user-keyboard-layout* :qwerty)
+(setf xe2:*use-sound* t)
+(setf xe2:*message-logging* t)
+;; fullscreen is a pain if XE2 hangs
+(setf xe2:*fullscreen* nil)

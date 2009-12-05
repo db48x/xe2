@@ -731,7 +731,7 @@
   (serve-key-clock :initform 0)
   (balls :initform (make-stat :base 5))
   (score :initform (make-stat :base 0 :min 0))
-  (speed :initform (make-stat :base 10 :min 0 :max 10))
+  (speed :initform (make-stat :base 10 :min 0 :max 20))
   (movement-cost :initform (make-stat :base 10))
   (categories :initform '(:actor :proxy :player :obstacle :paddle :oriented)))
 
