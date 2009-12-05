@@ -232,9 +232,9 @@ non-nil, then two objects with category :exclusive will not be placed
 together. If PROBE is non-nil, try to place the cell in the immediate
 neighborhood.  Return T if a cell is placed; nil otherwise. If both
 NO-COLLISIONS and EXCLUSIVE are both non-nil, an error is signaled."
-  (declare (optimize (safety 0) (speed 3)) (type simple-array grid))
   (assert (not (and no-collisions exclusive)))
   (let ((grid <grid>))
+    (declare (optimize (speed 3)) (type simple-array grid))
     (when (array-in-bounds-p grid row column)
       (ecase (field-value :type cell)
 	(:cell
@@ -472,6 +472,7 @@ realtime mode."
 	    (phase-number <phase-number>)
 	    (player <player>)
 	    (grid <grid>))
+	(declare (type (simple-array vector (* *)) grid) (optimize (speed 3)))
 	[run player]
 	[clear-light-grid self]
 	[clear-sprite-grid self]
@@ -519,6 +520,7 @@ sources and ray casting."
 		   (if (numberp ambient) ambient 0)))
 	 (octagon (make-array 100 :initial-element nil :adjustable t :fill-pointer 0))
 	 (line (make-array 100 :initial-element nil :adjustable t :fill-pointer 0)))
+    (declare (type (simple-array vector (* *)) grid) (optimize (speed 3)))
     ;; don't bother lighting if everything is lit.
     (when (not (eq :total ambient))
       ;; draw only odd-radius octagons that have a center pixel
@@ -652,12 +654,13 @@ sources and ray casting."
 
 (define-method delete-cell world (cell row column)
   "Delete CELL from the grid at ROW, COLUMN."
-  (declare (optimize (safety 0) (speed 3)))
   (ecase (field-value :type cell)
     (:cell
        (let* ((grid <grid>)
-	      (square (aref (the simple-array grid) row column))
+	      (square (aref grid row column))
 	      (start (position cell square :test #'eq)))
+	 (declare (type (simple-array vector (* *)) grid) 
+		  (optimize (speed 3)))
 	 (when start
 	   (replace square square :start1 start :start2 (1+ start))
 	   (decf (fill-pointer square)))))
@@ -668,10 +671,12 @@ sources and ray casting."
   "Delete all cells in CATEGORY at ROW, COLUMN in the grid.
 The cells' :cancel method is invoked."
   (let* ((grid <grid>))
-    (setf (aref (the simple-array grid) row column)
+    (declare (type (simple-array vector (* *)) grid)
+	     (optimize (speed 3)))
+    (setf (aref grid row column)
 	  (delete-if #'(lambda (c) (when [in-category c category]
 				     (prog1 t [cancel c])))
-		     (aref (the simple-array grid) row column)))))
+		     (aref grid row column)))))
 			       
 (define-method line-of-sight world (r1 c1 r2 c2 &optional (category :obstacle))
   "Return non-nil when there is a direct Bresenham's line of sight
