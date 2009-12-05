@@ -1,3 +1,4 @@
+** TODO fire that spreads and must be put out
 ** TODO more paint mechanics.. no instadeath on snake, instead he fires
 ** TODO TUTORIAL LEVEL FOR 1.4
 ** TODO fix letting go of alt while holding dir spams chevron message

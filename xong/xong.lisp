@@ -946,7 +946,9 @@ reach new areas and items. The puck also picks up the color.")
   (tile :initform "snowflake")
   ;; not paintable
   (categories :initform '(:puck :target :actor :item :snowflake))
-  (description :initform "A puck that freezes enemies for a brief time.")
+  (description :initform 
+"A puck that freezes enemies for a brief time.
+You must drop any other puck in order to pick this up.")
   (speed :initform (make-stat :base 10))
   (movement-cost :initform (make-stat :base 10))
   (direction :initform :here)
@@ -1012,7 +1014,9 @@ reach new areas and items. The puck also picks up the color.")
   ;; not paintable
   (categories :initform '(:puck :target :item :shield))
   (player :initform nil)
-  (description :initform "A puck that creates a shield around you when fired.")
+  (description :initform 
+"A puck that creates a shield around you when fired.
+You must drop any other puck in order to pick this up.")
   (speed :initform (make-stat :base 10))
   (movement-cost :initform (make-stat :base 10))
   (direction :initform :here)

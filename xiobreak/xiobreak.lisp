@@ -979,6 +979,7 @@
   ;; we also want to respond to timer events. this is how. 
   [define-key self nil '(:timer) (lambda ()
 				   (click-beat)
+				   (message "FPS: ~S" (truncate (sdl:average-fps)))
 				   [run-cpu-phase *world* :timer])])
 
 ;;; A status widget for score display
