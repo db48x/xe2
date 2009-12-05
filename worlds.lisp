@@ -233,8 +233,11 @@ together. If PROBE is non-nil, try to place the cell in the immediate
 neighborhood.  Return T if a cell is placed; nil otherwise. If both
 NO-COLLISIONS and EXCLUSIVE are both non-nil, an error is signaled."
   (assert (not (and no-collisions exclusive)))
-  (let ((grid <grid>))
-    (declare (optimize (speed 3)) (type simple-array grid))
+  (let ((grid <grid>)
+	(tile-size <tile-size>))
+    (declare (optimize (speed 3)) 
+	     (type (simple-array vector (* *)) grid)
+	     (fixnum tile-size row column))
     (when (array-in-bounds-p grid row column)
       (ecase (field-value :type cell)
 	(:cell
@@ -267,8 +270,8 @@ NO-COLLISIONS and EXCLUSIVE are both non-nil, an error is signaled."
 	(:sprite
 	   [add-sprite self cell]
 	   [update-position cell 
-			    (* column <tile-size>)
-			    (* row <tile-size>)])))))
+			    (* column tile-size)
+			    (* row tile-size)])))))
   
 (define-method replace-cell world (cell new-cell row column
 					&optional &key loadout no-collisions)
@@ -339,15 +342,18 @@ NO-COLLISIONS and EXCLUSIVE are both non-nil, an error is signaled."
 (define-method category-at-p world (row column category)
   "Returns non-nil if there is any cell in CATEGORY at ROW, COLUMN.
 CATEGORY may be a list of keyword symbols or one keyword symbol."
+  (declare (optimize (speed 3)))
   (let ((catlist (etypecase category
 		   (keyword (list category))
-		   (list category))))
-    (and (array-in-bounds-p <grid> row column)
+		   (list category)))
+	(grid <grid>))
+    (declare (type (simple-array vector (* *)) grid))
+    (and (array-in-bounds-p grid row column)
 	 (some #'(lambda (cell)
 		   (when (intersection catlist
 				       (field-value :categories cell))
 		     cell))
-	       (aref <grid> row column)))))
+	       (aref grid row column)))))
 
 ;; (define-method category-at-xy-p world (x y category)
 ;;   (let ((
@@ -463,37 +469,40 @@ realtime mode."
 
 (define-method run-cpu-phase world (&optional timer-p)
   "Run all non-player actor cells."
+  (declare (optimize (speed 3)))
   (when (not <paused>)
     (when timer-p
       (incf <phase-number>))
     (with-message-queue <message-queue> 
-      (let ((cells nil)
-	    (cell nil)
+      (let ((cell nil)
 	    (phase-number <phase-number>)
 	    (player <player>)
-	    (grid <grid>))
-	(declare (type (simple-array vector (* *)) grid) (optimize (speed 3)))
+	    (grid <grid>)
+	    (categories nil))
+	(declare (type (simple-array vector (* *)) grid))
 	[run player]
 	[clear-light-grid self]
 	[clear-sprite-grid self]
 	(dotimes (i <height>)
 	  (dotimes (j <width>)
-	    (setf cells (aref grid i j))
-	    (dotimes (z (fill-pointer cells))
-	      (setf cell (aref cells z))
-	      ;; perform lighting
-	      (when (or [is-player cell]
-			[is-light-source cell])
-		[render-lighting self cell])
-	      (when (and (not (eq player cell))
-			 [in-category cell :actor]
-			 (not [in-category player :dead]))
-		[begin-phase cell]
-		;; do cells
-		(loop while [can-act cell phase-number] do
-		      [run cell]
-		      [process-messages self]
-		      [end-phase cell])))))
+	    (let ((cells (aref grid i j)))
+	      (declare (vector cells))
+	      (dotimes (z (fill-pointer cells))
+		(setf cell (aref cells z))
+		(setf categories (field-value :categories cell))
+		;; perform lighting
+		(when (or (member :player categories)
+			  (member :light-source categories))
+		  [render-lighting self cell])
+		(when (and (not (eq player cell))
+			   (member :actor categories)
+			   (not (member :dead categories)))
+		  [begin-phase cell]
+		  ;; do cells
+		  (loop while [can-act cell phase-number] do
+			[run cell]
+			[process-messages self]
+			[end-phase cell]))))))
 	;; run sprites
 	(dolist (sprite <sprites>)
 	  [begin-phase sprite]
