@@ -1,3 +1,4 @@
+** TODO emulate key repeat
 ** TODO subtle random 1-pixel permutations on position of ball to prevent loops
 ** TODO jump-up for paddle allows 30degree angles
 ** TODO gun

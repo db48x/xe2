@@ -129,6 +129,33 @@ and the like."
 ;; TODO why does this crash: 
 ;;  (show-widgets))
 
+;;; Key repeat
+
+(defvar *key-table* (make-hash-table :test 'equal))
+
+(defvar *held-keys* nil)
+
+(defun enable-held-keys (delay interval)
+  "Enable key repeat on every frame when held. Arguments are ignored
+for backward-compatibility."
+  (declare (ignore delay interval))
+  (setf *key-state* (make-hash-table :test 'equal))
+  (setf *held-keys* t))
+  ;; (let ((delay-milliseconds (truncate (* delay (/ 1000.0 *frame-rate*))))
+  ;; 	(interval-milliseconds (truncate (* interval (/ 1000.0 *frame-rate*)))))
+  ;;   (sdl:enable-key-repeat delay-milliseconds interval-milliseconds)))
+
+(defun disable-held-keys ()
+  "Disable key repeat."
+  (setf *held-keys* nil))
+;;  (sdl:disable-key-repeat))
+
+(defun send-held-events ()
+  (unless (null *key-table*)
+    (maphash #'(lambda (event ignore)
+		 (dispatch-event event))
+	     *key-table*)))
+
 ;;; Event handling and widgets
 
 (defun send-event-to-widgets (event)
@@ -463,19 +490,6 @@ Don't set this yourself; use `set-timer-interval'.")
 Set it to 0 to get a timer event every frame."
   (setf *timer-interval* interval))
 
-;;; Key repeat
-
-(defun enable-held-keys (delay interval)
-  "Enable key repeat. After a nonzero DELAY in milliseconds, held keys
-repeat every INTERVAL milliseconds."
-  (let ((delay-milliseconds (truncate (* delay (/ 1000.0 *frame-rate*))))
-	(interval-milliseconds (truncate (* interval (/ 1000.0 *frame-rate*)))))
-    (sdl:enable-key-repeat delay-milliseconds interval-milliseconds)))
-
-(defun disable-held-keys ()
-  "Disable key repeat."
-  (sdl:disable-key-repeat))
-
 ;;; Screen dimensions
 
 (defvar *screen-width* 640 "The width (in pixels) of the game
@@ -554,18 +568,28 @@ display."
 			      (update-joystick-axis axis value))
       (:video-expose-event () (sdl:update-display))
       (:key-down-event (:key key :mod-key mod)
-		       (sdl:clear-display sdl:*black*)
-		       (dispatch-event (make-event key mod)))
+		       (let ((event (make-event key mod)))
+			 (if *held-keys*
+			     (when (null (gethash event *key-table*))
+			       (setf (gethash event *key-table*) t))
+			     (dispatch-event event))))
+      (:key-up-event (:key key :mod-key mod)
+		     (let ((event (make-event key mod)))
+		       (when (and *held-keys* (gethash event *key-table*))
+			 (remhash event *key-table*))))
       (:idle ()
 	     (when *timer-p*
 	       (if (zerop *clock*)
 		   (progn 
 		     (sdl:clear-display sdl:*black*)
+		     ;; send held events
+		     (when *held-keys*
+		       (send-held-events))
 		     ;; send timer event
 		     (dispatch-event *timer-event*)
 		     ;; send any joystick button events
 		     ;; (poll-all-buttons)
-					;  (generate-button-events)
+		     ;;  (generate-button-events)
 		     ;; update display
 		     (show-widgets)
 		     (sdl:update-display)

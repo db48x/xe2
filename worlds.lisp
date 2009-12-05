@@ -107,7 +107,7 @@ At the moment, only 0=off and 1=on are supported.")
   "Initialize all the arrays for a world of WIDTH by HEIGHT cells."
   (let ((dims (list height width)))
     (let ((grid (make-array dims 
-		 :element-type 'vector :adjustable t)))
+		 :element-type 'vector :adjustable nil)))
       ;; now put a vector in each square to represent the z-axis
       (dotimes (i height)
 	(dotimes (j width)
@@ -232,42 +232,44 @@ non-nil, then two objects with category :exclusive will not be placed
 together. If PROBE is non-nil, try to place the cell in the immediate
 neighborhood.  Return T if a cell is placed; nil otherwise. If both
 NO-COLLISIONS and EXCLUSIVE are both non-nil, an error is signaled."
+  (declare (optimize (safety 0) (speed 3)) (type simple-array grid))
   (assert (not (and no-collisions exclusive)))
-  (when (array-in-bounds-p <grid> row column)
-    (ecase (field-value :type cell)
-      (:cell
-	 (labels ((drop-it (row column)
-		    (prog1 t
-		      (vector-push-extend cell (aref <grid> row column))
-		      (setf (field-value :row cell) row)
-		      (setf (field-value :column cell) column)
-		      (when loadout
-			[loadout cell])
-		      (unless no-stepping
-			[step-on-current-square cell]))))
-	   (if (or no-collisions exclusive)
-	       (progn 
-		 (when no-collisions
-		   (when (not [obstacle-at-p self row column])
-		     (drop-it row column)))
-		 (when exclusive
-		   (if [category-at-p self row column :exclusive]
-		       (when probe
-			 (block probing
-			   (dolist (dir *compass-directions*)
-			(multiple-value-bind (r c) 
-			    (step-in-direction row column dir)
-			  (when (not [category-at-p self row column :exclusive])
-			    (return-from probing (drop-it r c)))))))
-		       (drop-it row column))))
-	       (drop-it row column))))
-      ;; handle sprites
-      (:sprite
-	 [add-sprite self cell]
-	 [update-position cell 
-			  (* column <tile-size>)
-			  (* row <tile-size>)]))))
-    
+  (let ((grid <grid>))
+    (when (array-in-bounds-p grid row column)
+      (ecase (field-value :type cell)
+	(:cell
+	   (labels ((drop-it (row column)
+		      (prog1 t
+			(vector-push-extend cell (aref grid row column))
+			(setf (field-value :row cell) row)
+			(setf (field-value :column cell) column)
+			(when loadout
+			  [loadout cell])
+			(unless no-stepping
+			  [step-on-current-square cell]))))
+	     (if (or no-collisions exclusive)
+		 (progn 
+		   (when no-collisions
+		     (when (not [obstacle-at-p self row column])
+		       (drop-it row column)))
+		   (when exclusive
+		     (if [category-at-p self row column :exclusive]
+			 (when probe
+			   (block probing
+			     (dolist (dir *compass-directions*)
+			       (multiple-value-bind (r c) 
+				   (step-in-direction row column dir)
+				 (when (not [category-at-p self row column :exclusive])
+				   (return-from probing (drop-it r c)))))))
+			 (drop-it row column))))
+		 (drop-it row column))))
+	;; handle sprites
+	(:sprite
+	   [add-sprite self cell]
+	   [update-position cell 
+			    (* column <tile-size>)
+			    (* row <tile-size>)])))))
+  
 (define-method replace-cell world (cell new-cell row column
 					&optional &key loadout no-collisions)
   "Replace the CELL with NEW-CELL at ROW, COLUMN in this world."
@@ -650,10 +652,11 @@ sources and ray casting."
 
 (define-method delete-cell world (cell row column)
   "Delete CELL from the grid at ROW, COLUMN."
+  (declare (optimize (safety 0) (speed 3)))
   (ecase (field-value :type cell)
     (:cell
        (let* ((grid <grid>)
-	      (square (aref grid row column))
+	      (square (aref (the simple-array grid) row column))
 	      (start (position cell square :test #'eq)))
 	 (when start
 	   (replace square square :start1 start :start2 (1+ start))
@@ -665,48 +668,48 @@ sources and ray casting."
   "Delete all cells in CATEGORY at ROW, COLUMN in the grid.
 The cells' :cancel method is invoked."
   (let* ((grid <grid>))
-    (setf (aref grid row column)
+    (setf (aref (the simple-array grid) row column)
 	  (delete-if #'(lambda (c) (when [in-category c category]
 				     (prog1 t [cancel c])))
-		     (aref grid row column)))))
+		     (aref (the simple-array grid) row column)))))
 			       
 (define-method line-of-sight world (r1 c1 r2 c2 &optional (category :obstacle))
   "Return non-nil when there is a direct Bresenham's line of sight
 along grid squares between R1,C1 and R2,C2."
-  (when (and (array-in-bounds-p <grid> r1 c1) 
-	     (array-in-bounds-p <grid> r2 c2))
-    (let ((line (make-array 100 :initial-element nil :adjustable t :fill-pointer 0))
-	  (grid <grid>)
-	  (num-points 0)
-	  (r0 r1)
-	  (c0 c1))
-      (labels ((collect-point (&rest args)
-		 (prog1 nil
-		   (vector-push-extend args line)
-		   (incf num-points))))
-	(let ((flipped (trace-line #'collect-point c1 r1 c2 r2)))
-	  (if flipped 
-	      (setf line (nreverse line))
-	      (when (array-in-bounds-p grid r2 c2)
-		(incf num-points)
-		(vector-push-extend (list c2 r2) line)))
-	  (message "~S" line)
-	  (let ((retval (block tracing
-			  (let ((i 0))
-			    (loop while (< i num-points) do
-			      (destructuring-bind (x y) (aref line i)
-				(setf r0 x c0 y)
-				(when *lighting-hack-function* 
-				  (funcall *lighting-hack-function* r0 c0 r1 c1))
-				(if (and (= r0 r2)
-					 (= c0 c2))
-				    (return-from tracing t)
-				    (when [category-at-p self r0 c0 category]
-				      (return-from tracing nil))))
-			      (incf i)))
-			  (return-from tracing t))))
-	    (prog1 retval
-	      (message "tracing ~S" retval))))))))
+  (let ((grid <grid>))
+    (when (and (array-in-bounds-p grid r1 c1) 
+	       (array-in-bounds-p grid r2 c2))
+      (let ((line (make-array 100 :initial-element nil :adjustable t :fill-pointer 0))
+	    (num-points 0)
+	    (r0 r1)
+	    (c0 c1))
+	(labels ((collect-point (&rest args)
+		   (prog1 nil
+		     (vector-push-extend args line)
+		     (incf num-points))))
+	  (let ((flipped (trace-line #'collect-point c1 r1 c2 r2)))
+	    (if flipped 
+		(setf line (nreverse line))
+		(when (array-in-bounds-p grid r2 c2)
+		  (incf num-points)
+		  (vector-push-extend (list c2 r2) line)))
+	    (message "~S" line)
+	    (let ((retval (block tracing
+			    (let ((i 0))
+			      (loop while (< i num-points) do
+				(destructuring-bind (x y) (aref line i)
+				  (setf r0 x c0 y)
+				  (when *lighting-hack-function* 
+				    (funcall *lighting-hack-function* r0 c0 r1 c1))
+				  (if (and (= r0 r2)
+					   (= c0 c2))
+				      (return-from tracing t)
+				      (when [category-at-p self r0 c0 category]
+					(return-from tracing nil))))
+				(incf i)))
+			    (return-from tracing t))))
+	      (prog1 retval
+		(message "tracing ~S" retval)))))))))
 
 (define-method move-cell world (cell row column)
   "Move CELL to ROW, COLUMN."
