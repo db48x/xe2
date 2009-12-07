@@ -139,7 +139,7 @@ and the like."
   "Enable key repeat on every frame when held. Arguments are ignored
 for backward-compatibility."
   (declare (ignore delay interval))
-  (setf *key-state* (make-hash-table :test 'equal))
+  (setf *key-table* (make-hash-table :test 'equal))
   (setf *held-keys* t))
   ;; (let ((delay-milliseconds (truncate (* delay (/ 1000.0 *frame-rate*))))
   ;; 	(interval-milliseconds (truncate (* interval (/ 1000.0 *frame-rate*)))))
@@ -155,6 +155,13 @@ for backward-compatibility."
     (maphash #'(lambda (event ignore)
 		 (dispatch-event event))
 	     *key-table*)))
+
+(defun break-events (event)
+  (labels ((break-it (event2 ignore)
+	     (when (intersection event event2 :test 'equal)
+	       (message "Breaking ~S due to match with ~S." event2 event)
+	       (remhash event2 *key-table*))))
+    (maphash #'break-it *key-table*)))
 
 ;;; Event handling and widgets
 
@@ -571,12 +578,15 @@ display."
 		       (let ((event (make-event key mod)))
 			 (if *held-keys*
 			     (when (null (gethash event *key-table*))
+			       (message "Inserting event ~A" event)
 			       (setf (gethash event *key-table*) t))
 			     (dispatch-event event))))
       (:key-up-event (:key key :mod-key mod)
 		     (let ((event (make-event key mod)))
-		       (when (and *held-keys* (gethash event *key-table*))
-			 (remhash event *key-table*))))
+		       (if (and *held-keys* (gethash event *key-table*))
+			   (progn (message "Removing event ~A" event)
+				  (remhash event *key-table*))
+			   (break-events event))))
       (:idle ()
 	     (when *timer-p*
 	       (if (zerop *clock*)
