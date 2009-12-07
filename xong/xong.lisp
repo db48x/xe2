@@ -719,7 +719,7 @@ reach new areas and items. The puck also picks up the color.")
     [set-player *universe* player]
     [set-character *status* player]
     [play *universe*
-	  :address (generate-level-address 2)]
+	  :address (generate-level-address 1)]
     [loadout player]
     [play-sample self "go"]))
 
