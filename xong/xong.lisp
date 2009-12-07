@@ -350,8 +350,10 @@ squeezing by in between pulses!"))
 	     (prog1 t
 	       (multiple-value-bind (x y) 
 		   [viewport-coordinates self]
-		 (draw-circle x y 40 :destination image)
-		 (draw-circle x y 35 :destination image)))))
+		 (let ((x0 (+ x 8))
+		       (y0 (+ y 8)))
+		   (draw-circle x0 y0 40 :destination image)
+		   (draw-circle x0 y0 35 :destination image))))))
     [>>add-overlay :viewport #'do-circle])
   (when (< [distance-to-player self] 3.5)
     [damage [get-player *world*] 1]))
@@ -717,7 +719,7 @@ reach new areas and items. The puck also picks up the color.")
     [set-player *universe* player]
     [set-character *status* player]
     [play *universe*
-	  :address (generate-level-address 1)]
+	  :address (generate-level-address 2)]
     [loadout player]
     [play-sample self "go"]))
 
