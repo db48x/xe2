@@ -367,6 +367,7 @@ squeezing by in between pulses!"))
 			      [player-column world]])
 	  (let ((player-dir [direction-to-player world row column]))
 	    [alarm self]
+;;	    (setf <direction> player-dir)
 	    [move self player-dir]
 	    [expend-action-points self 10])
 	  (multiple-value-bind (r c)
