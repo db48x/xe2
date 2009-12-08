@@ -724,7 +724,7 @@ reach new areas and items. The puck also picks up the color.")
     [set-player *universe* player]
     [set-character *status* player]
     [play *universe*
-	  :address (generate-level-address 1)]
+	  :address '(=menu-world=)]
     [loadout player]
     [play-sample self "go"]))
 
@@ -830,7 +830,7 @@ reach new areas and items. The puck also picks up the color.")
 
 (defparameter *success-text* '((("Good job. You've mastered the use")) (("of the arrow keys."))))
 
-(defparameter *bye-text* '((("You can exit through one")) (("of the portals to the southeast."))
+(defparameter *bye-text* '((("You can exit through one")) (("of the portals."))
 			   (("Portals look like this: ") (nil :image "portal"))))
 
 (defcell beckoner 
@@ -856,7 +856,7 @@ reach new areas and items. The puck also picks up the color.")
 		    (setf timeout 100))
 		 (2 [emote self *success-text*]
 		    (incf state)
-		    (setf timeout 100))
+		    (setf timeout 50))
 		 (3 [emote self *bye-text*]
 		    (setf timeout 200)))))
       (if (and (not (= 3 state))
@@ -1385,8 +1385,6 @@ the player gets too close."))
 	:diamonds (+ 9 (* (1- n) 3))
 	:swatches (+ 10 (truncate (* 1.6 n)))))
 
-;; (generate-level-address 1)
-
 (defparameter *xong-level-width* 50)
 (defparameter *xong-level-height* 29)
 
@@ -1716,12 +1714,12 @@ the player gets too close."))
       [drop-cell self beckoner 8 14]
       [drop-cell self (clone =portal= 
 			     :address (generate-level-address 1)
-			     :text '((("Level 1"))))
-		 14 37 :loadout t]
+			     :text '((("To Level 1"))))
+		 3 12 :loadout t]
       [drop-cell self (clone =portal=
 			     :address '(=puckman-world=)
-			     :text '((("Tutorial"))))
-		 24 39 :loadout t])))
+			     :text '((("To the Tutorial"))))
+		 10 5 :loadout t])))
 
 (define-method begin-ambient-loop menu-world ()
   (play-music "flyby" :loop t))
@@ -1776,7 +1774,7 @@ the player gets too close."))
 		    (setf timeout 200))
 		 (2 [emote self *puck-success-text*]
 		    (incf state)
-		    (setf timeout 100))
+		    (setf timeout 60))
 		 (3 [emote self *puck-bye-text*]
 		    (setf timeout 200)))))
       (if (and (not (= 3 state))
@@ -1805,7 +1803,7 @@ the player gets too close."))
       (dotimes (j 3)
 	[drop-cell self (clone =brick=) (+ 10 i) (+ 10 j)]))
     (let ((puckman (clone =puckman=)))
-      [drop-cell self puckman 5 5]
+      [drop-cell self puckman 3 5]
       [drop-cell self (clone =portal=
 			     :address '(=chevronman-world=)
 			     :text '((("To part 2"))))
@@ -1829,8 +1827,9 @@ the player gets too close."))
 
 (define-method run enemy ()
   (clon:with-field-values (row column) self
-    (unless [obstacle-in-direction-p *world* row column <direction>]
-      [move self <direction>]))
+    (when [obstacle-in-direction-p *world* row column <direction>]
+      (setf <direction> (random-direction)))
+      [move self <direction>])
   [expend-action-points self 25])
 
 (define-method loadout enemy ()
@@ -1876,7 +1875,7 @@ the player gets too close."))
 		    (setf timeout 300))
 		 (2 [emote self *chevron-success-text*]
 		    (incf state)
-		    (setf timeout 100))
+		    (setf timeout 50))
 		 (3 [emote self *chevron-bye-text*]
 		    (setf timeout 200)))))
       (if (and (not (= 3 state))
@@ -1922,12 +1921,129 @@ the player gets too close."))
       [loadout enemy]
       [drop-cell self chevronman 20 5]
       [drop-cell self (clone =portal=
-			     :address '(=tutorial-3=)
+			     :address '(=multiman-world=)
 			     :text '((("To part 3"))))
 		 6 30 :loadout t])))
 
 (define-method begin-ambient-loop chevronman-world ()
   (play-music "phong" :loop t))
+
+;;; MULTIMAN: use multiple skills
+
+(defparameter *multi-welcome-text* '((("Now combine your skills")) (("to defeat multiple enemies."))))
+
+(defparameter *multi-instruction-text* '((("Use multiple chevrons to direct"))
+					 (("enemies around the obstacles and"))
+					 (("into the black holes. Use the puck"))
+					 (("to break any bricks blocking your path."))))
+
+(defparameter *multi-success-text* '((("Great! You've combined"))
+				     (("your skills and learned"))
+				     (("the basics of XONG."))))
+
+(defparameter *multi-bye-text* '((("Exit through the portal to")) (("the northeast to begin"))
+				 (("playing Level 1 of XONG."))))
+
+(defcell multiman 
+  (tile :initform "npc")
+  (state :initform 0)
+  (categories :initform '(:obstacle :actor :npc))
+  (timeout :initform 10))
+      
+(define-method emote multiman (text &optional (timeout 3.0))
+  (let ((balloon (clone =balloon= :text text :timeout timeout)))
+    [play-sample self "talk"]
+    [drop self balloon]))
+
+(define-method run multiman ()
+  (clon:with-fields (state timeout) self
+    [expend-default-action-points self]
+    (labels ((act ()
+	       (ecase state 
+		 (0 [emote self *multi-welcome-text* 1.0]
+		    (incf state)
+		    (setf timeout 20))
+		 (1 [emote self *multi-instruction-text* 4.0]
+		    (setf timeout 300))
+		 (2 [emote self *multi-success-text*]
+		    (incf state)
+		    (setf timeout 35))
+		 (3 [emote self *multi-bye-text*]
+		    (setf timeout 200)))))
+      (if (and (not (= 3 state))
+	       (zerop *chevron-enemies*))
+	  (progn (setf state 2) (act))
+	  (if (null timeout)
+	      (act)
+	      (when (minusp (decf timeout))
+		(setf timeout nil)
+		(act)))))))
+
+(define-prototype multiman-world (:parent xe2:=world=)
+  (height :initform *xong-level-height*)
+  (width :initform *xong-level-width*)
+  (edge-condition :initform :block)
+  (ambient-light :initform :total))
+
+(define-method generate multiman-world (&rest args)
+  [create-default-grid self]
+  (setf <level> 0 *chevron-enemies* 0)
+  (labels ((drop-bulkhead (r c)
+	     (prog1 nil
+	       [drop-cell self (clone =bulkhead=) r c]))
+	   (drop-brick (r c)
+	     (prog1 nil
+	       [drop-cell self (clone =brick=) r c])))
+    (clon:with-fields (height width grid player) self
+      (dotimes (i height)
+	(dotimes (j width)
+	  [drop-cell self (clone =floor=) i j]))
+      (let ((chevron-1 (clone =chevron=))
+	    (chevron-2 (clone =chevron=))
+	    (chevron-3 (clone =chevron=))
+	    (chevron-4 (clone =chevron=))
+	    (multiman (clone =multiman=))
+	    (enemy-1 (clone =enemy=))
+	    (enemy-2 (clone =enemy=)))
+	[orient chevron-1 :east]
+	[orient chevron-2 :west]
+	[drop-cell self chevron-1 15 10]
+	[drop-cell self chevron-2 15 20]
+	[orient chevron-3 :east]
+	[orient chevron-4 :west]
+	[drop-cell self chevron-3 8 10]
+	[drop-cell self chevron-4 8 20]
+	(trace-row #'drop-bulkhead 5 8 22)
+	(trace-row #'drop-bulkhead 17 8 22)
+	(dotimes (n 8)
+	  [drop-cell self (clone =hole= :nospew t) 2 (+ n 11)])
+	(dotimes (n 8)
+	  [drop-cell self (clone =hole= :nospew t) 20 (+ n 11)])
+	(trace-rectangle #'drop-brick 1 10 3 10)
+	(trace-rectangle #'drop-brick 19 10 3 10)
+	(dotimes (n 5)
+	  (let ((diamond (clone =diamond=)))
+	    [drop-cell self diamond (+ 20 (random 5)) (+ 30 (random 10))]
+	    (when (= n 0)
+	      [drop diamond (clone =balloon= :text '((("Extra chevrons."))))])))
+	(dotimes (n 2)
+	  (let ((puckup (clone =puckup=)))
+	    [drop-cell self puckup (+ 20 (random 5)) (+ 3 (random 5))]
+	    (when (= n 0)
+	      [drop puckup (clone =balloon= :text '((("Extra pucks."))))])))
+	[drop-cell self enemy-1 15 18]
+	[drop-cell self enemy-2 8 15]
+	[loadout enemy-1]
+	[loadout enemy-2]
+	[drop-cell self multiman 15 25]
+	[drop-cell self (clone =portal=
+			       :address (generate-level-address 1)
+			       :text '((("Exit to Level 1"))))
+		   6 30 :loadout t]))))
+  
+(define-method begin-ambient-loop multiman-world ()
+    (play-music "neon" :loop t))
+
 		       
 ;;; Splash screen
   
