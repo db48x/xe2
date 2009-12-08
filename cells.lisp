@@ -222,7 +222,8 @@ You must provide at least a :base value."
 (define-method draw cell (x y image)
   "Use XE2 drawing commands to render a presentation of this cell at
 X, Y to the offscreen image IMAGE.  This method is invoked to draw a
-cell when no :tile field is present. See also viewport.lisp."
+cell when its TILE field is nil, or when it is in the
+category :drawn. See also viewport.lisp." 
   nil)
 
 ;;; Cell categories
@@ -244,6 +245,7 @@ interpretation:
       cells participate in the Action Points system.
  -    :target --- This cell is susceptible to targeting.
  -    :proxy --- This cell is a proxy for another cell.
+ -    :drawn --- This cell has a [draw] method used for custom drawing.
  -    :proxied  --- This cell is an occupant of a proxy.
  -    :dead --- This cell is no longer receiving run messages.
  -    :player --- Only one cell (your player avatar) has this category.
@@ -501,9 +503,9 @@ is in the way."
       (unless (eq cell self) 
 	[step cell self]))))
 
-(define-method drop cell (cell)
+(define-method drop cell (cell &key loadout)
   "Add CELL to the world at the current location."
-  [drop-cell *world* cell <row> <column>])
+  [drop-cell *world* cell <row> <column> :loadout loadout])
 
 (define-method drop-sprite cell (sprite x y)
   "Add SPRITE to the world at location X,Y."

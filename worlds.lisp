@@ -991,6 +991,11 @@ narrator, and VIEWPORT as the viewport."
   (categories :initform '(:gateway :exclusive))
   (address :initform nil))
 
+(define-method initialize gateway (&key address tile name)
+  (when tile (setf <tile> tile))
+  (when address (setf <address> address))
+  (when name (setf <name> name)))
+
 (define-method activate gateway ()
   [play *universe* :address <address> :player [get-player *world*]])
 

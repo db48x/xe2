@@ -1,6 +1,7 @@
 (
  (:name ".default-font" :type :font :properties (:height 14 :width 7) :data "7x14b")
 
+ (:name "npc" :type :image :file "npc.png")
  (:name "player" :type :image :file "player.png")
  (:name "player-empty" :type :image :file "player-empty.png")
  (:name "gate-open" :type :image :file "gate-open.png")
@@ -27,6 +28,7 @@
  (:name "go" :type :sample :file "go.wav" :properties (:volume 60))
  (:name "buzz" :type :sample :file "buzz.wav" :properties (:volume 15))
  (:name "puckup" :type :image :file "newpuck.png")
+ (:name "portal" :type :image :file "portal.png")
 
  (:name "wire-east" :type :image :file "wire-right.png")
  (:name "wire-south" :type :alias :data ":rotate 90:wire-east")
@@ -141,10 +143,32 @@
  (:name "bullet-trail-end-southwest" :type :alias :data ":rotate 180:bullet-trail-end-northeast")
  (:name "bullet-trail-end-northwest" :type :alias :data ":rotate 270:bullet-trail-end-northeast")
 
+ (:name "rezblur1" :type :image :file "rezblur1.png")
+ (:name "rezblur2" :type :image :file "rezblur2.png")
+ (:name "rezblur3" :type :image :file "rezblur3.png")
+ (:name "rezblur4" :type :image :file "rezblur4.png")
+ (:name "rezblur5" :type :image :file "rezblur5.png")
+
+ (:name "rezlight1" :type :image :file "rezlight1.png")
+ (:name "rezlight2" :type :image :file "rezlight2.png")
+ (:name "rezlight3" :type :image :file "rezlight3.png")
+ (:name "rezlight4" :type :image :file "rezlight4.png")
+ (:name "rezlight5" :type :image :file "rezlight5.png")
+
+ (:name "zap1" :type :sample :file "zap1.wav" :properties (:volume 2))
+ (:name "zap2" :type :sample :file "zap2.wav" :properties (:volume 2))
+ (:name "zap3" :type :sample :file "zap3.wav" :properties (:volume 2))
+ (:name "zap4" :type :sample :file "zap4.wav" :properties (:volume 2))
+ (:name "zap5" :type :sample :file "zap5.wav" :properties (:volume 2))
+ (:name "zap6" :type :sample :file "zap6.wav" :properties (:volume 2))
+ (:name "zap7" :type :sample :file "zap7.wav" :properties (:volume 2))
+
  (:name "mystery-box" :type :image :file "mystery-box.png")
  (:name "shield" :type :image :file "shield.png")
  (:name "shield-warning" :type :sample :file "shield-warning.wav" :properties (:volume 80))
+ (:name "talk" :type :sample :file "talk.wav" :properties (:volume 40))
  (:name "door-open" :type :image :file "door-open.png")
+ (:name "enemy" :type :image :file "enemy.png")
  (:name "bloop" :type :sample :file "bloop.wav" :properties (:volume 8))
  (:name "shield-sound" :type :sample :file "shield.wav" :properties (:volume 8))
  (:name "muon-fire" :type :sample :file "muon-fire.wav" :properties (:volume 8))

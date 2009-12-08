@@ -102,25 +102,26 @@
       (dotimes (i origin-height)
 	(dotimes (j origin-width)
 	  ;; is this square lit? 
-	    (if (and (array-in-bounds-p grid (+ i origin-y) (+ j origin-x))
-		     (or (eq :total ambient-light)
-			 (= 1 (aref light-grid (+ i origin-y) (+ j origin-x)))))
-		(progn 
-		  (setf objects (aref grid 
-				      (+ i origin-y)
-				      (+ j origin-x)))
-		  (dotimes (k (fill-pointer objects))
-		    (setf cell (aref objects k))
-		    (when (object-p cell)
-		      (let ((j0 (* j tile-size))
-			    (i0 (* i tile-size)))
+	  (if (and (array-in-bounds-p grid (+ i origin-y) (+ j origin-x))
+		   (or (eq :total ambient-light)
+		       (= 1 (aref light-grid (+ i origin-y) (+ j origin-x)))))
+	      (progn 
+		(setf objects (aref grid 
+				    (+ i origin-y)
+				    (+ j origin-x)))
+		(dotimes (k (fill-pointer objects))
+		  (setf cell (aref objects k))
+		  (when (object-p cell)
+		    (let ((j0 (* j tile-size))
+			  (i0 (* i tile-size)))
 		      (setf tile (field-value :tile cell))
-		      (if tile (draw-resource-image tile j0 i0 :destination image)
-			  ;; no tile; save it as a pending draw op
-			  (vector-push-extend cell pending-draws))))))
-		;; not in bounds, or not lit; draw blackness
-		(draw-resource-image ".blackness" (* j tile-size) (* i tile-size)
-				     :destination image))))
+		      (when tile (draw-resource-image tile j0 i0 :destination image))
+		      (when (or (member :drawn (field-value :categories cell))
+				(null tile))
+			(vector-push-extend cell pending-draws))))))
+	      ;; not in bounds, or not lit; draw blackness
+	      (draw-resource-image ".blackness" (* j tile-size) (* i tile-size)
+				   :destination image))))
       ;; draw the sprites
       (dolist (sprite sprites)
 	;; pull image and calculate screen coordinates
@@ -129,12 +130,12 @@
 	       (x1 (- x0 (* tile-size origin-x)))
 	       (y0 (field-value :y sprite))
 	       (y1 (- y0 (* tile-size origin-y))))
-	(draw-resource-image graphics x1 y1 :destination image)))
+	  (draw-resource-image graphics x1 y1 :destination image)))
       ;; draw the pending ops
       (map nil #'(lambda (cell)
 		   (multiple-value-bind (x y) [viewport-coordinates cell]
 		     [draw cell x y image]))
-	   pending-draws)
+		   pending-draws)
       ;; update geometry
       (let ((width (* tile-size origin-width))
 	    (height (* tile-size origin-height)))
