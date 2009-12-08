@@ -976,6 +976,7 @@ reach new areas and items. The puck also picks up the color.")
   (color :initform :white))
 
 (define-method kick puck (direction)
+  (setf <phase-number> 0)
   (setf <direction> direction))
 
 (define-method bounce puck ()
