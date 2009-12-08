@@ -16,7 +16,7 @@
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 (in-package :xe2)
 
@@ -48,8 +48,10 @@ required for travel here." )
   (height :documentation "The height of the world map, measured in tiles.")
   ;; cells 
   (grid :documentation "A two-dimensional array of adjustable vectors of cells.")
+  (serialized-grid :documentation "A serialized sexp version.")
   ;; sprite cells
   (sprites :initform nil :documentation "A list of sprites.")
+  (serialized-sprites :initform nil)
   (sprite-grid :initform nil :documentation "Grid for collecting sprite collision information.")
   (sprite-table :initform nil :documentation "Hash table to prevent redundant collisions.")
   ;; environment 
@@ -140,6 +142,30 @@ At the moment, only 0=off and 1=on are supported.")
 	(setf <sprite-grid> sprite-grid)
 	(setf <sprite-table> (make-hash-table :test 'equal))))))
 
+(define-method serialize world ()
+  (clon:with-field-values (width height) self
+    (let ((grid <grid>)
+	  (sprites nil)
+	  (sgrid (make-array (list height width) :initial-element nil :adjustable nil)))
+      (dotimes (i height)
+	(dotimes (j width)
+	  (map nil #'(lambda (cell)
+		       (when cell 
+			 (push (clon:serialize cell) 
+			       (aref sgrid i j))))
+	       (aref grid i j))))
+      (setf <serialized-grid> sgrid)
+      (dolist (s <sprites>)
+	(push (serialize s) sprites))
+      (setf <serialized-sprites> sprites)
+      (prog1 (clon:serialize self :excluding 
+			     '(:grid :sprite-grid 
+			       :sprites :light-grid
+			       :narrator :browser :viewport :player))
+	(setf <serialized-grid> nil)
+	(setf <serialized-sprites> nil)))))
+
+    
 (define-method create-default-grid world ()
   "If height and width have been set in a world's definition,
 initialize the arrays for a world of the size specified there."

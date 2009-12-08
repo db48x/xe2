@@ -73,25 +73,26 @@
   *compass-directions* *compass-opposites* find-resource-property
   compose-blank-fields font-width font-height *browser* browser
   set-browser transform-field-reference *screen-height* =inventory=
-  formatted-string-height formatted-string-width get-color
-  create-image draw-image play define-prototype has-field defcell
-  *choose-direction-menu* set-field-options field-option-value
-  index-resource find-module-path index-module load-image-resource
-  load-lisp-resource *resource-handlers* load-resource find-resource
-  find-resource-object *colors* *world* load-user-init-file
-  *module-directories* resource-to-plist make-event =widget=
-  *active-widgets* bind-key-to-prompt-insertion make-field-initializer
-  clone make-field-initializer-body make-key-modifier-symbol
-  make-key-string normalize-event make-keyword make-object queue-head
-  queue-max queue-count *sender* make-special-variable-name
-  field-reference-p null-parent *message-send-symbol-suffix*
-  *x11-color-data* object-name object-parent send send-super
-  send-queue self opposite-direction object-address-string object
-  step-in-direction direction-to =cell= plasma-rect subdivide-rect
-  render-plasma add-hook run-hook queue-tail make-queue queue unqueue
-  queue-message queued-messages-p unqueue-message send-queue
-  field-value random-direction load-font-resource draw-string-solid
-  read-pak *resource-table* initialize-resource-table percent-of-time
+  formatted-line-width formatted-line-height formatted-string-height
+  formatted-string-width get-color create-image draw-image play
+  define-prototype has-field defcell *choose-direction-menu*
+  set-field-options field-option-value index-resource find-module-path
+  index-module load-image-resource load-lisp-resource
+  *resource-handlers* load-resource find-resource find-resource-object
+  *colors* *world* load-user-init-file *module-directories*
+  resource-to-plist make-event =widget= *active-widgets*
+  bind-key-to-prompt-insertion make-field-initializer clone
+  make-field-initializer-body make-key-modifier-symbol make-key-string
+  normalize-event make-keyword make-object queue-head queue-max
+  queue-count *sender* make-special-variable-name field-reference-p
+  null-parent *message-send-symbol-suffix* *x11-color-data*
+  object-name object-parent send send-super send-queue self
+  opposite-direction object-address-string object step-in-direction
+  direction-to =cell= plasma-rect subdivide-rect render-plasma
+  add-hook run-hook queue-tail make-queue queue unqueue queue-message
+  queued-messages-p unqueue-message send-queue field-value
+  random-direction load-font-resource draw-string-solid read-pak
+  *resource-table* initialize-resource-table percent-of-time
   render-formatted-paragraph make-formatted-string draw-string-shaded
   render-formatted-string render-formatted-line resource
   font-text-extents write-sexp-to-file with-message-sender
@@ -111,13 +112,13 @@
   set-music-volume add-message-verbosities with-message-queue
   =minimap= draw-pixel *user-keyboard-layout* *fullscreen* draw-circle
   set-field-option-value =pager= =pager-prompt= load-module
-  field-options world set-frame-rate *frame-rate* =stack= *pak-file-extension*
-  *window-title* set-timer-interval *message-logging* overlay
-  poll-joystick-axis reset-joystick set-screen-width =universe=
-  *universe* set-screen-height genseq *zoom-factor* zoom-image
-  is-zoomed-resource *timer-interval* enable-timer disable-timer while
-  enable-held-keys disable-held-keys do-cells draw-box draw-rectangle
-  *quitting* quit reset))
+  field-options world set-frame-rate *frame-rate* =stack=
+  *pak-file-extension* *window-title* set-timer-interval
+  *message-logging* overlay poll-joystick-axis reset-joystick
+  set-screen-width =universe= *universe* set-screen-height genseq
+  *zoom-factor* zoom-image is-zoomed-resource *timer-interval*
+  enable-timer disable-timer while enable-held-keys disable-held-keys
+  do-cells draw-box draw-rectangle *quitting* quit reset))
 
 (in-package :xe2)
 

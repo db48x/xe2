@@ -37,6 +37,8 @@
   (world :documentation "The world object to be displayed.")
   (overlays :documentation "List of closures.")
   (use-overlays :initform t)
+  (pending-draws :initform (make-array 100 :initial-element nil 
+				       :adjustable t :fill-pointer 0))
   (margin :initform 6 :documentation "Scroll margin.")
   (origin-x :initform 0 
 	    :documentation "The world x-coordinate of the tile at the viewport's origin.")
@@ -78,17 +80,19 @@
   (setf <tile-size> size))
     
 (define-method render viewport ()
-;;  (declare (optimize (speed 3)))
+  (declare (optimize (speed 3)))
   [adjust self] ;; hehe
   (let* ((world (or <world> *world*))
 	 (origin-width <origin-width>)
 	 (origin-height <origin-height>)
 	 (origin-x <origin-x>)
 	 (origin-y <origin-y>)
+	 (pending-draws <pending-draws>)
 	 (image <image>)
 	 (tile nil)
 	 (tile-size <tile-size>)
 	 objects cell)
+    (setf (fill-pointer pending-draws) 0)
     (with-field-values (grid light-grid environment-grid phase-number
 			     height width sprites 
 			     turn-number ambient-light) world
@@ -108,10 +112,12 @@
 		  (dotimes (k (fill-pointer objects))
 		    (setf cell (aref objects k))
 		    (when (object-p cell)
+		      (let ((j0 (* j tile-size))
+			    (i0 (* i tile-size)))
 		      (setf tile (field-value :tile cell))
-		      (when tile (draw-resource-image tile
-						      (* j tile-size) (* i tile-size)
-						      :destination image)))))
+		      (if tile (draw-resource-image tile j0 i0 :destination image)
+			  ;; no tile; save it as a pending draw op
+			  (vector-push-extend cell pending-draws))))))
 		;; not in bounds, or not lit; draw blackness
 		(draw-resource-image ".blackness" (* j tile-size) (* i tile-size)
 				     :destination image))))
@@ -124,6 +130,11 @@
 	       (y0 (field-value :y sprite))
 	       (y1 (- y0 (* tile-size origin-y))))
 	(draw-resource-image graphics x1 y1 :destination image)))
+      ;; draw the pending ops
+      (map nil #'(lambda (cell)
+		   (multiple-value-bind (x y) [viewport-coordinates cell]
+		     [draw cell x y image]))
+	   pending-draws)
       ;; update geometry
       (let ((width (* tile-size origin-width))
 	    (height (* tile-size origin-height)))

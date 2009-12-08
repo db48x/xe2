@@ -76,7 +76,8 @@ rules and run the game the way you want.
 Sprites are also based on cells. See `defsprite'.")
   (type :initform :cell)
   (weight :documentation "Weight of the cell, in kilograms.")
-  (tile :initform ".asterisk" :documentation "Resource name of image.")
+  (tile :initform nil :documentation "Resource name of image. 
+When nil, the method DRAW is invoked instead of using a tile.")
   (row :documentation "When non-nil, the current row location of the cell.")
   (column :documentation "When non-nil, the current column of the cell.")
   ;; <: categories :>
@@ -214,6 +215,14 @@ You must provide at least a :base value."
 ;;; Pushing stuff; let the cell decide whether to move
 
 (define-method push cell (direction)
+  nil)
+
+;;; Custom rendering
+
+(define-method draw cell (x y image)
+  "Use XE2 drawing commands to render a presentation of this cell at
+X, Y to the offscreen image IMAGE.  This method is invoked to draw a
+cell when no :tile field is present. See also viewport.lisp."
   nil)
 
 ;;; Cell categories

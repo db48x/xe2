@@ -769,6 +769,40 @@ reach new areas and items. The puck also picks up the color.")
     [say self "You died. Press ESCAPE to try again."]
     (setf <dead> t)))
 
+;;; Text overlay balloons
+
+(defcell balloon text stroke-color background-color)
+
+(define-method initialize balloon (&key text (stroke-color ".white") (background-color ".blue")
+					(style :balloon))
+  (setf <text> text)
+  (setf <stroke-color> stroke-color)
+  (setf <background-color> background-color)
+  (setf <style> style))
+  
+(define-method draw balloon (x y image)
+  (clon:with-field-values (text) self
+    (let* ((offset (ecase <style> 
+		     (:balloon 16)
+		     (:flat 0)))
+	   (x0 (+ x offset))
+	   (y0 (+ y offset))
+	   (x1 (+ x0 offset))
+	   (y1 (+ y0 offset))
+	   (margin 4)
+	   (height (+ (* 2 margin) (apply #'+ (mapcar #'formatted-line-height text))))
+	   (width (+ (* 2 margin) (apply #'max (mapcar #'formatted-line-width text)))))
+      (draw-box x1 y1 width height 
+		:stroke-color <stroke-color>
+		:color <background-color>
+		:destination image)
+      (draw-line x0 y0 x1 y1 :destination image)
+      (let ((x2 (+ margin x1))
+	    (y2 (+ margin y1)))
+	(dolist (line text)
+	  (render-formatted-line line x2 y2 :destination image)
+	  (incf y2 (formatted-line-height line)))))))
+
 ;;; Controlling the game
 
 (define-prototype xong-prompt (:parent xe2:=prompt=))
@@ -1422,6 +1456,12 @@ the player gets too close."))
 	(multiple-value-bind (r c)
 	    [random-place self :avoiding player :distance 10]
 	  [drop-cell self monitor r c :loadout t])))
+    ;; EXPERIMENTAL
+    (dotimes (n 5)
+      (let ((balloon (clone =balloon= :text '((("Foo"))) :style :flat)))
+	(multiple-value-bind (r c)
+	    [random-place self :avoiding player :distance 10]
+	  [drop-cell self balloon r c :loadout t])))
     ;;
     ;; EXPERIMENTAL
     ;; (dotimes (n 20)			
