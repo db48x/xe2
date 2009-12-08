@@ -1909,8 +1909,10 @@ the player gets too close."))
       [orient chevron-2 :west]
       [drop-cell self chevron-1 10 10]
       [drop-cell self chevron-2 10 20]
-      (dotimes (n 5)
+      (dotimes (n 9)
 	[drop-cell self (clone =hole= :nospew t) 20 (+ n 11)])
+      (dotimes (n 9)
+	[drop-cell self (clone =hole= :nospew t) 5 (+ n 11)])
       (dotimes (n 5)
 	(let ((diamond (clone =diamond=)))
 	  [drop-cell self diamond (+ 20 (random 5)) (+ 30 (random 10))]
