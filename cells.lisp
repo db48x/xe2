@@ -496,6 +496,10 @@ is in the way."
   "Set the row R and column C of the cell."
   (setf <row> r <column> c))
 
+(define-method move-to cell (r c)
+  [delete-cell *world* self <row> <column>]
+  [drop-cell *world* self r c])
+
 (define-method step-on-current-square cell ()
   "Send :step events to all the cells on the current square."
   (when <stepping>

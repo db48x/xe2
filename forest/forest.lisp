@@ -43,14 +43,15 @@
 
 (defcell balloon 
   (categories :initform '(:drawn :actor))
-  text timeout
+  text timeout following
   (stroke-color :initform ".white")
   (background-color :initform ".gray40"))
 
 (define-method initialize balloon (&key text (stroke-color ".white") (background-color ".blue")
-					(style :balloon) (timeout nil))
+					(style :balloon) (timeout nil) following)
   (setf <text> text)
   (setf <stroke-color> stroke-color)
+  (setf <following> following)
   (setf <background-color> background-color)
   (setf <style> style)
   (setf <timeout> (if (floatp timeout)
@@ -59,6 +60,9 @@
 		      ;; leave as frames if integer
 		      timeout)))
   
+(define-method follow balloon (cell)
+  (setf <following> cell))
+
 (define-method draw balloon (x y image)
   (clon:with-field-values (text style) self
     (let* ((offset (ecase style
@@ -85,6 +89,9 @@
 
 (define-method run balloon ()
   [expend-default-action-points self]
+  (when <following>
+    (multiple-value-bind (r c) [grid-coordinates <following>]
+      [move-to self r c]))
   (when (integerp <timeout>)
     (when (minusp (decf <timeout>))
       [die self])))
@@ -180,7 +187,7 @@
   (categories :initform '(:obstacle :opaque)))
 
 (defcell debris
-  (tile :initfomr "debris"))
+  (tile :initform "debris"))
 
 (defcell ruin-floor
   (tile :initform "ruin-floor"))
@@ -209,7 +216,7 @@
     (setf <tile> (getf *arrow-tiles* <direction>))
     (let ((target [category-in-direction-p *world* <row> <column> <direction> :target]))
       (if target 
-	  (progn [damage target 1]
+	  (progn [damage target 3]
 		 [die self])
 	  [move self <direction>])))
   (decf <clock>)
@@ -229,6 +236,7 @@
 (define-method fire wooden-bow (direction)
   (if (plusp [stat-value <equipper> :arrows])
       (let ((arrow (clone =arrow=)))
+	[stat-effect self :arrows -1]
 	[drop <equipper> arrow]
 	[impel arrow direction]
 	[play-sample <equipper> "bow"])
@@ -261,6 +269,7 @@
 (define-method emote player (text &optional (timeout 20))
   (let ((balloon (clone =balloon= :text text :timeout timeout)))
     [play-sample self "talk"]
+    [follow balloon self]
     [drop self balloon]))
 
 (define-method quit player ()
@@ -557,7 +566,7 @@
 		       (random (* 16 *forest-width*))
 		       (random (* 16 *forest-height*))]))
   [drop-trees self :graininess 0.3 :density 32]
-  [drop-water self :graininess 0.2 :density 90 :cutoff 0.2]
+  [drop-water self :graininess 0.9 :density 90 :cutoff 0.2]
   (dotimes (n 15)
     [drop-graves self (+ 20 (random (- *forest-height* 20))) (random *forest-width*)
 		 (+ 4 (random 4)) (+ 4 (random 4))])
@@ -606,6 +615,8 @@
 	    ("H" (:control) "fire :west .")
 	    ("L" (:control) "fire :east .")
 	    ("J" (:control) "fire :south .")
+	    ;;
+	    ("ESCAPE" nil "restart .")
 	    ;;
 	    ("Q" (:control) "quit ."))))
 
