@@ -303,7 +303,7 @@
   [make-inventory self]
   [make-equipment self]
   [equip self [add-item self (clone =wooden-bow=)]]
-  [emote self '((("I'd better get moving.")))])
+  [emote self '((("I'd better get moving.")) (("The monastery is to the south.")))])
 
 ;;; Raindrops
 
