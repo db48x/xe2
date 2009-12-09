@@ -1,0 +1,16 @@
+HELP SCREEN --- PRESS F2 TO PLAY
+
+Welcome to the example RLX game.
+
+Use your numeric keypad to move, or the following movement keys:
+
+   ^        
+  YKU        
+< H L >      
+  BJN        
+   v         
+
+Use control-direction to fire a bouncing ball. You can fire as many as
+you want.
+
+
