@@ -19,6 +19,11 @@
  (:name "water-3" :type :image :file "water-3.png")
  (:name "foam" :type :image :file "foam.png")
 
+ (:name "arrow-north" :type :image :file "arrow.png")
+ (:name "arrow-east" :type :alias :data ":rotate 90:arrow-north")
+ (:name "arrow-south" :type :alias :data ":rotate 180:arrow-north")
+ (:name "arrow-west" :type :alias :data ":rotate 270:arrow-north")
+
  (:name "raindrop" :type :image :file "raindrop.png")
  (:name "skeleton" :type :image :file "skel.png")
  (:name "gravestone" :type :image :file "gravestone.png")

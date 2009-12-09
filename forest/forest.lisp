@@ -136,12 +136,60 @@
   (tile :initform "ruin-floor"))
 
 ;;; The player
+	     
+(defparameter *arrow-tiles* '(:north "arrow-north"
+			      :south "arrow-south"
+			      :east "arrow-east"
+			      :west "arrow-west"))
+
+(defcell arrow 
+  (name :initform "arrow")
+  (categories :initform '(:actor))
+  (clock :initform 8)
+  (direction :initform nil))
+
+(define-method impel arrow (direction)
+  (assert (member direction '(:north :south :east :west)))
+  (setf <direction> direction))
+
+(define-method run arrow ()
+  [expend-default-action-points self]
+  (when <direction>
+    (setf <tile> (getf *arrow-tiles* <direction>))
+    (let ((target [category-in-direction-p *world* <row> <column> <direction> :target]))
+      (if target 
+	  (progn [damage target 1]
+		 [die self])
+	  [move self <direction>])))
+  (decf <clock>)
+  (when (zerop <clock>)
+    [die self]))
+
+(defcell wooden-bow 
+  (name :initform "bow")
+  (categories :initform '(:item :weapon :equipment))
+  (tile :initform "bow")
+  (attack-power :initform (make-stat :base 5))
+  (attack-cost :initform (make-stat :base 6))
+  (accuracy :initform (make-stat :base 90))
+  (weight :initform 3000)
+  (equip-for :initform '(:left-hand)))
+
+(define-method fire wooden-bow (direction)
+  (when (plusp [stat-value <equipper> :arrows])
+    (let ((arrow (clone =arrow=)))
+      [drop <equipper> arrow]
+      [impel arrow direction])))
 
 (defcell player 
   (tile :initform "player")
   (name :initform "Player")
   (hearing-range :initform 1000)
+  (firing-with :initform :left-hand)
+  (arrows :initform (make-stat :base 10 :min 0 :max 40))
   (speed :initform (make-stat :base 10 :min 0 :max 10))
+  (equipment-slots :initform '(:right-hand :left-hand))
+  (max-items :initform (make-stat :base 20))
   (movement-cost :initform (make-stat :base 10))
   (stepping :initform t)
   (categories :initform '(:actor :player :obstacle)))
@@ -152,6 +200,11 @@
 (define-method run player ()
   ;; if you are in category :actor, this is called every turn
   nil)
+
+(define-method loadout player ()
+  [make-inventory self]
+  [make-equipment self]
+  [equip self [add-item self (clone =wooden-bow=)]])
 
 ;;; Raindrops
 
@@ -207,8 +260,10 @@
     (percent-of-time 40
       (when (not <generated>)
 	(setf <generated> t)
-	[drop self (clone =skeleton=) :loadout t]))))
-
+	(let ((skeleton (clone =skeleton=)))
+	  [drop self skeleton]
+	  [loadout skeleton])))))
+	  
 (defcell dagger 
   (name :initform "dagger")
   (categories :initform '(:item :weapon :equipment))
@@ -231,16 +286,16 @@
   (stepping :initform t)
   (speed :initform (make-stat :base 5))
   (movement-cost :initform (make-stat :base 5))
-  (attacking-with :initform :robotic-arm)
+  (attacking-with :initform :left-hand)
+  (equipment-slots :initform '(:left-hand :right-hand :belt :extension :feet))
   (max-weight :initform (make-stat :base 25))
+  (max-items :initform (make-stat :base 20))
   (hit-points :initform (make-stat :base 25 :min 0 :max 10))
   (tile :initform "skeleton"))
 
-(define-method initialize skeleton ()
-  [make-inventory self]
-  [make-equipment self])
-
 (define-method loadout skeleton ()
+  [make-inventory self]
+  [make-equipment self]
   (let ((dagger (clone =dagger=)))
     [equip self [add-item self dagger]]))
 
@@ -399,8 +454,8 @@
 		       (random (* 16 *forest-height*))]))
   [drop-trees self :graininess 0.3 :density 32]
   [drop-water self :graininess 0.2 :density 90 :cutoff 0.9]
-  (dotimes (n 10)
-    [drop-graves self (random *forest-height*) (random *forest-width*)
+  (dotimes (n 15)
+    [drop-graves self (+ 20 (random (- *forest-height* 20))) (random *forest-width*)
 		 (+ 4 (random 4)) (+ 4 (random 4))])
   (dotimes (n 15)
     [drop-ruin self (random *forest-height*) (random *forest-width*) (+ 9 (random 8)) (+ 4 (random 8))])
@@ -427,14 +482,10 @@
     ("KP2" nil "move :south .")
     ("KP3" nil "move :southeast .")
     ;;
-    ("KP7" (:control) "serve-ball :northwest .")
-    ("KP8" (:control) "serve-ball :north .")
-    ("KP9" (:control) "serve-ball :northeast .")
-    ("KP4" (:control) "serve-ball :west .")
-    ("KP6" (:control) "serve-ball :east .")
-    ("KP1" (:control) "serve-ball :southwest .")
-    ("KP2" (:control) "serve-ball :south .")
-    ("KP3" (:control) "serve-ball :southeast .")))
+    ("KP8" (:control) "fire :north .")
+    ("KP4" (:control) "fire :west .")
+    ("KP6" (:control) "fire :east .")
+    ("KP2" (:control) "fire :south .")))
 
 (defparameter *qwerty-keybindings*
   (append *numpad-keybindings*
@@ -447,14 +498,10 @@
 	    ("J" nil "move :south .")
 	    ("N" nil "move :southeast .")
 	    ;;
-	    ("Y" (:control) "serve-ball :northwest .")
-	    ("K" (:control) "serve-ball :north .")
-	    ("U" (:control) "serve-ball :northeast .")
-	    ("H" (:control) "serve-ball :west .")
-	    ("L" (:control) "serve-ball :east .")
-	    ("B" (:control) "serve-ball :southwest .")
-	    ("J" (:control) "serve-ball :south .")
-	    ("N" (:control) "serve-ball :southeast .")
+	    ("K" (:control) "fire :north .")
+	    ("H" (:control) "fire :west .")
+	    ("L" (:control) "fire :east .")
+	    ("J" (:control) "fire :south .")
 	    ;;
 	    ("Q" (:control) "quit ."))))
 
@@ -503,6 +550,7 @@
 		:height (truncate (/ (- *room-window-height* 130) 16))
 		:width (truncate (/ *room-window-width* 16))]
     [adjust viewport] 
+    [loadout player]
    ;;
     (xe2:install-widgets prompt viewport narrator)))
 
