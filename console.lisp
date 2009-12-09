@@ -154,9 +154,15 @@ for backward-compatibility."
   (unless (null *key-table*)
     (maphash #'(lambda (event counter)
 		 (dispatch-event event)
+		 ;; A counter value of -1 means that the key release
+		 ;; happened before the event had a chance to be sent.
+		 ;; These must be removed immediately after sending once.
 		 (if (minusp counter)
 		     (remhash event *key-table*)
-		     (incf (gethash event *key-table*))))
+		     ;; Otherwise, keep counting how many frames the
+		     ;; key is held for.
+		     (when (numberp (gethash event *key-table*))
+		       (incf (gethash event *key-table*)))))
 	     *key-table*)))
 
 (defun break-events (event)
@@ -593,6 +599,10 @@ display."
 				 (progn (message "Removing entry ~A:~A" event entry)
 					(remhash event *key-table*))
 				 (when (zerop entry)
+				   ;; This event hasn't yet been sent,
+				   ;; but the key release happened
+				   ;; now. Mark this entry as pending
+				   ;; deletion (by setting its value to -1)
 				   (setf (gethash event *key-table*) -1)))
 			     (break-events event)))))
       (:idle ()

@@ -949,12 +949,17 @@ world, and collision detection is performed between sprites and cells.")
 	       (< y world-height))
 	  (setf <x> x
 		<y> y)
-	  [do-collision self nil]))))
+	  (setf <x> 0 <y> 0)))))
+;;	  [do-collision self nil]))))
 
 (define-method move sprite (direction &optional movement-distance)
   (let ((dist (or movement-distance <movement-distance>)))
-    (multiple-value-bind (y x) (xe2:step-in-direction <y> <x> direction dist)
-      [update-position self x y])))
+    (let ((y <y>)
+	  (x <x>))
+      (when (and y x)
+	(multiple-value-bind (y0 x0) (xe2:step-in-direction y x direction dist)
+	  (when (and y0 x0)
+	    [update-position self x y]))))))
 
 (define-method collide sprite (sprite)
   ;; (message "COLLIDING A=~S B=~S"
