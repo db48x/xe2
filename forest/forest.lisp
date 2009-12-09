@@ -61,6 +61,12 @@
 		     (nth (truncate (/ dist 2)) *earth-tiles*)
 		     "floor"))))
     
+;;; The tree
+
+(defcell tree 
+  (tile :initform "tree-1")
+  (categories :initform '(:obstacle :opaque)))
+
 ;;; The player
 
 (defcell player 
@@ -102,18 +108,42 @@
     (dotimes (j <width>)
       [drop-cell self (clone =earth=) i j])))
 
+(define-method drop-trees forest (&optional &key (object =tree=)
+					    distance 
+					    (row 0) (column 0)
+					    (graininess 0.3)
+					    (density 100)
+					    (cutoff 0))
+  (clon:with-field-values (height width) self
+    (let* ((h0 (or distance height))
+	   (w0 (or distance width))
+	   (r0 (- row (truncate (/ h0 2))))
+	   (c0 (- column (truncate (/ w0 2))))
+	   (plasma (xe2:render-plasma h0 w0 :graininess graininess))
+	   (value nil))
+      (dotimes (i h0)
+	(dotimes (j w0)
+	  (setf value (aref plasma i j))
+	  (when (< cutoff value)
+	    (when (or (null distance)
+		      (< (distance (+ j r0) (+ c0 i) row column) distance))
+	      (percent-of-time density
+		[drop-cell self (clone object) (+ r0 i) (+ c0 j) :no-collisions t]))))))))
+
 (define-method generate forest (&key (height *forest-size*)
 				     (width *forest-size*))
   (setf <height> height)
   (setf <width> width)
   [create-default-grid self]
   [drop-earth self]
+  [drop-trees self :graininess 0.08 :density 30]
   [drop-cell self (clone =drop-point=) 
-	     (1+ (random 10)) 
-	     (1+ (random 10))
+	     (1+ (random 50)) 
+	     (1+ (random 50))
 	     :exclusive t :probe t])
 
 (define-method begin-ambient-loop forest ()
+  (play-sample "lutey")
   (play-music "nightbird" :loop t))
 
 ;;; Controlling the game

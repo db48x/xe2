@@ -5,3 +5,4 @@ woods to clearing. follow the bird. watercolor look.
 lighting effects. game occurs, you explore ruins at night , re-use vm0 art
 lightning bugs
 ** TODO earth tiles light up based on distance from player. 
+** TODO FIX when key pressed+released before :idle is run
