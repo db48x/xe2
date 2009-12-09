@@ -130,7 +130,7 @@
 	       (x1 (- x0 (* tile-size origin-x)))
 	       (y0 (field-value :y sprite))
 	       (y1 (- y0 (* tile-size origin-y))))
-	  (draw-resource-image graphics x1 y1 :destination image)))
+	  (when graphics (draw-resource-image graphics x1 y1 :destination image))))
       ;; draw the pending ops
       (map nil #'(lambda (cell)
 		   (multiple-value-bind (x y) [viewport-coordinates cell]

@@ -84,11 +84,28 @@
   ;; if you are in category :actor, this is called every turn
   nil)
 
-(define-method serve-ball player (direction)
-  (let ((ball (clone =ball=)))
-    [drop self ball]
-    [serve ball direction]))
-  
+;;; Ambient Fireflies
+
+(defsprite firefly 
+  (image :initform "firefly-1")
+  (categories :initform '(:actor))
+  (movement-distance :initform 1)
+  (clock :initform 0))
+
+(define-method run firefly ()
+  [expend-default-action-points self]
+  (clon:with-fields (clock image) self
+    (if (plusp clock) 
+	(progn 
+	  (setf image (car (one-of '("firefly-1" "firefly-2"))))
+	  (decf clock))
+	(progn
+	  (setf image nil)
+	  (when (< [distance-to-player self] 10)
+	    (percent-of-time 3
+	      (setf clock (+ 5 (random 5)))))))
+    [move self (random-direction)]))
+	   
 ;;; The forest
 
 (defcell drop-point 
@@ -136,6 +153,12 @@
   (setf <width> width)
   [create-default-grid self]
   [drop-earth self]
+  (dotimes (i 100)
+    (let ((firefly (clone =firefly=)))
+      [add-sprite self firefly]
+      [update-position firefly 
+		       (random (* 16 70))
+		       (random (* 16 70))]))
   [drop-trees self :graininess 0.08 :density 30]
   [drop-cell self (clone =drop-point=) 
 	     (1+ (random 50)) 

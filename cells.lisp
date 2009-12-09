@@ -1049,6 +1049,11 @@ world, and collision detection is performed between sprites and cells.")
   (setf <saved-x> <x>)
   (setf <saved-y> <y>))
 
+(define-method distance-to-player sprite ()
+  "Calculate the distance from the current location to the player."
+  (multiple-value-bind (r c) [grid-coordinates self]
+    [distance-to-player *world* r c]))
+
 (define-method undo-excursion sprite ()
   [update-position self <saved-x> <saved-y>])
 

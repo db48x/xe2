@@ -1,8 +1,6 @@
-** fractal green world explorer
-** TODO ambient game using black0999 rain track and other rain effects, 
 bird sound. short story. exploring an abandoned house. path through
 woods to clearing. follow the bird. watercolor look.
-lighting effects. game occurs, you explore ruins at night , re-use vm0 art
+lighting effects. game occurs, you explore ruins at (night , re-use vm0 art
 lightning bugs
-** TODO earth tiles light up based on distance from player. 
 ** TODO FIX when key pressed+released before :idle is run
+** TODO FIX joystick button handling
