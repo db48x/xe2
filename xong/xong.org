@@ -1,3 +1,7 @@
+** TODO puckman level, show brick in text
+** TODO border playfield
+** TODO soften worlds transition?
+** TODO always indicate player pos with bubble or big arrow?
 ** TODO recursive serialization
 ** TODO LEVEL EDITING TURTLE CURSOR
 ** TODO fire that spreads and must be put out

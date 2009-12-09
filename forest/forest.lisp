@@ -39,6 +39,56 @@
 	      (xe2:set-timer-interval 1)
 	      (xe2:enable-held-keys 1 3)))
 
+;;; Text overlay balloons
+
+(defcell balloon 
+  (categories :initform '(:drawn :actor))
+  text timeout
+  (stroke-color :initform ".white")
+  (background-color :initform ".gray40"))
+
+(define-method initialize balloon (&key text (stroke-color ".white") (background-color ".blue")
+					(style :balloon) (timeout nil))
+  (setf <text> text)
+  (setf <stroke-color> stroke-color)
+  (setf <background-color> background-color)
+  (setf <style> style)
+  (setf <timeout> (if (floatp timeout)
+		      ;; specify in (roughly) seconds if floating
+		      (truncate (* 15 timeout))
+		      ;; leave as frames if integer
+		      timeout)))
+  
+(define-method draw balloon (x y image)
+  (clon:with-field-values (text style) self
+    (let* ((offset (ecase style
+		     (:balloon 16)
+		     (:flat 0)))
+	   (x0 (+ x offset))
+	   (y0 (+ y offset))
+	   (x1 (+ x0 offset))
+	   (y1 (+ y0 offset))
+	   (margin 4)
+	   (height (+ (* 2 margin) (apply #'+ (mapcar #'formatted-line-height text))))
+	   (width (+ (* 2 margin) (apply #'max (mapcar #'formatted-line-width text)))))
+      (draw-box x1 y1 width height 
+		:stroke-color <stroke-color>
+		:color <background-color>
+		:destination image)
+      (when (eq style :balloon)
+	(draw-line x0 y0 x1 y1 :destination image))
+      (let ((x2 (+ margin x1))
+	    (y2 (+ margin y1)))
+	(dolist (line text)
+	  (render-formatted-line line x2 y2 :destination image)
+	  (incf y2 (formatted-line-height line)))))))
+
+(define-method run balloon ()
+  [expend-default-action-points self]
+  (when (integerp <timeout>)
+    (when (minusp (decf <timeout>))
+      [die self])))
+
 ;;; Water
 
 (defcell foam 
@@ -144,6 +194,7 @@
 
 (defcell arrow 
   (name :initform "arrow")
+  (speed :initform (make-stat :base 25))
   (categories :initform '(:actor))
   (clock :initform 8)
   (direction :initform nil))
@@ -176,14 +227,27 @@
   (equip-for :initform '(:left-hand)))
 
 (define-method fire wooden-bow (direction)
-  (when (plusp [stat-value <equipper> :arrows])
-    (let ((arrow (clone =arrow=)))
-      [drop <equipper> arrow]
-      [impel arrow direction])))
+  (if (plusp [stat-value <equipper> :arrows])
+      (let ((arrow (clone =arrow=)))
+	[drop <equipper> arrow]
+	[impel arrow direction]
+	[play-sample <equipper> "bow"])
+      [say self "You are out of arrows!" :foreground ".red"]))
+
+(defparameter *hunger-warn* 700)
+
+(defparameter *hunger-warn-2* 850)
+
+(defparameter *hunger-max* 1000)
 
 (defcell player 
   (tile :initform "player")
   (name :initform "Player")
+  (dead :initform nil)
+  (hit-points :initform (make-stat :base 30 :min 0 :max 30))
+  (rations :initform (make-stat :base 5 :min 0 :max 20))
+  (hunger :initform (make-stat :base 0 :min 0 :max 1000))
+  (hunger-damage-clock :initform 0)
   (hearing-range :initform 1000)
   (firing-with :initform :left-hand)
   (arrows :initform (make-stat :base 10 :min 0 :max 40))
@@ -194,17 +258,52 @@
   (stepping :initform t)
   (categories :initform '(:actor :player :obstacle)))
 
+(define-method emote player (text &optional (timeout 20))
+  (let ((balloon (clone =balloon= :text text :timeout timeout)))
+    [play-sample self "talk"]
+    [drop self balloon]))
+
 (define-method quit player ()
   (xe2:quit :shutdown))
 
 (define-method run player ()
-  ;; if you are in category :actor, this is called every turn
-  nil)
+  [stat-effect self :hunger 1]
+  (let ((hunger [stat-value self :hunger]))
+    (when (= *hunger-warn* hunger)
+      [say self "You are getting hungry."])
+    (when (= *hunger-warn-2* hunger)
+      [say self "You are getting extremely hungry!"])
+    (when (= *hunger-max* hunger)
+      (if (minusp <hunger-damage-clock>)
+	  (progn 
+	    [say self "You are starving! You will die if you do not eat soon."]
+	    (setf <hunger-damage-clock> 20)
+	    [damage self 1])
+	  (decf <hunger-damage-clock>))))
+  (when (zerop [stat-value self :hit-points])
+    [die self]))
+
+(define-method restart player ()
+  (let ((player (clone =player=)))
+    [destroy *universe*]
+    [set-player *universe* player]
+    [set-character *status* player]
+    [play *universe*
+	  :address '(=forest=)]
+    [loadout player]))
+
+(define-method die player ()
+  (unless <dead>
+    (setf <tile> "skull")
+    [play-sample self "death"]
+    [say self "You died. Press ESCAPE to try again."]
+    (setf <dead> t)))
 
 (define-method loadout player ()
   [make-inventory self]
   [make-equipment self]
-  [equip self [add-item self (clone =wooden-bow=)]])
+  [equip self [add-item self (clone =wooden-bow=)]]
+  [emote self '((("I'd better get moving.")))])
 
 ;;; Raindrops
 
@@ -249,11 +348,13 @@
 
 (defcell gravestone 
   (tile :initform "gravestone")
+  (contains-body :initform (percent-of-time 40 t))
   (categories :initform '(:obstacle :actor))
   (generated :initform nil))
 
 (define-method run gravestone ()
-  (when (and (< [distance-to-player self] 10)
+  (when (and <contains-body>
+	     (< [distance-to-player self] 10)
 	     [line-of-sight *world* <row> <column> 
 			    [player-row *world*]
 			    [player-column *world*]])
@@ -284,13 +385,13 @@
   (equipment-slots :initform '(:left-hand))
   (max-items :initform (make-stat :base 3))
   (stepping :initform t)
-  (speed :initform (make-stat :base 5))
+  (speed :initform (make-stat :base 1))
   (movement-cost :initform (make-stat :base 5))
   (attacking-with :initform :left-hand)
   (equipment-slots :initform '(:left-hand :right-hand :belt :extension :feet))
   (max-weight :initform (make-stat :base 25))
   (max-items :initform (make-stat :base 20))
-  (hit-points :initform (make-stat :base 25 :min 0 :max 10))
+  (hit-points :initform (make-stat :base 5 :min 0 :max 5))
   (tile :initform "skeleton"))
 
 (define-method loadout skeleton ()
@@ -303,8 +404,13 @@
   (clon:with-field-values (row column) self
     (let* ((world *world*)
 	   (direction [direction-to-player *world* row column]))
+      (when (< [distance-to-player self] 8)
+	(percent-of-time 40 [play-sample self "grak"]))
       (if [adjacent-to-player world row column]
-	  [>>attack self direction]
+	  (progn [say self "The skeleton stabs at you with its dagger."]
+		 [play-sample self "groar"]
+		 [expend-action-points self 10]
+		 [attack self direction])
 	  (if [obstacle-in-direction-p world row column direction]
 	      (let ((target [target-in-direction-p world row column direction]))
 		(if (and target (not [in-category target :enemy]))
@@ -315,11 +421,9 @@
 		       (setf <direction> (random-direction)))
 		     [>>move self direction]))))))
 
-;; (define-method die skeleton ()
-;;   (when (> 8 (random 10))
-;;     [drop self (clone (random-stat-powerup))])
-;;   [play-sample self "blaagh3"]
-;;   [parent>>die self])
+(define-method die skeleton ()
+  [play-sample self "dead"]
+  [parent>>die self])
 	   
 ;;; The forest
 
@@ -453,7 +557,7 @@
 		       (random (* 16 *forest-width*))
 		       (random (* 16 *forest-height*))]))
   [drop-trees self :graininess 0.3 :density 32]
-  [drop-water self :graininess 0.2 :density 90 :cutoff 0.9]
+  [drop-water self :graininess 0.2 :density 90 :cutoff 0.2]
   (dotimes (n 15)
     [drop-graves self (+ 20 (random (- *forest-height* 20))) (random *forest-width*)
 		 (+ 4 (random 4)) (+ 4 (random 4))])
