@@ -1,4 +1,6 @@
 (
+ (:name ".default-font" :type :font :properties (:height 14 :width 7) :data "7x14b")
+
  (:name "earth-1" :type :image :file "earth-1.png")
  (:name "earth-2" :type :image :file "earth-1.png")
  (:name "earth-3" :type :image :file "earth-2.png")
@@ -14,11 +16,30 @@
  (:name "tree-4" :type :image :file "tree-4.png")
  (:name "tree-5" :type :image :file "tree-5.png")
 
+ (:name "snow-1" :type :image :file "snow-1.png")
+ (:name "snow-2" :type :image :file "snow-2.png")
+ (:name "snow-3" :type :image :file "snow-3.png")
+ (:name "snow-4" :type :image :file "snow-4.png")
+ (:name "snow-5" :type :image :file "snow-5.png")
+
+ (:name "snow-dark-1" :type :image :file "snow-dark-1.png")
+ (:name "snow-dark-2" :type :image :file "snow-dark-2.png")
+ (:name "snow-dark-3" :type :image :file "snow-dark-3.png")
+ (:name "snow-dark-4" :type :image :file "snow-dark-4.png")
+ (:name "snow-dark-5" :type :image :file "snow-dark-5.png")
+
+ (:name "unh-1" :type :sample :file "unh-1.wav" :properties (:volume 20))
+ (:name "unh-2" :type :sample :file "unh-2.wav" :properties (:volume 20))
+ (:name "unh-3" :type :sample :file "unh-3.wav" :properties (:volume 20))
+
+ (:name "snowflake" :type :image :file "snowflake.png")
+
  (:name "water-1" :type :image :file "water-1.png")
  (:name "water-2" :type :image :file "water-2.png")
  (:name "water-3" :type :image :file "water-3.png")
  (:name "foam" :type :image :file "foam.png")
 
+ (:name "arrows" :type :image :file "arrows.png")
  (:name "arrow-north" :type :image :file "arrow.png")
  (:name "arrow-east" :type :alias :data ":rotate 90:arrow-north")
  (:name "arrow-south" :type :alias :data ":rotate 180:arrow-north")
@@ -29,8 +50,10 @@
  (:name "raindrop" :type :image :file "raindrop.png")
  (:name "skeleton" :type :image :file "skel.png")
  (:name "gravestone" :type :image :file "gravestone.png")
+ (:name "wooden-bow" :type :image :file "wooden-bow.png")
 
  (:name "player" :type :image :file "player.png")
+ (:name "herb" :type :image :file "herb.png")
  (:name "character" :type :image :file "character.png")
  (:name "character-pink" :type :image :file "character-pink.png")
  (:name "ball" :type :image :file "ball.png")
@@ -45,8 +68,8 @@
  (:name "firefly-2" :type :image :file "firefly-2.png")
  (:name "nightbird" :type :music :file "nightbird.ogg" :properties (:volume 20))
  (:name "rain" :type :music :file "rain.ogg" :properties (:volume 20))
- (:name "thunder-med" :type :sample :file "thunder-med.wav" :properties (:volume 20))
- (:name "thunder-big" :type :sample :file "thunder-big.wav" :properties (:volume 20))
+ (:name "thunder-med" :type :sample :file "thunder-med.wav" :properties (:volume 10))
+ (:name "thunder-big" :type :sample :file "thunder-big.wav" :properties (:volume 10))
  (:name "debris" :type :image :file "debris.png")
  (:name "wall" :type :image :file "wall.png")
  (:name "ruin-floor" :type :image :file "ruin-floor.png")

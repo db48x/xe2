@@ -30,6 +30,8 @@
 
 (in-package :forest)
 
+(defvar *status* nil)
+
 ;;; Turn on timing after SDL init
 
 (add-hook 'xe2:*initialization-hook*
@@ -38,6 +40,22 @@
 	      (xe2:set-frame-rate 30)
 	      (xe2:set-timer-interval 1)
 	      (xe2:enable-held-keys 1 3)))
+
+;;; Forest addresses
+
+(defun generate-forest-address (n)
+  (list '=forest= 
+	:sequence-number (xe2:genseq) 
+	:height *forest-height*
+	:width *forest-width*
+	:fireflies 100
+	:graveyards 8
+	:ruins 10
+	:tree-grain 0.3
+	:tree-density 30
+	:water-grain 0.5
+	:water-density 90
+	:water-cutoff 0.4))
 
 ;;; Text overlay balloons
 
@@ -91,6 +109,7 @@
   [expend-default-action-points self]
   (when <following>
     (multiple-value-bind (r c) [grid-coordinates <following>]
+      ;; follow emoter
       [move-to self r c]))
   (when (integerp <timeout>)
     (when (minusp (decf <timeout>))
@@ -126,38 +145,7 @@
 		       (percent-of-time 1 [drop self (clone =foam=)]))
 		     "floor"))))
 
-;;; Reflects light 
-
-(defparameter *earth-tiles* '("earth-1" 
-			      "earth-2"
-			      "earth-3"
-			      "earth-4"
-			      "earth-5"
-			      "earth-6"
-			      "floor"))
-
-(defparameter *earth-light-radius* 14)
-
-(defparameter *earth-rain-clock* 10)
-
-(defcell earth 
-  (tile :initform "floor")
-  (categories :initform '(:actor :reflective))
-  (clock :initform (random *earth-rain-clock*)))
-
-(define-method run earth ()
-  (let ((dist [distance-to-player self]))
-    (setf <tile> (if (< dist *earth-light-radius*)
-		     (prog1 (nth (truncate (/ dist 2)) *earth-tiles*)
-		       (if (minusp <clock>)
-			   (progn (percent-of-time 5
-				    (multiple-value-bind (x y) [viewport-coordinates self]
-				      [drop-sprite self (clone =raindrop=) x y]))
-				  (setf <clock> *earth-rain-clock*))
-			   (decf <clock>)))
-		     "floor"))))
-    
-;;; The storm 
+;;; The storm is an invisible cell that sits in the corner and plays thunder
 
 (defcell storm 
   (tile :initform nil)
@@ -178,8 +166,89 @@
 
 (defcell tree 
   (tile :initform "tree-1")
-  (categories :initform '(:obstacle :opaque)))
+  (categories :initform '(:obstacle :opaque :nosnow)))
 
+;;; The snow
+
+(defparameter *snow-tiles* '("snow-1"
+			     "snow-2"
+			     "snow-3"
+			     "snow-4"
+			     "snow-5"))
+
+(defparameter *snow-dark-tiles* '("snow-dark-1"
+				  "snow-dark-2"
+				  "snow-dark-3"
+				  "snow-dark-4"
+				  "snow-dark-5"))
+
+(defcell snow 
+  (amount :initform 0)
+  (tile :initform "snow-1")
+  (categories :initform '(:snow)))
+
+(define-method collect snow (&optional (amount 1) dark)
+  (setf <amount> (min (+ amount <amount>) 
+		      (length *snow-tiles*)))
+    (setf <tile> (nth <amount> (if dark *snow-dark-tiles* *snow-tiles*))))
+
+(define-method update-tile snow (dark)
+  (setf <tile> (nth <amount> (if dark *snow-dark-tiles* *snow-tiles*))))
+
+
+;;; Reflects light 
+
+(defparameter *earth-tiles* '("earth-1" 
+			      "earth-2"
+			      "earth-3"
+			      "earth-4"
+			      "earth-5"
+			      "earth-6"
+			      "floor"))
+
+(defparameter *earth-light-radius* 14)
+
+(defparameter *earth-rain-clock* 10)
+
+(defparameter *snow-clock* 8)
+
+(defcell earth 
+  (tile :initform "floor")
+  (categories :initform '(:actor :reflective))
+  (snow-clock :initform *snow-clock*)
+  (clock :initform (random *earth-rain-clock*)))
+
+(define-method snow earth (dark)
+  (let ((snow [category-at-p *world* <row> <column> :snow]))
+    (when snow
+      [update-tile snow dark])
+    (if (minusp <snow-clock>)
+	(progn (setf <snow-clock> *snow-clock*)
+	       (if (null snow)
+		   (percent-of-time 3
+		     (setf snow (clone =snow=))
+		     [drop self snow])
+		   (percent-of-time 10 
+		     [collect snow 1 dark])))
+	(decf <snow-clock>))))
+    
+(define-method run earth ()
+  [expend-action-points self 10]
+  (let* ((dist [distance-to-player self])
+	 (dark (not (< dist 8))))
+    (when [is-snowing *world*]
+      [snow self dark])
+    (setf <tile> (if (< dist *earth-light-radius*)
+		     (prog1 (nth (truncate (/ dist 2)) *earth-tiles*)
+		       (if (minusp <clock>)
+			   (progn (percent-of-time 5
+				    (when [is-snowing *world*]
+				      (multiple-value-bind (x y) [viewport-coordinates self]
+					[drop-sprite self (clone =snowflake=) x y])))
+				  (setf <clock> *earth-rain-clock*))
+			   (decf <clock>)))
+		     "floor"))))
+    
 ;;; The stone wall
 
 (defcell wall
@@ -221,12 +290,14 @@
 	  [move self <direction>])))
   (decf <clock>)
   (when (zerop <clock>)
-    [die self]))
+    [die self])
+  (when [obstacle-in-direction-p *world* <row> <column> <direction>]
+    (setf <clock> 0)))
 
 (defcell wooden-bow 
-  (name :initform "bow")
+  (name :initform "Wooden bow")
   (categories :initform '(:item :weapon :equipment))
-  (tile :initform "bow")
+  (tile :initform "wooden-bow")
   (attack-power :initform (make-stat :base 5))
   (attack-cost :initform (make-stat :base 6))
   (accuracy :initform (make-stat :base 90))
@@ -236,7 +307,7 @@
 (define-method fire wooden-bow (direction)
   (if (plusp [stat-value <equipper> :arrows])
       (let ((arrow (clone =arrow=)))
-	[stat-effect self :arrows -1]
+	[stat-effect <equipper> :arrows -1]
 	[drop <equipper> arrow]
 	[impel arrow direction]
 	[play-sample <equipper> "bow"])
@@ -260,11 +331,15 @@
   (firing-with :initform :left-hand)
   (arrows :initform (make-stat :base 10 :min 0 :max 40))
   (speed :initform (make-stat :base 10 :min 0 :max 10))
+  (strength :initform (make-stat :base 15 :min 0 :max 50))
+  (defense :initform (make-stat :base 15 :min 0 :max 50))
+  (dexterity :initform (make-stat :base 15 :min 0 :max 30))
+  (intelligence :initform (make-stat :base 13 :min 0 :max 30))
   (equipment-slots :initform '(:right-hand :left-hand))
   (max-items :initform (make-stat :base 20))
   (movement-cost :initform (make-stat :base 10))
   (stepping :initform t)
-  (categories :initform '(:actor :player :obstacle)))
+  (categories :initform '(:actor :player :obstacle :target)))
 
 (define-method emote player (text &optional (timeout 20))
   (let ((balloon (clone =balloon= :text text :timeout timeout)))
@@ -290,7 +365,8 @@
 	    [damage self 1])
 	  (decf <hunger-damage-clock>))))
   (when (zerop [stat-value self :hit-points])
-    [die self]))
+    [die self])
+  (when (and *status* <inventory>) [update *status*]))
 
 (define-method restart player ()
   (let ((player (clone =player=)))
@@ -298,8 +374,14 @@
     [set-player *universe* player]
     [set-character *status* player]
     [play *universe*
-	  :address '(=forest=)]
+	  :address (generate-forest-address 1)]
     [loadout player]))
+
+(define-method damage player (points)
+  [say self "You take ~A hit ~A of damage."
+       points (if (= 1 points) "point" "points")]
+  (percent-of-time 70 [play-sample self (car (one-of '("unh-1" "unh-2" "unh-3")))])
+  [stat-effect self :hit-points (- points)])
 
 (define-method die player ()
   (unless <dead>
@@ -324,6 +406,20 @@
 
 (define-method run raindrop ()
   [expend-default-action-points self]
+  (clon:with-fields (clock) self
+    (if (plusp clock) 
+	(progn 
+	  (decf clock)
+	  [move self :southeast])
+	[die self])))
+
+(defsprite snowflake
+  (image :initform "snowflake")
+  (categories :initform '(:actor))
+  (movement-distance :initform 2)
+  (clock :initform 8))
+
+(define-method run snowflake ()
   (clon:with-fields (clock) self
     (if (plusp clock) 
 	(progn 
@@ -357,7 +453,7 @@
 
 (defcell gravestone 
   (tile :initform "gravestone")
-  (contains-body :initform (percent-of-time 40 t))
+  (contains-body :initform (percent-of-time 25 t))
   (categories :initform '(:obstacle :actor))
   (generated :initform nil))
 
@@ -378,7 +474,7 @@
   (name :initform "dagger")
   (categories :initform '(:item :weapon :equipment))
   (tile :initform "dagger")
-  (attack-power :initform (make-stat :base 5))
+  (attack-power :initform (make-stat :base 15))
   (attack-cost :initform (make-stat :base 6))
   (accuracy :initform (make-stat :base 90))
   (stepping :initform t)
@@ -387,8 +483,8 @@
 
 (defcell skeleton 
   (name :initform "Skeleton")
-  (strength :initform (make-stat :base 15 :min 0 :max 50))
-  (dexterity :initform (make-stat :base 15 :min 0 :max 30))
+  (strength :initform (make-stat :base 20 :min 0 :max 50))
+  (dexterity :initform (make-stat :base 20 :min 0 :max 30))
   (intelligence :initform (make-stat :base 13 :min 0 :max 30))
   (categories :initform '(:actor :target :obstacle :opaque :enemy :equipper))
   (equipment-slots :initform '(:left-hand))
@@ -419,7 +515,7 @@
 	  (progn [say self "The skeleton stabs at you with its dagger."]
 		 [play-sample self "groar"]
 		 [expend-action-points self 10]
-		 [attack self direction])
+		 (percent-of-time 80 [damage [get-player *world*] 2]))
 	  (if [obstacle-in-direction-p world row column direction]
 	      (let ((target [target-in-direction-p world row column direction]))
 		(if (and target (not [in-category target :enemy]))
@@ -434,6 +530,37 @@
   [play-sample self "dead"]
   [parent>>die self])
 	   
+;;; Bodies of other adventurers
+
+(defcell arrows 
+  (tile :initform "arrows")
+  (count :initform (+ 2 (random 12))))
+
+(define-method step arrows (stepper)
+  (when [is-player stepper]
+    [say self "You found ~S arrows." <count>]
+    [stat-effect stepper :arrows <count>]
+    [die self]))
+     
+(defcell herb 
+  (tile :initform "herb")
+  (categories :initform '(:equipment :item))
+  (equip-for :initform '(:right-hand :left-hand)))
+
+(define-method step herb (stepper)
+  (when [is-player stepper]
+    [say self "You found a healing herb."]
+    [take stepper :direction :here :category :item]))
+
+(defcell body 
+  (tile :initform "body"))
+
+(define-method step body (stepper)
+  (when [is-player stepper]
+    (percent-of-time 30
+      [drop self (clone (car (one-of (list =herb= =arrows=))))])
+    [die self]))
+
 ;;; The forest
 
 (defcell drop-point 
@@ -441,13 +568,18 @@
   (tile :initform nil))
 
 (defparameter *forest-width* 49)
-(defparameter *forest-height* 200)
+(defparameter *forest-height* 100)
 
 (define-prototype forest (:parent xe2:=world=)
   (height :initform *forest-height*)
   (width :initform *forest-width*)
+  (snowing :initform t)
   (ambient-light :initform *earth-light-radius*)
+  (description :initform "It is cold and snowing.")
   (edge-condition :initform :block))
+
+(define-method is-snowing forest ()
+  <snowing>)
 
 (define-method drop-earth forest ()
   (dotimes (i <height>)
@@ -506,7 +638,9 @@
 	    (when (or (null distance)
 		      (< (distance (+ j r0) (+ c0 i) row column) distance))
 	      (percent-of-time density
-		[drop-cell self (clone object) i j :no-collisions t]))))))))
+		(let ((cell (clone object)))
+		  [replace-cells-at self i j cell]
+		  [set-location cell i j])))))))))
 
 (define-method drop-ruin forest (row column height width)
   (let (rectangle openings)
@@ -549,33 +683,46 @@
 		 (prog1 nil
 		   (percent-of-time 80
 		     [replace-cells-at self r c (clone =ruin-floor=)]))))
-	(trace-rectangle #'drop-floor (1+ row) (1+ column) (- height 2) (- width 2) :fill)))))
-
+	(trace-rectangle #'drop-floor (1+ row) (1+ column) (- height 2) (- width 2) :fill))
+      (dotimes (n (random 3))
+	(percent-of-time 70
+	  [drop-cell self (clone =body=) (+ 1 row (random (- height 1))) (+ 1 column (random (- width 1)))])))))
 
 (define-method generate forest (&key (height *forest-height*)
-				     (width *forest-width*))
+				     (width *forest-width*)
+				     sequence-number 
+				     (fireflies 100)
+				     (graveyards 15)
+				     (ruins 15)
+				     (tree-grain 0.3)
+				     (tree-density 30)
+				     (water-grain 0.9)
+				     (water-density 90)
+				     (water-cutoff 0.2))
   (setf <height> height)
   (setf <width> width)
+  (setf <sequence-number> sequence-number)
   [create-default-grid self]
   [drop-earth self]
   [drop-cell self (clone =storm=) 0 0]
-  (dotimes (i 100)
+  (dotimes (i fireflies)
     (let ((firefly (clone =firefly=)))
       [add-sprite self firefly]
       [update-position firefly 
 		       (random (* 16 *forest-width*))
 		       (random (* 16 *forest-height*))]))
-  [drop-trees self :graininess 0.3 :density 32]
-  [drop-water self :graininess 0.9 :density 90 :cutoff 0.2]
-  (dotimes (n 15)
+  [drop-trees self :graininess tree-grain :density tree-density]
+  [drop-water self :graininess water-grain :density water-density :cutoff water-cutoff]
+  (dotimes (n graveyards)
     [drop-graves self (+ 20 (random (- *forest-height* 20))) (random *forest-width*)
-		 (+ 4 (random 4)) (+ 4 (random 4))])
-  (dotimes (n 15)
+		 (+ 4 (random 3)) (+ 4 (random 2))])
+  (dotimes (n ruins)
     [drop-ruin self (random *forest-height*) (random *forest-width*) (+ 9 (random 8)) (+ 4 (random 8))])
-  [drop-cell self (clone =drop-point=) 
-	     (1+ (random 20)) 
-	     (1+ (random 20))
-	     :exclusive t :probe t])
+  (let ((row (1+ (random 20)) )
+	(column (1+ (random 20))))
+    [drop-cell self (clone =drop-point=) row column
+	       :exclusive t :probe t]
+    [drop-cell self (clone =herb=) (+ row (random 20)) (+ column (random 20))]))
 
 (define-method begin-ambient-loop forest ()
   (play-sample "lutey")
@@ -627,6 +774,92 @@
   [define-key self nil '(:timer) (lambda ()
 				   [run-cpu-phase *world* :timer])])
 
+;;; A character status widget.
+
+(define-prototype status (:parent xe2:=formatter=)
+  (character :documentation "The character cell."))
+
+(define-method set-character status (character)
+  (setf <character> character))
+
+(define-method print-stat status (stat-name &key warn-below)
+  (let* ((stat (field-value stat-name <character>))
+	 (value [stat-value <character> stat-name]))
+    (destructuring-bind (&key min max base delta unit) stat
+      (let ((color (if (and (numberp warn-below)
+			    (< value warn-below))
+		       ".red"
+		       ".gray20")))
+	[print self (symbol-name stat-name)
+	       :foreground ".white"]
+	[print self " "]
+	[print self (format nil "~S" value) 
+	       :foreground ".yellow"
+	       :background color]
+	[print self " "]))))
+
+(defparameter *status-bar-character* " ")
+
+(define-method print-stat-bar status (stat &key 
+					   (color ".yellow")
+					   (background-color ".gray40"))
+  (let ((value (truncate [stat-value <character> stat]))
+	(max (truncate [stat-value <character> stat :max])))
+    (dotimes (i max)
+      [print self *status-bar-character*
+	     :foreground ".yellow"
+	     :background (if (< i value)
+			     color
+			   background-color)])))
+
+(define-method print-equipment-slot status (slot-name)
+  [print self (symbol-name slot-name)]
+  [print self ": "]
+  (let* ((item [equipment-slot <character> slot-name]))
+    (if item
+	(clon:with-field-values (name tile) item
+	  [print self nil :image tile]
+	  [print self " "]
+	  [print self name]
+	  [print self "  "])
+	[print self "EMPTY  "])))
+
+(define-method print-inventory-slot status (slot-number)
+  [print self (format nil "[~D]: " slot-number)]
+  (let ((item [item-at <character> slot-number]))
+    (if item
+	(clon:with-field-values (name tile) item
+				[print self nil :image tile]
+				[print self " "]
+				[print self (get-some-object-name item)]
+				[print self "  "])
+	[print self "EMPTY  "])))
+
+(define-method update status ()
+  [delete-all-lines self]
+  (let ((char <character>))
+    [print self "  Statistics:  "]
+    [print-stat self :hit-points :warn-below 12]
+    [print-stat-bar self :hit-points :color ".red" :background-color ".gray30"]
+    [print self " "]
+    [print-stat self :strength :warn-below 10]
+    [print self " "]
+    [print-stat self :defense :warn-below 10]
+    [print self " "]
+    [print-stat self :speed :warn-below 2]
+    [println self " "]
+    [print self "  Equipment:  "]
+    [print-equipment-slot self :right-hand]
+    [print-equipment-slot self :left-hand]
+    [print self (format nil "  ARROWS: ~S " [stat-value char :arrows])]
+    [println self nil :image "arrows"]
+    
+    [newline self]
+    [print self "  Inventory:  "]
+    [print-inventory-slot self 0]
+    [print-inventory-slot self 1]
+    [newline self]))
+
 ;;; Main program. 
 
 (defparameter *room-window-width* 800)
@@ -641,7 +874,13 @@
 	 (universe (clone =universe=))
 	 (narrator (clone =narrator=))
 	 (player (clone =player=))
+	 (status (clone =status=))
 	 (viewport (clone =viewport=)))
+    ;;
+    (setf *status* status)
+    [resize status :height 60 :width 800]
+    [move status :x 5 :y 0]
+    [set-character status player]
     ;;
     [resize prompt :height 20 :width 100]
     [move prompt :x 0 :y 0]
@@ -653,20 +892,20 @@
     [set-verbosity narrator 0]
     ;;
     [play universe
-	  :address '(=forest=)
+	  :address (generate-forest-address 1)
 	  :player player
 	  :narrator narrator
 	  :prompt prompt
 	  :viewport viewport]
     [set-tile-size viewport 16]
     [resize viewport :height 470 :width *room-window-width*]
-    [move viewport :x 0 :y 0]
+    [move viewport :x 0 :y 60]
     [set-origin viewport :x 0 :y 0 
-		:height (truncate (/ (- *room-window-height* 130) 16))
+		:height (truncate (/ (- *room-window-height* 200) 16))
 		:width (truncate (/ *room-window-width* 16))]
     [adjust viewport] 
     [loadout player]
    ;;
-    (xe2:install-widgets prompt viewport narrator)))
+    (xe2:install-widgets prompt viewport narrator status)))
 
 (init-forest)

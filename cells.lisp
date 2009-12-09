@@ -789,7 +789,7 @@ world or have a location."
 
 (define-method attack cell (target)
   (if (null <attacking-with>)
-      [>>say :narrator"No attack method specified."]
+      [>>say :narrator "No attack method specified."]
       (let* ((weapon [equipment-slot self <attacking-with>])
 	     (target-cell [resolve self target])
 	     (target-name (field-value :name target-cell)))

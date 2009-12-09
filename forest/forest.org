@@ -5,7 +5,7 @@ bird sound. short story. exploring an abandoned house. path through
 woods to clearing. follow the bird. watercolor look.
 lighting effects. game occurs, you explore ruins at (night , re-use vm0 art
 lightning bugs
-** TODO FIX when key pressed+released before :idle is run
-** TODO skeletons and gravestones
+** TODO bodies
+** TODO Snow accumulation
 ** TODO FIX joystick button handling
-** TODO arduous journey
+** TODO arduous journey overworld travel / food
