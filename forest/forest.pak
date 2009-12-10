@@ -8,6 +8,13 @@
  (:name "earth-5" :type :image :file "earth-5.png")
  (:name "earth-6" :type :image :file "earth-6.png")
 
+ (:name "tundra-1" :type :image :file "tundra-1.png")
+ (:name "tundra-2" :type :image :file "tundra-1.png")
+ (:name "tundra-3" :type :image :file "tundra-2.png")
+ (:name "tundra-4" :type :image :file "tundra-3.png")
+ (:name "tundra-5" :type :image :file "tundra-5.png")
+ (:name "tundra-6" :type :image :file "tundra-6.png")
+
  (:name "floor" :type :image :file "floor.png")
 
  (:name "tree-1" :type :image :file "tree-1.png")
@@ -53,6 +60,7 @@
  (:name "wooden-bow" :type :image :file "wooden-bow.png")
 
  (:name "player" :type :image :file "player.png")
+ (:name "passage-gateway" :type :image :file "mountain.png")
  (:name "herb" :type :image :file "herb.png")
  (:name "character" :type :image :file "character.png")
  (:name "character-pink" :type :image :file "character-pink.png")
@@ -64,9 +72,11 @@
  (:name "bow" :type :sample :file "bow.wav" :properties (:volume 25))
  (:name "grak" :type :sample :file "grak.wav" :properties (:volume 20))
  (:name "dead" :type :sample :file "dead.wav" :properties (:volume 20))
+ (:name "mountain" :type :image :file "mountain.png")
  (:name "firefly-1" :type :image :file "firefly-1.png")
  (:name "firefly-2" :type :image :file "firefly-2.png")
  (:name "nightbird" :type :music :file "nightbird.ogg" :properties (:volume 20))
+ (:name "passageway" :type :music :file "passageway.ogg" :properties (:volume 20))
  (:name "rain" :type :music :file "rain.ogg" :properties (:volume 20))
  (:name "thunder-med" :type :sample :file "thunder-med.wav" :properties (:volume 10))
  (:name "thunder-big" :type :sample :file "thunder-big.wav" :properties (:volume 10))

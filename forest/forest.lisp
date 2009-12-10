@@ -51,11 +51,11 @@
 	:fireflies 100
 	:graveyards 8
 	:ruins 10
-	:tree-grain 0.3
-	:tree-density 30
-	:water-grain 0.5
+	:tree-grain 0.8
+	:tree-density 40
+	:water-grain 0.6
 	:water-density 90
-	:water-cutoff 0.4))
+	:water-cutoff 0.2))
 
 ;;; Text overlay balloons
 
@@ -248,6 +248,48 @@
 				  (setf <clock> *earth-rain-clock*))
 			   (decf <clock>)))
 		     "floor"))))
+
+;;; Icy tundra
+
+(defparameter *tundra-tiles* '("tundra-1" 
+			      "tundra-2"
+			      "tundra-3"
+			      "tundra-4"
+			      "tundra-5"
+			      "tundra-6"
+			      "floor"))
+
+(defparameter *tundra-light-radius* 14)
+
+
+(defcell tundra 
+  (tile :initform "floor")
+  (categories :initform '(:actor :reflective)))
+
+(define-method blow tundra (dark)
+  (let ((snow [category-at-p *world* <row> <column> :snow]))
+    (when snow
+      [update-tile snow dark])
+    (if (minusp <snow-clock>)
+	(progn (setf <snow-clock> *snow-clock*)
+	       (if (null snow)
+		   (percent-of-time 3
+		     (setf snow (clone =snow=))
+		     [drop self snow])
+		   (percent-of-time 10 
+		     [collect snow 1 dark])))
+	(decf <snow-clock>))))
+    
+(define-method run tundra ()
+  (let* ((dist [distance-to-player self]))
+    (setf <tile> (if (< dist *tundra-light-radius*)
+		     (nth (truncate (/ dist 2)) *tundra-tiles*)
+		     "floor"))))
+
+(defcell mountain 
+  (tile :initform "mountain")
+  (categories :initform '(:obstacle :opaque)))
+ 
     
 ;;; The stone wall
 
@@ -329,7 +371,7 @@
   (hunger-damage-clock :initform 0)
   (hearing-range :initform 1000)
   (firing-with :initform :left-hand)
-  (arrows :initform (make-stat :base 10 :min 0 :max 40))
+  (arrows :initform (make-stat :base 40 :min 0 :max 40))
   (speed :initform (make-stat :base 10 :min 0 :max 10))
   (strength :initform (make-stat :base 15 :min 0 :max 50))
   (defense :initform (make-stat :base 15 :min 0 :max 50))
@@ -340,6 +382,12 @@
   (movement-cost :initform (make-stat :base 10))
   (stepping :initform t)
   (categories :initform '(:actor :player :obstacle :target)))
+
+(define-method enter player ()
+  (let ((gateway [category-at-p *world* <row> <column> :gateway]))
+    (if (null gateway)
+	[>>say :narrator "No gateway to enter."]
+	[activate gateway])))
 
 (define-method emote player (text &optional (timeout 20))
   (let ((balloon (clone =balloon= :text text :timeout timeout)))
@@ -519,7 +567,7 @@
 	  (if [obstacle-in-direction-p world row column direction]
 	      (let ((target [target-in-direction-p world row column direction]))
 		(if (and target (not [in-category target :enemy]))
-		    [>>attack self direction]
+		    [move self (random-direction)]
 		    (progn (setf <direction> (random-direction))
 			   [>>move self direction])))
 	      (progn (when (< 7 (random 10))
@@ -617,6 +665,14 @@
 	[drop-cell self (clone =gravestone=) 
 		   (+ (* 2 i) row) 
 		   (+ (* 2 j) column)]))))
+
+(define-prototype passage-gateway (:parent =gateway=)
+  (tile :initform "passage-gateway")
+  (sequence-number :initform (genseq))
+  (address :initform (list '=passage= :sequence-number (genseq))))
+
+(define-method step passage-gateway (stepper)
+  [say self "A pass through the mountains. Press RETURN to enter."])
 
 (define-method drop-water forest (&optional &key (object =water=)
 					    distance 
@@ -722,11 +778,84 @@
 	(column (1+ (random 20))))
     [drop-cell self (clone =drop-point=) row column
 	       :exclusive t :probe t]
-    [drop-cell self (clone =herb=) (+ row (random 20)) (+ column (random 20))]))
-
+    [drop-cell self (clone =herb=) (+ row (random 20)) (+ column (random 20))])
+  (let* ((passage (clone =passage-gateway=))
+	 (row (+ (- height 10) (random 10))) ;; 20 FIXME
+	 (column (random 10)))
+    [replace-cells-at *world* row column passage]
+    [set-location passage row column]))
+    
 (define-method begin-ambient-loop forest ()
   (play-sample "lutey")
   (play-music "nightbird" :loop t))
+
+;;; Mountain passage world
+
+(defparameter *passage-width* 49)
+(defparameter *passage-height* 100)
+
+(define-prototype passage (:parent xe2:=world=)
+  (height :initform *passage-height*)
+  (width :initform *passage-width*)
+  (ambient-light :initform *earth-light-radius*)
+  (description :initform "The air is oddly still in this pass between the crags.")
+  (edge-condition :initform :block))
+
+(define-method drop-tundra passage ()
+  (dotimes (i <height>)
+    (dotimes (j <width>)
+      [drop-cell self (clone =tundra=) i j])))
+
+(define-method drop-mountains passage ()
+  (let ((offset 10))
+  (dotimes (i <height>)
+    (setf offset (max 0 (incf offset (if (= 0 (random 2))
+					 1 -1))))
+    (labels ((drop-mountain (r c)
+	       (prog1 nil
+		 [drop-cell *world* (clone =mountain=) r c])))
+      (trace-row #'drop-mountain i 0 (+ offset (random 4)))
+      (trace-row #'drop-mountain i (+ offset (random 4) 20) <width>)))))
+
+(define-method drop-trees passage (&optional &key (object =tree=)
+					    distance 
+					    (row 0) (column 0)
+					    (graininess 0.3)
+					    (density 100)
+					    (cutoff 0))
+  (clon:with-field-values (height width) self
+    (let* ((h0 (or distance height))
+	   (w0 (or distance width))
+	   (r0 (- row (truncate (/ h0 2))))
+	   (c0 (- column (truncate (/ w0 2))))
+	   (plasma (xe2:render-plasma h0 w0 :graininess graininess))
+	   (value nil))
+      (dotimes (i h0)
+	(dotimes (j w0)
+	  (setf value (aref plasma i j))
+	  (when (< cutoff value)
+	    (when (or (null distance)
+		      (< (distance (+ j r0) (+ c0 i) row column) distance))
+	      (percent-of-time density
+		[drop-cell self (clone object) i j :no-collisions t]))))))))
+
+(define-method begin-ambient-loop passage ()
+  (play-music "passageway" :loop t)
+  (play-sample "thunder-big"))
+
+(define-method generate passage (&key (height *forest-height*)
+				      (width *forest-width*)
+				      sequence-number)
+  (setf <height> height)
+  (setf <width> width)
+  (setf <sequence-number> sequence-number)
+  [create-default-grid self]
+  [drop-tundra self]
+  [drop-mountains self]
+    (let ((row (1+ (random 10)) )
+	  (column (+ 15 (random 6))))
+      [drop-cell self (clone =drop-point=) row column
+		 :exclusive t :probe t]))
 
 ;;; Controlling the game
 
@@ -764,6 +893,7 @@
 	    ("J" (:control) "fire :south .")
 	    ;;
 	    ("ESCAPE" nil "restart .")
+	    ("RETURN" nil "enter .")
 	    ;;
 	    ("Q" (:control) "quit ."))))
 
