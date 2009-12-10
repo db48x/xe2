@@ -1,11 +1,20 @@
-This file, COPYING, contains the licensing terms for the LISP CODE
-included with this package.
+What follows the dotted line are the licensing terms for the lisp code
+in XE2. XE2 is provided under the terms of the GNU General Public
+License, version 3.
 
-The subdirectories blast/ and invader/ contain MEDIA-COPYING files
-which place the included GRAPHICS AND SOUND files under a Creative
-Commons License. See that file for details.
+The game subdirectories include MEDIA-COPYING files which place the
+included GRAPHICS AND SOUND files under a Creative Commons
+License. See each game's MEDIA-COPYING file for details.
 
-THESE ARE VERY DIFFERENT LICENSES. PLEASE READ BOTH CAREFULLY!
+The X11 color data is reproduced here in rgb.lisp under the MIT
+License; see rgb.lisp for details.
+
+On some platforms, binaries of libSDL 1.2 are redistributed with
+XE2. libSDL 1.2 is under the LGPL license; see the file LIBSDL-LICENSE
+for full details.
+
+THESE ARE ALL VERY DIFFERENT LICENSES AND THEY COVER DIFFERENT PARTS
+OF WHAT IS INCLUDED HERE. PLEASE READ AND COPY CAREFULLY!
 
 --- 8< ------ GPL TEXT BEGINS HERE ------ 8< -----------------8< ----
 
