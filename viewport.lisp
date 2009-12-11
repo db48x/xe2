@@ -54,6 +54,13 @@
 	  (y0 (* size cell-row)))
       (values x0 y0))))
 
+(define-method get-image-coordinates viewport (cell-row cell-column)
+  (let ((size <tile-size>))
+    (let ((x0 (* size (- cell-column <origin-x>)))
+	  (y0 (* size (- cell-row <origin-y>))))
+      (values x0 y0))))
+
+
 ;; (define-method get-viewport-coordinates viewport (cell-row cell-column)
 ;;   (let ((size <tile-size>))
 ;;     (let ((x0 (* size (- cell-column <origin-x>)))
@@ -139,7 +146,7 @@
 	  (when graphics (draw-resource-image graphics x1 y1 :destination image))))
       ;; draw the pending ops
       (map nil #'(lambda (cell)
-		   (multiple-value-bind (x y) [viewport-coordinates cell]
+		   (multiple-value-bind (x y) [image-coordinates cell]
 		     [draw cell x y image]))
 		   pending-draws)
       ;; update geometry

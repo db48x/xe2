@@ -1,5 +1,5 @@
 ** TODO overworld map? (FUTURE)
-** TODO in-game map!
+** TODO fix in-game map!
 ** TODO snow wolves and archer skels
 ** TODO don't place bodies in walls
 ** TODO fix arrows not dying

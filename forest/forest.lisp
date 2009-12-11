@@ -480,7 +480,7 @@ It has begun to snow."
     (when (= *hunger-warn* hunger)
       [say self "You are getting hungry. Press E to eat a ration."])
     (when (= *hunger-warn-2* hunger)
-      [emote self "I'm very hungry."]
+      [emote self '((("I'm very hungry.")))]
       [say self "You are getting extremely hungry! Press E to eat a ration."])
     (when (= *hunger-max* hunger)
       (if (minusp <hunger-damage-clock>)

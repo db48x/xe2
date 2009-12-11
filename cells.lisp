@@ -879,9 +879,15 @@ May be affected by the player's :hearing-range stat, if any."
 	(play-sample sample-name)))))
 
 (define-method viewport-coordinates cell ()
-  "Return the values ROW, COLUMN of this cell."
+  "Return as values X,Y the world coordinates of CELL."
   (assert (and <row> <column>))
   [get-viewport-coordinates (field-value :viewport *world*)
+			  <row> <column>])
+
+(define-method image-coordinates cell ()
+  "Return as values X,Y the viewport image coordinates of CELL."
+  (assert (and <row> <column>))
+  [get-image-coordinates (field-value :viewport *world*)
 			  <row> <column>])
 
 ;;; User Interaction with keyboard and mouse
