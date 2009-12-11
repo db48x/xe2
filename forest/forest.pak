@@ -63,11 +63,13 @@
 
  (:name "player" :type :image :file "player.png")
  (:name "passage-gateway" :type :image :file "mountain.png")
+ (:name "river-gateway" :type :image :file "river.png")
  (:name "herb" :type :image :file "herb.png")
  (:name "character" :type :image :file "character.png")
  (:name "character-pink" :type :image :file "character-pink.png")
  (:name "ball" :type :image :file "ball.png")
  (:name "wall" :type :image :file "wall.png")
+ (:name "monks" :type :sample :file "monks.wav" :properties (:volume 20))
  (:name "talk" :type :sample :file "talk.wav" :properties (:volume 10))
  (:name "lutey" :type :sample :file "lutey.wav" :properties (:volume 31))
  (:name "groar" :type :sample :file "groar.wav" :properties (:volume 25))

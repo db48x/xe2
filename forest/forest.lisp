@@ -43,20 +43,45 @@
 
 ;;; Forest addresses
 
-(defun generate-forest-address (n)
-  (list '=forest= 
-	:sequence-number (xe2:genseq) 
-	:height *forest-height*
-	:width *forest-width*
-	:fireflies 100
-	:graveyards 8
-	:ruins 10
-	:tree-grain 0.5
-	:tree-density 30
-	:water-grain 0.2
-	:water-density 90
-	:water-cutoff 0.2))
-
+(defun generate-level-address (n)
+  (ecase n 
+    (1 (list '=forest= 
+	     :description 
+"You are outside of Nothbess town, heading south toward the
+Monastery. It is cold and rainy."
+	     :level n
+	     :sequence-number (xe2:genseq) 
+	     :height *forest-height*
+	     :width *forest-width*
+	     :fireflies 200
+	     :graveyards 2
+	     :ruins 3
+	     :raining t
+	     :tree-grain 0.5
+	     :tree-density 30
+	     :water-grain 0.2
+	     :water-density 0
+	     :water-cutoff 0.2))
+    (2 (list '=forest= 
+	     :level n
+	     :description 
+"The river has swelled beyond its banks with meltwaters, and flooded
+an old hamlet whose name is forgotten. 
+It has begun to snow."
+	     :sequence-number (xe2:genseq) 
+	     :height *forest-height*
+	     :width *forest-width*
+	     :fireflies 100
+	     :graveyards 4
+	     :ruins 10
+	     :snowing t
+	     :tree-grain 0.2
+	     :tree-density 30
+	     :water-grain 0.2
+	     :water-density 90
+	     :water-cutoff 0.2))
+    (3 (list '=passage=))))
+    
 ;;; Text overlay balloons
 
 (defcell balloon 
@@ -245,6 +270,10 @@
 				    (when [is-snowing *world*]
 				      (multiple-value-bind (x y) [viewport-coordinates self]
 					[drop-sprite self (clone =snowflake=) x y])))
+				  (percent-of-time 5
+				    (when [is-raining *world*]
+				      (multiple-value-bind (x y) [viewport-coordinates self]
+					[drop-sprite self (clone =raindrop=) x y])))
 				  (setf <clock> *earth-rain-clock*))
 			   (decf <clock>)))
 		     "floor"))))
@@ -432,7 +461,7 @@
     [set-player *universe* player]
     [set-character *status* player]
     [play *universe*
-	  :address (generate-forest-address 1)]
+	  :address (generate-level-address 1)]
     [loadout player]))
 
 (define-method damage player (points)
@@ -638,13 +667,17 @@
 (define-prototype forest (:parent xe2:=world=)
   (height :initform *forest-height*)
   (width :initform *forest-width*)
-  (snowing :initform t)
+  (snowing :initform nil)
+  (raining :initform nil)
   (ambient-light :initform *earth-light-radius*)
   (description :initform "It is cold and snowing.")
   (edge-condition :initform :block))
 
 (define-method is-snowing forest ()
   <snowing>)
+
+(define-method is-raining forest ()
+  <raining>)
 
 (define-method drop-earth forest ()
   (dotimes (i <height>)
@@ -682,6 +715,14 @@
 	[drop-cell self (clone =gravestone=) 
 		   (+ (* 2 i) row) 
 		   (+ (* 2 j) column)]))))
+
+(define-prototype river-gateway (:parent =gateway=)
+  (tile :initform "river-gateway")
+  (sequence-number :initform (genseq))
+  (address :initform (generate-level-address 2)))
+
+(define-method step river-gateway (stepper)
+  [say self "The river meets the forest here. Press ENTER to continue on."])
 
 (define-prototype passage-gateway (:parent =gateway=)
   (tile :initform "passage-gateway")
@@ -759,15 +800,18 @@
 	(trace-rectangle #'drop-floor (1+ row) (1+ column) (- height 2) (- width 2) :fill))
       (dotimes (n (random 3))
 	(percent-of-time 70
-	  [drop-cell self (clone =body=) (+ 1 row (random (- height 1))) (+ 1 column (random (- width 1)))
+	  [drop-cell self (clone =body=) (+ 1 row (random (- height 1))) (+ column (random (- width 1)))
 		     :exclusive t :probe t])))))
 
 (define-method generate forest (&key (height *forest-height*)
 				     (width *forest-width*)
-				     sequence-number 
+				     sequence-number
+				     description
 				     (fireflies 100)
 				     (graveyards 15)
 				     (ruins 15)
+				     (herbs 2)
+				     level snowing raining
 				     (tree-grain 0.3)
 				     (tree-density 30)
 				     (water-grain 0.9)
@@ -775,7 +819,10 @@
 				     (water-cutoff 0.2))
   (setf <height> height)
   (setf <width> width)
+  (when description (setf <description> description))
   (setf <sequence-number> sequence-number)
+  (setf <snowing> snowing <raining> raining)
+  (setf <level> level)
   [create-default-grid self]
   [drop-earth self]
   [drop-cell self (clone =storm=) 0 0]
@@ -796,12 +843,16 @@
 	(column (1+ (random 20))))
     [drop-cell self (clone =drop-point=) row column
 	       :exclusive t :probe t]
-    [drop-cell self (clone =herb=) (+ row (random 20)) (+ column (random 20))])
-  (let* ((passage (clone =passage-gateway=))
+    (dotimes (n herbs)
+      (multiple-value-bind (r c) [random-place self]
+	[drop-cell self (clone =herb=) r c])))
+  (let* ((gateway (clone (ecase level
+			   (1 =river-gateway=)
+			   (2 =passage-gateway=))))
 	 (row (+ (- height 10) (random 10))) ;; 20 FIXME
 	 (column (random 10)))
-    [replace-cells-at *world* row column passage]
-    [set-location passage row column]))
+    [replace-cells-at *world* row column gateway]
+    [set-location gateway row column]))
     
 (define-method begin-ambient-loop forest ()
   (play-sample "lutey")
@@ -874,6 +925,11 @@
 	  (column (+ 15 (random 6))))
       [drop-cell self (clone =drop-point=) row column
 		 :exclusive t :probe t]))
+
+;;; Monastery approach world
+
+
+
 
 ;;; Controlling the game
 
@@ -1054,7 +1110,7 @@
 	[newline quickhelp]))
     ;;
     [play universe
-	  :address (generate-forest-address 1)
+	  :address (generate-level-address 1)
 	  :player player
 	  :narrator narrator
 	  :prompt prompt

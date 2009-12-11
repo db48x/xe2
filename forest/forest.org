@@ -1,6 +1,6 @@
-** TODO map
-** TODO don't generate bodies in walls 
-** TODO fix arrow behavior
+** TODO overworld map? (FUTURE)
+** TODO don't place bodies in walls
+** TODO fix arrows not dying
 ** TODO record music/chant vox samples for monastery approach
 ** TODO fix being able to travel easily thru water, fix too much water
 ** TODO FIX joystick button handling
