@@ -661,6 +661,12 @@ Return ITEM if successful, nil otherwise."
       [delete-from-world cell]
       [add-item self cell])))
 
+(define-method use cell (user)
+  "Return non-nil if cell is used up and should disappear."
+  (declare (ignore user))
+  (prog1 nil
+    [say self "Nothing happens."]))
+    
 (define-method resolve cell (reference &optional category)
   "Accept a REFERENCE to a cell, and try to get the real cell.
 The REFERENCE may be an object, one of the `*compass-directions*', an

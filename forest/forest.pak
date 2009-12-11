@@ -59,6 +59,8 @@
  (:name "gravestone" :type :image :file "gravestone.png")
  (:name "wooden-bow" :type :image :file "wooden-bow.png")
 
+ (:name "quickhelp-message" :type :formatted-text :file "quickhelp.text")
+
  (:name "player" :type :image :file "player.png")
  (:name "passage-gateway" :type :image :file "mountain.png")
  (:name "herb" :type :image :file "herb.png")

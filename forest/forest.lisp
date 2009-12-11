@@ -1,4 +1,4 @@
-;;; forest.lisp --- forest exploration stories
+;;; forest.lisp --- forest exploration story
 
 ;; Copyright (C) 2009  David O'Toole
 
@@ -51,9 +51,9 @@
 	:fireflies 100
 	:graveyards 8
 	:ruins 10
-	:tree-grain 0.8
-	:tree-density 40
-	:water-grain 0.6
+	:tree-grain 0.5
+	:tree-density 30
+	:water-grain 0.2
 	:water-density 90
 	:water-cutoff 0.2))
 
@@ -366,12 +366,12 @@
   (name :initform "Player")
   (dead :initform nil)
   (hit-points :initform (make-stat :base 30 :min 0 :max 30))
-  (rations :initform (make-stat :base 5 :min 0 :max 20))
   (hunger :initform (make-stat :base 0 :min 0 :max 1000))
   (hunger-damage-clock :initform 0)
   (hearing-range :initform 1000)
   (firing-with :initform :left-hand)
   (arrows :initform (make-stat :base 40 :min 0 :max 40))
+  (rations :initform (make-stat :base 5 :min 0 :max 20))
   (speed :initform (make-stat :base 10 :min 0 :max 10))
   (strength :initform (make-stat :base 15 :min 0 :max 50))
   (defense :initform (make-stat :base 15 :min 0 :max 50))
@@ -383,6 +383,16 @@
   (stepping :initform t)
   (categories :initform '(:actor :player :obstacle :target)))
 
+(define-method use-item player (n)
+  (assert (integerp n))
+  (let ((object [item-at self n]))
+    (if object
+	(if [in-category object :equipment]
+	    [equip self n]
+	    (when [use object self]
+	      [remove-item self object]))
+	[say self "There is nothing to use there."])))
+ 
 (define-method enter player ()
   (let ((gateway [category-at-p *world* <row> <column> :gateway]))
     (if (null gateway)
@@ -592,7 +602,7 @@
      
 (defcell herb 
   (tile :initform "herb")
-  (categories :initform '(:equipment :item))
+  (categories :initform '(:item))
   (equip-for :initform '(:right-hand :left-hand)))
 
 (define-method step herb (stepper)
@@ -600,8 +610,15 @@
     [say self "You found a healing herb."]
     [take stepper :direction :here :category :item]))
 
+(define-method use herb (user)
+  (when (and user (has-field :hit-points user))
+    (prog1 t
+      [stat-effect user :hit-points 10]
+      [say self "You consume the healing herb and quickly feel better."])))
+
 (defcell body 
-  (tile :initform "body"))
+  (tile :initform "body")
+  (categories :initform '(:exclusive)))
 
 (define-method step body (stepper)
   (when [is-player stepper]
@@ -742,7 +759,8 @@
 	(trace-rectangle #'drop-floor (1+ row) (1+ column) (- height 2) (- width 2) :fill))
       (dotimes (n (random 3))
 	(percent-of-time 70
-	  [drop-cell self (clone =body=) (+ 1 row (random (- height 1))) (+ 1 column (random (- width 1)))])))))
+	  [drop-cell self (clone =body=) (+ 1 row (random (- height 1))) (+ 1 column (random (- width 1)))
+		     :exclusive t :probe t])))))
 
 (define-method generate forest (&key (height *forest-height*)
 				     (width *forest-width*)
@@ -892,6 +910,11 @@
 	    ("L" (:control) "fire :east .")
 	    ("J" (:control) "fire :south .")
 	    ;;
+	    ("1" nil "use-item 0 .")
+	    ("2" nil "use-item 1 .")
+	    ("1" (:control) "drop-item 0 .")
+	    ("2" (:control) "drop-item 1 .")
+	    ;;
 	    ("ESCAPE" nil "restart .")
 	    ("RETURN" nil "enter .")
 	    ;;
@@ -954,8 +977,8 @@
 	  [print self "  "])
 	[print self "EMPTY  "])))
 
-(define-method print-inventory-slot status (slot-number)
-  [print self (format nil "[~D]: " slot-number)]
+(define-method print-inventory-slot status (slot-number &key show-as)
+  [print self (format nil "[~D]: " (or show-as slot-number))]
   (let ((item [item-at <character> slot-number]))
     (if item
 	(clon:with-field-values (name tile) item
@@ -986,8 +1009,8 @@
     
     [newline self]
     [print self "  Inventory:  "]
-    [print-inventory-slot self 0]
-    [print-inventory-slot self 1]
+    [print-inventory-slot self 0 :show-as 1]
+    [print-inventory-slot self 1 :show-as 2]
     [newline self]))
 
 ;;; Main program. 
@@ -1003,6 +1026,7 @@
   (let* ((prompt (clone =room-prompt=))
 	 (universe (clone =universe=))
 	 (narrator (clone =narrator=))
+	 (quickhelp (clone =formatter=))
 	 (player (clone =player=))
 	 (status (clone =status=))
 	 (viewport (clone =viewport=)))
@@ -1021,6 +1045,14 @@
     [move narrator :x 0 :y (- *room-window-height* 80)]
     [set-verbosity narrator 0]
     ;;
+    [resize quickhelp :height 85 :width 250] 
+    [move quickhelp :y (- *room-window-height* 100) :x (- *room-window-width* 250)]
+    (let ((text	(find-resource-object "quickhelp-message")))
+      (dolist (line text)
+	(dolist (string line)
+	  (funcall #'send nil :print-formatted-string quickhelp string))
+	[newline quickhelp]))
+    ;;
     [play universe
 	  :address (generate-forest-address 1)
 	  :player player
@@ -1036,6 +1068,6 @@
     [adjust viewport] 
     [loadout player]
    ;;
-    (xe2:install-widgets prompt viewport narrator status)))
+    (xe2:install-widgets prompt viewport narrator status quickhelp)))
 
 (init-forest)
