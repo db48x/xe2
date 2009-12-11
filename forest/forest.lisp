@@ -46,6 +46,7 @@
 (defcell sanctuary-map 
   (name :initform "Map")
   (tile :initform "tiny-map")
+  (description :initform "This map was given to you by Wythorn before you left town.")
   (categories :initform '(:item)))
 
 (define-method use sanctuary-map (user)
@@ -161,6 +162,7 @@ It has begun to snow."
 (defcell foam 
   (tile :initform "foam")
   (clock :initform 4)
+  (description :initform "The shallow water sparkles here where moonlight reflects off of it.")
   (categories :initform '(:actor :ephemeral)))
 
 (define-method run foam ()
@@ -177,6 +179,7 @@ It has begun to snow."
 
 (defcell water 
   (tile :initform "floor")
+  (description :initform "These waters of the wasteland are not always fit to drink.")
   (categories :initform '(:actor :reflective :water :exclusive)))
 
 (define-method run water ()
@@ -207,6 +210,7 @@ It has begun to snow."
 
 (defcell tree 
   (tile :initform "tree-1")
+  (description :initform "These trees are still green. Perhaps the land is coming back?")
   (categories :initform '(:obstacle :opaque :nosnow)))
 
 ;;; The snow
@@ -257,6 +261,7 @@ It has begun to snow."
   (tile :initform "floor")
   (categories :initform '(:actor :reflective))
   (snow-clock :initform *snow-clock*)
+  (description :initform "The solid earth beneath your feet.")
   (clock :initform (random *earth-rain-clock*)))
 
 (define-method snow earth (dark)
@@ -309,6 +314,7 @@ It has begun to snow."
 
 (defcell tundra 
   (tile :initform "floor")
+  (description :initform "This frozen surface is treacherous.")
   (categories :initform '(:actor :reflective)))
 
 (define-method blow tundra (dark)
@@ -333,18 +339,22 @@ It has begun to snow."
 
 (defcell mountain 
   (tile :initform "mountain")
+  (description :initform "The walls of the passageway are slick with ice.")
   (categories :initform '(:obstacle :opaque)))
     
 ;;; The stone wall
 
 (defcell wall
   (tile :initform "wall")
+  (description :initform "These crumbling walls are all that remain of some old town.")
   (categories :initform '(:obstacle :opaque)))
 
 (defcell debris
   (tile :initform "debris"))
 
 (defcell ruin-floor
+  (name :initform "Ruined floor")
+  (description :initform "I wonder whose house this was.")
   (tile :initform "ruin-floor"))
 
 ;;; The player
@@ -407,7 +417,8 @@ It has begun to snow."
 
 (defcell player 
   (tile :initform "player")
-  (name :initform "Player")
+  (description :initform "You are an archer and initiate monk of the Sanctuary Order.")
+  (name :initform "Monk")
   (dead :initform nil)
   (hit-points :initform (make-stat :base 30 :min 0 :max 30))
   (hunger :initform (make-stat :base 0 :min 0 :max 1000))
@@ -432,7 +443,7 @@ It has begun to snow."
       [say self "You don't have any rations to eat."]
       (progn 
 	[say self "You eat a bread ration. You feel full."]
-	[stat-effect self :hunger -400]
+	[stat-effect self :hunger -800]
 	[stat-effect self :rations -1])))
 
 (define-method use-item player (n)
@@ -469,6 +480,7 @@ It has begun to snow."
     (when (= *hunger-warn* hunger)
       [say self "You are getting hungry. Press E to eat a ration."])
     (when (= *hunger-warn-2* hunger)
+      [emote self "I'm very hungry."]
       [say self "You are getting extremely hungry! Press E to eat a ration."])
     (when (= *hunger-max* hunger)
       (if (minusp <hunger-damage-clock>)
@@ -568,6 +580,7 @@ It has begun to snow."
 
 (defcell gravestone 
   (tile :initform "gravestone")
+  (description :initform "The epitaph is no longer legible.")
   (contains-body :initform (percent-of-time 25 t))
   (categories :initform '(:obstacle :actor))
   (generated :initform nil))
@@ -598,6 +611,7 @@ It has begun to snow."
 
 (defcell skeleton 
   (name :initform "Skeleton")
+  (description :initform "A foul spirit animates this dagger-wielding skeleton.")
   (strength :initform (make-stat :base 20 :min 0 :max 50))
   (dexterity :initform (make-stat :base 20 :min 0 :max 30))
   (intelligence :initform (make-stat :base 13 :min 0 :max 30))
@@ -661,6 +675,7 @@ It has begun to snow."
      
 (defcell herb 
   (tile :initform "herb")
+  (description :initform "This healing herb will restore some of your health.")
   (categories :initform '(:item))
   (equip-for :initform '(:right-hand :left-hand)))
 
@@ -677,6 +692,7 @@ It has begun to snow."
 
 (defcell body 
   (tile :initform "body")
+  (description :initform "This long-dead body may yet hold usable supplies.")
   (categories :initform '(:exclusive)))
 
 (define-method step body (stepper)
@@ -751,6 +767,8 @@ It has begun to snow."
 
 (define-prototype river-gateway (:parent =gateway=)
   (tile :initform "river-gateway")
+  (name :initform "To the River")
+  (description :initform "The dense forest gives way here.")
   (sequence-number :initform (genseq))
   (address :initform (generate-level-address 2)))
 
@@ -759,6 +777,8 @@ It has begun to snow."
 
 (define-prototype passage-gateway (:parent =gateway=)
   (tile :initform "passage-gateway")
+  (name :initform "Passage to the mountains")
+  (description :initform "A steep passageway leads down through the mountains.")
   (sequence-number :initform (genseq))
   (address :initform (list '=passage= :sequence-number (genseq))))
 
@@ -894,22 +914,28 @@ It has begun to snow."
 ;;; Monastery approach world
 
 (defcell hill-1
+  (description :initform "This gentle slope heads down toward the Monastery.")
   (tile :initform "hill-1"))
 
 (defcell hill-2
+  (description :initform "This gentle slope heads down toward the Monastery.")
   (tile :initform "hill-2"))
 
 (defcell hill-3 
+  (description :initform "This gentle slope heads down toward the Monastery.")
   (tile :initform "hill-3"))
 
 (defcell flowers-1
+  (description :initform "Gorgeous wildflowers.")
   (tile :initform "flowers-1"))
 
 (defcell flowers-2
+  (description :initform "Wildflowers of every description.")
   (tile :initform "flowers-2"))
 
 (define-prototype monastery-gateway (:parent =gateway=)
   (tile :initform "monastery-gateway")
+  (description :initform "The mountain pass opens here to the foothills by the Monastery.")
   (sequence-number :initform (genseq))
   (address :initform (generate-level-address 4)))
 
