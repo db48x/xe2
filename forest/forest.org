@@ -1,5 +1,6 @@
 ** TODO overworld map? (FUTURE)
 ** TODO fix in-game map!
+** TODO find in-game notes with same color scheme text as scroll
 ** TODO snow wolves and archer skels
 ** TODO don't place bodies in walls
 ** TODO fix arrows not dying

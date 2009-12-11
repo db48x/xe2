@@ -647,15 +647,17 @@ It has begun to snow."
 		 (percent-of-time 80
 		   [say self "You are hit!"]
 		   [damage [get-player *world*] 7]))
-	  (if [obstacle-in-direction-p world row column direction]
-	      (let ((target [target-in-direction-p world row column direction]))
-		(if (and target (not [in-category target :enemy]))
-		    [move self (random-direction)]
-		    (progn (setf <direction> (random-direction))
-			   [>>move self direction])))
-	      (progn (when (< 7 (random 10))
-		       (setf <direction> (random-direction)))
-		     [>>move self direction]))))))
+	  (progn	
+	    [expend-action-points self 10]
+	    (if [obstacle-in-direction-p world row column direction]
+		(let ((target [target-in-direction-p world row column direction]))
+		  (if (and target (not [in-category target :enemy]))
+		      [move self (random-direction)]
+		      (progn (setf <direction> (random-direction))
+			     [>>move self direction])))
+		(progn (when (< 7 (random 10))
+			 (setf <direction> (random-direction)))
+		       [>>move self direction])))))))
 
 (define-method die skeleton ()
   [play-sample self "dead"]

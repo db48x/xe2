@@ -1,0 +1,7 @@
+((("CONTROLS:                             " :background ".blue" :foreground ".white"))
+ (("movement: arrowkeys / numpad / hjkl   " :background ".gray20" :foreground ".gray80"))
+ (("shooting: CTRL-DIRECTION              "  :background ".gray14" :foreground ".gray80"))
+ (("inventory: 1/2 to use, CTRL-# to drop "  :background ".gray20" :foreground ".gray80"))	
+ (("pausing: Pause key or Control-P       "  :background ".gray14" :foreground ".gray80"))
+ (("help: F1 / Pause and click objects    "  :background ".gray20" :foreground ".gray80")))
+		     
