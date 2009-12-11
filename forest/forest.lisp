@@ -80,7 +80,8 @@ It has begun to snow."
 	     :water-grain 0.2
 	     :water-density 90
 	     :water-cutoff 0.2))
-    (3 (list '=passage=))))
+    (3 (list '=passage=))
+    (4 (list '=monastery=))))
     
 ;;; Text overlay balloons
 
@@ -318,7 +319,6 @@ It has begun to snow."
 (defcell mountain 
   (tile :initform "mountain")
   (categories :initform '(:obstacle :opaque)))
- 
     
 ;;; The stone wall
 
@@ -928,8 +928,87 @@ It has begun to snow."
 
 ;;; Monastery approach world
 
+(defcell hill-1
+  (tile :initform "hill-1"))
 
+(defcell hill-2
+  (tile :initform "hill-2"))
 
+(defcell hill-3 
+  (tile :initform "hill-3"))
+
+(defcell flowers-1
+  (tile :initform "flowers-1"))
+
+(defcell flowers-2
+  (tile :initform "flowers-2"))
+
+(define-prototype monastery-gateway (:parent =gateway=)
+  (tile :initform "monastery-gateway")
+  (sequence-number :initform (genseq))
+  (address :initform (generate-level-address 2)))
+
+(define-method step monastery-gateway (stepper)
+  [say self "The mountain pass opens to the foothills by the Monastery here.
+Press ENTER to continue on."])
+
+(define-prototype monastery (:parent xe2:=world=)
+  (height :initform *forest-height*)
+  (width :initform *forest-width*)
+  (ambient-light :initform :total)
+  (description :initform 
+"Morning has broken, and Valisade Monastery has come into view to the
+south. You can hear the monks singing in the distance.")
+  (edge-condition :initform :block))
+
+(define-method drop-hill monastery (&key (graininess 0.3)
+				       (density 60)
+				       distance
+				       (cutoff 0.3))
+  (clon:with-field-values (height width) self
+    (let ((plasma (xe2:render-plasma height width :graininess graininess))
+	  (plasma2 (xe2:render-plasma height width :graininess graininess))
+	  (value nil))
+      (dotimes (i height)
+	(dotimes (j width)
+	  [drop-cell self (clone =hill-3=) i j]))
+      (dotimes (i height)
+	(dotimes (j width)
+	  (setf value (aref plasma i j))
+	  (when (or (null distance)
+		    (< (distance j i row column) distance))
+	    (percent-of-time density
+	      [drop-cell self (if (< cutoff value)
+				  (clone =hill-1=)
+				  (clone =hill-2=))
+			 i j :no-collisions t]))))
+      (dotimes (i height)
+	(dotimes (j width)
+	  (setf value (aref plasma i j))
+	  (when (or (null distance)
+		    (< (distance (+ j r0) (+ c0 i) row column) distance))
+	    (percent-of-time density
+	      [drop-cell self (if (< cutoff value)
+				  (clone =flowers-1=)
+				  (clone =flowers-2=))
+			 i j :no-collisions t])))))))
+
+(define-method generate monastery (&key (height *forest-height*)
+				      (width *forest-width*)
+				      sequence-number)
+  (setf <height> height)
+  (setf <width> width)
+  (setf <sequence-number> sequence-number)
+  [create-default-grid self]
+  [drop-hill self]
+  (let ((row (1+ (random 10)) )
+	  (column (+ 15 (random 6))))
+      [drop-cell self (clone =drop-point=) row column
+		 :exclusive t :probe t]))
+
+(define-method begin-ambient-loop monastery ()
+  (play-music "rain" :loop t)
+  (play-sample "monks"))
 
 ;;; Controlling the game
 

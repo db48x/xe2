@@ -1,4 +1,5 @@
 ** TODO overworld map? (FUTURE)
+** TODO in-game map!
 ** TODO don't place bodies in walls
 ** TODO fix arrows not dying
 ** TODO record music/chant vox samples for monastery approach
