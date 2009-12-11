@@ -1299,6 +1299,15 @@ provided under the terms of the GNU Lesser General Public License. See
 also the file LIBSDL-LICENSE for details.
 ")
 
+(defvar *library-search-paths-setup-hook* nil)
+
+(defun setup-library-search-paths ()
+(run-hook '*library-search-paths-setup-hook*)
+#+darwin (setf cffi:*foreign-library-directories*
+	       (union cffi:*foreign-library-directories*
+		      '(#P"/opt/local/lib" #P"/sw/lib/")
+		      :test #'equal)))
+
 (defun play (&optional (module-name "standard"))
   "This is the main entry point to XE2. MODULE-NAME is loaded 
 and its .startup resource is loaded."
@@ -1307,12 +1316,16 @@ and its .startup resource is loaded."
   (setf *random-state* (make-random-state t))
   ;; override module to play?
   (setf *next-module* module-name)
-  ;; now play modules until done
+  ;; add library search paths for Mac if needed
+  (setup-library-search-paths)
+ ;; now play modules until done
   (loop while (and (not *quitting*)
 		   *next-module*)
      do (unwind-protect
 	     ;; dynamically load libs (needed for GNU/Linux)
 	     (progn (cffi:define-foreign-library sdl
+		      (:darwin (:or (:framework "SDL")
+				    (:default "libSDL")))
 		      (:unix (:or "libSDL-1.2.so.0.7.2"
 				  "libSDL-1.2.so.0"
 				  "libSDL-1.2.so"
@@ -1321,6 +1334,8 @@ and its .startup resource is loaded."
 		    (cffi:use-foreign-library sdl)
 		    ;;
 		    (cffi:define-foreign-library sdl-mixer
+                      (:darwin (:or (:framework "SDL_mixer")
+                                    (:default "libSDL_mixer")))
 		      (:unix (:or "libSDL_mixer-1.2.so.0.7.2"
 				  "libSDL_mixer-1.2.so.0"
 				  "libSDL_mixer-1.2.so"
@@ -1329,6 +1344,8 @@ and its .startup resource is loaded."
 		    (cffi:use-foreign-library sdl-mixer)
 		    ;;
 		    (cffi:define-foreign-library sdl-gfx
+                      (:darwin (:or (:framework "SDL_gfx")
+                                    (:default "libSDL_gfx")))
 		      (:unix (:or "libSDL_gfx-1.2.so.0.7.2"
 				  "libSDL_gfx-1.2.so.0"
 				  "libSDL_gfx-1.2.so"
@@ -1339,6 +1356,8 @@ and its .startup resource is loaded."
 		    (cffi:use-foreign-library sdl-gfx)
 		    ;;
 		    (cffi:define-foreign-library sdl-image
+                      (:darwin (:or (:framework "SDL_image")
+                                    (:default "libSDL_image")))
 		      (:unix (:or "libSDL_image-1.2.so.0.7.2"
 				  "libSDL_image-1.2.so.0"
 				  "libSDL_image-1.2.so"
