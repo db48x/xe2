@@ -488,9 +488,9 @@ is in the way."
 	       ;; return t because we moved
 	       (prog1 t
 		 [expend-action-points self [stat-value self :movement-cost]]
-		 [move-cell world self r c]
-		 (when <stepping>
-		   [step-on-current-square self]))))))))
+		 [move-cell world self r c])))))))
+		 ;; (when <stepping>
+		 ;;   [step-on-current-square self]))))))))
 
 (define-method set-location cell (r c)
   "Set the row R and column C of the cell."

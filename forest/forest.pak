@@ -48,6 +48,8 @@
  (:name "water-3" :type :image :file "water-3.png")
  (:name "foam" :type :image :file "foam.png")
 
+ (:name "ration" :type :image :file "ration.png")
+
  (:name "arrows" :type :image :file "arrows.png")
  (:name "arrow-north" :type :image :file "arrow.png")
  (:name "arrow-east" :type :alias :data ":rotate 90:arrow-north")
@@ -92,6 +94,8 @@
  (:name "thunder-med" :type :sample :file "thunder-med.wav" :properties (:volume 10))
  (:name "thunder-big" :type :sample :file "thunder-big.wav" :properties (:volume 10))
  (:name "debris" :type :image :file "debris.png")
+ (:name "sanctuary-map" :type :image :file "sanctuary-map.png")
+ (:name "tiny-map" :type :image :file "tiny-map.png")
  (:name "wall" :type :image :file "wall.png")
  (:name "ruin-floor" :type :image :file "ruin-floor.png")
  (:name "bip" :type :sample :file "bip.wav" :properties (:volume 10))

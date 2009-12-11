@@ -41,6 +41,21 @@
 	      (xe2:set-timer-interval 1)
 	      (xe2:enable-held-keys 1 3)))
 
+;;; A map of the journey
+
+(defcell sanctuary-map 
+  (name :initform "Map")
+  (tile :initform "tiny-map")
+  (categories :initform '(:item)))
+
+(define-method use sanctuary-map (user)
+  (prog1 nil
+    [emote user '(((nil :image "sanctuary-map"))) :background-color ".white"]))
+	 
+(define-method step sanctuary-map (stepper)
+  (when [is-player stepper]
+    [say self "You don't need this map; you've memorized the way."]))
+
 ;;; Forest addresses
 
 (defun generate-level-address (n)
@@ -86,7 +101,7 @@ It has begun to snow."
 ;;; Text overlay balloons
 
 (defcell balloon 
-  (categories :initform '(:drawn :actor))
+  (categories :initform '(:drawn :actor :balloon))
   text timeout following
   (stroke-color :initform ".white")
   (background-color :initform ".gray40"))
@@ -412,6 +427,14 @@ It has begun to snow."
   (stepping :initform t)
   (categories :initform '(:actor :player :obstacle :target)))
 
+(define-method eat player ()
+  (if (zerop [stat-value self :rations])
+      [say self "You don't have any rations to eat."]
+      (progn 
+	[say self "You eat a bread ration. You feel full."]
+	[stat-effect self :hunger -400]
+	[stat-effect self :rations -1])))
+
 (define-method use-item player (n)
   (assert (integerp n))
   (let ((object [item-at self n]))
@@ -428,8 +451,11 @@ It has begun to snow."
 	[>>say :narrator "No gateway to enter."]
 	[activate gateway])))
 
-(define-method emote player (text &optional (timeout 20))
-  (let ((balloon (clone =balloon= :text text :timeout timeout)))
+(define-method emote player (text &key (timeout 20) (background-color ".blue"))
+  (let ((balloon (clone =balloon= :text text :timeout timeout :background-color background-color))
+	(other-balloon [category-at-p *world* <row> <column> :balloon]))
+    (when other-balloon
+      [die other-balloon])
     [play-sample self "talk"]
     [follow balloon self]
     [drop self balloon]))
@@ -441,13 +467,14 @@ It has begun to snow."
   [stat-effect self :hunger 1]
   (let ((hunger [stat-value self :hunger]))
     (when (= *hunger-warn* hunger)
-      [say self "You are getting hungry."])
+      [say self "You are getting hungry. Press E to eat a ration."])
     (when (= *hunger-warn-2* hunger)
-      [say self "You are getting extremely hungry!"])
+      [say self "You are getting extremely hungry! Press E to eat a ration."])
     (when (= *hunger-max* hunger)
       (if (minusp <hunger-damage-clock>)
 	  (progn 
 	    [say self "You are starving! You will die if you do not eat soon."]
+	    [say self "Press E to eat a ration."]
 	    (setf <hunger-damage-clock> 20)
 	    [damage self 1])
 	  (decf <hunger-damage-clock>))))
@@ -481,6 +508,7 @@ It has begun to snow."
   [make-inventory self]
   [make-equipment self]
   [equip self [add-item self (clone =wooden-bow=)]]
+  [add-item self (clone =sanctuary-map=)]
   [emote self '((("I'd better get moving.")) (("The monastery is to the south.")))])
 
 ;;; Raindrops
@@ -602,7 +630,9 @@ It has begun to snow."
 	  (progn [say self "The skeleton stabs at you with its dagger."]
 		 [play-sample self "groar"]
 		 [expend-action-points self 10]
-		 (percent-of-time 80 [damage [get-player *world*] 2]))
+		 (percent-of-time 80
+		   [say self "You are hit!"]
+		   [damage [get-player *world*] 7]))
 	  (if [obstacle-in-direction-p world row column direction]
 	      (let ((target [target-in-direction-p world row column direction]))
 		(if (and target (not [in-category target :enemy]))
@@ -642,7 +672,7 @@ It has begun to snow."
 (define-method use herb (user)
   (when (and user (has-field :hit-points user))
     (prog1 t
-      [stat-effect user :hit-points 10]
+      [stat-effect user :hit-points 12]
       [say self "You consume the healing herb and quickly feel better."])))
 
 (defcell body 
@@ -651,8 +681,11 @@ It has begun to snow."
 
 (define-method step body (stepper)
   (when [is-player stepper]
-    (percent-of-time 30
-      [drop self (clone (car (one-of (list =herb= =arrows=))))])
+    [say self "You search the body."]
+    (unless (percent-of-time 30
+	      (prog1 t
+		[drop self (clone (car (one-of (list =herb= =arrows=))))]))
+      [say self "Nothing was found."])
     [die self]))
 
 ;;; The forest
@@ -858,74 +891,6 @@ It has begun to snow."
   (play-sample "lutey")
   (play-music "nightbird" :loop t))
 
-;;; Mountain passage world
-
-(defparameter *passage-width* 49)
-(defparameter *passage-height* 100)
-
-(define-prototype passage (:parent xe2:=world=)
-  (height :initform *passage-height*)
-  (width :initform *passage-width*)
-  (ambient-light :initform *earth-light-radius*)
-  (description :initform "The air is oddly still in this pass between the crags.")
-  (edge-condition :initform :block))
-
-(define-method drop-tundra passage ()
-  (dotimes (i <height>)
-    (dotimes (j <width>)
-      [drop-cell self (clone =tundra=) i j])))
-
-(define-method drop-mountains passage ()
-  (let ((offset 10))
-  (dotimes (i <height>)
-    (setf offset (max 0 (incf offset (if (= 0 (random 2))
-					 1 -1))))
-    (labels ((drop-mountain (r c)
-	       (prog1 nil
-		 [drop-cell *world* (clone =mountain=) r c])))
-      (trace-row #'drop-mountain i 0 (+ offset (random 4)))
-      (trace-row #'drop-mountain i (+ offset (random 4) 20) <width>)))))
-
-(define-method drop-trees passage (&optional &key (object =tree=)
-					    distance 
-					    (row 0) (column 0)
-					    (graininess 0.3)
-					    (density 100)
-					    (cutoff 0))
-  (clon:with-field-values (height width) self
-    (let* ((h0 (or distance height))
-	   (w0 (or distance width))
-	   (r0 (- row (truncate (/ h0 2))))
-	   (c0 (- column (truncate (/ w0 2))))
-	   (plasma (xe2:render-plasma h0 w0 :graininess graininess))
-	   (value nil))
-      (dotimes (i h0)
-	(dotimes (j w0)
-	  (setf value (aref plasma i j))
-	  (when (< cutoff value)
-	    (when (or (null distance)
-		      (< (distance (+ j r0) (+ c0 i) row column) distance))
-	      (percent-of-time density
-		[drop-cell self (clone object) i j :no-collisions t]))))))))
-
-(define-method begin-ambient-loop passage ()
-  (play-music "passageway" :loop t)
-  (play-sample "thunder-big"))
-
-(define-method generate passage (&key (height *forest-height*)
-				      (width *forest-width*)
-				      sequence-number)
-  (setf <height> height)
-  (setf <width> width)
-  (setf <sequence-number> sequence-number)
-  [create-default-grid self]
-  [drop-tundra self]
-  [drop-mountains self]
-    (let ((row (1+ (random 10)) )
-	  (column (+ 15 (random 6))))
-      [drop-cell self (clone =drop-point=) row column
-		 :exclusive t :probe t]))
-
 ;;; Monastery approach world
 
 (defcell hill-1
@@ -946,11 +911,11 @@ It has begun to snow."
 (define-prototype monastery-gateway (:parent =gateway=)
   (tile :initform "monastery-gateway")
   (sequence-number :initform (genseq))
-  (address :initform (generate-level-address 2)))
+  (address :initform (generate-level-address 4)))
 
 (define-method step monastery-gateway (stepper)
-  [say self "The mountain pass opens to the foothills by the Monastery here.
-Press ENTER to continue on."])
+  [say self "The mountain pass opens to the foothills by the Monastery here."]
+  [say self "Press ENTER to continue on."])
 
 (define-prototype monastery (:parent xe2:=world=)
   (height :initform *forest-height*)
@@ -1010,6 +975,80 @@ south. You can hear the monks singing in the distance.")
   (play-music "rain" :loop t)
   (play-sample "monks"))
 
+;;; Mountain passage world
+
+(defparameter *passage-width* 49)
+(defparameter *passage-height* 100)
+
+(define-prototype passage (:parent xe2:=world=)
+  (height :initform *passage-height*)
+  (width :initform *passage-width*)
+  (ambient-light :initform *earth-light-radius*)
+  (description :initform "The air is oddly still in this pass between the crags.")
+  (edge-condition :initform :block))
+
+(define-method drop-tundra passage ()
+  (dotimes (i <height>)
+    (dotimes (j <width>)
+      [drop-cell self (clone =tundra=) i j])))
+
+(define-method drop-mountains passage ()
+  (let* ((offset 10)
+	 (right (- <width> 17 )))
+    (dotimes (i <height>)
+      (setf offset (min right (max 0 (incf offset (if (= 0 (random 2))
+						      1 -1)))))
+      (labels ((drop-mountain (r c)
+		 (prog1 nil
+		   [drop-cell *world* (clone =mountain=) r c])))
+	(trace-row #'drop-mountain i 0 (+ offset (random 4)))
+	(trace-row #'drop-mountain i (+ offset (random 4) 20) <width>)))
+    ;; drop monastery gateway
+    (let ((column (+ offset (random 10)))
+	  (row (- <height> 2)))
+      [drop-cell self (clone =monastery-gateway=) row column])))
+
+(define-method drop-trees passage (&optional &key (object =tree=)
+					    distance 
+					    (row 0) (column 0)
+					    (graininess 0.3)
+					    (density 100)
+					    (cutoff 0))
+  (clon:with-field-values (height width) self
+    (let* ((h0 (or distance height))
+	   (w0 (or distance width))
+	   (r0 (- row (truncate (/ h0 2))))
+	   (c0 (- column (truncate (/ w0 2))))
+	   (plasma (xe2:render-plasma h0 w0 :graininess graininess))
+	   (value nil))
+      (dotimes (i h0)
+	(dotimes (j w0)
+	  (setf value (aref plasma i j))
+	  (when (< cutoff value)
+	    (when (or (null distance)
+		      (< (distance (+ j r0) (+ c0 i) row column) distance))
+	      (percent-of-time density
+		[drop-cell self (clone object) i j :no-collisions t]))))))))
+
+(define-method begin-ambient-loop passage ()
+  (play-music "passageway" :loop t)
+  (play-sample "thunder-big"))
+
+(define-method generate passage (&key (height *forest-height*)
+				      (width *forest-width*)
+				      sequence-number)
+  (setf <height> height)
+  (setf <width> width)
+  (setf <sequence-number> sequence-number)
+  [create-default-grid self]
+  [drop-tundra self]
+  [drop-mountains self]
+    (let ((row (1+ (random 10)) )
+	  (column (+ 15 (random 6))))
+      [drop-cell self (clone =drop-point=) row column
+		 :exclusive t :probe t]))
+
+
 ;;; Controlling the game
 
 (define-prototype room-prompt (:parent xe2:=prompt=))
@@ -1050,6 +1089,9 @@ south. You can hear the monks singing in the distance.")
 	    ("1" (:control) "drop-item 0 .")
 	    ("2" (:control) "drop-item 1 .")
 	    ;;
+	    ("P" (:control) "pause .")
+	    ("E" nil "eat .")
+	    ("PAUSE" nil "pause .")
 	    ("ESCAPE" nil "restart .")
 	    ("RETURN" nil "enter .")
 	    ;;
@@ -1140,8 +1182,9 @@ south. You can hear the monks singing in the distance.")
     [print-equipment-slot self :right-hand]
     [print-equipment-slot self :left-hand]
     [print self (format nil "  ARROWS: ~S " [stat-value char :arrows])]
-    [println self nil :image "arrows"]
-    
+    [print self nil :image "arrows"]
+    [print self (format nil "  RATIONS: ~S " [stat-value char :rations])]
+    [println self nil :image "ration"]
     [newline self]
     [print self "  Inventory:  "]
     [print-inventory-slot self 0 :show-as 1]
@@ -1180,8 +1223,8 @@ south. You can hear the monks singing in the distance.")
     [move narrator :x 0 :y (- *room-window-height* 80)]
     [set-verbosity narrator 0]
     ;;
-    [resize quickhelp :height 85 :width 250] 
-    [move quickhelp :y (- *room-window-height* 100) :x (- *room-window-width* 250)]
+    [resize quickhelp :height 85 :width 280] 
+    [move quickhelp :y (- *room-window-height* 100) :x (- *room-window-width* 280)]
     (let ((text	(find-resource-object "quickhelp-message")))
       (dolist (line text)
 	(dolist (string line)
