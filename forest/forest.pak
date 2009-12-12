@@ -73,7 +73,7 @@
 
  (:name "quickhelp-message" :type :formatted-text :file "quickhelp.text")
 
- (:name "player" :type :image :file "player.png")
+ (:name "player" :type :image :file "archer.png")
  (:name "passage-gateway" :type :image :file "mountain.png")
  (:name "river-gateway" :type :image :file "river.png")
  (:name "herb" :type :image :file "herb.png")
