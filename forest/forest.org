@@ -1,3 +1,5 @@
+** TODO don't place bodies in walls OR ITEMS
+** TODO fix arrows not dying
 ** TODO indicate edge of map with chevrons. piece together maps.
 ** TODO overworld map? (FUTURE)
 ** TODO fix in-game map scrolling off bottom of viewport
@@ -5,8 +7,6 @@
 ** TODO snow wolves and archer skels in passage
 ** TODO find food on dead adventurer in passage, plus note
 ** TODO longer level approach to monastery, talk to a few npcs, follow a road and cross fences
-** TODO don't place bodies in walls
-** TODO fix arrows not dying
 ** TODO record music/chant vox samples for monastery approach
 ** TODO fix being able to travel easily thru water, fix too much water
 ** TODO FIX joystick button handling

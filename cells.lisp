@@ -653,13 +653,15 @@ Return ITEM if successful, nil otherwise."
 ;;  [clear-location self])
 		       
 (define-method take cell (&key (direction :here) index category)
+  "Take the item and return non-nil if successful."
   (multiple-value-bind (cell row column)
       [find self :direction direction :index index :category category]
     (when (and [in-category cell :item]
 	       [first-open-slot self])
-      [expend-default-action-points self]
-      [delete-from-world cell]
-      [add-item self cell])))
+      (prog1 t
+	[expend-default-action-points self]
+	[delete-from-world cell]
+	[add-item self cell]))))
 
 (define-method use cell (user)
   "Return non-nil if cell is used up and should disappear."

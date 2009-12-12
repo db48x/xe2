@@ -1348,6 +1348,7 @@ and its .startup resource is loaded."
 		      (:unix (:or "libSDL_mixer-1.2.so.0.7.2"
 				  "libSDL_mixer-1.2.so.0"
 				  "libSDL_mixer-1.2.so"
+				  "libsdl_mixer-1.2.so.0.2.6" ;; eeebuntu?
 				  "libSDL_mixer.so"
 				  "libSDL_mixer")))
 		    (cffi:use-foreign-library sdl-mixer)
@@ -1369,6 +1370,7 @@ and its .startup resource is loaded."
                                     (:default "libSDL_image")))
 		      (:unix (:or "libSDL_image-1.2.so.0.7.2"
 				  "libSDL_image-1.2.so.0"
+				  "libSDL_image-1.2.so.0.1.5" ;; eeebuntu?
 				  "libSDL_image-1.2.so"
 				  "libSDL_image.so"
 				  "libSDL_image")))

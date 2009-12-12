@@ -377,18 +377,27 @@ It has begun to snow."
 
 (define-method run arrow ()
   [expend-default-action-points self]
-  (when <direction>
-    (setf <tile> (getf *arrow-tiles* <direction>))
-    (let ((target [category-in-direction-p *world* <row> <column> <direction> :target]))
-      (if target 
-	  (progn [damage target 3]
+  (if (and <direction> (not (eq <direction> :here)))
+      (progn (setf <tile> (getf *arrow-tiles* <direction>))
+	     (let ((target [category-in-direction-p *world* <row> <column> <direction> :target]))
+	       (when target 
+		 [damage target 3]
 		 [die self])
-	  [move self <direction>])))
-  (decf <clock>)
-  (when (zerop <clock>)
-    [die self])
-  (when [obstacle-in-direction-p *world* <row> <column> <direction>]
-    (setf <clock> 0)))
+	       (if [obstacle-in-direction-p *world* <row> <column> <direction>]
+		   [die self]
+		   [move self <direction>]))
+	     (setf <clock> (max 0 (decf <clock>)))
+	     (when (zerop <clock>)
+	       [die self])
+	     (when [obstacle-in-direction-p *world* <row> <column> <direction>]
+	       (setf <clock> 0)))
+      [die self]))
+
+(define-method step arrow (stepper)
+  (when [is-player stepper]
+    [say self "This arrow is still good. You add it to your quiver."]
+    [stat-effect stepper :arrows 1]
+    [die self]))
 
 (defcell wooden-bow 
   (name :initform "Wooden bow")
@@ -425,7 +434,7 @@ It has begun to snow."
   (hunger-damage-clock :initform 0)
   (hearing-range :initform 1000)
   (firing-with :initform :left-hand)
-  (arrows :initform (make-stat :base 40 :min 0 :max 40))
+  (arrows :initform (make-stat :base 20 :min 0 :max 40))
   (rations :initform (make-stat :base 5 :min 0 :max 20))
   (speed :initform (make-stat :base 10 :min 0 :max 10))
   (strength :initform (make-stat :base 15 :min 0 :max 50))
@@ -443,7 +452,7 @@ It has begun to snow."
       [say self "You don't have any rations to eat."]
       (progn 
 	[say self "You eat a bread ration. You feel full."]
-	[stat-effect self :hunger -800]
+	[stat-effect self :hunger -900]
 	[stat-effect self :rations -1])))
 
 (define-method use-item player (n)
@@ -539,7 +548,7 @@ It has begun to snow."
     (if (plusp clock) 
 	(progn 
 	  (decf clock)
-	  [move self (car (one-of '(:southeast :east))) 2])
+	  [move self (car (one-of '(:southeast :east :east))) 2])
 	[die self])))
 
 ;;; Rain and snow
@@ -689,7 +698,7 @@ It has begun to snow."
   (dexterity :initform (make-stat :base 20))
   (max-items :initform (make-stat :base 1))
   (speed :initform (make-stat :base 2))
-  (chase-distance :initform 10)
+  (chase-distance :initform 14)
   (stepping :initform t)
   (behavior :initform :seeking)
   (clock :initform 0)
@@ -698,7 +707,7 @@ It has begun to snow."
   (movement-cost :initform (make-stat :base 10))
   (tile :initform "wolf")
   (target :initform nil)
-  (hit-points :initform (make-stat :base 9 :min 0 :max 40))
+  (hit-points :initform (make-stat :base 6 :min 0 :max 40))
   (description :initform 
 "These undead wolves will devour your flesh if they get the chance."))
 
@@ -717,7 +726,7 @@ It has begun to snow."
 	    (progn
 	      (percent-of-time 80 
 		[say self "The undead wolf bites you."]
-		[damage [get-player *world*] 6])
+		[damage [get-player *world*] 4])
 	      (setf <clock> 6
 		    <behavior> :fleeing))
 	    (if [obstacle-in-direction-p world row column direction]
@@ -776,7 +785,7 @@ It has begun to snow."
 
 (defcell arrows 
   (tile :initform "arrows")
-  (count :initform (+ 2 (random 12))))
+  (count :initform (+ 6 (random 18))))
 
 (define-method step arrows (stepper)
   (when [is-player stepper]
@@ -792,8 +801,9 @@ It has begun to snow."
 
 (define-method step herb (stepper)
   (when [is-player stepper]
-    [say self "You found a healing herb."]
-    [take stepper :direction :here :category :item]))
+    (if [take stepper :direction :here :category :item]
+      [say self "You found a healing herb."]
+      [say self "Your satchel is full."])))
 
 (define-method use herb (user)
  (when (and user (has-field :hit-points user))
@@ -921,6 +931,9 @@ It has begun to snow."
 		  [set-location cell i j])))))))))
 
 (define-method drop-ruin forest (row column height width)
+  ;; prevent blocking exit
+  (setf row (min (- row (* height 2))))
+  (setf column (min (- column (* width 2))))
   (let (rectangle openings)
     (labels ((collect-point (&rest args)
 	       (prog1 nil (push args rectangle)))
@@ -1003,7 +1016,7 @@ It has begun to snow."
 		 (+ 4 (random 3)) (+ 4 (random 2))])
   (dotimes (n ruins)
     [drop-ruin self (random *forest-height*) (random *forest-width*) (+ 9 (random 8)) (+ 4 (random 8))])
-  (let ((row (1+ (random 20)) )
+  (let ((row (1+ (random 5)) )
 	(column (1+ (random 20))))
     [drop-cell self (clone =drop-point=) row column
 	       :exclusive t :probe t]
@@ -1341,7 +1354,7 @@ south. You can hear the monks singing in the distance.")
 (defparameter *room-window-width* 800)
 (defparameter *room-window-height* 600)
 
-(defparameter *start-level* 2)
+(defparameter *start-level* 1)
 
 (defun init-forest ()
   (xe2:message "Initializing Forest...")
