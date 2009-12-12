@@ -786,7 +786,9 @@ resource is stored; see also `find-resource'."
   (list (make-pathname :directory 
 		       (pathname-directory 
 			(load-time-value 
-			 (or #.*compile-file-truename* *load-truename*)))))
+			 (or #.*compile-file-truename* *load-truename*))))
+	;; auto-config via sb-ext
+	(make-pathname :directory (pathname-directory (car sb-ext:*posix-argv*))))
   "List of directories where XE2 will search for modules.
 Directories are searched in list order.")
 

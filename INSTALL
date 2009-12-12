@@ -9,7 +9,7 @@ Installation and basic playing instructions are provided.
    SVN. (see below for instructions.)
 
    Your Linux distribution will have SDL packages for sdl, sdl-image,
-   and sdl-mixer, all of which are required libraries.
+   sdl-mixer, and sdl-gfx, all of which are required libraries.
 
 2. If you have not already done so, download XE2:
   
