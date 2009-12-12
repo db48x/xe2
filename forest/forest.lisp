@@ -1352,7 +1352,7 @@ south. You can hear the monks singing in the distance.")
 	[newline quickhelp]))
     ;;
     [play universe
-	  :address (generate-level-address 3)
+	  :address (generate-level-address 1)
 	  :player player
 	  :narrator narrator
 	  :prompt prompt
