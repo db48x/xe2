@@ -1,3 +1,4 @@
+** TODO indicate edge of map with chevrons. piece together maps.
 ** TODO overworld map? (FUTURE)
 ** TODO fix in-game map!
 ** TODO find in-game notes with same color scheme text as scroll
