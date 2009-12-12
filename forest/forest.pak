@@ -81,6 +81,7 @@
  (:name "character-pink" :type :image :file "character-pink.png")
  (:name "ball" :type :image :file "ball.png")
  (:name "wall" :type :image :file "wall.png")
+ (:name "dandelion" :type :image :file "dandelion.png")
  (:name "death" :type :sample :file "death.wav" :properties (:volume 40))
  (:name "monks" :type :sample :file "monks.wav" :properties (:volume 25))
  (:name "talk" :type :sample :file "talk.wav" :properties (:volume 10))

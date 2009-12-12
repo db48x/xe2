@@ -955,6 +955,7 @@ world, and collision detection is performed between sprites and cells.")
   [update-dimensions self])
 
 (define-method update-position sprite (x y &optional ignore-obstacles)
+  (declare (ignore ignore-obstacles))
   (assert (and (integerp x) (integerp y)))
   (with-field-values (grid tile-size width height) *world*
     (let ((world-height (* tile-size height))
@@ -974,8 +975,8 @@ world, and collision detection is performed between sprites and cells.")
 	  (x <x>))
       (when (and y x)
 	(multiple-value-bind (y0 x0) (xe2:step-in-direction y x direction dist)
-	  (when (and y0 x0)
-	    [update-position self x y]))))))
+	  (assert (and y0 x0))
+	    [update-position self x0 y0])))))
 
 (define-method collide sprite (sprite)
   ;; (message "COLLIDING A=~S B=~S"

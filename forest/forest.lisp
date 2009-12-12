@@ -523,7 +523,26 @@ It has begun to snow."
   [add-item self (clone =sanctuary-map=)]
   [emote self '((("I'd better get moving.")) (("The monastery is to the south.")))])
 
-;;; Raindrops
+;;; Dandelion seeds
+
+(defsprite dandelion
+  (image :initform "dandelion")
+  (speed :initform (make-stat :base 10))
+  (categories :initform '(:actor))
+  (speed :initform (make-stat :base 10))
+  (movement-cost :initform (make-stat :base 10))
+  (movement-distance :initform 2)
+  (clock :initform 10))
+
+(define-method run dandelion ()
+  (clon:with-fields (clock) self
+    (if (plusp clock) 
+	(progn 
+	  (decf clock)
+	  [move self (car (one-of '(:southeast :east))) 2])
+	[die self])))
+
+;;; Rain and snow
 
 (defsprite raindrop 
   (image :initform "raindrop")
@@ -1021,9 +1040,15 @@ It has begun to snow."
   (description :initform "Gorgeous wildflowers.")
   (tile :initform "flowers-1"))
 
-(defcell flowers-2
+(define-prototype flowers-2 (:parent =flowers-1=)
   (description :initform "Wildflowers of every description.")
-  (tile :initform "flowers-2"))
+  (tile :initform "flowers-2")
+  (categories :initform '(:actor)))
+
+(define-method run flowers-2 ()
+  (percent-of-time 1
+    (multiple-value-bind (x y) [xy-coordinates self]
+      [drop-sprite self (clone =dandelion=) x y])))
 
 (define-prototype monastery-gateway (:parent =gateway=)
   (tile :initform "monastery-gateway")
@@ -1316,6 +1341,8 @@ south. You can hear the monks singing in the distance.")
 (defparameter *room-window-width* 800)
 (defparameter *room-window-height* 600)
 
+(defparameter *start-level* 2)
+
 (defun init-forest ()
   (xe2:message "Initializing Forest...")
   (clon:initialize)
@@ -1352,7 +1379,7 @@ south. You can hear the monks singing in the distance.")
 	[newline quickhelp]))
     ;;
     [play universe
-	  :address (generate-level-address 1)
+	  :address (generate-level-address *start-level*)
 	  :player player
 	  :narrator narrator
 	  :prompt prompt
