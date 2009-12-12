@@ -1,4 +1,5 @@
-** TODO more XONG tutorial stuff, show snake mechanic
+** TODO fix pause not working
+** TODO more XONG tutorial stuff, teach snake mechanic
 ** TODO puckman level, show brick in text
 ** TODO border playfield
 ** TODO soften worlds transition? / wipe?
@@ -8,9 +9,7 @@
 ** TODO fire that spreads and must be put out
 ** TODO more paint mechanics.. no instadeath on snake, instead he fires
 ** TODO fix letting go of alt while holding dir spams chevron message
-** TODO YOU ARE HERE arrow on game start
-** TODO OFFTOPIC: melange of nice parts of certain B-side tracks for GOLD
-*** TODO http://common-lisp.net/project/cl-wav-synth/
+** TODO http://common-lisp.net/project/cl-wav-synth/
 ** TODO min action points
 ** TODO don't allow points when shooting already-smashed snake
 ** TODO single-shot powerup kills any enemy within 2 squares

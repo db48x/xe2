@@ -221,6 +221,9 @@
   [delete-from-world puck]
   [play-sample self "grab"])
 
+(define-method pause player ()
+  [pause *world*])
+
 (define-method die player ()
   (unless <dead>
     (setf <tile> "skull")

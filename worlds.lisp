@@ -92,9 +92,13 @@ At the moment, only 0=off and 1=on are supported.")
     
 (define-method pause world ()
   "Toggle the pause state of the world."
-  (setf <paused> (if <paused> (prog1 nil [narrateln <narrator> "Resuming game."]
-			      (prog1 t [narrateln <narrator> 
-						  "The game is now paused. Press Control-P or PAUSE to un-pause."])))))
+  (clon:with-fields (paused) self
+    (message "pausing ~A" paused)
+    (setf paused (if (null paused) t nil))
+    (message "pausing2 ~A" paused)
+    (if (null paused)
+	[narrateln <narrator> "Resuming game."]
+	[narrateln <narrator> "The game is now paused. Press Control-P or PAUSE to un-pause."])))
 
 (define-prototype environment
     (:documentation "A cell giving general environmental conditions at a world location.")
