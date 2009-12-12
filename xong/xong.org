@@ -1,12 +1,12 @@
+** TODO more XONG tutorial stuff, show snake mechanic
 ** TODO puckman level, show brick in text
 ** TODO border playfield
-** TODO soften worlds transition?
+** TODO soften worlds transition? / wipe?
 ** TODO always indicate player pos with bubble or big arrow?
 ** TODO recursive serialization
 ** TODO LEVEL EDITING TURTLE CURSOR
 ** TODO fire that spreads and must be put out
 ** TODO more paint mechanics.. no instadeath on snake, instead he fires
-** TODO TUTORIAL LEVEL FOR 1.4
 ** TODO fix letting go of alt while holding dir spams chevron message
 ** TODO YOU ARE HERE arrow on game start
 ** TODO OFFTOPIC: melange of nice parts of certain B-side tracks for GOLD

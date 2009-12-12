@@ -663,6 +663,96 @@ It has begun to snow."
   [play-sample self "dead"]
   [parent>>die self])
 	   
+;;; Wolves are the most difficult enemies. 
+
+(defcell wolf 
+  (categories :initform '(:actor :target :obstacle :opaque :enemy))
+  (dexterity :initform (make-stat :base 20))
+  (max-items :initform (make-stat :base 1))
+  (speed :initform (make-stat :base 2))
+  (chase-distance :initform 10)
+  (stepping :initform t)
+  (behavior :initform :seeking)
+  (clock :initform 0)
+  (last-direction :initform :north)
+  (strength :initform (make-stat :base 50))
+  (movement-cost :initform (make-stat :base 10))
+  (tile :initform "wolf")
+  (target :initform nil)
+  (hit-points :initform (make-stat :base 9 :min 0 :max 40))
+  (description :initform 
+"These undead wolves will devour your flesh if they get the chance."))
+
+(define-method run wolf ()
+  (ecase <behavior>
+    (:seeking [seek self])
+    (:fleeing [flee self])))
+
+(define-method seek wolf ()
+  (clon:with-field-values (row column) self
+    (when (< [distance-to-player *world* row column] <chase-distance>)
+      (let ((direction [direction-to-player *world* row column])
+	    (world *world*))
+	(percent-of-time 5 [play-sample self (car (one-of '("growl-1" "growl-2")))])
+	(if [adjacent-to-player world row column]
+	    (progn
+	      (percent-of-time 80 
+		[say self "The undead wolf bites you."]
+		[damage [get-player *world*] 6])
+	      (setf <clock> 6
+		    <behavior> :fleeing))
+	    (if [obstacle-in-direction-p world row column direction]
+		(let ((target [target-in-direction-p world row column direction]))
+		  (if (and target (not [in-category target :enemy]))
+		      (progn nil)
+		      (progn (setf <direction> (random-direction))
+			     [>>move self direction])))
+		(progn (when (< 7 (random 10))
+			 (setf <direction> (random-direction)))
+		       [>>move self direction])))))))
+
+(define-method damage wolf (points)
+  [play-sample self "bark"]
+  [parent>>damage self points])
+
+(define-method die wolf ()
+  [play-sample self "yelp"]
+  [parent>>die self])
+
+(define-method flee wolf ()
+  (decf <clock>)
+  ;; are we done fleeing? then begin seeking. 
+  (if (<= <clock> 0)
+      (setf <behavior> :seeking)
+      ;; otherwise, flee
+      (clon:with-field-values (row column) self
+	(let ((player-row [player-row *world*])
+	      (player-column [player-column *world*]))
+	  (labels ((neighbor (r c direction)
+		     (multiple-value-bind (r0 c0)
+			 (step-in-direction r c direction)
+		       (list r0 c0)))
+		   (all-neighbors (r c)
+		     (let (ns)
+		       (dolist (dir *compass-directions*)
+			 (push (neighbor r c dir) ns))
+		       ns))
+		   (score (r c)
+		     (distance player-column player-row c r)))
+	    (let* ((neighbors (all-neighbors row column))
+		   (scores (mapcar #'(lambda (pair)
+				       (apply #'score pair))
+				   neighbors))
+		   (farthest (apply #'max scores))
+		   (square (nth (position farthest scores)
+				neighbors)))
+	      (destructuring-bind (r c) square
+		  [move self (xe2:direction-to row column r c)])))))))
+
+(define-method move wolf (direction)
+  (setf <last-direction> direction)
+  [parent>>move self direction])
+
 ;;; Bodies of other adventurers
 
 (defcell arrows 
@@ -687,7 +777,7 @@ It has begun to snow."
     [take stepper :direction :here :category :item]))
 
 (define-method use herb (user)
-  (when (and user (has-field :hit-points user))
+ (when (and user (has-field :hit-points user))
     (prog1 t
       [stat-effect user :hit-points 12]
       [say self "You consume the healing herb and quickly feel better."])))
@@ -1030,6 +1120,7 @@ south. You can hear the monks singing in the distance.")
 		 (prog1 nil
 		   [drop-cell *world* (clone =mountain=) r c])))
 	(trace-row #'drop-mountain i 0 (+ offset (random 4)))
+	(percent-of-time 10 [drop-cell self (clone =wolf=) i (+ offset (random 4))])
 	(trace-row #'drop-mountain i (+ offset (random 4) 20) <width>)))
     ;; drop monastery gateway
     (let ((column (+ offset (random 10)))
@@ -1060,6 +1151,7 @@ south. You can hear the monks singing in the distance.")
 
 (define-method begin-ambient-loop passage ()
   (play-music "passageway" :loop t)
+  (play-sample "howl")
   (play-sample "thunder-big"))
 
 (define-method generate passage (&key (height *forest-height*)
@@ -1260,7 +1352,7 @@ south. You can hear the monks singing in the distance.")
 	[newline quickhelp]))
     ;;
     [play universe
-	  :address (generate-level-address 1)
+	  :address (generate-level-address 3)
 	  :player player
 	  :narrator narrator
 	  :prompt prompt

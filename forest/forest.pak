@@ -39,6 +39,12 @@
  (:name "unh-2" :type :sample :file "unh-2.wav" :properties (:volume 20))
  (:name "unh-3" :type :sample :file "unh-3.wav" :properties (:volume 20))
 
+ (:name "growl-1" :type :sample :file "growl-1.wav" :properties (:volume 20))
+ (:name "growl-2" :type :sample :file "growl-2.wav" :properties (:volume 20))
+ (:name "howl" :type :sample :file "howl.wav" :properties (:volume 20))
+ (:name "bark" :type :sample :file "bark.wav" :properties (:volume 20))
+ (:name "yelp" :type :sample :file "yelp.wav" :properties (:volume 20))
+
  (:name "snowflake" :type :image :file "snowflake.png")
  (:name "monastery" :type :image :file "monastery.png")
  (:name "monastery-gateway" :type :image :file "monastery-gateway.png")
@@ -58,10 +64,12 @@
 
  (:name "body" :type :image :file "body.png")
  (:name "skull" :type :image :file "skull.png")
+ (:name "wolf" :type :image :file "wolf.png")
  (:name "raindrop" :type :image :file "raindrop.png")
  (:name "skeleton" :type :image :file "skel.png")
  (:name "gravestone" :type :image :file "gravestone.png")
  (:name "wooden-bow" :type :image :file "wooden-bow.png")
+
 
  (:name "quickhelp-message" :type :formatted-text :file "quickhelp.text")
 
@@ -73,6 +81,7 @@
  (:name "character-pink" :type :image :file "character-pink.png")
  (:name "ball" :type :image :file "ball.png")
  (:name "wall" :type :image :file "wall.png")
+ (:name "death" :type :sample :file "death.wav" :properties (:volume 40))
  (:name "monks" :type :sample :file "monks.wav" :properties (:volume 25))
  (:name "talk" :type :sample :file "talk.wav" :properties (:volume 10))
  (:name "lutey" :type :sample :file "lutey.wav" :properties (:volume 31))
