@@ -27,8 +27,11 @@
 
 (defcell arrows 
   (tile :initform "arrows")
-  (count :initform (+ 6 (random 18))))
+  (count :initform nil))
 
+(define-method initialize arrows (&key (count (+ 5 (random 12))))
+  (setf <count> count))
+    
 (define-method step arrows (stepper)
   (when [is-player stepper]
     [say self "You found ~S arrows." <count>]
@@ -108,6 +111,7 @@
 	     (let ((target [category-in-direction-p *world* <row> <column> <direction> :target]))
 	       (when target 
 		 [damage target 3]
+		 [play-sample self "knock"]
 		 [die self])
 	       (if [obstacle-in-direction-p *world* <row> <column> <direction>]
 		   [die self]
@@ -121,7 +125,7 @@
 
 (define-method step arrow (stepper)
   (when [is-player stepper]
-    [say self "This arrow is still good. You add it to your quiver."]
+    [say stepper "This arrow is still good. You add it to your quiver."]
     [stat-effect stepper :arrows 1]
     [delete-from-world self]))
 
@@ -160,6 +164,8 @@
 
 (defparameter *freezing-damage-clock* 12)
 
+(defparameter *bow-reload-clock* 10)
+
 (defcell player 
   (tile :initform "player")
   (description :initform "You are an archer and initiate monk of the Sanctuary Order.")
@@ -170,6 +176,7 @@
   (hunger-damage-clock :initform 0)
   (freezing :initform (make-stat :base 0 :min 0 :max 300))
   (freezing-damage-clock :initform 0)
+  (bow-reload-clock :initform 0)
   (hearing-range :initform 1000)
   (firing-with :initform :left-hand)
   (arrows :initform (make-stat :base 20 :min 0 :max 40))
@@ -186,6 +193,15 @@
   (stepping :initform t)
   (categories :initform '(:actor :player :obstacle :target)))
 
+(define-method fire player (direction)
+  (if (zerop <bow-reload-clock>)
+      (progn
+	(setf <bow-reload-clock> *bow-reload-clock*)
+	[add-category self :reloading]
+	[parent>>fire self direction])
+      (progn 
+	[say self "Still reloading; cannot fire."])))
+
 (define-method eat player ()
   (if (zerop [stat-value self :rations])
       [say self "You don't have any rations to eat."]
@@ -193,6 +209,10 @@
 	[say self "You eat a bread ration. You feel full."]
 	[stat-effect self :hunger -900]
 	[stat-effect self :rations -1])))
+
+(define-method move player (direction)
+  (unless <dead>
+    [parent>>move self direction]))
 
 (define-method use-item player (n)
   (assert (integerp n))
@@ -223,55 +243,71 @@
   (xe2:quit :shutdown))
 
 (define-method run player ()
-  (message "FREEZING: ~A" [stat-value self :freezing])
-  [stat-effect self :hunger 1]
-  (let ((hunger [stat-value self :hunger])
-	(freezing [stat-value self :freezing]))
-    (when (= *hunger-warn* hunger)
-      [say self "You are getting hungry. Press Control-E to eat a ration."])
-    (when (= *hunger-warn-2* hunger)
-      [emote self '((("I'm very hungry.")))]
-      [say self "You are getting extremely hungry! Press Control-E to eat a ration."])
-    (when (= *hunger-max* hunger)
-      (if (minusp <hunger-damage-clock>)
-	  (progn 
-	    [say self "You are starving! You will die if you do not eat soon."]
-	    [say self "Press Control-E to eat a ration."]
-	    (setf <hunger-damage-clock> *hunger-damage-clock*)
-	    [damage self 1])
-	  (decf <hunger-damage-clock>)))
-    (when (= *freezing-warn* freezing)
-      [say self "You are beginning to get soaked."])
-    (when (= *freezing-warn-2* freezing)
-      [say self "You are getting soaked! You will begin to freeze soon."])
-    (when (= *freezing-max* freezing)
-      (if (minusp <freezing-damage-clock>)
-	  (progn 
-	    [say self "You are freezing! You will die if you do not dry out soon."]
-	    [say self "Press Control-C to make a campfire."]
-	    (setf <freezing-damage-clock> *freezing-damage-clock*)
-	    [damage self 1])
-	  (decf <freezing-damage-clock>)))
-    (when (< [stat-value self :hit-points] 10)
-      [narrateln :narrator "LOW HEALTH WARNING! You will die soon if you do not heal." :foreground ".red"])
-    (when (zerop [stat-value self :hit-points])
-      [die self])
-    (when (and *status* <inventory>) [update *status*])))
+  (unless <dead>
+    (message "FREEZING: ~A" [stat-value self :freezing])
+    [stat-effect self :hunger 1]
+    (let ((hunger [stat-value self :hunger])
+	  (freezing [stat-value self :freezing]))
+      (when (= *hunger-warn* hunger)
+	[say self "You are getting hungry. Press Control-E to eat a ration."])
+      (when (= *hunger-warn-2* hunger)
+	[emote self '((("I'm very hungry.")))]
+	[say self "You are getting extremely hungry! Press Control-E to eat a ration."])
+      (when (= *hunger-max* hunger)
+	(if (minusp <hunger-damage-clock>)
+	    (progn 
+	      [say self "You are starving! You will die if you do not eat soon."]
+	      [say self "Press Control-E to eat a ration."]
+	      (setf <hunger-damage-clock> *hunger-damage-clock*)
+	      [damage self 1])
+	    (decf <hunger-damage-clock>)))
+      (if (> hunger *hunger-warn*)
+	  [add-category self :hungry]
+	  [delete-category self :hungry])
+      (if (= *hunger-max* hunger)
+	  [add-category self :starving]
+	  [delete-category self :starving])
+      (when (= *freezing-warn* freezing)
+	[say self "You are beginning to get soaked."])
+      (when (= *freezing-warn-2* freezing)
+	[say self "You are getting soaked! You will begin to freeze soon."])
+      (when (= *freezing-max* freezing)
+	(if (minusp <freezing-damage-clock>)
+	    (progn 
+	      [say self "You are freezing! You will die if you do not dry out soon."]
+	      [say self "Press Control-C to make a campfire."]
+	      (setf <freezing-damage-clock> *freezing-damage-clock*)
+	      [damage self 1])
+	    (decf <freezing-damage-clock>)))
+      (if (= *freezing-max* freezing)
+	  [add-category self :freezing]
+	  [delete-category self :freezing])
+      (if (< [stat-value self :hit-points] 10)
+	  (progn [>>narrateln :narrator "LOW HEALTH WARNING! You will die soon if you do not heal." :foreground ".red"]
+		 [add-category self :dying])
+	  [delete-category self :dying])
+      (when (zerop [stat-value self :hit-points])
+	[die self])
+      (setf <bow-reload-clock> (max 0 (- <bow-reload-clock> 1)))
+      (when (zerop <bow-reload-clock>) [delete-category self :reloading])
+      (when (and *status* <inventory>) [update *status*]))))
 
 (define-method restart player ()
-  (let ((player (clone =player=)))
-    [destroy *universe*]
-    [set-player *universe* player]
-    [set-character *status* player]
-    [play *universe*
-	  :address (generate-level-address 1)]
-    [loadout player]))
+  (when <dead>
+    (let ((player (clone =player=)))
+      [destroy *universe*]
+      [set-player *universe* player]
+      [set-character *status* player]
+      [play *universe*
+	    :address (generate-level-address 1)]
+      [loadout player])))
 
 (define-method damage player (points)
-  [say self "You take ~A hit ~A of damage."
-       points (if (= 1 points) "point" "points")]
-  (percent-of-time 70 [play-sample self (car (one-of '("unh-1" "unh-2" "unh-3")))])
-  [stat-effect self :hit-points (- points)])
+  (unless <dead>
+    [say self "You take ~A hit ~A of damage."
+	 points (if (= 1 points) "point" "points")]
+    [play-sample self (car (one-of '("unh-1" "unh-2" "unh-3")))]
+    [stat-effect self :hit-points (- points)]))
 
 (define-method die player ()
   (unless <dead>

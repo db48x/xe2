@@ -394,10 +394,11 @@
 				     (graveyards 15)
 				     (ruins 15)
 				     (herbs 2)
-				     (firewood 8)
+				     (firewood 14)
 				     level snowing raining
 				     (tree-grain 0.3)
 				     (tree-density 30)
+				     (archer-skeletons 0)
 				     (water-grain 0.9)
 				     (water-density 90)
 				     (water-cutoff 0.2))
@@ -433,6 +434,9 @@
   (dotimes (n firewood)
     (multiple-value-bind (r c) [random-place self]
       [drop-cell self (clone =firewood=) r c :exclusive t :probe t]))
+  (dotimes (n archer-skeletons)
+    (multiple-value-bind (r c) [random-place self]
+      [drop-cell self (clone =archer-skeleton=) r c :exclusive t :probe t :loadout t]))
   (let* ((gateway (clone (ecase level
 			   (1 =river-gateway=)
 			   (2 =passage-gateway=))))

@@ -55,7 +55,7 @@ of poisonous radioactive gas."))
 		 (when (and (< (random 100) probability)
 			    [in-bounds-p *active-world* r c])
 		   [drop-cell *active-world* (clone =explosion=) r c :no-collisions nil]))))
-      (dolist (dir rlx:*compass-directions*)
+      (dolist (dir xe2:*compass-directions*)
 	(multiple-value-bind (r c)
 	    (step-in-direction <row> <column> dir)
 	  (boom r c 100)))
@@ -228,7 +228,7 @@ Not the typical choice of the best pilots."))
   (stepping :initform t)
   (attacking-with :initform :robotic-arm)
   (max-weight :initform (make-stat :base 25))
-  (direction :initform (rlx:random-direction))
+  (direction :initform (xe2:random-direction))
   (strength :initform (make-stat :base 4 :min 0 :max 30))
   (dexterity :initform (make-stat :base 5 :min 0 :max 30))
   (intelligence :initform (make-stat :base 11 :min 0 :max 30))
@@ -250,7 +250,7 @@ Berserkers attack with a shock probe."))
 		[>>attack self player-dir]
 		[>>move self player-dir]))
 	  (progn (when [obstacle-in-direction-p world row column <direction>]
-		   (setf <direction> (rlx:random-direction)))
+		   (setf <direction> (xe2:random-direction)))
 		 [>>move self <direction>])))))
 
 (define-method die berserker ()
@@ -269,7 +269,7 @@ Berserkers attack with a shock probe."))
 
 ;;; The radar-equipped Biclops is more dangerous.  
 
-(define-prototype biclops (:parent rlx:=cell=)
+(define-prototype biclops (:parent xe2:=cell=)
   (name :initform "Biclops")
   (strength :initform (make-stat :base 15 :min 0 :max 50))
   (dexterity :initform (make-stat :base 15 :min 0 :max 30))
@@ -464,7 +464,7 @@ Hard to kill because of their evasive manuevers."))
 		   (square (nth (position farthest scores)
 				neighbors)))
 	      (destructuring-bind (r c) square
-		  [move self (rlx:direction-to row column r c)])))))))
+		  [move self (xe2:direction-to row column r c)])))))))
 
 (define-method move rook (direction)
   (setf <last-direction> direction)
@@ -627,5 +627,5 @@ and attacks anyone who comes near."))
 		[>>speedsuck self [resolve self player-dir]]
 		[>>move self player-dir]))
 	  (progn (when [obstacle-in-direction-p world row column <direction>]
-		   (setf <direction> (rlx:random-direction)))
+		   (setf <direction> (xe2:random-direction)))
 		 [>>move self <direction>])))))

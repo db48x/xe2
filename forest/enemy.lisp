@@ -41,6 +41,7 @@
   (intelligence :initform (make-stat :base 13 :min 0 :max 30))
   (categories :initform '(:actor :target :obstacle :opaque :enemy :equipper))
   (equipment-slots :initform '(:left-hand))
+  (bow-reload-clock :initform 0)
   (max-items :initform (make-stat :base 3))
   (stepping :initform t)
   (speed :initform (make-stat :base 1))
@@ -87,6 +88,81 @@
   [play-sample self "dead"]
   [parent>>die self])
 	   
+;;; The deadly archer skeleton
+
+(defcell archer-skeleton
+  (tile :initform "archer-skeleton")
+  (name :initform "Archer-Skeleton")
+  (categories :initform '(:obstacle :actor :equipper :opaque 
+			  :exclusive :enemy :target :archer-skeleton))
+  (direction :initform nil)
+  (speed :initform (make-stat :base 3))
+  (movement-cost :initform (make-stat :base 6))
+  (hit-points :initform (make-stat :base 16 :min 0))
+  (equipment-slots :initform '(:left-hand :right-hand))
+  (arrows :initform (make-stat :base 15 :min 0))
+  (max-items :initform (make-stat :base 3))
+  (stepping :initform t)
+  (dead :initform nil)
+  (firing-with :initform :left-hand)
+  (energy :initform (make-stat :base 800 :min 0 :max 1000))
+  (strength :initform (make-stat :base 24))
+  (dexterity :initform (make-stat :base 12))
+  (description :initform 
+"An undead soul inhabits these blackened bones."))
+    
+(define-method choose-new-direction archer-skeleton ()
+  [expend-action-points self 2]
+  (setf <direction>
+	(if (= 0 (random 20))
+	    ;; occasionally choose a random dir
+	    (nth (random 3)
+		 '(:north :south :east :west))
+	    ;; otherwise turn left
+	    (getf '(:north :west :west :south :south :east :east :north)
+		  (or <direction> :north)))))
+  
+(define-method loadout archer-skeleton ()
+  [choose-new-direction self]
+  [make-inventory self]
+  [make-equipment self]
+  [equip self [add-item self (clone =wooden-bow=)]])
+  
+(define-method cancel archer-skeleton ()
+  (decf *enemies*))
+
+;; (define-method initialize archer-skeleton ()
+;;   [make-inventory self]
+;;   [make-equipment self])
+
+(define-method kick archer-skeleton (direction)
+  (setf <direction> direction))
+
+(define-method run archer-skeleton ()
+  (clon:with-field-values (row column) self
+    (let ((world *world*))
+      (if (and (< [distance-to-player world row column] 10)
+	       [line-of-sight world row column 
+			      [player-row world]
+			      [player-column world]])
+	  (let ((player-dir [direction-to-player world row column]))
+	    [move self player-dir]
+	    [fire self player-dir]
+	    [expend-action-points self 10])
+	  (multiple-value-bind (r c)
+	      (step-in-direction <row> <column> <direction>)
+	    [expend-action-points self 8]
+	    (when [obstacle-at-p world r c]
+	      [choose-new-direction self])
+	    [move self <direction>])))))
+  
+(define-method die archer-skeleton ()
+  (unless <dead>
+    (setf <dead> t)
+    [drop self (clone =arrows= :count [stat-value self :arrows])]
+    [play-sample self "death-alien"]
+    [delete-from-world self]))
+
 ;;; Wolves are the most difficult enemies. 
 
 (defcell wolf 

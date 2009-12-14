@@ -242,7 +242,9 @@
     [print-stat self :defense :warn-below 10]
     [print self " "]
     [print-stat self :speed :warn-below 2]
-    [println self " "]
+    [print self " "]
+    [newline self]
+    ;;
     [print self "  Equipment:  "]
     [print-equipment-slot self :right-hand]
     [print-equipment-slot self :left-hand]
@@ -251,13 +253,27 @@
     [print self (format nil "  RATIONS: ~S " [stat-value char :rations])]
     [print self nil :image "ration"]
     [print self (format nil "  FIREWOOD: ~S " [stat-value char :firewood])]
-    [println self nil :image "firewood-1"]
+    [print self nil :image "firewood-1"]
     [newline self]
+    ;;
     [print self "  Inventory:  "]
     [print-inventory-slot self 0 :show-as 1]
     [print-inventory-slot self 1 :show-as 2]
     [print-inventory-slot self 2 :show-as 3]
     [print-inventory-slot self 3 :show-as 4]
+    [newline self]
+    ;; status ailments
+    (when [in-category char :freezing]
+      [print self "  Freezing " :foreground ".blue"])
+    (when [in-category char :hungry]
+      [print self "  Hungry " :foreground ".green"])
+    (when [in-category char :starving]
+      [print self "  Starving " :foreground ".red"])
+    (when [in-category char :dying]
+      [print self "  Dying " :foreground ".yellow" :background ".red"])
+    (when [in-category char :reloading]
+      [print self "  Reloading " :foreground ".black" :background ".yellow"])
+    [print self " "]
     [newline self]))
 
 ;;; Pager and splash screen
@@ -304,7 +320,7 @@
 (defparameter *room-window-width* 800)
 (defparameter *room-window-height* 600)
 
-(defparameter *start-level* 2)
+(defparameter *start-level* 1)
 
 (defun init-forest ()
   (xe2:message "Initializing Forest...")
@@ -337,7 +353,7 @@
     ;;
     (labels ((spacebar ()
 	       (setf *status* status)
-	       [resize status :height 60 :width 800]
+	       [resize status :height 80 :width 800]
 	       [move status :x 5 :y 0]
 	       [set-character status player]
 	       ;;
@@ -365,8 +381,8 @@
 		     :prompt prompt
 		     :viewport viewport]
 	       [set-tile-size viewport 16]
-	       [resize viewport :height 470 :width *room-window-width*]
-	       [move viewport :x 0 :y 60]
+	       [resize viewport :height 450 :width *room-window-width*]
+	       [move viewport :x 0 :y 80]
 	       [set-origin viewport :x 0 :y 0 
 			   :height (truncate (/ (- *room-window-height* 200) 16))
 			   :width (truncate (/ *room-window-width* 16))]
@@ -380,7 +396,6 @@
     (let ((text	(find-resource-object "help-message")))
       [set-buffer help text])
     ;;
-   ;;
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
     (xe2:install-widgets splash-prompt splash)

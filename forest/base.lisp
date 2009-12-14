@@ -28,6 +28,7 @@ Monastery. It is cold and rainy."
 	     :fireflies 200
 	     :graveyards 4
 	     :ruins 3
+	     :firewood 10
 	     :raining t
 	     :tree-grain 0.5
 	     :tree-density 30
@@ -47,6 +48,8 @@ It has begun to snow."
 	     :graveyards 6
 	     :ruins 10
 	     :snowing t
+	     :firewood 25
+	     :archer-skeletons 6
 	     :tree-grain 0.2
 	     :tree-density 30
 	     :water-grain 0.5

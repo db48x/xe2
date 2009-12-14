@@ -28,18 +28,18 @@
 
 (defpackage :blast
   (:documentation "Blast Tactics: A sci-fi roguelike for Common Lisp.")
-  (:use :rlx :common-lisp)
+  (:use :xe2 :common-lisp)
   (:export blast))
 
 (in-package :blast)
 
 ;;; Custom bordered viewport
 
-(define-prototype view (:parent rlx:=viewport=))
+(define-prototype view (:parent xe2:=viewport=))
 
 (define-method render view ()
   [parent>>render self]
-  (rlx:draw-rectangle 0 0 
+  (xe2:draw-rectangle 0 0 
 		      <width>
 		      <height>
 		      :color ".blue" :destination <image>))
@@ -48,7 +48,7 @@
 
 ;;; Controlling the game.
 
-(define-prototype blast-prompt (:parent rlx:=prompt=))
+(define-prototype blast-prompt (:parent xe2:=prompt=))
 
 (defparameter *basic-keybindings* 
   '(("KP7" nil "move :northwest .")
@@ -167,7 +167,8 @@
   
 (defparameter *alternate-qwerty-keybindings*
   (append *basic-keybindings*
-	  '(("Q" nil "move :northwest .")
+	  '(
+	    ("Q" nil "move :northwest .")
 	    ("W" nil "move :north .")
 	    ("E" nil "move :northeast .")
 	    ("A" nil "move :west .")
@@ -270,7 +271,7 @@
 	    ("Q" (:control) "quit ."))))
 
 (define-method install-keybindings blast-prompt ()
-  (let ((keys (ecase rlx:*user-keyboard-layout* 
+  (let ((keys (ecase xe2:*user-keyboard-layout* 
 		(:qwerty *qwerty-keybindings*)
 		(:alternate-qwerty *alternate-qwerty-keybindings*)
 		(:dvorak *dvorak-keybindings*))))
@@ -285,7 +286,7 @@
 (defvar *ship-status* nil)
 (defvar *dude-status* nil)
 
-(define-prototype status (:parent rlx:=formatter=)
+(define-prototype status (:parent xe2:=formatter=)
   (character :documentation "The character cell."))
 
 (define-method set-character status (character)
@@ -441,7 +442,7 @@
 (define-prototype splash (:parent =widget=))
 
 (define-method render splash ()
-  (rlx:draw-resource-image "splash" 0 0 
+  (xe2:draw-resource-image "splash" 0 0 
 			   :destination <image>))
 
 (defvar *space-bar-function*)
@@ -452,7 +453,7 @@
   (when (functionp *space-bar-function*)
     (funcall *space-bar-function*))
   ;; TODO ugh this is a hack!
-  (rlx:show-widgets))
+  (xe2:show-widgets))
 
 (define-prototype splash-prompt (:parent =prompt=)
   (default-keybindings :initform '(("SPACE" nil "dismiss ."))))
@@ -469,14 +470,14 @@
 (defparameter *tile-size* 16)
 
 (defun blast ()
-  (rlx:message "Initializing Blast Tactics...")
+  (xe2:message "Initializing Blast Tactics...")
   (setf clon:*send-parent-depth* 2) 
-  (rlx:set-screen-height *blast-window-height*)
-  (rlx:set-screen-width *blast-window-width*)
-  ;; (rlx:set-frame-rate 30)
-  ;; (rlx:disable-timer)
-  ;; (rlx:enable-held-keys 1 15)
-  (setf rlx:*zoom-factor* 1)
+  (xe2:set-screen-height *blast-window-height*)
+  (xe2:set-screen-width *blast-window-width*)
+  ;; (xe2:set-frame-rate 30)
+  ;; (xe2:disable-timer)
+  ;; (xe2:enable-held-keys 1 15)
+  (setf xe2:*zoom-factor* 1)
   (let* ((prompt (clone =blast-prompt=))
 	 (universe (clone =universe=))
 	 (narrator (clone =narrator=))
@@ -492,10 +493,10 @@
 	 (stack (clone =stack=))
 	 (stack2 (clone =stack=)))
     ;; hehe, turn this on for realtime
-    ;; (rlx:enable-timer)
-    ;; (rlx:set-frame-rate 30)
-    ;; (rlx:set-timer-interval 1)
-    ;; (rlx:enable-held-keys 1 3)
+    ;; (xe2:enable-timer)
+    ;; (xe2:set-frame-rate 30)
+    ;; (xe2:set-timer-interval 1)
+    ;; (xe2:enable-held-keys 1 3)
     ;; 
     (setf *view* (clone =view=))
     ;;
@@ -586,11 +587,11 @@
     ;; 			      (draw-line x y sx sy :destination image
     ;; 					 :color color)))))
     ;; 		 [add-overlay *view* #'hack-overlay])))
-    ;;   (setf rlx::*lighting-hack-function* #'light-hack))
+    ;;   (setf xe2::*lighting-hack-function* #'light-hack))
     ;;
     (setf *pager* (clone =pager=))
     [auto-position *pager*]; :width *left-column-width*]
-    (rlx:install-widgets splash-prompt splash)
+    (xe2:install-widgets splash-prompt splash)
     [add-page *pager* :play stack prompt dude-status ship-status *view* minimap terminal]
     [add-page *pager* :help textbox]))
 
