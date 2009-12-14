@@ -1,17 +1,40 @@
-** TODO don't place bodies in walls OR ITEMS
-** TODO fix arrows not dying
-** TODO indicate edge of map with chevrons. piece together maps.
-** TODO overworld map? (FUTURE)
-** TODO fix in-game map scrolling off bottom of viewport
-** TODO find in-game notes with same color scheme text as scroll
-** TODO snow wolves and archer skels in passage
-** TODO find food on dead adventurer in passage, plus note
-** TODO longer level approach to monastery, talk to a few npcs, follow a road and cross fences
-** TODO record music/chant vox samples for monastery approach
-** TODO fix being able to travel easily thru water, fix too much water
-** TODO FIX joystick button handling
-** TODO arduous journey overworld travel / food
-
+** TODO 
+** TODO [#A] WXAD controls
+** TODO [#A] add 8-way firing
+*** TODO diagonal arrow tile
+*** TODO commands
+*** TODO remove orthogonal assertion
+** TODO [#A] fix 100% cpu usage
+*** WAITING talk to luke
+** TODO [#A] fix being able to travel easily thru water
+*** TODO add wetness stat and soaking limit
+*** TODO tinderwood supply
+*** TODO add 4 campfire tiles (3 lit, 1 out)
+*** TODO smother fire with dirt
+** TODO [#A] fix too much water
+** TODO [#A] make wolves less annoying
+** TODO more herbs on dead bodies'
+** TODO more skeletons
+** TODO archer skeletons
+*** TODO both new skeleton tiles
+** TODO making fire to dry yourself
+** TODO rest and shelter
+** TODO more inventory slotsand
+** TODO magic barrier shield (flickering sprites)
+** TODO magic missile (sparkly trails.)
+** TODO enemies search for dark spots
+** TODO [#A] fix moving when dead
+** TODO [#B] use SHIFT-arrow to fire instead? better mac compat
+** TODO [#B] fix scrolling
+** TODO [#A] fix help screen
+** TODO [#C] Command-Q should quit on mac ?
+** TODO [#A] don't place bodies in walls OR ITEMS
+** TODO [#A] fix arrows not dying
+** TODO [#C] indicate edge of map with chevrons. piece together maps.
+** TODO [#C] overworld map? (FUTURE)
+** TODO [#B] fix in-game map scrolling off bottom of viewport
+** TODO [#B] find in-game notes with same color scheme text as scroll
+** TODO [#B] longer level approach to monastery, talk to a few npcs, follow a road and cross fences
 cold rainy forest
 brush to slow progress
 bow and arrow combat , food factor, rest. travel a long road.

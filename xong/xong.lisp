@@ -99,7 +99,6 @@
 				   [run-cpu-phase *world* :timer])])
 
 
-
 ;;; Splash screen
   
 (defvar *pager* nil)

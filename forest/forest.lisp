@@ -37,8 +37,8 @@
 (add-hook 'xe2:*initialization-hook*
 	  #'(lambda ()
 	      (xe2:enable-timer)
-	      (xe2:set-frame-rate 30)
-	      (xe2:set-timer-interval 1)
+	      (xe2:set-frame-rate 15)
+	      (xe2:set-timer-interval 0)
 	      (xe2:enable-held-keys 1 3)))
 
 ;;; A map of the journey
@@ -395,6 +395,7 @@ It has begun to snow."
 
 (define-method step arrow (stepper)
   (when [is-player stepper]
+    (assert [is-located self])
     [say self "This arrow is still good. You add it to your quiver."]
     [stat-effect stepper :arrows 1]
     [die self]))

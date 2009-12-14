@@ -1,4 +1,8 @@
-** TODO fix pause not working
+** TODO PUSH/n/POP: lisp fighter cons game
+** TODO don't pick up spare P pucks or C chevrons unless needed
+** TODO change background color to deep purple again
+** TODO increase time tutorial text instructions are shown
+** TODO more graceful library loading failure handling
 ** TODO more XONG tutorial stuff, teach snake mechanic
 ** TODO puckman level, show brick in text
 ** TODO border playfield

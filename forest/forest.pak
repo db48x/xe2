@@ -45,6 +45,8 @@
  (:name "bark" :type :sample :file "bark.wav" :properties (:volume 30))
  (:name "yelp" :type :sample :file "yelp.wav" :properties (:volume 30))
 
+ (:name "help-message" :type :formatted-text :file "README")
+
  (:name "snowflake" :type :image :file "snowflake.png")
  (:name "monastery" :type :image :file "monastery.png")
  (:name "monastery-gateway" :type :image :file "monastery-gateway.png")

@@ -1,16 +1,25 @@
-HELP SCREEN --- PRESS F2 TO PLAY
+((("Welcome to Sanctuary, a Novella Rogue-like in Common Lisp."))
+((""))
+(("You are an archer and initiate monk of the Sanctuary Order. Humanity"))
+(("and the four continents of the Known World have fallen into a dark"))
+(("age, where undead horrors from the deeps of the earth have scoured the"))
+(("land of its people and polluted its very soil. The third Aentis Oscori"))
+(("(literally \"Dark Age\") is predicted by ancient tablets to last 100,000"))
+(("years, and the warrior-monks of the Sanctuary Order are charged with"))
+(("protecting the few lands still fertile and the few people still living"))
+(("in the Known World. In their libraries they preserve the knowledge of"))
+(("ages past in the hope that a distant future generation may retake the"))
+(("Earth and restore Humanity to its rightful place."))
+((""))
+(("You live in a time nearly 1,000 years after the falling of the Dark"))
+(("Age. Armed lightly with bow and arrow, wool clothing, and leather"))
+(("armor, you set out from Nothbess town heading south through the"))
+(("wilderness toward your destination, Valisade Monastery. You've been"))
+(("summoned to Valisade for unknown reasons, and commanded to make haste"))
+(("through the mountains instead of the safer route to the southwest."))
+((""))
 
-Welcome to the example RLX game.
+(("You are 
 
-Use your numeric keypad to move, or the following movement keys:
-
-   ^        
-  YKU        
-< H L >      
-  BJN        
-   v         
-
-Use control-direction to fire a bouncing ball. You can fire as many as
-you want.
-
+	    
 
