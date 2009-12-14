@@ -125,7 +125,7 @@
   (hit-points :initform (make-stat :base 30 :min 0 :max 30))
   (hunger :initform (make-stat :base 0 :min 0 :max 1000))
   (hunger-damage-clock :initform 0)
-  (soaked :initform (make-stat :base 0 :min 0 :max 10))
+  (wetness :initform (make-stat :base 0 :min 0 :max 10))
   (freezing :initform (make-stat :base 0 :min 0 :max 1000))
   (freezing-damage-clock :initform 0)
   (hearing-range :initform 1000)
