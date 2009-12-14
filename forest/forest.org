@@ -1,8 +1,4 @@
 ** TODO [#A] fix being able to travel easily thru water
-*** TODO add wetness stat and soaking limit
-*** TODO firewood supply stat
-*** TODO firewood tiles
-*** TODO add 4 campfire tiles (3 lit, 1 out)
 *** TODO smother fire with dirt
 *** TODO freezing death
 *** TODO hungry/soaked/freezing display in status

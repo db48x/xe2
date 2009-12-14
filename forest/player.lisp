@@ -1,5 +1,25 @@
 (in-package :forest)
 
+;;; Fire
+
+(defparameter *fire-tiles* '("fire-1" "fire-2" "fire-3"))
+
+(defcell fire 
+  (tile :initform "fire-1")
+  (categories :initform '(:actor :light-source))
+  (light-radius :initform 16))
+
+(define-method step fire (stepper)
+  (when [is-player stepper]
+    (when (plusp [stat-value stepper :freezing])
+      [say self "You dry yourself by the fire."]
+      [dry stepper])
+    (when (zerop [stat-value stepper :freezing])
+      [say self "You are dry now."])))
+
+(define-method run fire ()
+  (setf <tile> (car (one-of *fire-tiles*))))
+
 ;;; Supplies
 
 (defcell arrows 
@@ -15,7 +35,7 @@
 (defcell herb 
   (tile :initform "herb")
   (description :initform "This healing herb will restore some of your health.")
-  (categories :initform '(:item))
+  (categories :initform '(:item :exclusive))
   (equip-for :initform '(:right-hand :left-hand)))
 
 (define-method step herb (stepper)
@@ -29,6 +49,16 @@
     (prog1 t
       [stat-effect user :hit-points 12]
       [say self "You consume the healing herb and quickly feel better."])))
+
+(defcell firewood 
+  (tile :initform (car (one-of '("firewood-1" "firewood-2"))))
+  (description :initform "Five pieces of firewood are enough to make a campfire."))
+
+(define-method step firewood (stepper)
+  (when [is-player stepper]
+    [say self "You collect the firewood."]
+    [stat-effect stepper :firewood 1]
+    [delete-from-world self]))
 
 ;;; A map of the journey
 
@@ -87,10 +117,9 @@
 
 (define-method step arrow (stepper)
   (when [is-player stepper]
-    (assert [is-located self])
     [say self "This arrow is still good. You add it to your quiver."]
     [stat-effect stepper :arrows 1]
-    [die self]))
+    [delete-from-world self]))
 
 (defcell wooden-bow 
   (name :initform "Wooden bow")
@@ -117,6 +146,16 @@
 
 (defparameter *hunger-max* 1000)
 
+(defparameter *hunger-damage-clock* 20)
+
+(defparameter *freezing-warn* 80)
+
+(defparameter *freezing-warn-2* 160)
+
+(defparameter *freezing-max* 300)
+
+(defparameter *freezing-damage-clock* 12)
+
 (defcell player 
   (tile :initform "player")
   (description :initform "You are an archer and initiate monk of the Sanctuary Order.")
@@ -125,8 +164,7 @@
   (hit-points :initform (make-stat :base 30 :min 0 :max 30))
   (hunger :initform (make-stat :base 0 :min 0 :max 1000))
   (hunger-damage-clock :initform 0)
-  (wetness :initform (make-stat :base 0 :min 0 :max 10))
-  (freezing :initform (make-stat :base 0 :min 0 :max 1000))
+  (freezing :initform (make-stat :base 0 :min 0 :max 300))
   (freezing-damage-clock :initform 0)
   (hearing-range :initform 1000)
   (firing-with :initform :left-hand)
@@ -181,8 +219,10 @@
   (xe2:quit :shutdown))
 
 (define-method run player ()
+  (message "FREEZING: ~A" [stat-value self :freezing])
   [stat-effect self :hunger 1]
-  (let ((hunger [stat-value self :hunger]))
+  (let ((hunger [stat-value self :hunger])
+	(freezing [stat-value self :freezing]))
     (when (= *hunger-warn* hunger)
       [say self "You are getting hungry. Press Control-E to eat a ration."])
     (when (= *hunger-warn-2* hunger)
@@ -193,12 +233,26 @@
 	  (progn 
 	    [say self "You are starving! You will die if you do not eat soon."]
 	    [say self "Press Control-E to eat a ration."]
-	    (setf <hunger-damage-clock> 20)
+	    (setf <hunger-damage-clock> *hunger-damage-clock*)
 	    [damage self 1])
-	  (decf <hunger-damage-clock>))))
-  (when (zerop [stat-value self :hit-points])
-    [die self])
-  (when (and *status* <inventory>) [update *status*]))
+	  (decf <hunger-damage-clock>)))
+    (when (= *freezing-warn* freezing)
+      [say self "You are beginning to get soaked."])
+    (when (= *freezing-warn-2* freezing)
+      [say self "You are getting soaked! You will begin to freeze soon."])
+    (when (= *freezing-max* freezing)
+      (if (minusp <freezing-damage-clock>)
+	  (progn 
+	    [say self "You are freezing! You will die if you do not dry out soon."]
+	    [say self "Press Control-C to make a campfire."]
+	    (setf <freezing-damage-clock> *freezing-damage-clock*)
+	    [damage self 1])
+	  (decf <freezing-damage-clock>)))
+    (when (< [stat-value self :hit-points] 10)
+      [narrateln :narrator "LOW HEALTH WARNING! You will die soon if you do not heal." :foreground ".red"])
+    (when (zerop [stat-value self :hit-points])
+      [die self])
+    (when (and *status* <inventory>) [update *status*])))
 
 (define-method restart player ()
   (let ((player (clone =player=)))
@@ -228,3 +282,29 @@
   [equip self [add-item self (clone =wooden-bow=)]]
   [add-item self (clone =sanctuary-map=)]
   [emote self '((("I'd better get moving.")) (("The monastery is to the south.")))])
+
+(define-method wet player ()
+  [stat-effect self :freezing 20])
+
+(define-method dry player ()
+  [stat-effect self :freezing -300])
+
+(define-method camp player ()
+  (clon:with-field-values (row column) self
+    (let (found)
+      (if (>= [stat-value self :firewood] 5)
+	  (progn (block placing
+		   (dolist (dir '(:north :south :east :west))
+		     (multiple-value-bind (r c) (step-in-direction row column dir)
+		       (unless [category-at-p *world* r c '(:obstacle :water)]
+			 (setf found t)
+			 [drop-cell *world* (clone =fire=) r c]
+			 [stat-effect self :firewood -5]
+			 [stat-effect self :hit-points 10]
+			 (return-from placing)))))
+		 (if found
+		     [say self "With the Spark incantation, the fire is soon burning."]
+		     [say self "Couldn't find a place to build a fire."]))
+	  [say self "You don't have enough firewood."]))))
+	
+	

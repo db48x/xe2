@@ -32,6 +32,10 @@
 		       (percent-of-time 1 [drop self (clone =foam=)]))
 		     "floor"))))
 
+(define-method step water (stepper)
+  (when [is-player stepper]
+    [wet stepper]))
+
 ;;; The storm is an invisible cell that sits in the corner and plays thunder
 
 (defcell storm 
@@ -213,34 +217,6 @@
 
 ;;; Bodies of other adventurers
 
-(defcell arrows 
-  (tile :initform "arrows")
-  (count :initform (+ 6 (random 18))))
-
-(define-method step arrows (stepper)
-  (when [is-player stepper]
-    [say self "You found ~S arrows." <count>]
-    [stat-effect stepper :arrows <count>]
-    [die self]))
-     
-(defcell herb 
-  (tile :initform "herb")
-  (description :initform "This healing herb will restore some of your health.")
-  (categories :initform '(:item))
-  (equip-for :initform '(:right-hand :left-hand)))
-
-(define-method step herb (stepper)
-  (when [is-player stepper]
-    (if [take stepper :direction :here :category :item]
-      [say self "You found a healing herb."]
-      [say self "Your satchel is full."])))
-
-(define-method use herb (user)
- (when (and user (has-field :hit-points user))
-    (prog1 t
-      [stat-effect user :hit-points 12]
-      [say self "You consume the healing herb and quickly feel better."])))
-
 (defcell body 
   (tile :initform "body")
   (description :initform "This long-dead body may yet hold usable supplies.")
@@ -407,7 +383,7 @@
 	(trace-rectangle #'drop-floor (1+ row) (1+ column) (- height 2) (- width 2) :fill))
       (dotimes (n (random 3))
 	(percent-of-time 70
-	  [drop-cell self (clone =body=) (+ 1 row (random (- height 1))) (+ column (random (- width 1)))
+	  [drop-cell self (clone =body=) (+ 2 row (random (- height 2))) (+ 2 column (random (- width 2)))
 		     :exclusive t :probe t])))))
 
 (define-method generate forest (&key (height *forest-height*)
@@ -452,7 +428,7 @@
 	       :exclusive t :probe t]
     (dotimes (n herbs)
       (multiple-value-bind (r c) [random-place self]
-	[drop-cell self (clone =herb=) r c])))
+	[drop-cell self (clone =herb=) r c :exclusive t :probe t])))
   (let* ((gateway (clone (ecase level
 			   (1 =river-gateway=)
 			   (2 =passage-gateway=))))

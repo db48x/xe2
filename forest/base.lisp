@@ -49,9 +49,9 @@ It has begun to snow."
 	     :snowing t
 	     :tree-grain 0.2
 	     :tree-density 30
-	     :water-grain 0.2
-	     :water-density 90
-	     :water-cutoff 0.2))
+	     :water-grain 0.5
+	     :water-density 80
+	     :water-cutoff 0.3))
     (3 (list '=passage=))
     (4 (list '=monastery=))))
     

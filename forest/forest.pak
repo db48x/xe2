@@ -1,6 +1,13 @@
 (
  (:name ".default-font" :type :font :properties (:height 14 :width 7) :data "7x14b")
 
+ (:name "firewood-1" :type :image :file "firewood-1.png")
+ (:name "firewood-2" :type :image :file "firewood-2.png")
+
+ (:name "fire-1" :type :image :file "fire-1.png")
+ (:name "fire-2" :type :image :file "fire-2.png")
+ (:name "fire-3" :type :image :file "fire-3.png")
+
  (:name "earth-1" :type :image :file "earth-1.png")
  (:name "earth-2" :type :image :file "earth-1.png")
  (:name "earth-3" :type :image :file "earth-2.png")

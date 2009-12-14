@@ -70,6 +70,7 @@
     ("4" (:control) "drop-item 3 .")
     ;;
     ("P" (:control) "pause .")
+    ("C" (:control) "camp .")
     ("E" (:control) "eat .")
     ("PAUSE" nil "pause .")
     ("ESCAPE" nil "restart .")
@@ -248,7 +249,9 @@
     [print self (format nil "  ARROWS: ~S " [stat-value char :arrows])]
     [print self nil :image "arrows"]
     [print self (format nil "  RATIONS: ~S " [stat-value char :rations])]
-    [println self nil :image "ration"]
+    [print self nil :image "ration"]
+    [print self (format nil "  FIREWOOD: ~S " [stat-value char :firewood])]
+    [println self nil :image "firewood-1"]
     [newline self]
     [print self "  Inventory:  "]
     [print-inventory-slot self 0 :show-as 1]
@@ -301,7 +304,7 @@
 (defparameter *room-window-width* 800)
 (defparameter *room-window-height* 600)
 
-(defparameter *start-level* 1)
+(defparameter *start-level* 2)
 
 (defun init-forest ()
   (xe2:message "Initializing Forest...")
