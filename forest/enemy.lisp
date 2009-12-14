@@ -44,7 +44,7 @@
   (bow-reload-clock :initform 0)
   (max-items :initform (make-stat :base 3))
   (stepping :initform t)
-  (speed :initform (make-stat :base 1))
+  (speed :initform (make-stat :base 2))
   (movement-cost :initform (make-stat :base 5))
   (attacking-with :initform :left-hand)
   (equipment-slots :initform '(:left-hand :right-hand :belt :extension :feet))

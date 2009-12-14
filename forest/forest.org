@@ -1,11 +1,6 @@
-** TODO faster skel archers with better vision
-** TODO hungry/soaked/freezing display in status
 ** TODO rose found in the forest
 ** TODO [#A] make wolves less annoying
 ** TODO more herbs on dead bodies'
-** TODO more skeletons
-** TODO archer skeletons
-*** TODO both new skeleton tiles
 ** TODO [#A] fix 100% cpu usage
 *** WAITING talk to luke
 ** TODO rest and shelter
