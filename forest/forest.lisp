@@ -394,6 +394,7 @@
 				     (graveyards 15)
 				     (ruins 15)
 				     (herbs 2)
+				     (firewood 8)
 				     level snowing raining
 				     (tree-grain 0.3)
 				     (tree-density 30)
@@ -429,6 +430,9 @@
     (dotimes (n herbs)
       (multiple-value-bind (r c) [random-place self]
 	[drop-cell self (clone =herb=) r c :exclusive t :probe t])))
+  (dotimes (n firewood)
+    (multiple-value-bind (r c) [random-place self]
+      [drop-cell self (clone =firewood=) r c :exclusive t :probe t]))
   (let* ((gateway (clone (ecase level
 			   (1 =river-gateway=)
 			   (2 =passage-gateway=))))

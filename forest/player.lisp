@@ -6,8 +6,8 @@
 
 (defcell fire 
   (tile :initform "fire-1")
-  (categories :initform '(:actor :light-source))
-  (light-radius :initform 16))
+  (clock :initform 300)
+  (categories :initform '(:actor)))
 
 (define-method step fire (stepper)
   (when [is-player stepper]
@@ -18,7 +18,10 @@
       [say self "You are dry now."])))
 
 (define-method run fire ()
-  (setf <tile> (car (one-of *fire-tiles*))))
+  (decf <clock>)
+  (setf <tile> (car (one-of *fire-tiles*)))
+  (unless (plusp <clock>)
+    [die self]))
 
 ;;; Supplies
 
@@ -52,6 +55,7 @@
 
 (defcell firewood 
   (tile :initform (car (one-of '("firewood-1" "firewood-2"))))
+  (categories :initform '(:exclusive))
   (description :initform "Five pieces of firewood are enough to make a campfire."))
 
 (define-method step firewood (stepper)
