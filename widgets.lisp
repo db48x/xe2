@@ -589,7 +589,7 @@ normally."
 
 (defparameter *next-screen-context-lines* 3)
 
-(define-method page-up textbox (buffer)
+(define-method page-up textbox ()
   "Scroll up one page, only when <max-displayed-rows> is set."
   (clon:with-field-values (max-displayed-rows) self
     (when (integerp max-displayed-rows)
@@ -597,7 +597,7 @@ normally."
 			   (- <point-row> (- max-displayed-rows
 					     *next-screen-context-lines*)))))))
 
-(define-method page-down textbox (buffer)
+(define-method page-down textbox ()
   "Scroll down one page, only when <max-displayed-rows> is set."
   (clon:with-field-values (max-displayed-rows) self
     (when (integerp max-displayed-rows)

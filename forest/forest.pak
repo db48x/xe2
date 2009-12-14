@@ -109,6 +109,7 @@
  (:name "sanctuary-map" :type :image :file "sanctuary-map.png")
  (:name "tiny-map" :type :image :file "tiny-map.png")
  (:name "wall" :type :image :file "wall.png")
+ (:name "splash" :type :image :file "splash.png")
  (:name "ruin-floor" :type :image :file "ruin-floor.png")
  (:name "bip" :type :sample :file "bip.wav" :properties (:volume 10))
  (:name "serve" :type :sample :file "serve.wav" :properties (:volume 10))

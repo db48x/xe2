@@ -57,7 +57,7 @@
   (when [is-player stepper]
     [say self "You don't need this map; you've memorized the way."]))
 
-;;; Forest addresses
+;;; The World addresses of the levels in the game.
 
 (defun generate-level-address (n)
   (ecase n 
@@ -1350,7 +1350,37 @@ south. You can hear the monks singing in the distance.")
     [print-inventory-slot self 1 :show-as 2]
     [newline self]))
 
+;;; Pager and splash screen
+
+(defvar *pager* nil)
+
+(define-prototype splash (:parent =widget=))
+
+(define-method render splash ()
+  (xe2:draw-resource-image "splash" 0 0 
+			   :destination <image>))
+
+(defvar *space-bar-function*)
+
+(define-method dismiss splash ()
+  [select *pager* :game]
+  (when (functionp *space-bar-function*)
+    (funcall *space-bar-function*))
+  ;; TODO ugh this is a hack!
+  (xe2:show-widgets))
+
+(define-prototype splash-prompt (:parent =prompt=)
+  (default-keybindings :initform '(("SPACE" nil "dismiss ."))))
+
+;;; Help prompt
+
+(define-prototype help-prompt (:parent =prompt=)
+  (default-keybindings :initform '(("N" nil "page-down .")
+				   ("P" nil "page-up ."))))
+
 ;;; Main program. 
+
+(defparameter *pager-height* 16)
 
 (defparameter *room-window-width* 800)
 (defparameter *room-window-height* 600)
@@ -1365,48 +1395,78 @@ south. You can hear the monks singing in the distance.")
   (let* ((prompt (clone =room-prompt=))
 	 (universe (clone =universe=))
 	 (narrator (clone =narrator=))
+	 (help (clone =textbox=))
 	 (quickhelp (clone =formatter=))
+	 (splash (clone =splash=))
+	 (splash-prompt (clone =splash-prompt=))
+	 (help-prompt (clone =help-prompt=))
 	 (player (clone =player=))
 	 (status (clone =status=))
 	 (viewport (clone =viewport=)))
     ;;
-    (setf *status* status)
-    [resize status :height 60 :width 800]
-    [move status :x 5 :y 0]
-    [set-character status player]
+    [resize splash :height (- *room-window-height* 20 *pager-height*) :width *room-window-width*]
+    [move splash :x 0 :y 0]
+    [resize splash-prompt :width 10 :height 10]
+    [move splash-prompt :x 0 :y 0]
+    [hide splash-prompt]
+    [set-receiver splash-prompt splash]
     ;;
-    [resize prompt :height 20 :width 100]
-    [move prompt :x 0 :y 0]
-    [hide prompt]
-    [install-keybindings prompt]
+    [resize help-prompt :width 10 :height 10]
+    [move help-prompt :x 0 :y 0]
+    [hide help-prompt]
+    [set-receiver help-prompt help]
     ;;
-    [resize narrator :height 80 :width *room-window-width*]
-    [move narrator :x 0 :y (- *room-window-height* 80)]
-    [set-verbosity narrator 0]
+    (labels ((spacebar ()
+	       (setf *status* status)
+	       [resize status :height 60 :width 800]
+	       [move status :x 5 :y 0]
+	       [set-character status player]
+	       ;;
+	       [resize prompt :height 20 :width 100]
+	       [move prompt :x 0 :y 0]
+	       [hide prompt]
+	       [install-keybindings prompt]
+	       ;;
+	       [resize narrator :height 80 :width *room-window-width*]
+	       [move narrator :x 0 :y (- *room-window-height* 100 *pager-height*)]
+	       [set-verbosity narrator 0]
+	       ;;
+	       [resize quickhelp :height 85 :width 280] 
+	       [move quickhelp :y (- *room-window-height* 100 *pager-height*) :x (- *room-window-width* 280)]
+	       (let ((text	(find-resource-object "quickhelp-message")))
+		 (dolist (line text)
+		   (dolist (string line)
+		     (funcall #'send nil :print-formatted-string quickhelp string))
+		   [newline quickhelp]))
+	       ;;
+	       [play universe
+		     :address (generate-level-address *start-level*)
+		     :player player
+		     :narrator narrator
+		     :prompt prompt
+		     :viewport viewport]
+	       [set-tile-size viewport 16]
+	       [resize viewport :height 470 :width *room-window-width*]
+	       [move viewport :x 0 :y 60]
+	       [set-origin viewport :x 0 :y 0 
+			   :height (truncate (/ (- *room-window-height* 200) 16))
+			   :width (truncate (/ *room-window-width* 16))]
+	       [adjust viewport] 
+	       [select *pager* 2]
+	       [loadout player]))
+      (setf *space-bar-function* #'spacebar))
     ;;
-    [resize quickhelp :height 85 :width 280] 
-    [move quickhelp :y (- *room-window-height* 100) :x (- *room-window-width* 280)]
-    (let ((text	(find-resource-object "quickhelp-message")))
-      (dolist (line text)
-	(dolist (string line)
-	  (funcall #'send nil :print-formatted-string quickhelp string))
-	[newline quickhelp]))
+    [resize help :height 540 :width 800] 
+    [move help :x 0 :y 0]
+    (let ((text	(find-resource-object "help-message")))
+      [set-buffer help text])
     ;;
-    [play universe
-	  :address (generate-level-address *start-level*)
-	  :player player
-	  :narrator narrator
-	  :prompt prompt
-	  :viewport viewport]
-    [set-tile-size viewport 16]
-    [resize viewport :height 470 :width *room-window-width*]
-    [move viewport :x 0 :y 60]
-    [set-origin viewport :x 0 :y 0 
-		:height (truncate (/ (- *room-window-height* 200) 16))
-		:width (truncate (/ *room-window-width* 16))]
-    [adjust viewport] 
-    [loadout player]
    ;;
-    (xe2:install-widgets prompt viewport narrator status quickhelp)))
+    (setf *pager* (clone =pager=))
+    [auto-position *pager*]
+    (xe2:install-widgets splash-prompt splash)
+    [add-page *pager* :map prompt viewport narrator status quickhelp]
+    [add-page *pager* :help help-prompt help]))
+
 
 (init-forest)
