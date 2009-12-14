@@ -1,10 +1,8 @@
 Welcome to Sanctuary, a Novella Rogue-like in Common Lisp.
 
 This is the help screen. Press F2 to if you wish to return to playing
-the game. Press N and P (for "next" and "previous", respectively) to
-scroll through the document.
-
-STORY
+the game or press N and P (for "next" and "previous", respectively) to
+scroll through this help document.
 
 You are an archer and initiate monk of the Sanctuary Order. Humanity
 and the four continents of the Known World have fallen into a dark
@@ -24,25 +22,76 @@ wilderness toward your destination, Valisade Monastery. You've been
 summoned to Valisade for unknown reasons, and commanded to make haste
 through the mountains instead of the safer route to the southwest.
 
-GAMEPLAY
-
 Your monk and his surroundings are viewed from a top-down perspective,
 with North at the top of the screen. You can move in any of the eight
 directions (north, northeast, east, southeast, south, southwest, west,
 and northwest) by pressing the corresponding key in one of the two
-options below:				    
-					     
-  Q  W  E        7  8  9       	       	       North
-   \ | /   	  \ | /	      	      		 |     
-  A -+- D   or 	 4 -+- 6      with     	  West  -+-  East     
-   / | \       	  / | \	       	       	       	 |     
-  Z  X 	C      	 1  2  3	  	       South   			   
-      				  					   
+options below: 
+                                             
+  Q  W  E        7  8  9                       North
+   \ | /          \ | /                          |     
+  A -+- D   or   4 -+- 6      with        West  -+-  East     
+   / | \          / | \                          |     
+  Z  X  C        1  2  3                       South                       
+
+Other keyboard layouts are supported, including QWERTZ and
+DVORAK. Nethack compatibility keys (HJKL for orthogonal, YUBN for
+diagonal) are also available. 
+
+Putting a line like one of these in a file called ~/.xe2rc will
+configure your layout:
+ 
+ (setf xe2:*user-keyboard-layout* :qwerty) 
+ (setf xe2:*user-keyboard-layout* :qwertz)
+ (setf xe2:*user-keyboard-layout* :dvorak)
+ (setf xe2:*user-keyboard-layout* :roguelike)
+
+In QWERTZ, controls are as with QWERTY above, but Y and Z are
+interchanged. 
+
+The DVORAK layout is as follows: 
+
+  G  C  R  
+   \ | /   
+  H -+- N  
+   / | \   
+  M  W  V  
+                                                                                      
 There are four inventory slots, activated by pressing 1, 2, 3, or 4.
 One may equip items such as a bow and arrows, or consume healing herbs
-and such, by pressing the corresponding digit for the item's inventory
-slot. Firing the bow is permitted only straight up, down, left, or
-right, and the arrows take time to travel. Firing the bow is
-accomplished with SHIFT-direction.
+and user other items, by pressing the corresponding digit for the
+item's inventory slot. Firing the bow is accomplished with
+SHIFT-direction.
+
+STAYING ALIVE
+
+Your monk must eat every so often; he carries bread rations for this
+purpose. You can eat a ration with CONTROL-E. When your monk becomes
+hungry, he'll say so; if you don't find food to eat, you will
+eventually die. All progress is lost when a character dies, and a new
+game is generated for the next play. Press ESCAPE to restart after
+dying.
+
+Your measure of health is the red HIT POINTS bar at the top of the
+screen; when this reaches zero, you die. Use healing herbs, scattered
+around the forest and scavenged from victims of the undead, to restore
+your hit points.
+
+Your monk must also rest, and carries a bedroll for this purpose. In
+order to rest you must build a campfire using gathered wood. Among
+your basic magical abilities is the Spark incantation, which can
+ignite even wet firewood by heating it from within. To camp, press
+control-C when you have at least 5 pieces of firewood. Resting
+recovers some hit points, but not as many as a healing herb.
+
+In this cold mountain environment, you must remain dry. Although your
+wool clothing and treated leather armor are resistant to wind and
+light rain, you will start to freeze if your clothes become
+soaked. Tread in water as little as possible.
+
+If you do become soaked, you must stop traveling and build a fire
+immediately. If you don't have enough firewood to build a fire, you'll
+slowly keep taking damage until you either find enough firewood to
+build a campfire, or eventually freeze to death.
 
 

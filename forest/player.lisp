@@ -51,7 +51,11 @@
 (defparameter *arrow-tiles* '(:north "arrow-north"
 			      :south "arrow-south"
 			      :east "arrow-east"
-			      :west "arrow-west"))
+			      :west "arrow-west"
+			      :northwest "arrow-northwest"
+			      :northeast "arrow-northeast"
+			      :southwest "arrow-southwest"
+			      :southeast "arrow-southeast"))
 
 (defcell arrow 
   (name :initform "arrow")
@@ -61,7 +65,6 @@
   (direction :initform nil))
 
 (define-method impel arrow (direction)
-  (assert (member direction '(:north :south :east :west)))
   (setf <direction> direction))
 
 (define-method run arrow ()
@@ -122,9 +125,13 @@
   (hit-points :initform (make-stat :base 30 :min 0 :max 30))
   (hunger :initform (make-stat :base 0 :min 0 :max 1000))
   (hunger-damage-clock :initform 0)
+  (soaked :initform (make-stat :base 0 :min 0 :max 10))
+  (freezing :initform (make-stat :base 0 :min 0 :max 1000))
+  (freezing-damage-clock :initform 0)
   (hearing-range :initform 1000)
   (firing-with :initform :left-hand)
   (arrows :initform (make-stat :base 20 :min 0 :max 40))
+  (firewood :initform (make-stat :base 5 :min 0 :max 10))
   (rations :initform (make-stat :base 5 :min 0 :max 20))
   (speed :initform (make-stat :base 10 :min 0 :max 10))
   (strength :initform (make-stat :base 15 :min 0 :max 50))

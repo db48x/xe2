@@ -51,14 +51,71 @@
     ("KP2" nil "move :south .")
     ("KP3" nil "move :southeast .")
     ;;
-    ("KP8" (:control) "fire :north .")
-    ("KP4" (:control) "fire :west .")
-    ("KP6" (:control) "fire :east .")
-    ("KP2" (:control) "fire :south .")
-    ("KP7" (:control) "fire :northwest .")
-    ("KP9" (:control) "fire :northeast .")
-    ("KP1" (:control) "fire :southwest .")
-    ("KP3" (:control) "fire :southeast .")))
+    ("KP8" (:shift) "fire :north .")
+    ("KP4" (:shift) "fire :west .")
+    ("KP6" (:shift) "fire :east .")
+    ("KP2" (:shift) "fire :south .")
+    ("KP7" (:shift) "fire :northwest .")
+    ("KP9" (:shift) "fire :northeast .")
+    ("KP1" (:shift) "fire :southwest .")
+    ("KP3" (:shift) "fire :southeast .")
+    	    ;;
+    ("1" nil "use-item 0 .")
+    ("2" nil "use-item 1 .")
+    ("1" (:control) "drop-item 0 .")
+    ("2" (:control) "drop-item 1 .")
+    ("3" nil "use-item 2 .")
+    ("4" nil "use-item 3 .")
+    ("3" (:control) "drop-item 2 .")
+    ("4" (:control) "drop-item 3 .")
+    ;;
+    ("P" (:control) "pause .")
+    ("E" (:control) "eat .")
+    ("PAUSE" nil "pause .")
+    ("ESCAPE" nil "restart .")
+    ("RETURN" nil "enter .")
+    ;;
+    ("Q" (:control) "quit .")))
+
+(defparameter *dvorak-keybindings*
+  (append *numpad-keybindings*
+	  '(("G" nil "move :northwest .")
+	    ("C" nil "move :north .")
+	    ("R" nil "move :northeast .")
+	    ("H" nil "move :west .")
+	    ("N" nil "move :east .")
+	    ("M" nil "move :southwest .")
+	    ("W" nil "move :south .")
+	    ("V" nil "move :southeast .")
+	    ;;
+	    ("G" (:shift) "fire :northwest .")
+	    ("C" (:shift) "fire :north .")
+	    ("R" (:shift) "fire :northeast .")
+	    ("H" (:shift) "fire :west .")
+	    ("N" (:shift) "fire :east .")
+	    ("M" (:shift) "fire :southwest .")
+	    ("W" (:shift) "fire :south .")
+	    ("V" (:shift) "fire :southeast ."))))
+
+(defparameter *qwertz-keybindings*
+  (append *numpad-keybindings*
+	  '(("Q" nil "move :northwest .")
+	    ("W" nil "move :north .")
+	    ("E" nil "move :northeast .")
+	    ("A" nil "move :west .")
+	    ("D" nil "move :east .")
+	    ("Y" nil "move :southwest .")
+	    ("X" nil "move :south .")
+	    ("C" nil "move :southeast .")
+	    ;;
+	    ("Q" (:shift) "fire :northwest .")
+	    ("W" (:shift) "fire :north .")
+	    ("E" (:shift) "fire :northeast .")
+	    ("A" (:shift) "fire :west .")
+	    ("D" (:shift) "fire :east .")
+	    ("Y" (:shift) "fire :southwest .")
+	    ("X" (:shift) "fire :south .")
+	    ("C" (:shift) "fire :southeast ."))))
 
 (defparameter *qwerty-keybindings*
   (append *numpad-keybindings*
@@ -78,28 +135,34 @@
 	    ("D" (:shift) "fire :east .")
 	    ("Z" (:shift) "fire :southwest .")
 	    ("X" (:shift) "fire :south .")
-	    ("C" (:shift) "fire :southeast .")
+	    ("C" (:shift) "fire :southeast ."))))
+
+(defparameter *roguelike-keybindings*
+  (append *numpad-keybindings*
+	  '(("Y" nil "move :northwest .")
+	    ("K" nil "move :north .")
+	    ("U" nil "move :northeast .")
+	    ("H" nil "move :west .")
+	    ("L" nil "move :east .")
+	    ("B" nil "move :southwest .")
+	    ("J" nil "move :south .")
+	    ("N" nil "move :southeast .")
 	    ;;
-	    ;;
-	    ("1" nil "use-item 0 .")
-	    ("2" nil "use-item 1 .")
-	    ("1" (:control) "drop-item 0 .")
-	    ("2" (:control) "drop-item 1 .")
-	    ("3" nil "use-item 2 .")
-	    ("4" nil "use-item 3 .")
-	    ("3" (:control) "drop-item 2 .")
-	    ("4" (:control) "drop-item 3 .")
-	    ;;
-	    ("P" (:control) "pause .")
-	    ("E" (:control) "eat .")
-	    ("PAUSE" nil "pause .")
-	    ("ESCAPE" nil "restart .")
-	    ("RETURN" nil "enter .")
-	    ;;
-	    ("Q" (:control) "quit ."))))
+	    ("Y" (:shift) "fire :northwest .")
+	    ("K" (:shift) "fire :north .")
+	    ("U" (:shift) "fire :northeast .")
+	    ("H" (:shift) "fire :west .")
+	    ("L" (:shift) "fire :east .")
+	    ("B" (:shift) "fire :southwest .")
+	    ("J" (:shift) "fire :south .")
+	    ("N" (:shift) "fire :southeast ."))))
 
 (define-method install-keybindings room-prompt ()
-  (dolist (k (append *numpad-keybindings* *qwerty-keybindings*))
+  (dolist (k (append *numpad-keybindings* (ecase *user-keyboard-layout*
+					    (:qwerty *qwerty-keybindings*)
+					    (:qwertz *qwertz-keybindings*)
+					    (:dvorak *dvorak-keybindings*)
+					    (:roguelike *roguelike-keybindings*))))
     (apply #'bind-key-to-prompt-insertion self k))
   ;; we also want to respond to timer events. this is how. 
   [define-key self nil '(:timer) (lambda ()
@@ -257,7 +320,7 @@
 	 (status (clone =status=))
 	 (viewport (clone =view=)))
     ;;
-    [resize splash :height (- *room-window-height* 20 *pager-height*) :width *room-window-width*]
+    [resize splash :height *room-window-height* :width *room-window-width*]
     [move splash :x 0 :y 0]
     [resize splash-prompt :width 10 :height 10]
     [move splash-prompt :x 0 :y 0]

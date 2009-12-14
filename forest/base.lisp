@@ -26,7 +26,7 @@ Monastery. It is cold and rainy."
 	     :height *forest-height*
 	     :width *forest-width*
 	     :fireflies 200
-	     :graveyards 2
+	     :graveyards 4
 	     :ruins 3
 	     :raining t
 	     :tree-grain 0.5
@@ -44,7 +44,7 @@ It has begun to snow."
 	     :height *forest-height*
 	     :width *forest-width*
 	     :fireflies 100
-	     :graveyards 4
+	     :graveyards 6
 	     :ruins 10
 	     :snowing t
 	     :tree-grain 0.2

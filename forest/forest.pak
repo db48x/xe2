@@ -64,6 +64,11 @@
  (:name "arrow-south" :type :alias :data ":rotate 180:arrow-north")
  (:name "arrow-west" :type :alias :data ":rotate 270:arrow-north")
 
+ (:name "arrow-northeast" :type :image :file "arrow-diagonal.png")
+ (:name "arrow-southeast" :type :alias :data ":rotate 90:arrow-northeast")
+ (:name "arrow-southwest" :type :alias :data ":rotate 180:arrow-northeast")
+ (:name "arrow-northwest" :type :alias :data ":rotate 270:arrow-northeast")
+
  (:name "body" :type :image :file "body.png")
  (:name "skull" :type :image :file "skull.png")
  (:name "wolf" :type :image :file "wolf.png")

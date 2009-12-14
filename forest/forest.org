@@ -1,29 +1,25 @@
-** TODO [#A] WXAD controls
-** TODO [#A] add 8-way firing
-*** TODO diagonal arrow tile
-*** TODO commands
-*** TODO remove orthogonal assertion
-** TODO [#A] fix 100% cpu usage
-*** WAITING talk to luke
 ** TODO [#A] fix being able to travel easily thru water
 *** TODO add wetness stat and soaking limit
-*** TODO tinderwood supply
+*** TODO firewood supply stat
+*** TODO firewood tiles
 *** TODO add 4 campfire tiles (3 lit, 1 out)
 *** TODO smother fire with dirt
+*** TODO freezing death
+*** TODO hungry/soaked/freezing display in status
+** TODO making fire to dry yourself
 ** TODO [#A] fix too much water
 ** TODO [#A] make wolves less annoying
 ** TODO more herbs on dead bodies'
 ** TODO more skeletons
 ** TODO archer skeletons
 *** TODO both new skeleton tiles
-** TODO making fire to dry yourself
+** TODO [#A] fix 100% cpu usage
+*** WAITING talk to luke
 ** TODO rest and shelter
-** TODO more inventory slotsand
 ** TODO magic barrier shield (flickering sprites)
 ** TODO magic missile (sparkly trails.)
 ** TODO enemies search for dark spots
 ** TODO [#A] fix moving when dead
-** TODO [#B] use SHIFT-arrow to fire instead? better mac compat
 ** TODO [#B] fix scrolling
 ** TODO [#A] fix help screen
 ** TODO [#C] Command-Q should quit on mac ?
