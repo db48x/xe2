@@ -1,4 +1,3 @@
-** TODO Split file
 ** TODO [#A] WXAD controls
 ** TODO [#A] add 8-way firing
 *** TODO diagonal arrow tile

@@ -613,6 +613,7 @@ normally."
       (setf <x> (- center-x (truncate (/ width 2)))
 	    <y> (- center-y (truncate (/ height 2)))))))
 
+
 (define-method resize-to-scroll textbox (&key width height)
   "Resize the textbox to WIDTH * HEIGHT and enable scrolling of contents.
 This method allocates a new SDL surface."
@@ -686,6 +687,8 @@ This method allocates a new SDL surface when necessary."
   (pages :initform nil)
   (current-page :initform nil
 		:documentation "Keyword name of current page.")
+  (pager-message :initform nil
+		 :documentation "Formatted string to be displayed to right of tabs.")
   (pager-height :initform 20
 		:documentation "Height in pixels of the pager")
   (background-color :initform ".gray18")
@@ -727,6 +730,9 @@ This method allocates a new SDL surface when necessary."
 (define-method get-page-names pager ()
   (remove-duplicates (mapcar #'car <pages>)))
 
+(define-method message pager (formatted-string)
+  (setf <pager-message> formatted-string))
+
 (define-method render pager ()
   ;; calculate geometry. always draw
   [clear self <background-color>]
@@ -746,6 +752,8 @@ This method allocates a new SDL surface when necessary."
 			<highlighted-style> <style>))
 	      line))
       (incf n))
+    (when <pager-message> 
+      (push <pager-message> line))
     ;; draw the string
     (render-formatted-line (nreverse line) 0 0 :destination <image>)))
    
