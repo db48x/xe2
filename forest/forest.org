@@ -1,8 +1,6 @@
 * Essential
-** Flesh out monastery level and guard house
-*** TODO 4 damaged road tiles (2 interior, 2 border)
-*** TODO alabaster brick look for guard house
-** 
+** TODO more stuff to look at on sanctuary level... sheep or something
+
 * Polish
 ** TODO edible fruits to find
 ** TODO rose found in the forest

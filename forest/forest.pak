@@ -63,6 +63,7 @@
  (:name "lichblade" :type :image :file "lichblade.png")
  (:name "monastery" :type :image :file "monastery.png")
  (:name "monastery-gateway" :type :image :file "monastery-gateway.png")
+ (:name "quarters-gateway" :type :image :file "quarters-gateway.png")
  (:name "ascent-gateway" :type :image :file "ascent-gateway.png")
 
  (:name "water-1" :type :image :file "water-1.png")
@@ -145,6 +146,7 @@
  (:name "sanctuary-map" :type :image :file "sanctuary-map.png")
  (:name "tiny-map" :type :image :file "tiny-map.png")
  (:name "wall" :type :image :file "wall.png")
+ (:name "sheep" :type :image :file "sheep.png")
  (:name "splash" :type :image :file "splash.png")
  (:name "ruin-floor" :type :image :file "ruin-floor.png")
  (:name "bip" :type :sample :file "bip.wav" :properties (:volume 10))

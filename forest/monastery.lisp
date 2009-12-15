@@ -39,10 +39,13 @@
 
 (defparameter *success-text* '((("Let's move along now."))))
 
+(defparameter *thisway-text* '((("This way to your quarters."))))
+
 (defcell lothaine 
   (tile :initform "lothaine")
   (state :initform 0)
   (categories :initform '(:obstacle :actor :npc))
+  (running :initform t)
   (timeout :initform 40))
       
 (define-method emote lothaine (text &optional (timeout 3.0))
@@ -51,27 +54,33 @@
     [drop self balloon]))
 
 (define-method run lothaine ()
-  (clon:with-fields (state timeout) self
-    [expend-default-action-points self]
-    (labels ((act ()
-	       (ecase state 
-		 (0 [emote self *greeting-text* 1.0]
-		    (incf state)
-		    (setf timeout 20))
-		 (1 [emote self *beckon-text*]
-		    (setf timeout 100))
-		 (2 [emote self *success-text*]
-		    (incf state)
-		    (setf timeout 50))
-		 (3 [>>play *universe* :address (generate-level-address 6) :player [get-player *world*]]))))
-      (if (and (not (= 3 state))
-	       (< [distance-to-player self] 5))
-	  (progn (setf state 2) (act))
-	  (if (null timeout)
-	      (act)
-	      (when (minusp (decf timeout))
-		(setf timeout nil)
-		(act)))))))
+  (when <running>
+    (clon:with-fields (state timeout) self
+      [expend-default-action-points self]
+      (labels ((act ()
+		 (case state 
+		   (0 (when (< [distance-to-player self] 15)
+			[emote self *greeting-text* 1.0]
+			(incf state)
+			(setf timeout 20)))
+		   (1 [emote self *beckon-text*]
+		      (setf timeout 100))
+		   (2 [emote self *success-text*]
+		      (incf state)
+		      (setf timeout 29))
+		   (3 [emote self *thisway-text*]
+		      [drop self (clone =quarters-gateway=)]
+		      [move self :north]
+		      (incf state)
+		      (setf <running> nil)))))
+	(if (and (not (= 3 state))
+		 (< [distance-to-player self] 5))
+	    (progn (setf state 2) (act))
+	    (if (null timeout)
+		(act)
+		(when (minusp (decf timeout))
+		  (setf timeout nil)
+		  (act))))))))
 
 ;;; Monastery approach world
 
@@ -160,7 +169,24 @@ south. You can hear the monks singing in the distance.")
 				  (clone =flowers-2=))
 			 i j :no-collisions t])))))))
 
-(define-method generate monastery (&key (height *forest-height*)
+(defcell sheep 
+  (tile :initform "sheep")
+  (speed :initform (make-stat :base 2))
+  (categories :initform '(:obstacle :actor))
+  (hit-points :initform (make-stat :base 10 :min 0))
+  (direction :initform :south))
+
+(define-method run sheep ()
+  (percent-of-time 15
+    (setf <direction> (random-direction)))
+  (percent-of-time 80 [move self <direction>]))
+    
+(define-method drop-sheep monastery (&optional (sheep 10))
+  (dotimes (i sheep)
+    (multiple-value-bind (r c) [random-place self]
+      [drop-cell self (clone =sheep=) r c :loadout t])))
+
+(define-method generate monastery (&key (height 100)
 				      (width *forest-width*)
 				      sequence-number)
   (setf <height> height)
@@ -169,16 +195,26 @@ south. You can hear the monks singing in the distance.")
   [create-default-grid self]
   [drop-hill self]
   [drop-road self]
+  [drop-sheep self]
   (let ((row (1+ (random 10)) )
 	  (column (+ 15 (random 6))))
       [drop-cell self (clone =drop-point=) row column
-		 :exclusive t :probe t]))
+		 :exclusive t :probe t])
+  [drop-cell self (clone =lothaine=) 85 10])
 
 (define-method begin-ambient-loop monastery ()
   (play-music "rain" :loop t)
   (play-sample "monks"))
 
 ;;; Your quarters
+
+(define-prototype quarters-gateway (:parent =gateway=)
+  (tile :initform "quarters-gateway")
+  (address :initform (generate-level-address 6)))
+
+(define-method step quarters-gateway (stepper)
+  (when [is-player stepper]
+    [say self "The way to your quarters. Press ENTER to continue."]))
 
 (defcell quarters-floor
   (tile :initform (car (one-of '("quarters-floor-1" "quarters-floor-1" "quarters-floor-2")))))
@@ -239,7 +275,7 @@ south. You can hear the monks singing in the distance.")
     [drop-cell self (clone =drop-point=) row column
 	       :exclusive t :probe t])))
 
-(define-method begin-ambient-loop monastery ()
+(define-method begin-ambient-loop quarters ()
   (play-music "solace"))
 
 
