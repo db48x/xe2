@@ -320,7 +320,7 @@
 (defparameter *room-window-width* 800)
 (defparameter *room-window-height* 600)
 
-(defparameter *start-level* 5)
+(defparameter *start-level* 1)
 
 (defun init-forest ()
   (xe2:message "Initializing Forest...")
