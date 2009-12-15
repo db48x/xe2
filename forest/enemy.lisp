@@ -217,6 +217,7 @@
   (when (and (null <screamed>)
 	     (< [distance-to-player self] 15))
     (setf <screamed> t)
+    [say self "A scream of undead power chills you to the bone!"]
     [play-sample self "lichscream"])
   (clon:with-field-values (row column) self
     (let* ((world *world*)
