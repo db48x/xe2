@@ -364,6 +364,11 @@
 (define-method step passage-gateway (stepper)
   [say self "A pass through the mountains. Press RETURN to enter."])
 
+(define-method activate passage-gateway ()
+  (if *lich-alive*
+      [say self "The power of the Lich binds you here; you cannot leave!"]
+      [parent>>activate self]))
+
 (define-method drop-water forest (&optional &key (object =water=)
 					    distance 
 					    (row 0) (column 0)

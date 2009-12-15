@@ -51,7 +51,7 @@
   (tile :initform "monastery-gateway")
   (description :initform "The mountain pass opens here to the foothills by the Monastery.")
   (sequence-number :initform (genseq))
-  (address :initform (generate-level-address 4)))
+  (address :initform (generate-level-address 5)))
 
 (define-method step monastery-gateway (stepper)
   [say self "The mountain pass opens to the foothills by the Monastery here."]

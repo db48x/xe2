@@ -166,6 +166,8 @@
 
 ;;; The horrifying Lich
 
+(defvar *lich-alive* nil)
+
 (defcell lichblade 
   (name :initform "lichblade")
   (categories :initform '(:item :weapon :equipment))
@@ -186,12 +188,12 @@
   (equipment-slots :initform '(:left-hand :right-hand))
   (max-items :initform (make-stat :base 3))
   (stepping :initform t)
-  (speed :initform (make-stat :base 2))
+  (speed :initform (make-stat :base 3))
   (movement-cost :initform (make-stat :base 8))
   (attacking-with :initform :left-hand)
   (screamed :initform nil)
   (max-weight :initform (make-stat :base 25))
-  (hit-points :initform (make-stat :base 60 :min 0 :max 10))
+  (hit-points :initform (make-stat :base 80 :min 0 :max 10))
   (tile :initform "lich")
   (description :initform "The Lich is a rotting skeletal horror in red velvet robes."))
 
@@ -200,6 +202,7 @@
   [make-equipment self])
 
 (define-method loadout lich ()
+  (setf *lich-alive* t)
   (let ((blade (clone =lichblade=)))
     [equip self [add-item self blade]]))
 
@@ -210,6 +213,7 @@
   [say self "The Lich screams 'DIE!' as it stabs at you."])
 
 (define-method run lich ()
+  [expend-action-points self 10]
   (when (and (null <screamed>)
 	     (< [distance-to-player self] 15))
     (setf <screamed> t)
@@ -231,10 +235,9 @@
 
 (define-method die lich ()
   [say self "The lich dies!"]
+  (setf *lich-alive* nil)
   [play-sample self "lichdeath"]
   [parent>>die self])
-
-
 
 ;;; Wolves are the most difficult enemies. 
 
