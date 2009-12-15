@@ -1,6 +1,12 @@
+* Essential
+** Flesh out monastery level and guard house
+*** TODO 4 damaged road tiles (2 interior, 2 border)
+*** TODO alabaster brick look for guard house
+** 
+* Polish
 ** TODO edible fruits to find
-** TODO Catacombs
 ** TODO rose found in the forest
+
 ** TODO [#A] fix 100% cpu usage
 *** WAITING talk to luke
 ** TODO magic barrier shield (flickering sprites)

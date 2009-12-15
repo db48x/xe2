@@ -19,6 +19,60 @@
 	  [move self (car (one-of '(:southeast :east :east))) 2])
 	[die self])))
 
+;;; Ancient road
+
+(defparameter *road-width* 10)
+
+(defparameter *road-tiles* '("road-1" "road-2" "road-3" "road-2" "road-2"))
+
+(defcell road
+  (description :initform "This ancient road has been patched, but never fully rebuilt.")
+  (tile :initform (car (one-of *road-tiles*))))
+
+;;; Brother Lothaine
+
+(defparameter *greeting-text* '((("Greetings, Brother."))))
+
+(defparameter *beckon-text* '((("We've been waiting for you."))
+			      (("Come with me, I'll show you to"))
+			      (("your room."))))
+
+(defparameter *success-text* '((("Let's move along now."))))
+
+(defcell lothaine 
+  (tile :initform "lothaine")
+  (state :initform 0)
+  (categories :initform '(:obstacle :actor :npc))
+  (timeout :initform 40))
+      
+(define-method emote lothaine (text &optional (timeout 3.0))
+  (let ((balloon (clone =balloon= :text text :timeout timeout)))
+    [play-sample self "talk"]
+    [drop self balloon]))
+
+(define-method run lothaine ()
+  (clon:with-fields (state timeout) self
+    [expend-default-action-points self]
+    (labels ((act ()
+	       (ecase state 
+		 (0 [emote self *greeting-text* 1.0]
+		    (incf state)
+		    (setf timeout 20))
+		 (1 [emote self *beckon-text*]
+		    (setf timeout 100))
+		 (2 [emote self *success-text*]
+		    (incf state)
+		    (setf timeout 50))
+		 (3 [>>play *universe* :address (generate-level-address 6) :player [get-player *world*]]))))
+      (if (and (not (= 3 state))
+	       (< [distance-to-player self] 5))
+	  (progn (setf state 2) (act))
+	  (if (null timeout)
+	      (act)
+	      (when (minusp (decf timeout))
+		(setf timeout nil)
+		(act)))))))
+
 ;;; Monastery approach world
 
 (defcell hill-1
@@ -66,6 +120,14 @@
 south. You can hear the monks singing in the distance.")
   (edge-condition :initform :block))
 
+(define-method drop-road monastery ()
+  (labels ((drop (r c)
+	     (prog1 nil 
+	       (percent-of-time 95 
+		 [drop-cell self (clone =road=) r c]))))
+    (dotimes (row <height>)
+      (trace-row #'drop row (+ 15 (random 3)) (+ 15 *road-width* (random 3))))))
+
 (define-method drop-hill monastery (&key (graininess 0.3)
 				       (density 60)
 				       distance
@@ -106,6 +168,7 @@ south. You can hear the monks singing in the distance.")
   (setf <sequence-number> sequence-number)
   [create-default-grid self]
   [drop-hill self]
+  [drop-road self]
   (let ((row (1+ (random 10)) )
 	  (column (+ 15 (random 6))))
       [drop-cell self (clone =drop-point=) row column
@@ -114,4 +177,69 @@ south. You can hear the monks singing in the distance.")
 (define-method begin-ambient-loop monastery ()
   (play-music "rain" :loop t)
   (play-sample "monks"))
+
+;;; Your quarters
+
+(defcell quarters-floor
+  (tile :initform (car (one-of '("quarters-floor-1" "quarters-floor-1" "quarters-floor-2")))))
+
+(defcell quarters-wall
+  (tile :initform "quarters-wall")
+  (categories :initform '(:obstacle)))
+
+(defcell desk
+  (tile :initform "desk")
+  (categories :initform '(:obstacle)))
+
+(defcell bed
+  (tile :initform "bed")
+  (categories :initform '(:obstacle)))
+
+(defcell letter
+  (tile :initform "letter")
+  (categories :initform '(:item)))
+
+(define-method step letter (stepper)
+  (when [is-player stepper]
+    [emote stepper '((("It's a letter for me.")))]
+    [say stepper "You pick up the letter."]
+    [take stepper :direction :here :category :item]))
+    
+(define-method use letter (user)
+  (let ((box (clone =textbox=)))
+    [resize-to-scroll box :height 540 :width 800] 
+    [move box :x 0 :y 0]
+    (let ((text	(find-resource-object "letter-text")))
+      [set-buffer box text])
+    (install-widgets box)))
+ 
+(define-prototype quarters (:parent xe2:=world=)
+  (height :initform 9)
+  (width :initform 7)
+  (ambient-light :initform :total)
+  (description :initform 
+"The monks have given you a spare but comfortable room.")
+  (edge-condition :initform :block))
+
+(define-method generate quarters (&rest params)
+  (clon:with-field-values (height width) self
+    [create-default-grid self]
+    (dotimes (i height)
+      (dotimes (j width)
+	[drop-cell self (clone =quarters-floor=) i j]))
+    [drop-cell self (clone =desk=) 2 3]
+    [drop-cell self (clone =bed=) 1 5]
+  [drop-cell self (clone =letter=) 2 2]
+  (labels ((drop-wall (r c)
+	     (prog1 nil
+	       [drop-cell self (clone =quarters-wall=) r c])))
+    (xe2:trace-rectangle #'drop-wall 0 0 height width))
+  (let ((row 3)
+	(column 3))
+    [drop-cell self (clone =drop-point=) row column
+	       :exclusive t :probe t])))
+
+(define-method begin-ambient-loop monastery ()
+  (play-music "solace"))
+
 

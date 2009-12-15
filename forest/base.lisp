@@ -75,7 +75,8 @@ It has begun to snow."
 	     :water-density 0
 	     :water-cutoff 0.3))   
     (4 (list '=passage=))
-    (5 (list '=monastery=))))
+    (5 (list '=monastery=))
+    (6 (list '=quarters=))))
     
 ;;; Text overlay balloons
 

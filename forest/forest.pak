@@ -8,6 +8,10 @@
  (:name "fire-2" :type :image :file "fire-2.png")
  (:name "fire-3" :type :image :file "fire-3.png")
 
+ (:name "road-1" :type :image :file "road-border-1.png")
+ (:name "road-2" :type :image :file "road-border-2.png")
+ (:name "road-3" :type :image :file "road-border-3.png")
+
  (:name "earth-1" :type :image :file "earth-1.png")
  (:name "earth-2" :type :image :file "earth-1.png")
  (:name "earth-3" :type :image :file "earth-2.png")
@@ -107,6 +111,15 @@
  (:name "death-alien" :type :sample :file "death-alien.wav" :properties (:volume 30))
  (:name "knock" :type :sample :file "knock.wav" :properties (:volume 50))
  (:name "monks" :type :sample :file "monks.wav" :properties (:volume 25))
+
+
+ (:name "quarters-floor-1" :type :image :file "quarters-floor-1.png")
+ (:name "quarters-floor-2" :type :image :file "quarters-floor-2.png")
+ (:name "quarters-wall" :type :image :file "quarters-wall.png")
+ (:name "bed" :type :image :file "bed.png")
+ (:name "desk" :type :image :file "desk.png")
+ (:name "letter" :type :image :file "tiny-map.png")
+
  (:name "talk" :type :sample :file "talk.wav" :properties (:volume 10))
  (:name "lutey" :type :sample :file "lutey.wav" :properties (:volume 31))
  (:name "groar" :type :sample :file "groar.wav" :properties (:volume 25))
@@ -121,6 +134,8 @@
  (:name "hill-3" :type :image :file "hill-3.png")
  (:name "flowers-1" :type :image :file "flowers-1.png")
  (:name "flowers-2" :type :image :file "flowers-2.png")
+ (:name "solace" :type :music :file "solace.ogg" :properties (:volume 20))
+ (:name "lothaine" :type :image :file "lothaine.png")
  (:name "nightbird" :type :music :file "nightbird.ogg" :properties (:volume 20))
  (:name "passageway" :type :music :file "passageway.ogg" :properties (:volume 20))
  (:name "rain" :type :music :file "rain.ogg" :properties (:volume 20))
@@ -135,6 +150,7 @@
  (:name "bip" :type :sample :file "bip.wav" :properties (:volume 10))
  (:name "serve" :type :sample :file "serve.wav" :properties (:volume 10))
  (:name "help-message" :type :text :file "README")
+ (:name "letter-text" :type :text :file "letter.txt")
  (:name "package-lisp" :type :lisp :file "package.lisp" :properties (:autoload t))
  (:name "base-lisp" :type :lisp :file "base.lisp" :properties (:autoload t))
  (:name "player-lisp" :type :lisp :file "player.lisp" :properties (:autoload t))
