@@ -1,5 +1,43 @@
 (in-package :forest)
 
+;;; Icy tundra
+
+(defparameter *tundra-tiles* '("tundra-1" 
+			      "tundra-2"
+			      "tundra-3"
+			      "tundra-4"
+			      "tundra-5"
+			      "tundra-6"
+			      "floor"))
+
+(defparameter *tundra-light-radius* 14)
+
+
+(defcell tundra 
+  (tile :initform "floor")
+  (description :initform "This frozen surface is treacherous.")
+  (categories :initform '(:actor :reflective)))
+
+(define-method blow tundra (dark)
+  (let ((snow [category-at-p *world* <row> <column> :snow]))
+    (when snow
+      [update-tile snow dark])
+    (if (minusp <snow-clock>)
+	(progn (setf <snow-clock> *snow-clock*)
+	       (if (null snow)
+		   (percent-of-time 3
+		     (setf snow (clone =snow=))
+		     [drop self snow])
+		   (percent-of-time 10 
+		     [collect snow 1 dark])))
+	(decf <snow-clock>))))
+    
+(define-method run tundra ()
+  (let* ((dist [distance-to-player self]))
+    (setf <tile> (if (< dist *tundra-light-radius*)
+		     (nth (truncate (/ dist 2)) *tundra-tiles*)
+		     "floor"))))
+
 ;;; Water
 
 (defcell foam 
@@ -58,7 +96,7 @@
 (defcell tree 
   (tile :initform "tree-1")
   (description :initform "These trees are still green. Perhaps the land is coming back?")
-  (categories :initform '(:obstacle :opaque :nosnow)))
+  (categories :initform '(:obstacle :opaque :nosnow :exclusive)))
 
 ;;; The snow
 
@@ -151,7 +189,7 @@
 (defcell wall
   (tile :initform "wall")
   (description :initform "These crumbling walls are all that remain of some old town.")
-  (categories :initform '(:obstacle :opaque)))
+  (categories :initform '(:obstacle :opaque :exclusive)))
 
 (defcell debris
   (tile :initform "debris"))
@@ -214,7 +252,6 @@
 	      (setf clock (+ 5 (random 5)))))))
     [move self (random-direction)]))
 
-
 ;;; Bodies of other adventurers
 
 (defcell body 
@@ -225,7 +262,7 @@
 (define-method step body (stepper)
   (when [is-player stepper]
     [say self "You search the body."]
-    (unless (percent-of-time 30
+    (unless (percent-of-time 40
 	      (prog1 t
 		[drop self (clone (car (one-of (list =herb= =arrows=))))]))
       [say self "Nothing was found."])
@@ -259,6 +296,11 @@
   (dotimes (i <height>)
     (dotimes (j <width>)
       [drop-cell self (clone =earth=) i j])))
+
+(define-method drop-tundra forest ()
+  (dotimes (i <height>)
+    (dotimes (j <width>)
+      [drop-cell self (clone =tundra=) i j])))
 
 (define-method drop-trees forest (&optional &key (object =tree=)
 					    distance 
@@ -301,6 +343,16 @@
 
 (define-method step river-gateway (stepper)
   [say self "The river meets the forest here. Press ENTER to continue on."])
+
+(define-prototype ascent-gateway (:parent =gateway=)
+  (tile :initform "ascent-gateway")
+  (name :initform "To the Ascent")
+  (description :initform "The trees thin here and the land becomes more icy.")
+  (sequence-number :initform (genseq))
+  (address :initform (generate-level-address 3)))
+
+(define-method step ascent-gateway (stepper)
+  [say self "The climb begins here. Press ENTER to continue on."])
 
 (define-prototype passage-gateway (:parent =gateway=)
   (tile :initform "passage-gateway")
@@ -395,6 +447,7 @@
 				     (ruins 15)
 				     (herbs 2)
 				     (firewood 14)
+				     (terrain-type :earth)
 				     level snowing raining
 				     (tree-grain 0.3)
 				     (tree-density 30)
@@ -409,7 +462,9 @@
   (setf <snowing> snowing <raining> raining)
   (setf <level> level)
   [create-default-grid self]
-  [drop-earth self]
+  (ecase terrain-type 
+    (:earth [drop-earth self])
+    (:tundra [drop-tundra self]))
   [drop-cell self (clone =storm=) 0 0]
   (dotimes (i fireflies)
     (let ((firefly (clone =firefly=)))
@@ -439,11 +494,17 @@
       [drop-cell self (clone =archer-skeleton=) r c :exclusive t :probe t :loadout t]))
   (let* ((gateway (clone (ecase level
 			   (1 =river-gateway=)
-			   (2 =passage-gateway=))))
+			   (2 =ascent-gateway=)
+			   (3 =passage-gateway=))))
 	 (row (+ (- height 10) (random 10))) ;; 20 FIXME
 	 (column (random 10)))
     [replace-cells-at *world* row column gateway]
-    [set-location gateway row column]))
+    [set-location gateway row column])
+  ;; drop Lich if needed
+  (let ((lich (clone =lich=)))
+    (when (= level 3)
+      [drop-cell self lich (+ 60 (random 20)) (random width) :loadout t])))
+    
     
 (define-method begin-ambient-loop forest ()
   (play-sample "lutey")

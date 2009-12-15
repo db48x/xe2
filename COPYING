@@ -3,8 +3,11 @@ in XE2. XE2 is provided under the terms of the GNU General Public
 License, version 3.
 
 The game subdirectories include MEDIA-COPYING files which place the
-included GRAPHICS AND SOUND files under a Creative Commons
-License. See each game's MEDIA-COPYING file for details.
+included GRAPHICS AND SOUND files under various licenses, including
+Creative Commons licenses. See each game's MEDIA-COPYING file for
+details. NOTE. SOME OF THE GAMES ARE LICENSED WITH ONE CC LICENSE,
+SOME WITH ANOTHER. CHECK THE MEDIA-COPYING FILE IN EACH GAME'S
+SUBDIRECTORY.
 
 The X11 color data is reproduced here in rgb.lisp under the MIT
 License; see rgb.lisp for details.

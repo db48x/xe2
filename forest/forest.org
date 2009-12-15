@@ -1,17 +1,15 @@
+** TODO edible fruits to find
+** TODO Catacombs
 ** TODO rose found in the forest
-** TODO [#A] make wolves less annoying
-** TODO more herbs on dead bodies'
 ** TODO [#A] fix 100% cpu usage
 *** WAITING talk to luke
-** TODO rest and shelter
 ** TODO magic barrier shield (flickering sprites)
 ** TODO magic missile (sparkly trails.)
 ** TODO enemies search for dark spots
-** TODO [#B] fix scrolling
-** TODO [#C] Command-Q should quit on mac ?
-** TODO [#A] don't place bodies in walls OR ITEMS
-** TODO [#C] indicate edge of map with chevrons. piece together maps.
-** TODO [#C] overworld map? (FUTURE)
 ** TODO [#B] fix in-game map scrolling off bottom of viewport
 ** TODO [#B] find in-game notes with same color scheme text as scroll
 ** TODO [#B] longer level approach to monastery, talk to a few npcs, follow a road and cross fences
+** TODO [#C] fix scrolling
+** TODO [#C] Command-Q should quit on mac ?
+** TODO [#C] indicate edge of map with chevrons. piece together maps.
+** TODO [#C] overworld map? (FUTURE)

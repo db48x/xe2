@@ -55,8 +55,27 @@ It has begun to snow."
 	     :water-grain 0.5
 	     :water-density 80
 	     :water-cutoff 0.3))
-    (3 (list '=passage=))
-    (4 (list '=monastery=))))
+    (3 (list '=forest= 
+	     :level n
+	     :description 
+	     "The trees thin here as you ascend toward the mountain pass."
+	     :sequence-number (xe2:genseq) 
+	     :height *forest-height*
+	     :width *forest-width*
+	     :fireflies 20
+	     :graveyards 0
+	     :ruins 0
+	     :terrain-type :tundra
+	     :snowing t
+	     :firewood 25
+	     :archer-skeletons 8
+	     :tree-grain 0.9
+	     :tree-density 20
+	     :water-grain 0.5
+	     :water-density 0
+	     :water-cutoff 0.3))   
+    (4 (list '=passage=))
+    (5 (list '=monastery=))))
     
 ;;; Text overlay balloons
 

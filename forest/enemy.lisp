@@ -98,7 +98,7 @@
   (direction :initform nil)
   (speed :initform (make-stat :base 3))
   (movement-cost :initform (make-stat :base 6))
-  (hit-points :initform (make-stat :base 16 :min 0))
+  (hit-points :initform (make-stat :base 12 :min 0))
   (equipment-slots :initform '(:left-hand :right-hand))
   (arrows :initform (make-stat :base 15 :min 0))
   (max-items :initform (make-stat :base 3))
@@ -151,7 +151,7 @@
 	    [expend-action-points self 10])
 	  (multiple-value-bind (r c)
 	      (step-in-direction <row> <column> <direction>)
-	    [expend-action-points self 8]
+	    [expend-action-points self 12]
 	    (when [obstacle-at-p world r c]
 	      [choose-new-direction self])
 	    [move self <direction>])))))
@@ -159,9 +159,82 @@
 (define-method die archer-skeleton ()
   (unless <dead>
     (setf <dead> t)
-    [drop self (clone =arrows= :count [stat-value self :arrows])]
+    (when (plusp [stat-value self :arrows])
+      [drop self (clone =arrows= :count [stat-value self :arrows])])
     [play-sample self "death-alien"]
     [delete-from-world self]))
+
+;;; The horrifying Lich
+
+(defcell lichblade 
+  (name :initform "lichblade")
+  (categories :initform '(:item :weapon :equipment))
+  (tile :initform "dagger")
+  (attack-power :initform (make-stat :base 30))
+  (attack-cost :initform (make-stat :base 30))
+  (accuracy :initform (make-stat :base 90))
+  (stepping :initform t)
+  (weight :initform 3000)
+  (equip-for :initform '(:left-hand :right-hand)))
+
+(define-prototype lich (:parent xe2:=cell=)
+  (name :initform "Lich")
+  (strength :initform (make-stat :base 29 :min 0 :max 40))
+  (dexterity :initform (make-stat :base 15 :min 0 :max 30))
+  (intelligence :initform (make-stat :base 19 :min 0 :max 30))
+  (categories :initform '(:actor :target :obstacle :opaque :enemy :equipper))
+  (equipment-slots :initform '(:left-hand :right-hand))
+  (max-items :initform (make-stat :base 3))
+  (stepping :initform t)
+  (speed :initform (make-stat :base 2))
+  (movement-cost :initform (make-stat :base 8))
+  (attacking-with :initform :left-hand)
+  (screamed :initform nil)
+  (max-weight :initform (make-stat :base 25))
+  (hit-points :initform (make-stat :base 60 :min 0 :max 10))
+  (tile :initform "lich")
+  (description :initform "The Lich is a rotting skeletal horror in red velvet robes."))
+
+(define-method initialize lich ()
+  [make-inventory self]
+  [make-equipment self])
+
+(define-method loadout lich ()
+  (let ((blade (clone =lichblade=)))
+    [equip self [add-item self blade]]))
+
+(define-method attack lich (target)
+  [damage [get-player *world*] 10]
+  [expend-action-points self 40]
+  [play-sample self "lichdie"]
+  [say self "The Lich screams 'DIE!' as it stabs at you."])
+
+(define-method run lich ()
+  (when (and (null <screamed>)
+	     (< [distance-to-player self] 15))
+    (setf <screamed> t)
+    [play-sample self "lichscream"])
+  (clon:with-field-values (row column) self
+    (let* ((world *world*)
+	   (direction [direction-to-player *world* row column]))
+      (if [adjacent-to-player world row column]
+	  [>>attack self direction]
+	  (if [obstacle-in-direction-p world row column direction]
+	      (let ((target [target-in-direction-p world row column direction]))
+		(if (and target (not [in-category target :enemy]))
+		    [>>attack self direction]
+		    (progn (setf <direction> (random-direction))
+			   [>>move self direction])))
+	      (progn (when (< 7 (random 10))
+		       (setf <direction> (random-direction)))
+		     [>>move self direction]))))))
+
+(define-method die lich ()
+  [say self "The lich dies!"]
+  [play-sample self "lichdeath"]
+  [parent>>die self])
+
+
 
 ;;; Wolves are the most difficult enemies. 
 

@@ -55,8 +55,11 @@
  (:name "help-message" :type :formatted-text :file "README")
 
  (:name "snowflake" :type :image :file "snowflake.png")
+ (:name "lich" :type :image :file "lich.png")
+ (:name "lichblade" :type :image :file "lichblade.png")
  (:name "monastery" :type :image :file "monastery.png")
  (:name "monastery-gateway" :type :image :file "monastery-gateway.png")
+ (:name "ascent-gateway" :type :image :file "ascent-gateway.png")
 
  (:name "water-1" :type :image :file "water-1.png")
  (:name "water-2" :type :image :file "water-2.png")
@@ -98,6 +101,9 @@
  (:name "wall" :type :image :file "wall.png")
  (:name "dandelion" :type :image :file "dandelion.png")
  (:name "death" :type :sample :file "death.wav" :properties (:volume 40))
+ (:name "lichdeath" :type :sample :file "lichdeath.wav" :properties (:volume 40))
+ (:name "lichdie" :type :sample :file "lichdie.wav" :properties (:volume 40))
+ (:name "lichscream" :type :sample :file "lichscream.wav" :properties (:volume 40))
  (:name "death-alien" :type :sample :file "death-alien.wav" :properties (:volume 30))
  (:name "knock" :type :sample :file "knock.wav" :properties (:volume 50))
  (:name "monks" :type :sample :file "monks.wav" :properties (:volume 25))

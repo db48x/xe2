@@ -1,43 +1,5 @@
 (in-package :forest)
 
-;;; Icy tundra
-
-(defparameter *tundra-tiles* '("tundra-1" 
-			      "tundra-2"
-			      "tundra-3"
-			      "tundra-4"
-			      "tundra-5"
-			      "tundra-6"
-			      "floor"))
-
-(defparameter *tundra-light-radius* 14)
-
-
-(defcell tundra 
-  (tile :initform "floor")
-  (description :initform "This frozen surface is treacherous.")
-  (categories :initform '(:actor :reflective)))
-
-(define-method blow tundra (dark)
-  (let ((snow [category-at-p *world* <row> <column> :snow]))
-    (when snow
-      [update-tile snow dark])
-    (if (minusp <snow-clock>)
-	(progn (setf <snow-clock> *snow-clock*)
-	       (if (null snow)
-		   (percent-of-time 3
-		     (setf snow (clone =snow=))
-		     [drop self snow])
-		   (percent-of-time 10 
-		     [collect snow 1 dark])))
-	(decf <snow-clock>))))
-    
-(define-method run tundra ()
-  (let* ((dist [distance-to-player self]))
-    (setf <tile> (if (< dist *tundra-light-radius*)
-		     (nth (truncate (/ dist 2)) *tundra-tiles*)
-		     "floor"))))
-
 (defcell mountain 
   (tile :initform "mountain")
   (description :initform "The walls of the passageway are slick with ice.")
