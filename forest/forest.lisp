@@ -94,7 +94,7 @@
 ;;; The tree
 
 (defcell tree 
-  (tile :initform "tree-1")
+  (tile :initform (car (one-of '("tree-2" "tree-2" "tree-2" "tree-3")))) 
   (description :initform "These trees are still green. Perhaps the land is coming back?")
   (categories :initform '(:obstacle :opaque :nosnow :exclusive)))
 
