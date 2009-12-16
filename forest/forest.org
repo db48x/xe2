@@ -7,7 +7,8 @@
 ** TODO teleporting lich
 
 * Polish
-** TODO edible fruits to find
+** TODO 
+** TODO edible fruits to find? in polluted land?
 ** TODO rose found in the forest
 ** TODO fix bubbles to stay onscreen, Lothaine etc
 
