@@ -77,7 +77,7 @@
   formatted-string-width get-color create-image draw-image play
   define-prototype has-field defcell *choose-direction-menu*
   set-field-options field-option-value index-resource find-module-path
-  index-module load-image-resource load-lisp-resource
+  index-module load-image-resource load-lisp-resource *executable*
   *resource-handlers* load-resource find-resource find-resource-object
   *colors* *world* load-user-init-file *module-directories*
   resource-to-plist make-event =widget= *active-widgets*

@@ -782,22 +782,24 @@ resource is stored; see also `find-resource'."
 		   *resource-table*) 
 	  val)))
 
+(defvar *executable* nil)
+
 (defvar *module-directories* 
-  (list (make-pathname :directory 
-		       (pathname-directory 
-			(make-pathname
-			 :host (pathname-host #.(or *compile-file-truename*
-						    *load-truename*))
-			 :device (pathname-device #.(or *compile-file-truename*
+  (list (if *executable*
+	    (make-pathname :directory (pathname-directory (car sb-ext:*posix-argv*)))
+	    (make-pathname :directory 
+			   (pathname-directory 
+			    (make-pathname
+			     :host (pathname-host #.(or *compile-file-truename*
 							*load-truename*))
-			 :directory (pathname-directory #.(or *compile-file-truename*
-							      *load-truename*))))))
-			;; (load-time-value 
-			;;  (or #.*compile-file-truename* *load-truename*))))
-	;; ;; auto-config via sb-ext
-	;; (make-pathname :directory (pathname-directory (car sb-ext:*posix-argv*))))
+			     :device (pathname-device #.(or *compile-file-truename*
+							    *load-truename*))
+			     :directory (pathname-directory #.(or *compile-file-truename*
+								  *load-truename*)))))))
   "List of directories where XE2 will search for modules.
 Directories are searched in list order.")
+;; (load-time-value 
+;; (or #.*compile-file-truename* *load-truename*))))
 
 (defun find-module-path (module-name)
   "Search the `*module-directories*' path for a directory with the

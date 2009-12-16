@@ -1,9 +1,16 @@
 * Essential
-** TODO more stuff to look at on sanctuary level... sheep or something
+** TODO more story stuff
+** TODO forest exits should be able to be in any column
+** TODO stop spamming with multiple narrator messages (2x)
+** TODO move lich a little more quickly?
+** TODO lich incantation distance attackk?
+** TODO teleporting lich
 
 * Polish
 ** TODO edible fruits to find
 ** TODO rose found in the forest
+** TODO fix bubbles to stay onscreen, Lothaine etc
+
 
 ** TODO [#A] fix 100% cpu usage
 *** WAITING talk to luke

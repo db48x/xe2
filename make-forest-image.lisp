@@ -15,7 +15,8 @@
 				      (sb-posix:putenv
 				       (format nil "SBCL_HOME=~A" 
 					       #.(sb-ext:posix-getenv "SBCL_HOME")))
-				      (xe2:play "forest")
+				      (let ((xe2:*executable* t))
+					(xe2:play "forest"))
 				      0)
 			  :executable t)
   
