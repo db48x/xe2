@@ -396,9 +396,9 @@
 		  [set-location cell i j])))))))))
 
 (define-method drop-ruin forest (row column height width)
-  ;; prevent blocking exit
-  (setf row (min (- row (* height 2))))
-  (setf column (min (- column (* width 2))))
+  ;; adjust to prevent blocking exit and blocking player at start
+  (setf row (max 3 (min (- row (* height 2)))))
+  (setf column (max 3 (min (- column (* width 2)))))
   (let (rectangle openings)
     (labels ((collect-point (&rest args)
 	       (prog1 nil (push args rectangle)))

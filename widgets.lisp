@@ -257,8 +257,9 @@ line."
   (setf <lines> (make-array 10 :adjustable t :fill-pointer 0)))
 
 (define-method delete-line formatter (&optional (num-lines 1))
-  (dotimes (n num-lines)
-    (vector-pop <lines>)))
+  (when (>= (length <lines>) num-lines)
+    (dotimes (n num-lines)
+      (vector-pop <lines>))))
 
 (define-method delete-all-lines formatter ()
   [delete-line self (fill-pointer <lines>)])

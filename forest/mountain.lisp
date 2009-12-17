@@ -35,9 +35,9 @@
 	(percent-of-time 10 [drop-cell self (clone =wolf=) i (+ offset (random 4))])
 	(trace-row #'drop-mountain i (+ offset (random 4) 20) <width>)))
     ;; drop monastery gateway
-    (let ((column (+ offset (random 10)))
+    (let ((column (+ 1 offset (random 10)))
 	  (row (- <height> 2)))
-      [drop-cell self (clone =monastery-gateway=) row column])))
+      [replace-cells-at self row column (clone =monastery-gateway=)])))
 
 (define-method drop-trees passage (&optional &key (object =tree=)
 					    distance 

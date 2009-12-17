@@ -104,6 +104,7 @@ verbosity level.")
 "List of action words to use passive voice in narrating.
 http://en.wikipedia.org/wiki/Passive_voice"
                          :initform nil)
+  (repeat-count :initform 0)
   (line-number :initform 0))
 
 (define-method set-verbosity narrator (&optional (value 1))
@@ -118,8 +119,24 @@ http://en.wikipedia.org/wiki/Passive_voice"
 	   (apply #'format nil control-string args)])
 
 (define-method say narrator (control-string &rest args)
-  [println self 
-	   (apply #'format nil control-string args)])
+  (let* ((last-line (aref <lines> (- (fill-pointer <lines>) 1)))
+	 (this-line (list (list (apply #'format nil control-string args)))))
+    (if (equal last-line this-line)
+	;; it's a repeat. make new line with Nx repeat 
+	(progn (incf <repeat-count>)
+	       (vector-pop <lines>)
+	       (message "Repeating message ~Sx" <repeat-count>)
+	       [println self (apply #'format nil (concatenate 'string 
+						      control-string 
+						      (format nil " (Repeated ~Sx)" <repeat-count>))
+				     args)])
+	;; new 
+	(progn 
+	  (message "New message ~S" (cons control-string args))
+	  (setf <repeat-count> 0)
+	  [println self (apply #'format nil control-string args)]))))
+	       
+	
 
 (define-method narrate-message narrator (sender action receiver args &optional force)
   (unless (zerop <verbosity>)

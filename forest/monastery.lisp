@@ -48,9 +48,13 @@
   (running :initform t)
   (timeout :initform 40))
       
-(define-method emote lothaine (text &optional (timeout 3.0))
-  (let ((balloon (clone =balloon= :text text :timeout timeout)))
+(define-method emote lothaine (text &key (timeout 20) (background-color ".blue"))
+  (let ((balloon (clone =balloon= :text text :timeout timeout :background-color background-color))
+	(other-balloon [category-at-p *world* <row> <column> :balloon]))
+    (when other-balloon
+      [die other-balloon])
     [play-sample self "talk"]
+    [follow balloon self]
     [drop self balloon]))
 
 (define-method run lothaine ()
@@ -60,7 +64,7 @@
       (labels ((act ()
 		 (case state 
 		   (0 (when (< [distance-to-player self] 15)
-			[emote self *greeting-text* 1.0]
+			[emote self *greeting-text* :timeout 1.0]
 			(incf state)
 			(setf timeout 20)))
 		   (1 [emote self *beckon-text*]
@@ -231,6 +235,14 @@ south. You can hear the monks singing in the distance.")
   (tile :initform "bed")
   (categories :initform '(:obstacle)))
 
+(define-prototype letter-prompt (:parent xe2:=prompt=)
+  (default-keybindings :initform '(("Q" (:control) "quit ."))))
+
+(define-prototype letter-textbox (:parent xe2:=textbox=))
+
+(define-method quit letter-textbox ()
+  (xe2:quit :shutdown))
+
 (defcell letter
   (tile :initform "letter")
   (categories :initform '(:item)))
@@ -242,12 +254,18 @@ south. You can hear the monks singing in the distance.")
     [take stepper :direction :here :category :item]))
     
 (define-method use letter (user)
-  (let ((box (clone =textbox=)))
+  (let ((box (clone =letter-textbox=))
+	(prompt (clone =letter-prompt=)))
+    [resize prompt :height 20 :width 100]
+    [move prompt :x 0 :y 0]
+    [hide prompt]
+    [install-keybindings prompt]
     [resize-to-scroll box :height 540 :width 800] 
     [move box :x 0 :y 0]
+    [set-receiver prompt box]
     (let ((text	(find-resource-object "letter-text")))
       [set-buffer box text])
-    (install-widgets box)))
+    (install-widgets prompt box)))
  
 (define-prototype quarters (:parent xe2:=world=)
   (height :initform 9)

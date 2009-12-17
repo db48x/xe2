@@ -1,11 +1,8 @@
-** TODO [#A] using Map points player toward more obvious destination
-** TODO [#A] place player in clearing so as to avoid trapping him
-** TODO [#A] don't place monastery-gateway on mountain tile
+** TODO Change river gatewayt tile!
 ** TODO [#A] don't spawn player on tree
-** TODO [#A] stop spamming with multiple narrator messages (2x)
 ** TODO [#A] FIX numlock being on breaks shift keybinding
 ** TODO [#A] treasure on enemies (gold)
-** TODO [#A] can't quit on final screen
+** TODO [#B] record churchbell, flute, guitar
 ** TODO [#A] fix bubbles to stay onscreen, Lothaine etc
 ** TODO [#A] forest exits should be able to be in any column
 ** TODO [#A] lich incantation distance attackk?
@@ -14,6 +11,7 @@
 ** TODO [#A] you hear rushing water to the east, fix not being able to find exits.
 ** TODO [#B] alpha transparency
 ** TODO [#B] don't have enemies attack when you dead
+** TODO [#C] add emote code to XE2 and cells
 ** TODO [#B] find in-game notes with same color scheme text as scroll
 ** TODO [#B] ghouls that pop out of the ground
 ** TODO [#B] magic missile (sparkly trails.)

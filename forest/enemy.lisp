@@ -275,6 +275,7 @@
 	    (progn
 	      (percent-of-time 80 
 		[say self "The undead wolf bites you."]
+		[say self "The undead wolf bites you."]
 		[damage [get-player *world*] 4])
 	      (setf <clock> 6
 		    <behavior> :fleeing))
