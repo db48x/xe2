@@ -786,7 +786,8 @@ resource is stored; see also `find-resource'."
 
 (defvar *module-directories* 
   (list (if *executable*
-	    (make-pathname :directory (pathname-directory (car sb-ext:*posix-argv*)))
+            (make-pathname :directory (pathname-directory (car #+sbcl sb-ext:*posix-argv*
+                                                               #+clozure ccl:*command-line-argument-list*)))
 	    (make-pathname :directory 
 			   (pathname-directory 
 			    (make-pathname
