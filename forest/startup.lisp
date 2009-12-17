@@ -399,7 +399,7 @@
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
     (xe2:install-widgets splash-prompt splash)
-    [add-page *pager* :map prompt viewport narrator status quickhelp]
+    [add-page *pager* :play prompt viewport narrator status quickhelp]
     [add-page *pager* :help help-prompt help]))
 
 

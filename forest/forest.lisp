@@ -504,7 +504,7 @@
 			   (2 =ascent-gateway=)
 			   (3 =passage-gateway=))))
 	 (row (+ (- height 10) (random 10))) ;; 20 FIXME
-	 (column (random 10)))
+	 (column (+ 2 (random (- *forest-width* 4)))))
     (setf <gateway-row> row <gateway-column> column)
     [replace-cells-at *world* row column gateway]
     [set-location gateway row column])

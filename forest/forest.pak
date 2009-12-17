@@ -53,6 +53,9 @@
  (:name "growl-1" :type :sample :file "growl-1.wav" :properties (:volume 30))
  (:name "growl-2" :type :sample :file "growl-2.wav" :properties (:volume 30))
  (:name "howl" :type :sample :file "howl.wav" :properties (:volume 20))
+ (:name "chimes" :type :sample :file "chimes.wav" :properties (:volume 20))
+ (:name "path" :type :sample :file "path.wav" :properties (:volume 20))
+ (:name "flutism" :type :sample :file "flutism.wav" :properties (:volume 13))
  (:name "bark" :type :sample :file "bark.wav" :properties (:volume 30))
  (:name "yelp" :type :sample :file "yelp.wav" :properties (:volume 30))
 

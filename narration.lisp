@@ -105,6 +105,7 @@ verbosity level.")
 http://en.wikipedia.org/wiki/Passive_voice"
                          :initform nil)
   (repeat-count :initform 0)
+  (last-line :initform nil)
   (line-number :initform 0))
 
 (define-method set-verbosity narrator (&optional (value 1))
@@ -119,8 +120,8 @@ http://en.wikipedia.org/wiki/Passive_voice"
 	   (apply #'format nil control-string args)])
 
 (define-method say narrator (control-string &rest args)
-  (let* ((last-line (aref <lines> (- (fill-pointer <lines>) 1)))
-	 (this-line (list (list (apply #'format nil control-string args)))))
+  (let ((last-line <last-line>)
+	(this-line (list (list (apply #'format nil control-string args)))))
     (if (equal last-line this-line)
 	;; it's a repeat. make new line with Nx repeat 
 	(progn (incf <repeat-count>)
@@ -134,7 +135,8 @@ http://en.wikipedia.org/wiki/Passive_voice"
 	(progn 
 	  (message "New message ~S" (cons control-string args))
 	  (setf <repeat-count> 0)
-	  [println self (apply #'format nil control-string args)]))))
+	  [println self (apply #'format nil control-string args)]))
+    (setf <last-line> (list (list (apply #'format nil control-string args))))))
 	       
 	
 
