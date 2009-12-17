@@ -323,7 +323,7 @@
 (defparameter *start-level* 1)
 
 (defun init-forest ()
-  (xe2:message "Initializing Forest...")
+  (xe2:message "Initializing Sanctuary...")
   (clon:initialize)
   (xe2:set-screen-height *room-window-height*)
   (xe2:set-screen-width *room-window-width*)

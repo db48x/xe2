@@ -229,7 +229,7 @@
 	     (dolist (dir (car (one-of '((:north :south :east :west)
 					 (:west :north :east :south)
 					 (:east :north :south :west)
-					 (:soutn :west :north :east)))))
+					 (:south :west :north :east)))))
 	       (multiple-value-bind (r c) (step-in-direction row column dir)
 		 (unless (and [obstacle-at-p *world* r c]
 			      (< [distance-to-player self] 8))
