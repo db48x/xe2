@@ -1,8 +1,10 @@
-** TODO Change river gatewayt tile!
+** TODO [#B] Change river gateway tile!
 ** TODO [#A] don't spawn player on tree
 ** TODO [#A] FIX numlock being on breaks shift keybinding
 ** TODO [#A] treasure on enemies (gold)
+** TODO [#C] joypad support
 ** TODO [#B] record churchbell, flute, guitar
+** TODO [#A] sheet music in-game
 ** TODO [#A] fix bubbles to stay onscreen, Lothaine etc
 ** TODO [#A] forest exits should be able to be in any column
 ** TODO [#A] lich incantation distance attackk?
