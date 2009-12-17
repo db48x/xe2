@@ -1,27 +1,32 @@
-* Essential
-** TODO more story stuff
-** TODO forest exits should be able to be in any column
-** TODO stop spamming with multiple narrator messages (2x)
-** TODO move lich a little more quickly?
-** TODO lich incantation distance attackk?
-** TODO teleporting lich
-
-* Polish
-** TODO 
-** TODO edible fruits to find? in polluted land?
-** TODO rose found in the forest
-** TODO fix bubbles to stay onscreen, Lothaine etc
-
-
-** TODO [#A] fix 100% cpu usage
-*** WAITING talk to luke
-** TODO magic barrier shield (flickering sprites)
-** TODO magic missile (sparkly trails.)
-** TODO enemies search for dark spots
-** TODO [#B] fix in-game map scrolling off bottom of viewport
+** TODO [#A] using Map points player toward more obvious destination
+** TODO [#A] place player in clearing so as to avoid trapping him
+** TODO [#A] don't place monastery-gateway on mountain tile
+** TODO [#A] don't spawn player on tree
+** TODO [#A] stop spamming with multiple narrator messages (2x)
+** TODO [#A] FIX numlock being on breaks shift keybinding
+** TODO [#A] treasure on enemies (gold)
+** TODO [#A] can't quit on final screen
+** TODO [#A] fix bubbles to stay onscreen, Lothaine etc
+** TODO [#A] forest exits should be able to be in any column
+** TODO [#A] lich incantation distance attackk?
+** TODO [#A] move lich a little more quickly?
+** TODO [#A] wolves are too white for snowy background
+** TODO [#A] you hear rushing water to the east, fix not being able to find exits.
+** TODO [#B] alpha transparency
+** TODO [#B] don't have enemies attack when you dead
 ** TODO [#B] find in-game notes with same color scheme text as scroll
-** TODO [#B] longer level approach to monastery, talk to a few npcs, follow a road and cross fences
-** TODO [#C] fix scrolling
+** TODO [#B] ghouls that pop out of the ground
+** TODO [#B] magic missile (sparkly trails.)
+** TODO [#B] more story stuff
+** TODO [#B] rose found in the forest
+** TODO [#B] teleporting lich next to player!
+** TODO [#B] wolves are annoying
 ** TODO [#C] Command-Q should quit on mac ?
+** TODO [#C] enemies search for dark spots
+** TODO [#C] fix 100% cpu usage
+** TODO [#C] fix in-game map scrolling off bottom of viewport
+** TODO [#C] fix scrolling
 ** TODO [#C] indicate edge of map with chevrons. piece together maps.
+** TODO [#C] longer level approach to monastery, talk to a few npcs, follow a road and cross fences
+** TODO [#C] magic barrier shield (flickering sprites)
 ** TODO [#C] overworld map? (FUTURE)

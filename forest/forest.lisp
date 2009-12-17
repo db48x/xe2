@@ -280,6 +280,8 @@
 (define-prototype forest (:parent xe2:=world=)
   (height :initform *forest-height*)
   (width :initform *forest-width*)
+  (gateway-row :initform nil)
+  (gateway-column :initform nil)
   (snowing :initform nil)
   (raining :initform nil)
   (ambient-light :initform *earth-light-radius*)
@@ -370,7 +372,7 @@
       [parent>>activate self]))
 
 (define-method drop-water forest (&optional &key (object =water=)
-					    distance 
+					    distance
 					    (row 0) (column 0)
 					    (graininess 0.3)
 					    (density 100)
@@ -503,6 +505,7 @@
 			   (3 =passage-gateway=))))
 	 (row (+ (- height 10) (random 10))) ;; 20 FIXME
 	 (column (random 10)))
+    (setf <gateway-row> row <gateway-column> column)
     [replace-cells-at *world* row column gateway]
     [set-location gateway row column])
   ;; drop Lich if needed
@@ -510,6 +513,8 @@
     (when (= level 3)
       [drop-cell self lich (+ 60 (random 20)) (random width) :loadout t])))
     
+(define-method gateway-coordinates forest ()
+  (values <gateway-row> <gateway-column>))
     
 (define-method begin-ambient-loop forest ()
   (play-sample "lutey")

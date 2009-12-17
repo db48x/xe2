@@ -67,7 +67,7 @@
     [stat-effect stepper :firewood 1]
     [delete-from-world self]))
 
-;;; A map of the journey
+;;; A map of the journey; also acts as a compass
 
 (defcell sanctuary-map 
   (name :initform "Map")
@@ -76,8 +76,19 @@
   (categories :initform '(:item)))
 
 (define-method use sanctuary-map (user)
-  (prog1 nil
-    [emote user '(((nil :image "sanctuary-map"))) :background-color ".white"]))
+  (let ((map-text '(((nil :image "sanctuary-map"))))
+	(compass-text nil))
+    (prog1 nil
+      (when (clon:has-method :gateway-coordinates *world*)
+	(setf compass-text 
+	      (multiple-value-bind (gateway-row gateway-column) 
+		  [gateway-coordinates *world*]
+		(let* ((r2 (field-value :row user))
+		       (c2 (field-value :column user))
+		       (dir (direction-to r2 c2 gateway-row gateway-column)))
+		  (list (list (list (format nil "Your destination is to the ~A."
+					    (string-capitalize (symbol-name dir))))))))))
+      [emote user (append compass-text map-text)])))
 	 
 (define-method step sanctuary-map (stepper)
   (when [is-player stepper]
