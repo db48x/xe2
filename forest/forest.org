@@ -1,4 +1,3 @@
-** TODO [#B] Change river gateway tile!
 ** TODO [#A] don't spawn player on tree
 ** TODO [#A] FIX numlock being on breaks shift keybinding
 ** TODO [#A] treasure on enemies (gold)
@@ -9,7 +8,6 @@
 ** TODO [#A] forest exits should be able to be in any column
 ** TODO [#A] lich incantation distance attackk?
 ** TODO [#A] move lich a little more quickly?
-** TODO [#A] wolves are too white for snowy background
 ** TODO [#A] you hear rushing water to the east, fix not being able to find exits.
 ** TODO [#B] alpha transparency
 ** TODO [#B] don't have enemies attack when you dead

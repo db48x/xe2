@@ -213,7 +213,7 @@
   [say self "The Lich screams 'DIE!' as it stabs at you."])
 
 (define-method run lich ()
-  [expend-action-points self 10]
+  [expend-action-points self 6]
   (when (and (null <screamed>)
 	     (< [distance-to-player self] 15))
     (setf <screamed> t)
