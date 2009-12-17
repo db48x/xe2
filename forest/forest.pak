@@ -34,6 +34,12 @@
  (:name "tree-4" :type :image :file "tree-4.png")
  (:name "tree-5" :type :image :file "tree-5.png")
 
+ (:name "rose" :type :image :file "rose.png")
+ (:name "mountain-body" :type :image :file "mountain-body.png")
+
+ (:name "sparkles-1" :type :image :file "sparkles-1.png")
+ (:name "sparkles-2" :type :image :file "sparkles-2.png")
+
  (:name "snow-1" :type :image :file "snow-1.png")
  (:name "snow-2" :type :image :file "snow-2.png")
  (:name "snow-3" :type :image :file "snow-3.png")
@@ -56,6 +62,8 @@
  (:name "chimes" :type :sample :file "chimes.wav" :properties (:volume 20))
  (:name "path" :type :sample :file "path.wav" :properties (:volume 20))
  (:name "flutism" :type :sample :file "flutism.wav" :properties (:volume 13))
+ (:name "chimes-2" :type :sample :file "chimes-2.wav" :properties (:volume 13))
+ (:name "chimes-3" :type :sample :file "chimes-3.wav" :properties (:volume 13))
  (:name "bark" :type :sample :file "bark.wav" :properties (:volume 30))
  (:name "yelp" :type :sample :file "yelp.wav" :properties (:volume 30))
 

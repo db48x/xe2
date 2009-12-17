@@ -72,6 +72,11 @@ eventually die. All progress is lost when a character dies, and a new
 game is generated for the next play. Press ESCAPE to restart after
 dying.
 
+You have a long distance to travel, and a limited amount of food and
+ammunition. Don't fight everything you see if you need to conserve
+arrows. Use your map (by default, inventory slot 1) to orient yourself
+toward the path to the Monastery.
+
 Your measure of health is the red HIT POINTS bar at the top of the
 screen; when this reaches zero, you die. Use healing herbs, scattered
 around the forest and scavenged from victims of the undead, to restore

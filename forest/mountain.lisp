@@ -5,6 +5,29 @@
   (description :initform "The walls of the passageway are slick with ice.")
   (categories :initform '(:obstacle :opaque)))
 
+(defcell rose 
+  (tile :initform "rose")
+  (description :initform 
+"This rose appears fresh despite the cold. 
+Perhaps it was laid beside the body?")
+  (categories :initform '(:story :item)))
+
+(define-method step rose (stepper)
+  (when [is-player stepper]
+    (if [take stepper :direction :here :category :item]
+	(progn [say self "You take the rose."]
+	       [play-sample self "chimes"])
+	[say self "Your satchel is full."])))
+
+(defcell mountain-body 
+  (tile :initform "mountain-body")
+  (name :initform "Frozen body")
+  (description :initform 
+"This is the dead body of a Sanctuary Order monk.
+We'll have to send out a party later to recover the body and
+prepare it for cremation."))
+
+
 ;;; Mountain passage world
 
 (defparameter *passage-width* 49)
@@ -24,7 +47,8 @@
 
 (define-method drop-mountains passage ()
   (let* ((offset 10)
-	 (right (- <width> 17 )))
+	 (right (- <width> 17 ))
+	 (rose-row (+ 30 (random 20))))
     (dotimes (i <height>)
       (setf offset (min right (max 0 (incf offset (if (= 0 (random 2))
 						      1 -1)))))
@@ -32,10 +56,14 @@
 		 (prog1 nil
 		   [drop-cell *world* (clone =mountain=) r c])))
 	(trace-row #'drop-mountain i 0 (+ offset (random 4)))
+	(when (= i rose-row)
+	  (let ((rose-col (+ offset 10 (random 5))))
+	    [drop-cell self (clone =mountain-body=) i rose-col] 
+	    [drop-cell self (clone =rose=) i (+ 1 rose-col)]))
 	(percent-of-time 10 [drop-cell self (clone =wolf=) i (+ offset (random 4))])
 	(trace-row #'drop-mountain i (+ offset (random 4) 20) <width>)))
     ;; drop monastery gateway
-    (let ((column (+ 1 offset (random 10)))
+    (let ((column (+ 12 offset (random 10)))
 	  (row (- <height> 2)))
       [replace-cells-at self row column (clone =monastery-gateway=)])))
 

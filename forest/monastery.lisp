@@ -90,22 +90,27 @@
 
 (defcell hill-1
   (description :initform "This gentle slope heads down toward the Monastery.")
+  (name :initform "Hillside")
   (tile :initform "hill-1"))
 
 (defcell hill-2
   (description :initform "This gentle slope heads down toward the Monastery.")
+  (name :initform "Hillside")
   (tile :initform "hill-2"))
 
 (defcell hill-3 
   (description :initform "This gentle slope heads down toward the Monastery.")
+  (name :initform "Hillside")
   (tile :initform "hill-3"))
 
 (defcell flowers-1
-  (description :initform "Gorgeous wildflowers.")
+  (description :initform "Gorgeous wildflowers like you never saw in Nothbess town.")
+  (name :initform "Wildflowers")
   (tile :initform "flowers-1"))
 
 (define-prototype flowers-2 (:parent =flowers-1=)
-  (description :initform "Wildflowers of every description.")
+  (description :initform "Wildflowers of every description. This land is precious.")
+  (name :initform "Wildflowers")
   (tile :initform "flowers-2")
   (categories :initform '(:actor)))
 

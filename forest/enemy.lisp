@@ -179,6 +179,19 @@
   (weight :initform 3000)
   (equip-for :initform '(:left-hand :right-hand)))
 
+(defcell sparkles 
+  (tile :initform "sparkles-1")
+  (categories :initform '(:actor))
+  (clock :initform 8))
+
+(define-method run sparkles ()
+  (decf <clock>)
+  (if (plusp <clock>)
+      (progn [move self (random-direction)]
+	     (setf <tile> (car (one-of '("sparkles-1" "sparkles-2"))))
+	     [play-sample self (car (one-of '("chimes-2" "chimes-3")))])
+      [die self]))
+    
 (define-prototype lich (:parent xe2:=cell=)
   (name :initform "Lich")
   (strength :initform (make-stat :base 29 :min 0 :max 40))
@@ -206,6 +219,27 @@
   (let ((blade (clone =lichblade=)))
     [equip self [add-item self blade]]))
 
+(define-method teleport lich ()
+  (dotimes (i 10)
+    [drop self (clone =sparkles=)])
+  (let ((row [player-row *world*])
+	(column [player-column *world*]))
+    (let ((coords
+	   (block searching
+	     (dolist (dir '(:north :south :east :west))
+	       (multiple-value-bind (r c) (step-in-direction row column dir)
+		 (unless (and [obstacle-at-p *world* r c]
+			      (< [distance-to-player self] 8))
+		   [say self "The lich teleports right in front of you!"]
+		   (return-from searching (list r c))))))))
+      (when coords
+	(destructuring-bind (r c) coords
+	  [delete-from-world self]
+	  [drop-cell *world* self r c]
+	  (dotimes (i 10)
+	    [drop self (clone =sparkles=)]))))))
+      
+  
 (define-method attack lich (target)
   [damage [get-player *world*] 10]
   [expend-action-points self 40]
@@ -227,7 +261,7 @@
 	  (if [obstacle-in-direction-p world row column direction]
 	      (let ((target [target-in-direction-p world row column direction]))
 		(if (and target (not [in-category target :enemy]))
-		    [>>attack self direction]
+		    (percent-of-time 10 [teleport self])
 		    (progn (setf <direction> (random-direction))
 			   [>>move self direction])))
 	      (progn (when (< 7 (random 10))

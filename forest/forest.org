@@ -1,29 +1,32 @@
-** TODO [#A] don't spawn player on tree
+** TODO THE BLACK TABLETS INSCRIBED WITH PROPHECY
 ** TODO [#A] FIX numlock being on breaks shift keybinding
-** TODO [#A] treasure on enemies (gold)
-** TODO [#C] joypad support
-** TODO [#A] sheet music in-game
+** TODO [#A] don't spawn player on tree
 ** TODO [#A] fix bubbles to stay onscreen, Lothaine etc
 ** TODO [#A] forest exits should be able to be in any column
 ** TODO [#A] lich incantation distance attackk?
 ** TODO [#A] move lich a little more quickly?
+** TODO [#A] sheet music in-game
+** TODO [#A] treasure on enemies (gold)
 ** TODO [#A] you hear rushing water to the east, fix not being able to find exits.
 ** TODO [#B] alpha transparency
 ** TODO [#B] don't have enemies attack when you dead
-** TODO [#C] add emote code to XE2 and cells
 ** TODO [#B] find in-game notes with same color scheme text as scroll
 ** TODO [#B] ghouls that pop out of the ground
 ** TODO [#B] magic missile (sparkly trails.)
 ** TODO [#B] more story stuff
+** TODO [#B] oil flask bomb
 ** TODO [#B] rose found in the forest
 ** TODO [#B] teleporting lich next to player!
 ** TODO [#B] wolves are annoying
 ** TODO [#C] Command-Q should quit on mac ?
+** TODO [#C] add emote code to XE2 and cells
+** TODO [#C] cremating the mountain body 
 ** TODO [#C] enemies search for dark spots
 ** TODO [#C] fix 100% cpu usage
 ** TODO [#C] fix in-game map scrolling off bottom of viewport
 ** TODO [#C] fix scrolling
 ** TODO [#C] indicate edge of map with chevrons. piece together maps.
+** TODO [#C] joypad support
 ** TODO [#C] longer level approach to monastery, talk to a few npcs, follow a road and cross fences
 ** TODO [#C] magic barrier shield (flickering sprites)
 ** TODO [#C] overworld map? (FUTURE)
