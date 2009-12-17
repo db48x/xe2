@@ -270,7 +270,7 @@
 		[move self direction]
 		(when (and <screamed>
 			   (< [distance-to-player self] 12))
-		    (percent-of-time 12 [teleport self]))))))))
+		    (percent-of-time 15 [teleport self]))))))))
 
 
 (define-method die lich ()
