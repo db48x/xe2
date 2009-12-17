@@ -235,8 +235,10 @@ replacing them with the single cell (or vector of cells) DATA."
 						  :adjustable t
 						  :fill-pointer 0)))
 			   (prog1 cells
-			     (vector-push-extend data cells))))))))
-
+			     (vector-push-extend data cells))))))
+    (do-cells (cell (aref <grid> row column))
+      [set-location cell row column])))
+    
 (define-method drop-sprite world (sprite x y &key no-collisions loadout)
   "Add a sprite to the world. When NO-COLLISIONS is non-nil, then the
 object will not be dropped when there is an obstacle. When LOADOUT is
@@ -712,10 +714,11 @@ The cells' :cancel method is invoked."
   (let* ((grid <grid>))
     (declare (type (simple-array vector (* *)) grid)
 	     (optimize (speed 3)))
-    (setf (aref grid row column)
-	  (delete-if #'(lambda (c) (when [in-category c category]
-				     (prog1 t [cancel c])))
-		     (aref grid row column)))))
+    (when (array-in-bounds-p grid row column)
+      (setf (aref grid row column)
+	    (delete-if #'(lambda (c) (when [in-category c category]
+				       (prog1 t [cancel c])))
+		       (aref grid row column))))))
 			       
 (define-method line-of-sight world (r1 c1 r2 c2 &optional (category :obstacle))
   "Return non-nil when there is a direct Bresenham's line of sight

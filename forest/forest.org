@@ -1,28 +1,44 @@
-** TODO THE BLACK TABLETS INSCRIBED WITH PROPHECY
+** TODO dolmens night road
+** TODO voyages to go out and collect books and information about the lost world
+** TODO amber treasure
+** TODO cremation
+** TODO Hand power
+** TODO plains and mountains people
+** TODO ensure lich spawn
+** TODO tutorial/backstory introduction.
+** TODO echo spell memories 
+** TODO grandpa sees you off
+** TODO MISSIONS 
+   i really want to frame the story in terms of independent missions
+   of varying difficulty, with a certain tree of missions composing
+   some main story and others being optional/randomly generated
+** TODO [#A] overworld map? (FUTURE)
 ** TODO [#A] FIX numlock being on breaks shift keybinding
 ** TODO [#A] don't spawn player on tree
 ** TODO [#A] fix bubbles to stay onscreen, Lothaine etc
-** TODO [#A] lich incantation distance attackk?
-** TODO [#A] move lich a little more quickly?
 ** TODO [#A] sheet music in-game
 ** TODO [#A] treasure on enemies (gold)
-** TODO [#C] alpha transparency
-** TODO [#C] don't have enemies attack when you dead
-** TODO [#C] find in-game notes with same color scheme text as scroll
-** TODO [#C] ghouls that pop out of the ground
-** TODO [#C] magic missile (sparkly trails.)
+** TODO [#B] THE BLACK TABLETS INSCRIBED WITH PROPHECY
 ** TODO [#B] more story stuff
 ** TODO [#B] oil flask bomb
-** TODO [#C] wolves are annoying. should come from both sides.
+** TODO [#B] tutorial level?
 ** TODO [#C] Command-Q should quit on mac ?
 ** TODO [#C] add emote code to XE2 and cells
+** TODO [#C] alpha transparency
+** TODO [#B] highlight key combos in narrator statements
 ** TODO [#C] cremating the mountain body 
+** TODO [#C] don't have enemies attack when you dead
 ** TODO [#C] enemies search for dark spots
+** TODO [#C] find in-game notes with same color scheme text as scroll
 ** TODO [#C] fix 100% cpu usage
 ** TODO [#C] fix in-game map scrolling off bottom of viewport
 ** TODO [#C] fix scrolling
+** TODO [#C] ghouls that pop out of the ground
 ** TODO [#C] indicate edge of map with chevrons. piece together maps.
 ** TODO [#C] joypad support
+** TODO [#C] lich incantation distance attackk?
 ** TODO [#C] longer level approach to monastery, talk to a few npcs, follow a road and cross fences
 ** TODO [#C] magic barrier shield (flickering sprites)
-** TODO [#C] overworld map? (FUTURE)
+** TODO [#C] magic missile (sparkly trails.)
+** TODO [#C] move lich a little more quickly?
+** TODO [#C] wolves are annoying. should come from both sides.

@@ -26,6 +26,13 @@
  (:name "tundra-5" :type :image :file "tundra-5.png")
  (:name "tundra-6" :type :image :file "tundra-6.png")
 
+ (:name "grass-1" :type :image :file "grass-1.png")
+ (:name "grass-2" :type :image :file "grass-1.png")
+ (:name "grass-3" :type :image :file "grass-2.png")
+ (:name "grass-4" :type :image :file "grass-3.png")
+ (:name "grass-5" :type :image :file "grass-5.png")
+ (:name "grass-6" :type :image :file "grass-6.png")
+
  (:name "floor" :type :image :file "floor.png")
 
  (:name "tree-1" :type :image :file "tree-1.png")
@@ -35,6 +42,7 @@
  (:name "tree-5" :type :image :file "tree-5.png")
 
  (:name "rose" :type :image :file "rose.png")
+ (:name "grandfather" :type :image :file "grandfather.png")
  (:name "mountain-body" :type :image :file "mountain-body.png")
 
  (:name "sparkles-1" :type :image :file "sparkles-1.png")
@@ -45,6 +53,15 @@
  (:name "snow-3" :type :image :file "snow-3.png")
  (:name "snow-4" :type :image :file "snow-4.png")
  (:name "snow-5" :type :image :file "snow-5.png")
+
+ (:name "stone-spiral-1" :type :image :file "stone-spiral.png")
+ (:name "stone-spiral-wall" :type :image :file "stone-spiral-wall.png")
+ (:name "stone-spiral-2" :type :image :file "stone-spiral-2.png")
+ (:name "stone-spiral-3" :type :image :file "stone-spiral-3.png")
+ (:name "stone-spiral-4" :type :image :file "stone-spiral-4.png")
+
+ (:name "boulder-1" :type :image :file "boulder-1.png")
+ (:name "boulder-2" :type :image :file "boulder-2.png")
 
  (:name "snow-dark-1" :type :image :file "snow-dark-1.png")
  (:name "snow-dark-2" :type :image :file "snow-dark-2.png")
@@ -74,6 +91,7 @@
  (:name "lichblade" :type :image :file "lichblade.png")
  (:name "monastery" :type :image :file "monastery.png")
  (:name "monastery-gateway" :type :image :file "monastery-gateway.png")
+ (:name "clearing-gateway" :type :image :file "clearing-gateway.png")
  (:name "quarters-gateway" :type :image :file "quarters-gateway.png")
  (:name "ascent-gateway" :type :image :file "ascent-gateway.png")
 

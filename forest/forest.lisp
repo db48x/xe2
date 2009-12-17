@@ -1,5 +1,29 @@
 (in-package :forest)
 
+;;; Grass
+
+(defparameter *grass-tiles* '("grass-1" 
+			      "grass-2"
+			      "grass-3"
+			      "grass-4"
+			      "grass-5"
+			      "grass-6"
+			      "floor"))
+
+(defparameter *grass-light-radius* 14)
+
+(defcell grass 
+  (tile :initform "floor")
+  (description :initform "Ordinary forest grass.")
+  (categories :initform '(:actor :reflective)))
+
+(define-method run grass ()
+  (let* ((dist [distance-to-player self]))
+    (setf <tile> (if (< dist *grass-light-radius*)
+		     (nth (truncate (/ dist 2)) *grass-tiles*)
+		     "floor"))))
+
+
 ;;; Icy tundra
 
 (defparameter *tundra-tiles* '("tundra-1" 
@@ -268,6 +292,29 @@
       [say self "Nothing was found."])
     [die self]))
 
+;;; Sacred stone area 
+
+(defparameter *dolmens-size* 10)
+
+(defparameter *dolmens-tiles* '("stone-spiral-1" "stone-spiral-2" "stone-spiral-3" "stone-spiral-4"))
+
+(defcell dolmens-floor 
+  (tile :initform (car (one-of *dolmens-tiles*)))
+  (name :initform "Spiral carved stone")
+  (description :initform 
+"These stones have a unique carving style I've not seen before."))
+
+(defcell dolmens-wall
+  (tile :initform "stone-spiral-wall")
+  (name :initform "Megalith")
+  (description :initform "This stone isn't going anywhere.")
+  (categories :initform '(:obstacle :opaque)))
+
+(defcell boulder 
+  (tile :initform (car (one-of '("boulder-1" "boulder-2"))))
+  (name :initform "Dolmens stone")
+  (description :initform "This deep-hued stone looks ancient and weathered."))
+
 ;;; The forest
 
 (defcell drop-point 
@@ -294,6 +341,12 @@
 (define-method is-raining forest ()
   <raining>)
 
+(define-method drop-dolmens forest (row column)
+  (dotimes (i *dolmens-size*)
+    (dotimes (j *dolmens-size*)
+      [delete-category-at self (+ row i) (+ column j) :obstacle]
+      [drop-cell self (clone =dolmens-floor=) (+ row i) (+ column j)])))
+
 (define-method drop-earth forest ()
   (dotimes (i <height>)
     (dotimes (j <width>)
@@ -303,6 +356,11 @@
   (dotimes (i <height>)
     (dotimes (j <width>)
       [drop-cell self (clone =tundra=) i j])))
+
+(define-method drop-grass forest ()
+  (dotimes (i <height>)
+    (dotimes (j <width>)
+      [drop-cell self (clone =grass=) i j])))
 
 (define-method drop-trees forest (&optional &key (object =tree=)
 					    distance 
@@ -356,20 +414,30 @@
 (define-method step ascent-gateway (stepper)
   [say self "The climb begins here. Press ENTER to continue on."])
 
+(define-prototype clearing-gateway (:parent =gateway=)
+  (tile :initform "clearing-gateway")
+  (name :initform "To the Clearing")
+  (description :initform "The dense forest gives way here.")
+  (sequence-number :initform (genseq))
+  (address :initform (generate-level-address 4)))
+
+(define-method step clearing-gateway (stepper)
+  [say self "The forest opens into a clearing here. Press ENTER to continue on."])
+
+(define-method activate clearing-gateway ()
+  (if *lich-alive*
+      [say self "The power of the Lich binds you here; you cannot leave!"]
+      [parent>>activate self]))
+
 (define-prototype passage-gateway (:parent =gateway=)
   (tile :initform "passage-gateway")
   (name :initform "Passage to the mountains")
   (description :initform "A steep passageway leads down through the mountains.")
   (sequence-number :initform (genseq))
-  (address :initform (list '=passage= :sequence-number (genseq))))
+  (address :initform (generate-level-address 5)))
 
 (define-method step passage-gateway (stepper)
   [say self "A pass through the mountains. Press RETURN to enter."])
-
-(define-method activate passage-gateway ()
-  (if *lich-alive*
-      [say self "The power of the Lich binds you here; you cannot leave!"]
-      [parent>>activate self]))
 
 (define-method drop-water forest (&optional &key (object =water=)
 					    distance
@@ -453,6 +521,7 @@
 				     (graveyards 15)
 				     (ruins 15)
 				     (herbs 2)
+				     (dolmens 0)
 				     (firewood 14)
 				     (terrain-type :earth)
 				     level snowing raining
@@ -471,7 +540,8 @@
   [create-default-grid self]
   (ecase terrain-type 
     (:earth [drop-earth self])
-    (:tundra [drop-tundra self]))
+    (:tundra [drop-tundra self])
+    (:grass [drop-grass self]))
   [drop-cell self (clone =storm=) 0 0]
   (dotimes (i fireflies)
     (let ((firefly (clone =firefly=)))
@@ -502,12 +572,16 @@
   (let* ((gateway (clone (ecase level
 			   (1 =river-gateway=)
 			   (2 =ascent-gateway=)
-			   (3 =passage-gateway=))))
+			   (3 =clearing-gateway=)
+			   (4 =passage-gateway=))))
 	 (row (+ (- height 10) (random 10))) ;; 20 FIXME
 	 (column (+ 2 (random (- *forest-width* 4)))))
     (setf <gateway-row> row <gateway-column> column)
     [replace-cells-at *world* row column gateway]
     [set-location gateway row column])
+  ;; drop dolmens if needed
+  (dotimes (n dolmens)
+    [drop-dolmens self (+ 20 (random 60)) (+ 20 (random 60))])
   ;; drop Lich if needed
   (let ((lich (clone =lich=)))
     (when (= level 3)
@@ -517,6 +591,10 @@
   (values <gateway-row> <gateway-column>))
     
 (define-method begin-ambient-loop forest ()
-  (play-sample "lutey")
-  (play-music "nightbird" :loop t))
+  (if (= <level> 4)
+      (progn (play-sample "path")
+	     (play-music "rain" :loop t))
+      (progn 
+	(play-sample "lutey")
+	(play-music "nightbird" :loop t))))
 

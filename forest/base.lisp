@@ -25,7 +25,7 @@ Monastery. It is cold and rainy."
 	     :sequence-number (xe2:genseq) 
 	     :height *forest-height*
 	     :width *forest-width*
-	     :fireflies 200
+	     :fireflies 100
 	     :graveyards 4
 	     :ruins 3
 	     :firewood 10
@@ -73,10 +73,29 @@ It has begun to snow."
 	     :tree-density 20
 	     :water-grain 0.5
 	     :water-density 0
-	     :water-cutoff 0.3))   
-    (4 (list '=passage=))
-    (5 (list '=monastery=))
-    (6 (list '=quarters=))))
+	     :water-cutoff 0.3))
+    (4 (list '=forest= 
+	     :level n
+	     :description 
+	     "A grassy clearing is between you and the mountain pass."
+	     :sequence-number (xe2:genseq) 
+	     :height *forest-height*
+	     :width *forest-width*
+	     :fireflies 80
+	     :graveyards 0
+	     :herbs 0
+	     :ruins 0
+	     :dolmens 3
+	     :terrain-type :grass
+	     :raining t
+	     :firewood 2
+	     :archer-skeletons 3
+	     :tree-grain 0.9
+	     :tree-density 1
+	     :water-density 0))
+    (5 (list '=passage=))
+    (6 (list '=monastery=))
+    (7 (list '=quarters=))))
     
 ;;; Text overlay balloons
 

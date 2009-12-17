@@ -123,7 +123,7 @@
   (tile :initform "monastery-gateway")
   (description :initform "The mountain pass opens here to the foothills by the Monastery.")
   (sequence-number :initform (genseq))
-  (address :initform (generate-level-address 5)))
+  (address :initform (generate-level-address 6)))
 
 (define-method step monastery-gateway (stepper)
   [say self "The mountain pass opens to the foothills by the Monastery here."]
@@ -219,7 +219,7 @@ south. You can hear the monks singing in the distance.")
 
 (define-prototype quarters-gateway (:parent =gateway=)
   (tile :initform "quarters-gateway")
-  (address :initform (generate-level-address 6)))
+  (address :initform (generate-level-address 7)))
 
 (define-method step quarters-gateway (stepper)
   (when [is-player stepper]
