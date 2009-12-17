@@ -226,7 +226,10 @@
 	(column [player-column *world*]))
     (let ((coords
 	   (block searching
-	     (dolist (dir '(:north :south :east :west))
+	     (dolist (dir (car (one-of '((:north :south :east :west)
+					 (:west :north :east :south)
+					 (:east :north :south :west)
+					 (:soutn :west :north :east)))))
 	       (multiple-value-bind (r c) (step-in-direction row column dir)
 		 (unless (and [obstacle-at-p *world* r c]
 			      (< [distance-to-player self] 8))
@@ -238,7 +241,6 @@
 	  [drop-cell *world* self r c]
 	  (dotimes (i 10)
 	    [drop self (clone =sparkles=)]))))))
-      
   
 (define-method attack lich (target)
   [damage [get-player *world*] 10]
@@ -249,7 +251,7 @@
 (define-method run lich ()
   [expend-action-points self 6]
   (when (and (null <screamed>)
-	     (< [distance-to-player self] 15))
+	     (< [distance-to-player self] 16))
     (setf <screamed> t)
     [say self "A scream of undead power chills you to the bone!"]
     [play-sample self "lichscream"])
@@ -264,9 +266,12 @@
 		    (percent-of-time 10 [teleport self])
 		    (progn (setf <direction> (random-direction))
 			   [>>move self direction])))
-	      (progn (when (< 7 (random 10))
-		       (setf <direction> (random-direction)))
-		     [>>move self direction]))))))
+	      (progn 
+		[move self direction]
+		(when (and <screamed>
+			   (< [distance-to-player self] 12))
+		    (percent-of-time 12 [teleport self]))))))))
+
 
 (define-method die lich ()
   [say self "The lich dies!"]

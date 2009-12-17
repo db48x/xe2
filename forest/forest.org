@@ -16,7 +16,6 @@
 ** TODO [#B] more story stuff
 ** TODO [#B] oil flask bomb
 ** TODO [#B] rose found in the forest
-** TODO [#B] teleporting lich next to player!
 ** TODO [#B] wolves are annoying
 ** TODO [#C] Command-Q should quit on mac ?
 ** TODO [#C] add emote code to XE2 and cells
