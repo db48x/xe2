@@ -118,6 +118,37 @@
 	    ("X" (:shift) "fire :south .")
 	    ("C" (:shift) "fire :southeast ."))))
 
+(defparameter *azerty-keybindings*
+  (append *numpad-keybindings*
+	  '(("A" nil "move :northwest .")
+	    ("Z" nil "move :north .")
+	    ("E" nil "move :northeast .")
+	    ("Q" nil "move :west .")
+	    ("D" nil "move :east .")
+	    ("W" nil "move :southwest .")
+	    ("X" nil "move :south .")
+	    ("C" nil "move :southeast .")
+	    ;;
+	    ("A" (:shift) "fire :northwest .")
+	    ("Z" (:shift) "fire :north .")
+	    ("E" (:shift) "fire :northeast .")
+	    ("Q" (:shift) "fire :west .")
+	    ("D" (:shift) "fire :east .")
+	    ("W" (:shift) "fire :southwest .")
+	    ("X" (:shift) "fire :south .")
+	    ("C" (:shift) "fire :southeast .")
+	    ;;
+	    ;; thanks to DarkGod!
+	    ("AMPERSAND" nil "use-item 0 .")
+	    ("WORLD-73" nil "use-item 1 .")
+	    ("AMPERSAND" (:control) "drop-item 0 .")
+	    ("WORLD-73" (:control) "drop-item 1 .")
+	    ("QUOTEDBL" nil "use-item 2 .")
+	    ("QUOTE" nil "use-item 3 .")
+	    ("QUOTEDBL" (:control) "drop-item 2 .")
+	    ("QUOTE" (:control) "drop-item 3 ."))))
+
+
 (defparameter *qwerty-keybindings*
   (append *numpad-keybindings*
 	  '(("Q" nil "move :northwest .")
@@ -161,6 +192,7 @@
 (define-method install-keybindings room-prompt ()
   (dolist (k (append *numpad-keybindings* (ecase *user-keyboard-layout*
 					    (:qwerty *qwerty-keybindings*)
+					    (:azerty *azerty-keybindings*)
 					    (:qwertz *qwertz-keybindings*)
 					    (:dvorak *dvorak-keybindings*)
 					    (:roguelike *roguelike-keybindings*))))

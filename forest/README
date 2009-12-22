@@ -34,15 +34,16 @@ options below:
    / | \          / | \                          |     
   Z  X  C        1  2  3                       South                       
 
-Other keyboard layouts are supported, including QWERTZ and
-DVORAK. Nethack compatibility keys (HJKL for orthogonal, YUBN for
-diagonal) are also available. 
+Other keyboard layouts are supported, including German QWERTZ, French
+AZERTY, and DVORAK. Nethack compatibility keys (HJKL for orthogonal,
+YUBN for diagonal) are also available.
 
 Putting a line like one of these in a file called ~/.xe2rc will
 configure your layout:
  
  (setf xe2:*user-keyboard-layout* :qwerty) 
  (setf xe2:*user-keyboard-layout* :qwertz)
+ (setf xe2:*user-keyboard-layout* :azerty)
  (setf xe2:*user-keyboard-layout* :dvorak)
  (setf xe2:*user-keyboard-layout* :roguelike)
 

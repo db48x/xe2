@@ -19,6 +19,8 @@ Installation and basic playing instructions are provided.
 
 3. Then link the xe2.asd file into your ~/.sbcl/systems directory:
 
+   mkdir ~/.sbcl
+   mkdir ~/.sbcl/systems
    ln -s ~/src/xe2/xe2.asd ~/.sbcl/systems
 
 4. Download and install a required library called CLON. Example
@@ -34,6 +36,8 @@ Installation and basic playing instructions are provided.
 
 5a. Install some prerequisites for LISPBUILDER-SDL. This should be quick.
     
+    First enter the SBCL prompt by running "sbcl" in a terminal or shell.
+
    (require :asdf)
    (require :asdf-install)
    (asdf-install:install :cffi)

@@ -1,8 +1,15 @@
+** TODO PGUP/PGDOWN for scrolling in help
+** TODO dry self immediately on setting fire
+** TODO fire damage
+** TODO BEFORE THINGS GET ANY HAIRIER: overworld-mapify and non-script the game
+** TODO map memory w/darkened squares
 ** TODO dolmens night road
 ** TODO voyages to go out and collect books and information about the lost world
 ** TODO amber treasure
 ** TODO cremation
 ** TODO Hand power
+** TODO titles on balloons
+** TODO archaeological society
 ** TODO plains and mountains people
 ** TODO ensure lich spawn
 ** TODO tutorial/backstory introduction.

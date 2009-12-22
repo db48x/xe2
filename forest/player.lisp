@@ -86,7 +86,7 @@
 		(let* ((r2 (field-value :row user))
 		       (c2 (field-value :column user))
 		       (dir (direction-to r2 c2 gateway-row gateway-column)))
-		  (list (list (list (format nil "Your destination is to the ~A."
+		  (list (list (list (format nil "My destination is to the ~A."
 					    (string-capitalize (symbol-name dir))))))))))
       [emote user (append compass-text map-text)])))
 	 
