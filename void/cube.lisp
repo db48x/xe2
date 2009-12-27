@@ -1,4 +1,4 @@
-(in-package :blast)
+(in-package :void)
 
 (defcell cube-wall
   (name :initform "Cube wall")
@@ -24,8 +24,8 @@ or each turn waited. Melee combat uses 2 units per hit."))
 around."))
 
 (define-method push blue-arrowbox (dir)
-  (when (or (not [obstacle-in-direction-p *active-world* <row> <column> dir])
-	    [category-in-direction-p *active-world*
+  (when (or (not [obstacle-in-direction-p *world* <row> <column> dir])
+	    [category-in-direction-p *world*
 				     <row> <column>
 				     dir :arrowbox-receptacle])
 	    [move self dir :ignore-obstacles]))
@@ -89,7 +89,7 @@ around."))
 (define-method run bit ()
   (when (< [distance-to-player self] 5)
     [fire self])
-  (when [obstacle-in-direction-p *active-world* <row> <column> <direction>]
+  (when [obstacle-in-direction-p *world* <row> <column> <direction>]
     [flip self])
   [move self <direction>])
 
@@ -148,7 +148,7 @@ around."))
 	     (maybe-remove-obstacles (r c probability)
 	       (percent-of-time probability
 		 (let (obstacle)
-		   (loop while (setf obstacle [category-at-p *active-world* r c :obstacle])
+		   (loop while (setf obstacle [category-at-p *world* r c :obstacle])
 			 do [delete-from-world obstacle]))))
 	     (maybe-drop-lock (r c probability)
 	       (percent-of-time probability

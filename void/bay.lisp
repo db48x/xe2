@@ -1,6 +1,4 @@
-
-(in-package :blast)
-
+(in-package :void)
 
 ;;; The instantaneous-fire laser weapon
 
@@ -36,10 +34,10 @@ guarded by Gonds."))
   [make-inventory self]
   [make-equipment self]
   [equip self [add-item self (clone =missile-launcher=)]]
-  (incf (field-value :factory-count *active-world*)))
+  (incf (field-value :factory-count *world*)))
 
 (define-method die bay-factory ()
-  (clon:with-fields (factory-count) *active-world*
+  (clon:with-fields (factory-count) *world*
     (decf factory-count)
     [drop self (clone =explosion=)]
     [>>say :narrator (format nil "Factory destroyed. ~d remaining." 
@@ -50,7 +48,7 @@ guarded by Gonds."))
   [expend-action-points self 15]
   (when (< 5 [distance-to-player self] 20)
     [play-sample self "spawn"]
-    [drop-cell *active-world* (clone =laser-drone=) <row> <column> :loadout t])
+    [drop-cell *world* (clone =laser-drone=) <row> <column> :loadout t])
   (when (< [distance-to-player self] 20)
     [fire self [direction-to-player self]]))
 
@@ -78,21 +76,21 @@ guarded by Gonds."))
 "Pesky, mindless drones who fire laser beams."))
 
 (define-method loadout laser-drone ()
-  (incf (field-value :laser-drone-count *active-world*))
+  (incf (field-value :laser-drone-count *world*))
   [make-inventory self]
   [make-equipment self]
   [equip self [add-item self (clone =ray-caster=)]])
 
 (define-method fire laser-drone ()
   [expend-action-points self 15]
-  (let* ((world *active-world*)
-	 (player [get-player *active-world*]))
+  (let* ((world *world*)
+	 (player [get-player *world*]))
     (labels ((draw-beam (image)
 	       (multiple-value-bind (x0 y0) 
 		   [viewport-coordinates self]
 		 (multiple-value-bind (x1 y1)
 		     [viewport-coordinates player]
-		   (rlx:draw-line x0 y0 x1 y1 
+		   (xe2:draw-line x0 y0 x1 y1 
 				  :destination image)))))
       [damage player 1]
       [play-sample self "laser"]
@@ -100,8 +98,8 @@ guarded by Gonds."))
      
 (define-method run laser-drone ()
   (clon:with-field-values (row column) self
-    (let ((dist [distance-to-player *active-world* row column])
-	  (dir [direction-to-player *active-world* row column]))
+    (let ((dist [distance-to-player *world* row column])
+	  (dir [direction-to-player *world* row column]))
       (if (< dist 15)
 	  (if (< dist 6)
 	      [fire self]
@@ -109,7 +107,7 @@ guarded by Gonds."))
 	  [move self (random-direction)]))))
 
 (define-method die laser-drone ()
-  (clon:with-fields (laser-drone-count) *active-world*
+  (clon:with-fields (laser-drone-count) *world*
     (decf laser-drone-count)
     (when (= 0 (random 2))
       ;; drop something
@@ -138,7 +136,7 @@ toxic."))
   (tile :initform "ocean2")
   (name :initform "Deep Ocean"))
 
-(define-prototype bay (:parent rlx:=world=)
+(define-prototype bay (:parent xe2:=world=)
   (ambient-light :initform :total)
   (laser-drone-count :initform 0)
   (factory-count :initform 0)
@@ -153,7 +151,7 @@ toxic."))
 
 (define-method drop-ocean bay ()
   (clon:with-field-values (height width) self
-    (let ((plasma (rlx:render-plasma height width :graininess 1.2)))
+    (let ((plasma (xe2:render-plasma height width :graininess 1.2)))
       (dotimes (i height)
 	(dotimes (j width)
 	  [drop-cell self (clone (if (< 0 (aref plasma i j))

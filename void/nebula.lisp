@@ -1,5 +1,4 @@
-
-(in-package :blast)
+(in-package :void)
 
 (defun random-nebula-powerup ()
   (clone (ecase (random 6)
@@ -49,7 +48,7 @@
 
 (define-method run station-base ()
   (clon:with-field-values (row column) self
-    (let ((world *active-world*))
+    (let ((world *world*))
       (if (< [distance-to-player world row column] 10)
 	  (let ((player-dir [direction-to-player world row column]))
 	    [expend-default-action-points self]
@@ -115,7 +114,7 @@ condensing into protostars."))
     [expend-action-points stepper 5]
     [damage stepper 2]))
 
-(define-prototype nebula-m (:parent rlx:=world=)
+(define-prototype nebula-m (:parent xe2:=world=)
   (name :initform "Restricted Nebula MX type")
   (scale :initform '(50 m))
   (ambient-light :initform :total)
@@ -138,7 +137,7 @@ seems high."))
 	   (w0 (or distance width))
 	   (r0 (- row (truncate (/ h0 2))))
 	   (c0 (- column (truncate (/ w0 2))))
-	   (plasma (rlx:render-plasma h0 w0 :graininess graininess))
+	   (plasma (xe2:render-plasma h0 w0 :graininess graininess))
 	   (value nil))
       (dotimes (i h0)
 	(dotimes (j w0)
@@ -197,7 +196,7 @@ seems high."))
   (clon:with-field-values (height width) self
     (dotimes (i count)
       [drop-cell self (clone =asteroid= :speed (+ 2 (random 3))
-			     :direction (rlx:random-direction)
+			     :direction (xe2:random-direction)
 			     :color (nth (random 4)
 					 '(:red :blue :brown :orange)))
 		 (random height) (random width)])))

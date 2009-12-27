@@ -1,4 +1,4 @@
-(in-package :blast)
+(in-package :void)
 
 ;;; Infested oxygenless ships 
 
@@ -25,7 +25,7 @@ or each turn waited. Melee combat uses 2 units per hit."))
 
 (define-method step oxygen-tank (stepper)
   (when [is-player stepper]
-    (rlx:play-sample "pop-ssh")
+    (xe2:play-sample "pop-ssh")
     [>>say :narrator "You recover 40 points from the oxygen tank."]
     [>>stat-effect stepper :oxygen 40]
     [>>die self]))
@@ -71,11 +71,11 @@ or each turn waited. Melee combat uses 2 units per hit."))
   (description :initform "Their purpose and structure is unknown. They are best avoided."))
 
 (define-method get-nasty obelix ()
-  [damage [get-player *active-world*] 3]
+  [damage [get-player *world*] 3]
   [say self "The Obelix hits you."])
 
 (define-method run obelix ()
-  (if [obstacle-in-direction-p *active-world* <row> <column> <direction>]
+  (if [obstacle-in-direction-p *world* <row> <column> <direction>]
       (setf <direction> (opposite-direction <direction>))
       (progn [move self <direction>]
 	     (when [adjacent-to-player self]
@@ -90,9 +90,9 @@ or each turn waited. Melee combat uses 2 units per hit."))
   (labels ((boom (r c &optional (probability 50))
 	     (prog1 nil
 	       (when (and (< (random 100) probability)
-			  [in-bounds-p *active-world* r c])
-		 [drop-cell *active-world* (clone =explosion=) r c :no-collisions nil]))))
-    (dolist (dir rlx:*compass-directions*)
+			  [in-bounds-p *world* r c])
+		 [drop-cell *world* (clone =explosion=) r c :no-collisions nil]))))
+    (dolist (dir xe2:*compass-directions*)
       (multiple-value-bind (r c)
 	  (step-in-direction <row> <column> dir)
 	(boom r c 100)))

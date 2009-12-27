@@ -1,4 +1,4 @@
-(in-package :blast)
+(in-package :void)
 
 ;;; An asteroid.
 
@@ -26,7 +26,7 @@
 		 (if (zerop (random 2))
 		     (clone =crystal=)
 		     (clone =small-crystal=)))]
-  [stat-effect [get-player *active-world*] :score 120]
+  [stat-effect [get-player *world*] :score 120]
   (when <stuck-to>
     [unstick <stuck-to> self])
   [parent>>die self])
@@ -49,11 +49,11 @@
       [die self]
       ;; if free, float
       (if (and (not <stuck-to>)  
-	       (not [obstacle-in-direction-p *active-world* <row> <column> <direction>]))
+	       (not [obstacle-in-direction-p *world* <row> <column> <direction>]))
 	  [move self <direction>]
 	  ;; otherwise bounce (when free)
 	  (unless <stuck-to>
-	    (setf <direction> (rlx:random-direction))))))
+	    (setf <direction> (xe2:random-direction))))))
 
 (define-method step asteroid (stepper)
   (when [in-category stepper :player]
@@ -71,15 +71,15 @@
   (stepping :initform t)
   (categories :initform '(:actor :target))
   (hit-points :initform (make-stat :base 5 :min 0 :max 5))
-  (direction :initform (rlx:random-direction))
+  (direction :initform (xe2:random-direction))
   (description :initform 
 "This magnetic mine explodes if damaged, and attracts metallic
 asteroids."))
 
 (define-method scan-neighborhood polaris ()
   (dolist (dir *compass-directions*)
-    (multiple-value-bind (r c) (rlx:step-in-direction <row> <column> dir)
-      (do-cells (cell [cells-at *active-world* r c])
+    (multiple-value-bind (r c) (xe2:step-in-direction <row> <column> dir)
+      (do-cells (cell [cells-at *world* r c])
 	(when (and cell [in-category cell :sticky])
 	  [stick self cell])))))
 
@@ -103,7 +103,7 @@ asteroids."))
     (setf <direction> :north))
   (let ((direction <direction>))	       
     (labels ((obstructed (asteroid)
-	       [obstacle-in-direction-p *active-world*
+	       [obstacle-in-direction-p *world*
 					(field-value :row asteroid)
 					(field-value :column asteroid)
 					direction]))
@@ -111,7 +111,7 @@ asteroids."))
 	(loop while (and (plusp timeout)
 			 (or (some #'obstructed <asteroids>)
 			     (obstructed self)))
-	   do [change-direction self (rlx:random-direction)]
+	   do [change-direction self (xe2:random-direction)]
 	     (decf timeout))
 	(unless (zerop timeout)
 	  ;; it's safe. move as a group. 
@@ -123,22 +123,22 @@ asteroids."))
     (setf (field-value :stuck-to asteroid) self)
     (setf (field-value :direction asteroid) <direction>)
     ;; put it back where it was
-    [move asteroid (rlx:opposite-direction (field-value :direction asteroid))]
+    [move asteroid (xe2:opposite-direction (field-value :direction asteroid))]
     (pushnew asteroid <asteroids>)))
 
 (define-method unstick polaris (asteroid)
   (setf <asteroids> (delete asteroid <asteroids>))
   (when (= 0 (length <asteroids>))
-    [stat-effect [get-player *active-world*] :score 2000]
+    [stat-effect [get-player *world*] :score 2000]
     [play-sample self "sweep"]))
 
 (define-method explode polaris ()
   (labels ((boom (r c &optional (probability 50))
 	     (prog1 nil
 	       (when (and (< (random 100) probability)
-			  [in-bounds-p *active-world* r c])
-		 [drop-cell *active-world* (clone =explosion=) r c :no-collisions nil]))))
-    (dolist (dir rlx:*compass-directions*)
+			  [in-bounds-p *world* r c])
+		 [drop-cell *world* (clone =explosion=) r c :no-collisions nil]))))
+    (dolist (dir xe2:*compass-directions*)
       (multiple-value-bind (r c)
 	  (step-in-direction <row> <column> dir)
 	(boom r c 100)))

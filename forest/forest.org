@@ -1,6 +1,8 @@
 ** TODO PGUP/PGDOWN for scrolling in help
 ** TODO dry self immediately on setting fire
 ** TODO fire damage
+** TODO Arrows should be less scarcxce
+** TODO fix letter vanishing if there are too many items in inventory in end scene
 ** TODO BEFORE THINGS GET ANY HAIRIER: overworld-mapify and non-script the game
 ** TODO map memory w/darkened squares
 ** TODO dolmens night road

@@ -1,5 +1,4 @@
-
-(in-package :blast)
+(in-package :void)
 
 ;;; Radiation graviceptors leave energy behind when you kill them
 
@@ -20,7 +19,7 @@ of poisonous radioactive gas."))
 
 (define-method run graviceptor ()
   (clon:with-field-values (row column) self
-    (let* ((world *active-world*)
+    (let* ((world *world*)
 	   (direction [direction-to-player world row column]))
       (if [adjacent-to-player world row column]
 	  [explode self]
@@ -39,7 +38,7 @@ of poisonous radioactive gas."))
 					       (width (+ 3 (random 5))))
   (labels ((drop-gas (r c)
 	     (prog1 nil
-	       [drop-cell *active-world* (clone =gas=) r c])))
+	       [drop-cell *world* (clone =gas=) r c])))
     [play-sample self "pop-ssh"]
     (trace-rectangle #'drop-gas row column height width :fill)))
 
@@ -48,13 +47,13 @@ of poisonous radioactive gas."))
   (when (notany #'(lambda (ob)
 		    ;; this is ugly:
 		    (eq =debris= (object-parent ob)))
-		[cells-at *active-world* <row> <column>])
+		[cells-at *world* <row> <column>])
 
     (labels ((boom (r c &optional (probability 50))
 	       (prog1 nil
 		 (when (and (< (random 100) probability)
-			    [in-bounds-p *active-world* r c])
-		   [drop-cell *active-world* (clone =explosion=) r c :no-collisions nil]))))
+			    [in-bounds-p *world* r c])
+		   [drop-cell *world* (clone =explosion=) r c :no-collisions nil]))))
       (dolist (dir xe2:*compass-directions*)
 	(multiple-value-bind (r c)
 	    (step-in-direction <row> <column> dir)
@@ -71,7 +70,7 @@ of poisonous radioactive gas."))
   
 (define-method damage graviceptor (points)
   (declare (ignore points))
-  [stat-effect [get-player *active-world*] :score 5000]
+  [stat-effect [get-player *world*] :score 5000]
   [>>say :narrator "Graviceptor destroyed. 5000 Bonus Points."]
   [explode self])
 
@@ -141,9 +140,9 @@ Watch out---they can spawn mines even after death!"))
 
 (define-method run probe ()
   (clon:with-field-values (row column) self
-    (let* ((world *active-world*)
-	   (direction [direction-to-player *active-world* row column])
-	   (distance [distance-to-player *active-world* row column]))
+    (let* ((world *world*)
+	   (direction [direction-to-player *world* row column])
+	   (distance [distance-to-player *world* row column]))
       (if (< distance 8)
 	  (progn 
 	    [play-sample self "dtmf1"]
@@ -153,7 +152,7 @@ Watch out---they can spawn mines even after death!"))
 	    [>>move self <direction>])
 	  ;; bounce around 
 	  (progn 
-	    (when [obstacle-in-direction-p *active-world* <row> <column> <direction>]
+	    (when [obstacle-in-direction-p *world* <row> <column> <direction>]
 	      (setf <direction> (random-direction)))
 	    [>>move self <direction>])))))
 
@@ -184,9 +183,9 @@ Not the typical choice of the best pilots."))
 
 (define-method run canaz ()
   (clon:with-field-values (row column) self
-    (let* ((world *active-world*)
-	   (direction [direction-to-player *active-world* row column])
-	   (distance [distance-to-player *active-world* row column]))
+    (let* ((world *world*)
+	   (direction [direction-to-player *world* row column])
+	   (distance [distance-to-player *world* row column]))
       (if (< distance 8)
 	  (progn 
 	    (setf <direction> (if (< distance 4)
@@ -197,7 +196,7 @@ Not the typical choice of the best pilots."))
 	    [>>fire self direction])
 	  ;; bounce around 
 	  (progn 
-	    (when [obstacle-in-direction-p *active-world* <row> <column> <direction>]
+	    (when [obstacle-in-direction-p *world* <row> <column> <direction>]
 	      (setf <direction> (random-direction)))
 	    [>>move self <direction>])))))
 
@@ -243,7 +242,7 @@ Berserkers attack with a shock probe."))
 
 (define-method run berserker ()
   (clon:with-field-values (row column) self
-    (let ((world *active-world*))
+    (let ((world *world*))
       (if (< [distance-to-player world row column] 5)
 	  (let ((player-dir [direction-to-player world row column]))
 	    (if [adjacent-to-player world row column]
@@ -302,8 +301,8 @@ Two heads. One human, one droid."))
 
 (define-method run biclops ()
   (clon:with-field-values (row column) self
-    (let* ((world *active-world*)
-	   (direction [direction-to-player *active-world* row column]))
+    (let* ((world *world*)
+	   (direction [direction-to-player *world* row column]))
       (if [adjacent-to-player world row column]
 	  [>>attack self direction]
 	  (if [obstacle-in-direction-p world row column direction]
@@ -365,7 +364,7 @@ They fire powerful heat-seeking bullets, but these can be shot down."))
 
 (define-method run scanner ()
   (clon:with-field-values (row column) self
-    (let ((world *active-world*))
+    (let ((world *world*))
       (if (< [distance-to-player world row column] 8)
 	  (let ((player-dir [direction-to-player world row column]))
 	    [queue>>fire self player-dir])
@@ -417,9 +416,9 @@ Hard to kill because of their evasive manuevers."))
 
 (define-method seek rook ()
   (clon:with-field-values (row column) self
-    (when (< [distance-to-player *active-world* row column] <chase-distance>)
-      (let ((direction [direction-to-player *active-world* row column])
-	    (world *active-world*))
+    (when (< [distance-to-player *world* row column] <chase-distance>)
+      (let ((direction [direction-to-player *world* row column])
+	    (world *world*))
 	(if [adjacent-to-player world row column]
 	    (progn
 	      [>>fire self direction]
@@ -443,8 +442,8 @@ Hard to kill because of their evasive manuevers."))
       (setf <behavior> :seeking)
       ;; otherwise, flee
       (clon:with-field-values (row column) self
-	(let ((player-row [player-row *active-world*])
-	      (player-column [player-column *active-world*]))
+	(let ((player-row [player-row *world*])
+	      (player-column [player-column *world*]))
 	  (labels ((neighbor (r c direction)
 		     (multiple-value-bind (r0 c0)
 			 (step-in-direction r c direction)
@@ -521,7 +520,7 @@ and attacks anyone who comes near."))
   (clon:with-field-values (row column) self
     (if (< [distance-to-player self] <attack-distance>)
 	(let ((direction [direction-to-player self])
-	      (world *active-world*))
+	      (world *world*))
 	  (if [adjacent-to-player self]
 	      (progn (format t "FOO")
 		     [attack self direction])
@@ -535,7 +534,7 @@ and attacks anyone who comes near."))
 	       (c0 (field-value :column cell)))
 	  (if [adjacent-to-player self]
 	      [attack self direction])
-	  (when [obstacle-in-direction-p *active-world* row column (direction-to row column r0 c0)]
+	  (when [obstacle-in-direction-p *world* row column (direction-to row column r0 c0)]
 	    (setf <direction> (random-direction))
 	    [move self <direction>])
 	  [move self (direction-to row column r0 c0)]
@@ -583,7 +582,7 @@ and attacks anyone who comes near."))
 	(let* ((cell <defended-cell>)
 	       (r0 (field-value :row cell))
 	       (c0 (field-value :column cell)))
-	  (if [obstacle-in-direction-p *active-world* row column 
+	  (if [obstacle-in-direction-p *world* row column 
 				       (direction-to row column r0 c0)]
 	      (progn (setf <direction> (random-direction))
 		     [move self <direction>])
@@ -620,7 +619,7 @@ and attacks anyone who comes near."))
 
 (define-method run lymphocyte ()
   (clon:with-field-values (row column) self
-    (let ((world *active-world*))
+    (let ((world *world*))
       (if (< [distance-to-player world row column] 8)
 	  (let ((player-dir [direction-to-player world row column]))
 	    (if [adjacent-to-player world row column]

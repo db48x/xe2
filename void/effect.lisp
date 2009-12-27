@@ -1,4 +1,4 @@
-(in-package :blast)
+(in-package :void)
 
 ;;; Glittering flash gives clues on locations of explosions/damage
 
@@ -47,6 +47,6 @@
 	[play-sample self "crunch"]
 	(decf <clock>)
 	[expend-action-points self 10]
-	(rlx:do-cells (cell [cells-at *active-world* <row> <column>])
+	(xe2:do-cells (cell [cells-at *world* <row> <column>])
 	  [damage cell <damage-per-turn>]))))
 

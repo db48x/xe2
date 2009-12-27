@@ -1,5 +1,4 @@
-
-(in-package :blast)
+(in-package :void)
 
 (defcell hive-floor 
   (name :initform "Hive floor")
@@ -64,7 +63,7 @@ biosilicate materials."))
     [parent>>damage self points]
     (when [in-category self :dead]
       (percent-of-time 33
-	[drop-cell *active-world*
+	[drop-cell *world*
 		   (case (random 3)
 		     (0 (clone =energy=))
 		     (1 (clone =biosilicate=))
@@ -86,7 +85,7 @@ biosilicate materials."))
   (setf <tile> (nth <generation> *sprout-tiles*)))
 
 (define-method find-food sprout (direction)
-  (let ((food [category-in-direction-p *active-world* <row> <column> direction :sprout-food]))
+  (let ((food [category-in-direction-p *world* <row> <column> direction :sprout-food]))
     (when food
       (prog1 food
 	[play-sample self (if (= 0 (random 1))
@@ -105,13 +104,13 @@ biosilicate materials."))
 
     ;; otherwise look for food
       (block searching
-	(dolist (dir rlx:*compass-directions*)
+	(dolist (dir xe2:*compass-directions*)
 	  (when (or [in-category self :dead]
 		    [find-food self dir])
 	    (return-from searching))))))
   
 (define-method attack sprout (direction)
-  (let ((player [get-player *active-world*]))
+  (let ((player [get-player *world*]))
     [play-sample self "munch2"]
     [damage player 4]
     [say self "The sprout hits you."]))
@@ -157,7 +156,7 @@ biosilicate materials."))
   (when (< [distance-to-player self] 12)
     [drop self (clone =toxic-hazard=)]
     (setf <direction> [direction-to-player self])
-    (when [obstacle-in-direction-p *active-world* <row> <column> <direction>]
+    (when [obstacle-in-direction-p *world* <row> <column> <direction>]
       (setf <direction> (random-direction)))
     [move self <direction>]))
 
@@ -175,7 +174,7 @@ biosilicate materials."))
 
 ;;; The Biome
 
-(define-prototype biome (:parent rlx:=world=)
+(define-prototype biome (:parent xe2:=world=)
   (name :initform "Biosilicate Hive Biome")
   (ambient-light :initform :total)
   (size :initform 10)
@@ -225,7 +224,7 @@ biosilicate materials."))
       (dotimes (j width)
 	[drop-cell self (clone =hive-floor=) i j]))
     ;; drop plasma pollen
-    (let ((plasma (rlx:render-plasma height width :graininess 0.3))
+    (let ((plasma (xe2:render-plasma height width :graininess 0.3))
     	  (value nil))
       (dotimes (i height)
     	(dotimes (j width)

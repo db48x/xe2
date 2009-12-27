@@ -1,4 +1,4 @@
-;;; vomac.lisp --- an 80's style scrolling sci-fi shoot em up
+;;; vomac.lisp --- multidirectional sci fi shooter rpg
 
 ;; Copyright (C) 2009  David O'Toole
 
@@ -21,7 +21,7 @@
 
 (defpackage :vomac
   (:documentation "VOMAC is an oldschool shmup.")
-  (:use :rlx :common-lisp)
+  (:use :xe2 :common-lisp)
   (:export vomac))
 
 (in-package :vomac)
@@ -29,7 +29,7 @@
 ;;; Scoring points
 
 (defun score (points)
-  [score-points [get-player *active-world*] points])
+  [score-points [get-player *world*] points])
 
 ;;; There are energy tanks for replenishing ammo.
 
@@ -108,7 +108,7 @@ and attacks anyone who comes near."))
   (clon:with-field-values (row column) self
     (if (< [distance-to-player self] [stat-value self :attack-distance])
 	(let ((direction [direction-to-player self])
-	      (world *active-world*))
+	      (world *world*))
 	  (if [adjacent-to-player self]
 	      (progn (format t "FOO")
 		     [attack self direction])
@@ -122,7 +122,7 @@ and attacks anyone who comes near."))
 	       (c0 (field-value :column cell)))
 	  (if [adjacent-to-player self]
 	      [attack self direction])
-	  (when [obstacle-in-direction-p *active-world* row column (direction-to row column r0 c0)]
+	  (when [obstacle-in-direction-p *world* row column (direction-to row column r0 c0)]
 	    (setf <direction> (random-direction))
 	    [move self <direction>])
 	  [move self (direction-to row column r0 c0)]
@@ -172,7 +172,7 @@ and attacks anyone who comes near."))
 	(let* ((cell <defended-cell>)
 	       (r0 (field-value :row cell))
 	       (c0 (field-value :column cell)))
-	  (if [obstacle-in-direction-p *active-world* row column 
+	  (if [obstacle-in-direction-p *world* row column 
 				       (direction-to row column r0 c0)]
 	      (progn (setf <direction> (random-direction))
 		     [move self <direction>])
@@ -259,7 +259,7 @@ and attacks anyone who comes near."))
     [drop self trail]))
 
 (define-method find-target muon-particle ()
-  (let ((target [category-in-direction-p *active-world* 
+  (let ((target [category-in-direction-p *world* 
 					 <row> <column> <direction>
 					 '(:obstacle :target)]))
     (if target
@@ -272,7 +272,7 @@ and attacks anyone who comes near."))
 	  [>>die self])
 	(multiple-value-bind (r c) 
 	    (step-in-direction <row> <column> <direction>)
-	  (if (not (array-in-bounds-p (field-value :grid *active-world*) r c))
+	  (if (not (array-in-bounds-p (field-value :grid *world*) r c))
 	      [die self]
 	      (progn [drop-trail self <direction>]
 		     [>>move self <direction>]))))))
@@ -361,7 +361,7 @@ and attacks anyone who comes near."))
   (tile :initform "pulse-cannon"))
 
 (define-method activate pulse-cannon ()
-  (let* ((world *active-world*)
+  (let* ((world *world*)
 	 (row [player-row world])
 	 (column [player-column world]))
     (if (plusp [stat-value <equipper> :pulse-ammo])
@@ -403,13 +403,13 @@ and attacks anyone who comes near."))
 (define-method activate bomb-cannon ()
   ;; leave bomb on top of ship
   (clon:with-field-values (row column) <equipper>
-    [drop-cell *active-world* (clone =bomb=) row column]))
+    [drop-cell *world* (clone =bomb=) row column]))
 
 (define-method fire bomb-cannon (direction)
   (clon:with-field-values (last-direction row column) <equipper>
     (multiple-value-bind (r c) 
 	(step-in-direction row column direction)
-      [drop-cell *active-world* (clone =bomb=) r c])))
+      [drop-cell *world* (clone =bomb=) r c])))
   
 ;;; Your explosive vapor trail. 
 
@@ -501,7 +501,7 @@ and attacks anyone who comes near."))
 (defparameter *death-message* "You are dead.")
 (defparameter *game-over-message* "GAME OVER.")
 
-(define-prototype skull (:parent rlx:=cell=)
+(define-prototype skull (:parent xe2:=cell=)
   (tile :initform "skull")
   (name :initform "SKULL")
   (player :initform nil)
@@ -509,7 +509,7 @@ and attacks anyone who comes near."))
   (action-points :initform 0))
 
 (define-method run skull ()
-  (rlx:show-widgets))
+  (xe2:show-widgets))
 
 (define-method forward skull (&rest args)
   (declare (ignore args))
@@ -528,7 +528,7 @@ and attacks anyone who comes near."))
  [say self *death-message*])
 
 (define-method quit skull ()
-  (rlx:quit :shutdown))
+  (xe2:quit :shutdown))
 
 (define-method initialize skull (player)
   [say self *death-message*]
@@ -558,7 +558,7 @@ and attacks anyone who comes near."))
   (when (zerop <clock>)
     [die self])
   (decf <clock>)
-  (rlx:do-cells (cell [cells-at *active-world* <row> <column>])
+  (xe2:do-cells (cell [cells-at *world* <row> <column>])
     (when (not [is-player cell])
       [damage cell 5])))
 
@@ -609,7 +609,7 @@ and attacks anyone who comes near."))
 	[play-sample self "crunch"]
 	(decf <clock>)
 	[expend-action-points self 10]
-	(rlx:do-cells (cell [cells-at *active-world* <row> <column>])
+	(xe2:do-cells (cell [cells-at *world* <row> <column>])
 	  [damage cell <damage-per-turn>]))))
 
 ;;; Your ship.
@@ -654,7 +654,7 @@ done."))
   (zerop [stat-value self :hit-points]))
 
 (define-method quit olvac ()
-  (rlx:quit :shutdown))
+  (xe2:quit :shutdown))
 
 (define-method loadout olvac ()
   [make-inventory self]
@@ -724,7 +724,7 @@ done."))
       (progn
 	[say self "Your vehicle is disabled, and cannot move."]
 	[say self "Press Control-P to disembark, but this may kill you."])
-      (let ((modes (field-value :required-modes *active-world*)))
+      (let ((modes (field-value :required-modes *world*)))
 	(if (and modes (not (member <mode> modes)))
 	    (progn 
 	      [say self "Your vehicle is docked, and cannot move."]
@@ -753,7 +753,7 @@ done."))
 	    (getf *olvac-tiles* <last-direction> "voidrider-north"))))
 
 (define-method scan-terrain olvac ()
-  [cells-at *active-world* <row> <column>])
+  [cells-at *world* <row> <column>])
 		 
 (defparameter *piloting-skill-die* 20)
 
@@ -804,11 +804,11 @@ done."))
 
   ;; [play-sample self "death"]
   ;; (let ((skull (clone =skull= self)))
-  ;;   [drop-cell *active-world* skull <row> <column> :loadout t :no-collisions nil]
+  ;;   [drop-cell *world* skull <row> <column> :loadout t :no-collisions nil]
   ;;   (setf <action-points> 0)
   ;;   [add-category self :dead]
   ;;   [>>delete-from-world self]
-  ;;   [set-player *active-world* skull]))
+  ;;   [set-player *world* skull]))
 
 (define-method show-location olvac ()
   (labels ((do-circle (image)
@@ -819,13 +819,13 @@ done."))
     [>>add-overlay :viewport #'do-circle]))
 
 (define-method revive olvac ()
-  [drop-cell *active-world* self (random 10) (random 10)]
+  [drop-cell *world* self (random 10) (random 10)]
   [stat-effect self :hit-points 20]	       
   [stat-effect self :energy 40]	       
   [update-tile self]
   [delete-category self :dead]
 ;;  [stat-effect self :trail-length (- (1+ [stat-value self :trail-length]))]
-  [set-player *active-world* self])
+  [set-player *world* self])
 
 (define-method start olvac ()
   [update-tile self])
@@ -834,7 +834,7 @@ done."))
   nil)
 
 (define-method enter olvac()
-  (let ((gateway [category-at-p *active-world* <row> <column> :gateway]))
+  (let ((gateway [category-at-p *world* <row> <column> :gateway]))
     (if (null gateway)
 	[>>say :narrator "No gateway to enter."]
 	[activate gateway])))
@@ -870,7 +870,7 @@ done."))
 
 (defvar *lepton-trail-tile-map* (list *lepton-trail-end-tiles* *lepton-trail-middle-tiles* *lepton-trail-middle-tiles*))
 
-(define-prototype lepton-trail (:parent rlx:=cell=)
+(define-prototype lepton-trail (:parent xe2:=cell=)
   (categories :initform '(:actor))
   (clock :initform 2)
   (speed :initform (make-stat :base 10))
@@ -890,7 +890,7 @@ done."))
   (when (minusp <clock>)
     [die self]))
 
-(define-prototype lepton-particle (:parent rlx:=cell=)
+(define-prototype lepton-particle (:parent xe2:=cell=)
   (categories :initform '(:actor :target))
   (speed :initform (make-stat :base 14))
   (stepping :initform t)
@@ -903,7 +903,7 @@ done."))
   (clock :initform 10))
 
 (define-method find-target lepton-particle ()
-  (let ((target [category-in-direction-p *active-world* 
+  (let ((target [category-in-direction-p *world* 
 					 <row> <column> <direction>
 					 '(:obstacle :target)]))
     (if target
@@ -921,8 +921,8 @@ done."))
 (define-method run lepton-particle ()
   [update-tile self]
   (clon:with-field-values (row column) self
-    (let* ((world *active-world*)
-	   (direction [direction-to-player *active-world* row column]))
+    (let* ((world *world*)
+	   (direction [direction-to-player *world* row column]))
       (setf <direction> direction)
       [find-target self])
     (decf <clock>)
@@ -941,7 +941,7 @@ done."))
   ;; don't hit the player
   [find-target self])
 
-(define-prototype lepton-cannon (:parent rlx:=cell=)
+(define-prototype lepton-cannon (:parent xe2:=cell=)
   (name :initform "Xiong Les Fleurs Lepton(TM) energy cannon")
   (tile :initform "lepton-cannon")
   (categories :initform '(:item :weapon :equipment))
@@ -1019,7 +1019,7 @@ done."))
 	(dolist (dir (list :northeast :southeast :northwest :southwest))
 	  (multiple-value-bind (r c) 
 	      (step-in-direction <row> <column> dir)
-	    [drop-cell *active-world* (clone =missile=) r c]))
+	    [drop-cell *world* (clone =missile=) r c]))
 	[die self])
       ;; move toward player
       (progn (decf <clock>)
@@ -1082,9 +1082,9 @@ Hard to kill because of their evasive manuevers."))
 
 (define-method seek rook ()
   (clon:with-field-values (row column) self
-    (when (< [distance-to-player *active-world* row column] <chase-distance>)
-      (let ((direction [direction-to-player *active-world* row column])
-	    (world *active-world*))
+    (when (< [distance-to-player *world* row column] <chase-distance>)
+      (let ((direction [direction-to-player *world* row column])
+	    (world *world*))
 	(if [adjacent-to-player world row column]
 	    (progn
 	      [>>fire self direction]
@@ -1108,8 +1108,8 @@ Hard to kill because of their evasive manuevers."))
       (setf <behavior> :seeking)
       ;; otherwise, flee
       (clon:with-field-values (row column) self
-	(let ((player-row [player-row *active-world*])
-	      (player-column [player-column *active-world*]))
+	(let ((player-row [player-row *world*])
+	      (player-column [player-column *world*]))
 	  (labels ((neighbor (r c direction)
 		     (multiple-value-bind (r0 c0)
 			 (step-in-direction r c direction)
@@ -1129,7 +1129,7 @@ Hard to kill because of their evasive manuevers."))
 		   (square (nth (position farthest scores)
 				neighbors)))
 	      (destructuring-bind (r c) square
-		  [move self (rlx:direction-to row column r c)])))))))
+		  [move self (xe2:direction-to row column r c)])))))))
 
 (define-method move rook (direction)
   (setf <last-direction> direction)
@@ -1155,14 +1155,14 @@ Hard to kill because of their evasive manuevers."))
 
 (define-method fire xr7 (direction)
   [expend-action-points self 15]
-  (let* ((world *active-world*)
-	 (player [get-player *active-world*]))
+  (let* ((world *world*)
+	 (player [get-player *world*]))
     (labels ((draw-beam (image)
 	       (multiple-value-bind (x0 y0) 
 		   [viewport-coordinates self]
 		 (multiple-value-bind (x1 y1)
 		     [viewport-coordinates player]
-		   (rlx:draw-line x0 y0 x1 y1 
+		   (xe2:draw-line x0 y0 x1 y1 
 				  :destination image)))))
       [damage player 2]
       [say self "You sustain 2 damage from the laser."]
@@ -1177,9 +1177,9 @@ Hard to kill because of their evasive manuevers."))
 
 (define-method seek xr7 ()
   (clon:with-field-values (row column) self
-    (if (< [distance-to-player *active-world* row column] <chase-distance>)
-	(let ((direction [direction-to-player *active-world* row column])
-	      (world *active-world*))
+    (if (< [distance-to-player *world* row column] <chase-distance>)
+	(let ((direction [direction-to-player *world* row column])
+	      (world *world*))
 	  (if (< [distance-to-player self] 7)
 	      (progn
 		[>>fire self direction]
@@ -1219,7 +1219,7 @@ Hard to kill because of their evasive manuevers."))
 (define-method orient rail-particle ()
   (if <path>
       (destructuring-bind (row column) (pop <path>)
-	(setf <direction> (rlx:direction-to <row> <column> row column)))
+	(setf <direction> (xe2:direction-to <row> <column> row column)))
       [die self]))
 
 (define-method impel rail-particle (row column)
@@ -1241,8 +1241,8 @@ Hard to kill because of their evasive manuevers."))
   (decf <clock>)
   (when (zerop <clock>)
     [die self])
-  ;; (setf <direction> (direction-to <row> <column> [player-row *active-world*]
-  ;; 				  [player-column *active-world*]))
+  ;; (setf <direction> (direction-to <row> <column> [player-row *world*]
+  ;; 				  [player-column *world*]))
   [drop-trail self nil]
   [move self <direction>])
 
@@ -1315,8 +1315,8 @@ Hard to kill because of their evasive manuevers."))
   (if (< [distance-to-player self] 15)
       (let ((cannon [equipment-slot self :center-bay]))
 	[expend-default-action-points self]
-	(when <open> [fire cannon [player-row *active-world*]
-			   [player-column *active-world*]]))))
+	(when <open> [fire cannon [player-row *world*]
+			   [player-column *world*]]))))
 					  
 (define-method damage guardic-eye (points)
   ;; only damage when open
@@ -1435,7 +1435,7 @@ with 8-way fire and heavy armor."))
 (define-method fire vomac-cannon (direction)
   (if [expend-energy <equipper> [stat-value self :energy-cost]]
       (let (wave)
-	(dolist (dir (delete :here rlx:*compass-directions*))
+	(dolist (dir (delete :here xe2:*compass-directions*))
 	  (setf wave (clone =defleptor-wave=))
 	  [drop <equipper> wave]
 	  [play-sample <equipper> "defleptor3"]
@@ -1461,7 +1461,7 @@ with 8-way fire and heavy armor."))
   (stepping :initform t)
   (attacking-with :initform :robotic-arm)
   (max-weight :initform (make-stat :base 25))
-  (direction :initform (rlx:random-direction))
+  (direction :initform (xe2:random-direction))
   (strength :initform (make-stat :base 4 :min 0 :max 30))
   (dexterity :initform (make-stat :base 5 :min 0 :max 30))
   (intelligence :initform (make-stat :base 11 :min 0 :max 30))
@@ -1503,7 +1503,7 @@ with 8-way fire and heavy armor."))
   (name :initform "Star corridor with turbulence")
   (tile :initform "vomac-starfield2"))
 
-(define-prototype star-corridor (:parent rlx:=world=)
+(define-prototype star-corridor (:parent xe2:=world=)
   (ambient-light :initform :total)
   (required-modes :initform '(:vomac :vehicle :spacesuit))
   (scale :initform '(100 m))
@@ -1556,7 +1556,7 @@ with 8-way fire and heavy armor."))
 (define-prototype splash (:parent =widget=))
 
 (define-method render splash ()
-  (rlx:draw-resource-image "splash" 0 0 
+  (xe2:draw-resource-image "splash" 0 0 
 			   :destination <image>))
 
 (defvar *space-bar-function*)
@@ -1566,7 +1566,7 @@ with 8-way fire and heavy armor."))
   (when (functionp *space-bar-function*)
     (funcall *space-bar-function*))
   ;; TODO ugh this is a hack!
-  (rlx:show-widgets))
+  (xe2:show-widgets))
 
 (define-prototype splash-prompt (:parent =prompt=)
   (default-keybindings :initform '(("SPACE" nil "dismiss ."))))
@@ -1575,7 +1575,7 @@ with 8-way fire and heavy armor."))
 
 (defvar *status* nil)
 
-(define-prototype status (:parent rlx:=formatter=)
+(define-prototype status (:parent xe2:=formatter=)
   (character :documentation "The character cell."))
 
 (define-method set-character status (character)
@@ -1635,11 +1635,11 @@ with 8-way fire and heavy armor."))
 
 ;;; Custom bordered viewport
 
-(define-prototype view (:parent rlx:=viewport=))
+(define-prototype view (:parent xe2:=viewport=))
 
 (define-method render view ()
   [parent>>render self]
-  (rlx:draw-rectangle 0 0 
+  (xe2:draw-rectangle 0 0 
 		      <width>
 		      <height>
 		      :color ".blue" :destination <image>))
@@ -1648,7 +1648,7 @@ with 8-way fire and heavy armor."))
 
 ;;; Controlling the game.
 
-(define-prototype vomac-prompt (:parent rlx:=prompt=))
+(define-prototype vomac-prompt (:parent xe2:=prompt=))
 
 (defparameter *basic-keybindings* 
   '(("KP7" nil "move :northwest .")
@@ -1866,7 +1866,7 @@ with 8-way fire and heavy armor."))
 	    ("Q" (:control) "quit ."))))
 
 (define-method install-keybindings vomac-prompt ()
-  (let ((keys (ecase rlx:*user-keyboard-layout* 
+  (let ((keys (ecase xe2:*user-keyboard-layout* 
 		(:qwerty *qwerty-keybindings*)
 		(:alternate-qwerty *alternate-qwerty-keybindings*)
 		(:dvorak *dvorak-keybindings*))))
@@ -1874,7 +1874,7 @@ with 8-way fire and heavy armor."))
       (apply #'bind-key-to-prompt-insertion self k)))
   ;; we also want to respond to timer events. this is how. 
   [define-key self nil '(:timer) (lambda ()
-				   [run-cpu-phase *active-world* :timer])])
+				   [run-cpu-phase *world* :timer])])
 
 ;;; Main program. 
 
@@ -1884,11 +1884,11 @@ with 8-way fire and heavy armor."))
 (defvar *viewport*)
 
 (defun vomac ()
-  (rlx:message "Initializing Vomac...")
-  (setf rlx:*window-title* "Vomac")
+  (xe2:message "Initializing Vomac...")
+  (setf xe2:*window-title* "Vomac")
   (setf clon:*send-parent-depth* 2) 
-  (rlx:set-screen-height *vomac-window-height*)
-  (rlx:set-screen-width *vomac-window-width*)
+  (xe2:set-screen-height *vomac-window-height*)
+  (xe2:set-screen-width *vomac-window-width*)
   ;; go!
   (let* ((prompt (clone =vomac-prompt=))
 	 (universe (clone =universe=))
@@ -1924,10 +1924,10 @@ with 8-way fire and heavy armor."))
     (labels ((spacebar ()
 	       ;;
 	       ;; enable pseudo timing
-	       (rlx:enable-timer)
-	       (rlx:set-frame-rate 30)
-	       (rlx:set-timer-interval 1)
-	       (rlx:enable-held-keys 1 3)
+	       (xe2:enable-timer)
+	       (xe2:set-frame-rate 30)
+	       (xe2:set-timer-interval 1)
+	       (xe2:enable-held-keys 1 3)
 	       ;;
 	       [set-player universe player]
 	       [play universe
@@ -1986,11 +1986,11 @@ with 8-way fire and heavy armor."))
     ;; 					 :color color)
     ;; 			      (draw-circle x y 5 :destination image)))))
     ;; 		 [add-overlay *viewport* #'hack-overlay]))))
-;;      (setf rlx::*lighting-hack-function* #'light-hack))
+;;      (setf xe2::*lighting-hack-function* #'light-hack))
     ;; END HACK
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
-    (rlx:install-widgets splash-prompt splash)
+    (xe2:install-widgets splash-prompt splash)
     [add-page *pager* :game prompt stack viewport terminal *status* quickhelp]
     [add-page *pager* :help help]))
 

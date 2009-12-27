@@ -1,4 +1,4 @@
-;;; blast.lisp --- a micro anti-shmup in common lisp
+;;; void.lisp --- a micro anti-shmup in common lisp
 
 ;; Copyright (C) 2009  David O'Toole
 
@@ -19,19 +19,19 @@
 
 ;;; Commentary 
 
-;; Blast Tactics is a mini space-roguelike puzzler incorporating
+;; Void Tactics is a mini space-roguelike puzzler incorporating
 ;; elements of the classic Asteroids, plus gravity and a unique weapon
 ;; system. Shoot asteroids and enemies, or sweep your trail across
 ;; them. Powerups extend your trail's length and enable higher scores.
 
 ;;; Packaging
 
-(defpackage :blast
-  (:documentation "Blast Tactics: A sci-fi roguelike for Common Lisp.")
+(defpackage :void
+  (:documentation "Void Tactics: A sci-fi roguelike for Common Lisp.")
   (:use :xe2 :common-lisp)
-  (:export blast))
+  (:export void))
 
-(in-package :blast)
+(in-package :void)
 
 ;;; Custom bordered viewport
 
@@ -48,7 +48,7 @@
 
 ;;; Controlling the game.
 
-(define-prototype blast-prompt (:parent xe2:=prompt=))
+(define-prototype void-prompt (:parent xe2:=prompt=))
 
 (defparameter *basic-keybindings* 
   '(("KP7" nil "move :northwest .")
@@ -270,7 +270,7 @@
 	    ("P" nil "embark .")
 	    ("Q" (:control) "quit ."))))
 
-(define-method install-keybindings blast-prompt ()
+(define-method install-keybindings void-prompt ()
   (let ((keys (ecase xe2:*user-keyboard-layout* 
 		(:qwerty *qwerty-keybindings*)
 		(:alternate-qwerty *alternate-qwerty-keybindings*)
@@ -279,7 +279,7 @@
       (apply #'bind-key-to-prompt-insertion self k)))
   ;; we also want to respond to timer events. this is how. 
   [define-key self nil '(:timer) (lambda ()
-				   [run-cpu-phase *active-world* :timer])])
+				   [run-cpu-phase *world* :timer])])
 
 ;;; Status widgets for ship and dude
 
@@ -389,19 +389,19 @@
 	[print-stat self :speed :warn-below 5]
 	[newline self]))
     [print self "LOCATION: "]
-    [print self (format nil "[~A]" [location-name *active-world*])]
+    [print self (format nil "[~A]" [location-name *world*])]
     [print self " SCALE:"]
-    (destructuring-bind (num unit) (field-value :scale *active-world*)
+    (destructuring-bind (num unit) (field-value :scale *world*)
       [print self (format nil "[~A ~A]" num unit)])
     [space self]
     [print self " COORDINATES:"]
-    [print self (format nil "[~A ~A] " [player-row *active-world*]
-			[player-column *active-world*])]
-    [println self (format nil " MODES: ~A" (field-value :required-modes *active-world*))]
+    [print self (format nil "[~A ~A] " [player-row *world*]
+			[player-column *world*])]
+    [println self (format nil " MODES: ~A" (field-value :required-modes *world*))]
     [print self "TERRAIN: "]
-    (let ((player [get-player *active-world*]))
+    (let ((player [get-player *world*]))
       (when (and player [is-located player])
-	(do-cells (cell [cells-at *active-world* 
+	(do-cells (cell [cells-at *world* 
 				  (field-value :row player)
 				  (field-value :column player)])
 	  (unless [is-player cell]
@@ -460,25 +460,25 @@
 
 ;;; Main program. 
 
-(defparameter *blast-window-width* 1180)
-(defparameter *blast-window-height* 600)
+(defparameter *void-window-width* 1180)
+(defparameter *void-window-height* 600)
 
 (defparameter *right-column-width* 550)
-(defparameter *left-column-width* (- *blast-window-width* 
+(defparameter *left-column-width* (- *void-window-width* 
 				     *right-column-width*))
 
 (defparameter *tile-size* 16)
 
-(defun blast ()
-  (xe2:message "Initializing Blast Tactics...")
+(defun void ()
+  (xe2:message "Initializing Void Tactics...")
   (setf clon:*send-parent-depth* 2) 
-  (xe2:set-screen-height *blast-window-height*)
-  (xe2:set-screen-width *blast-window-width*)
+  (xe2:set-screen-height *void-window-height*)
+  (xe2:set-screen-width *void-window-width*)
   ;; (xe2:set-frame-rate 30)
   ;; (xe2:disable-timer)
   ;; (xe2:enable-held-keys 1 15)
   (setf xe2:*zoom-factor* 1)
-  (let* ((prompt (clone =blast-prompt=))
+  (let* ((prompt (clone =void-prompt=))
 	 (universe (clone =universe=))
 	 (narrator (clone =narrator=))
 	 (ship-status (clone =status=))
@@ -500,7 +500,7 @@
     ;; 
     (setf *view* (clone =view=))
     ;;
-    [resize splash :height 580 :width *blast-window-width*]
+    [resize splash :height 580 :width *void-window-width*]
     [move splash :x 200 :y 0]
     [resize splash-prompt :width 10 :height 10]
     [move splash-prompt :x 0 :y 0]
@@ -519,7 +519,7 @@
 	       (setf *ship-status* ship-status)
 	       (setf *dude-status* dude-status)
 	       ;;
-	       [resize ship-status :height 105 :width *blast-window-width*]
+	       [resize ship-status :height 105 :width *void-window-width*]
 	       [set-character ship-status ship]
 	       [move ship-status :x 0 :y 0]
 	       ;;
@@ -570,7 +570,7 @@
     [move stack :x 0 :y 0]
     [set-children stack (list ship-status *view*)]
     ;;
-    [resize terminal :height (- *blast-window-height* 100) :width *right-column-width*]
+    [resize terminal :height (- *void-window-height* 100) :width *right-column-width*]
     [move terminal :x *left-column-width* :y 100]
     [set-verbosity terminal 0]
     ;; [move stack2 :x *left-column-width* :y 0]

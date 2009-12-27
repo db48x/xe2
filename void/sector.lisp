@@ -1,4 +1,4 @@
-(in-package :blast)
+(in-package :void)
 
 ;;; Stars
 
@@ -207,7 +207,7 @@ Good luck, contractor.
 
 ")
 
-(define-prototype star-sector (:parent rlx:=world=)
+(define-prototype star-sector (:parent xe2:=world=)
   (ambient-light :initform 4)
   (automapped :initform t)
   (required-modes :initform '(:vehicle :spacesuit))
@@ -224,7 +224,7 @@ Good luck, contractor.
 			  "The unexplored Antares sector."))
   (when <narrator>
     [>>newline :narrator]
-    (dolist (line (rlx:split-string-on-lines <description>))
+    (dolist (line (xe2:split-string-on-lines <description>))
       [>>narrateln :narrator line])))
 
 (define-method begin-ambient-loop star-sector ()

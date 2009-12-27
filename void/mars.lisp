@@ -1,4 +1,4 @@
-(in-package :blast)
+(in-package :void)
 
 ;;; Martian terrain
 
@@ -32,7 +32,7 @@
 
 ;;; Mining sites
 
-(define-prototype mining-site (:parent rlx:=world=)
+(define-prototype mining-site (:parent xe2:=world=)
   (scale :initform '(1 km))
   (height :initform 20)
   (width :initform 40))
@@ -46,8 +46,8 @@
 					  &allow-other-keys)
   [create-default-grid self]
   (clon:with-field-values (height width) self
-    (let ((dust-plasma (rlx:render-plasma height width :graininess 0.7)) 
-	  (ice-plasma (rlx:render-plasma height width :graininess 0.3)) 
+    (let ((dust-plasma (xe2:render-plasma height width :graininess 0.7)) 
+	  (ice-plasma (xe2:render-plasma height width :graininess 0.3)) 
 	  (value nil))
       (dotimes (i height)
 	(dotimes (j width)
@@ -76,7 +76,7 @@
       [drop-cell self (clone =launchpad=) (random height) (random width) :loadout t])))
 
 (define-method begin-ambient-loop mining-site ()
-  (rlx:play-music "crisis" :loop t))
+  (xe2:play-music "crisis" :loop t))
 
 (define-prototype mining-site-gateway (:parent =gateway=)
   (tile :initform "pickaxe")
@@ -100,7 +100,7 @@
  
 ;;; Planet map.
 
-(define-prototype mars (:parent rlx:=world=)
+(define-prototype mars (:parent xe2:=world=)
   (height :initform 20)
   (width :initform 45)
   (technetium :initform 0)
@@ -108,8 +108,8 @@
 
 (define-method draw-terrain mars ()
   (clon:with-field-values (height width) self
-    (let ((dust-plasma (rlx:render-plasma height width :graininess 0.2)) 
-	  (ice-plasma (rlx:render-plasma height width :graininess 0.7)) 
+    (let ((dust-plasma (xe2:render-plasma height width :graininess 0.2)) 
+	  (ice-plasma (xe2:render-plasma height width :graininess 0.7)) 
 	  (value nil))
       (dotimes (i height)
 	(dotimes (j width)

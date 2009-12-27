@@ -1,4 +1,4 @@
-(in-package :blast)
+ (in-package :void)
 
 ;;; The ground
 
@@ -57,7 +57,7 @@
    ;; [drop self (clone =leech-slime=)]
   ;; [move self (random-direction)]
 
-(define-prototype cavern (:parent rlx:=world=)
+(define-prototype cavern (:parent xe2:=world=)
   (ambient-light :initform :total)
   (height :initform 50)
   (width :initform 50)
@@ -69,7 +69,7 @@
 
 (define-method drop-water cavern ()
   (clon:with-field-values (height width) self
-    (let ((plasma (rlx:render-plasma height width :graininess 0.8)))
+    (let ((plasma (xe2:render-plasma height width :graininess 0.8)))
       (dotimes (i height)
 	(dotimes (j width)
 	  (if (< 0.3 (aref plasma i j))
@@ -79,7 +79,7 @@
   [create-default-grid self]
   ;; drop ground
   (clon:with-field-values (height width) self
-    (let ((plasma (rlx:render-plasma height width :graininess 1.2)))
+    (let ((plasma (xe2:render-plasma height width :graininess 1.2)))
       (dotimes (i height)
 	(dotimes (j width)
 	  [drop-cell self (clone (if (< 0 (aref plasma i j))

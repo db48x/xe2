@@ -1,8 +1,8 @@
-(in-package :blast)
+(in-package :void)
 
 ;;; The rusty wrench; basic melee weapon
 
-(define-prototype wrench (:parent rlx:=cell=)
+(define-prototype wrench (:parent xe2:=cell=)
   (name :initform "Rusty wrench")
   (categories :initform '(:item :weapon :equipment))
   (tile :initform "rusty-wrench")
@@ -61,9 +61,9 @@
   (labels ((boom (r c &optional (probability 50))
 	     (prog1 nil
 	       (when (and (< (random 100) probability)
-			  [in-bounds-p *active-world* r c])
-		 [drop-cell *active-world* (clone =explosion=) r c :no-collisions nil]))))
-    (dolist (dir rlx:*compass-directions*)
+			  [in-bounds-p *world* r c])
+		 [drop-cell *world* (clone =explosion=) r c :no-collisions nil]))))
+    (dolist (dir xe2:*compass-directions*)
       (multiple-value-bind (r c)
 	  (step-in-direction <row> <column> dir)
 	(boom r c 100)))
@@ -85,13 +85,13 @@
 (define-method activate bomb-cannon ()
   ;; leave bomb on top of ship
   (clon:with-field-values (row column) <equipper>
-    [drop-cell *active-world* (clone =bomb=) row column]))
+    [drop-cell *world* (clone =bomb=) row column]))
 
 (define-method fire bomb-cannon (direction)
   (clon:with-field-values (last-direction row column) <equipper>
     (multiple-value-bind (r c) 
 	(step-in-direction row column direction)
-      [drop-cell *active-world* (clone =bomb=) r c])))
+      [drop-cell *world* (clone =bomb=) r c])))
   
 ;;; Your explosive vapor trail. 
 
@@ -129,14 +129,14 @@
 (defparameter *death-message* "You are dead.")
 (defparameter *game-over-message* "GAME OVER.")
 
-(define-prototype skull (:parent rlx:=cell=)
+(define-prototype skull (:parent xe2:=cell=)
   (tile :initform "skull")
   (player :initform nil)
   (categories :initform '(:dead :player :actor))
   (action-points :initform 0))
 
 (define-method run skull ()
-  (rlx:show-widgets))
+  (xe2:show-widgets))
 
 (define-method forward skull (&rest args)
   (declare (ignore args))
@@ -155,7 +155,7 @@
  [say self *death-message*])
 
 (define-method quit skull ()
-  (rlx:quit :shutdown))
+  (xe2:quit :shutdown))
 
 (define-method initialize skull (player)
   [say self *death-message*]
@@ -189,7 +189,7 @@
   (when (zerop <clock>)
     [die self])
   (decf <clock>)
-  (rlx:do-cells (cell [cells-at *active-world* <row> <column>])
+  (xe2:do-cells (cell [cells-at *world* <row> <column>])
     (when (not [is-player cell])
       [damage cell 5])))
 
@@ -266,7 +266,7 @@
     [drop self trail]))
 
 (define-method find-target muon-particle ()
-  (let ((target [category-in-direction-p *active-world* 
+  (let ((target [category-in-direction-p *world* 
 					 <row> <column> <direction>
 					 '(:obstacle :target)]))
     (if target
@@ -279,7 +279,7 @@
 	  [>>die self])
 	(multiple-value-bind (r c) 
 	    (step-in-direction <row> <column> <direction>)
-	  (if (not (array-in-bounds-p (field-value :grid *active-world*) r c))
+	  (if (not (array-in-bounds-p (field-value :grid *world*) r c))
 	      [die self]
 	      (progn [drop-trail self <direction>]
 		     [>>move self <direction>]))))))
@@ -368,7 +368,7 @@
   (tile :initform "pulse-cannon"))
 
 (define-method activate pulse-cannon ()
-  (let* ((world *active-world*)
+  (let* ((world *world*)
 	 (row [player-row world])
 	 (column [player-column world]))
     (if (plusp [stat-value <equipper> :pulse-ammo])
@@ -424,7 +424,7 @@
       [>>say :narrator "No extension part equipped."]))
 
 (define-method enter contractor ()
-  (let ((gateway [category-at-p *active-world* <row> <column> :gateway]))
+  (let ((gateway [category-at-p *world* <row> <column> :gateway]))
     (if (null gateway)
 	[>>say :narrator "No gateway to enter."]
 	[activate gateway])))
@@ -441,14 +441,14 @@
   [expend-action-points self <action-points>])
 
 (define-method quit contractor ()
-  (rlx:quit :shutdown))
+  (xe2:quit :shutdown))
 
 (defparameter *contractor-oxygen-warning-level* 20)
 (defparameter *contractor-low-hp-warning-level* 10)
 
 (define-method phase-hook contractor ()
   ;; possibly breathe
-  (when (and [in-category *active-world* :airless]
+  (when (and [in-category *world* :airless]
 	     (null <proxy>)
 	     (has-field :oxygen self))
     [stat-effect self :oxygen -1]
@@ -473,8 +473,8 @@
 (define-method die contractor ()
   [play-sample self "death"]
   (let ((skull (clone =skull= self)))
-    [drop-cell *active-world* skull <row> <column> :loadout t :no-collisions nil]
-    [set-player *active-world* skull]
+    [drop-cell *world* skull <row> <column> :loadout t :no-collisions nil]
+    [set-player *world* skull]
     [parent>>die self]))
   ;; (let ((textbox (clone =textbox=)))
   ;;   [resize textbox :height 400 :width 200]
@@ -482,7 +482,7 @@
   ;;   [set-buffer textbox '("You are dead! Press RET to close.")]))
 
 (define-method embark contractor ()
-  (let ((vehicle [category-at-p *active-world* <row> <column> :vehicle]))
+  (let ((vehicle [category-at-p *world* <row> <column> :vehicle]))
     (when vehicle
       [parent>>embark self]
       [set-character *ship-status* vehicle]
@@ -496,17 +496,17 @@
   [say self "Use ALT-<direction> to melee attack with the wrench."])
 
 (define-method attack contractor (target)
-  (rlx:play-sample "knock")
+  (xe2:play-sample "knock")
   [parent>>attack self target]
-  (when [in-category *active-world* :airless]
+  (when [in-category *world* :airless]
     [stat-effect self :oxygen -2]))
 
 (define-method move contractor (direction)
-  (if (member <mode> (field-value :required-modes *active-world*))
-      (if [in-category *active-world* :weightless] 
+  (if (member <mode> (field-value :required-modes *world*))
+      (if [in-category *world* :weightless] 
 	  (if (and (clon:object-p [equipment-slot self :feet])
 		   [in-category [equipment-slot self :feet] :gravboots])
-	      (if [category-in-direction-p *active-world* 
+	      (if [category-in-direction-p *world* 
 					   <row> <column> direction 
 					   :magnetic]
 		  [parent>>move self direction]
@@ -659,7 +659,7 @@ done."))
       (progn
 	[say self "Your vehicle is disabled, and cannot move."]
 	[say self "Press Control-P to disembark, but this may kill you."])
-      (let ((modes (field-value :required-modes *active-world*)))
+      (let ((modes (field-value :required-modes *world*)))
 	(if (and modes (not (member <mode> modes)))
 	    (progn 
 	      [say self "Your vehicle is docked, and cannot move."]
@@ -688,7 +688,7 @@ done."))
 	    (getf *olvac-tiles* <last-direction> "voidrider-north"))))
 
 (define-method scan-terrain olvac ()
-  [cells-at *active-world* <row> <column>])
+  [cells-at *world* <row> <column>])
 		 
 (defparameter *piloting-skill-die* 20)
 
@@ -744,11 +744,11 @@ done."))
 
   ;; [play-sample self "death"]
   ;; (let ((skull (clone =skull= self)))
-  ;;   [drop-cell *active-world* skull <row> <column> :loadout t :no-collisions nil]
+  ;;   [drop-cell *world* skull <row> <column> :loadout t :no-collisions nil]
   ;;   (setf <action-points> 0)
   ;;   [add-category self :dead]
   ;;   [>>delete-from-world self]
-  ;;   [set-player *active-world* skull]))
+  ;;   [set-player *world* skull]))
 
 (define-method show-location olvac ()
   (labels ((do-circle (image)
@@ -759,13 +759,13 @@ done."))
     [>>add-overlay :viewport #'do-circle]))
 
 (define-method revive olvac ()
-  [drop-cell *active-world* self (random 10) (random 10)]
+  [drop-cell *world* self (random 10) (random 10)]
   [stat-effect self :hit-points 20]	       
   [stat-effect self :energy 40]	       
   [update-tile self]
   [delete-category self :dead]
 ;;  [stat-effect self :trail-length (- (1+ [stat-value self :trail-length]))]
-  [set-player *active-world* self])
+  [set-player *world* self])
 
 (define-method start olvac ()
   [update-tile self])
@@ -774,7 +774,7 @@ done."))
   nil)
 
 (define-method enter olvac()
-  (let ((gateway [category-at-p *active-world* <row> <column> :gateway]))
+  (let ((gateway [category-at-p *world* <row> <column> :gateway]))
     (if (null gateway)
 	[>>say :narrator "No gateway to enter."]
 	[activate gateway])))
@@ -810,7 +810,7 @@ done."))
 
 (defvar *lepton-trail-tile-map* (list *lepton-trail-end-tiles* *lepton-trail-middle-tiles* *lepton-trail-middle-tiles*))
 
-(define-prototype lepton-trail (:parent rlx:=cell=)
+(define-prototype lepton-trail (:parent xe2:=cell=)
   (categories :initform '(:actor))
   (clock :initform 2)
   (speed :initform (make-stat :base 10))
@@ -830,7 +830,7 @@ done."))
   (when (minusp <clock>)
     [die self]))
 
-(define-prototype lepton-particle (:parent rlx:=cell=)
+(define-prototype lepton-particle (:parent xe2:=cell=)
   (categories :initform '(:actor :target))
   (speed :initform (make-stat :base 14))
   (stepping :initform t)
@@ -843,7 +843,7 @@ done."))
   (clock :initform 10))
 
 (define-method find-target lepton-particle ()
-  (let ((target [category-in-direction-p *active-world* 
+  (let ((target [category-in-direction-p *world* 
 					 <row> <column> <direction>
 					 '(:obstacle :target)]))
     (if target
@@ -861,8 +861,8 @@ done."))
 (define-method run lepton-particle ()
   [update-tile self]
   (clon:with-field-values (row column) self
-    (let* ((world *active-world*)
-	   (direction [direction-to-player *active-world* row column]))
+    (let* ((world *world*)
+	   (direction [direction-to-player *world* row column]))
       (setf <direction> direction)
       [find-target self])
     (decf <clock>)
@@ -881,7 +881,7 @@ done."))
   ;; don't hit the player
   [find-target self])
 
-(define-prototype lepton-cannon (:parent rlx:=cell=)
+(define-prototype lepton-cannon (:parent xe2:=cell=)
   (name :initform "Xiong Les Fleurs Lepton(TM) energy cannon")
   (tile :initform "lepton-cannon")
   (categories :initform '(:item :weapon :equipment))
@@ -959,7 +959,7 @@ done."))
 	(dolist (dir (list :northeast :southeast :northwest :southwest))
 	  (multiple-value-bind (r c) 
 	      (step-in-direction <row> <column> dir)
-	    [drop-cell *active-world* (clone =missile=) r c]))
+	    [drop-cell *world* (clone =missile=) r c]))
 	[die self])
       ;; move toward player
       (progn (decf <clock>)

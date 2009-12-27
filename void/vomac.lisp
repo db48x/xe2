@@ -1,4 +1,4 @@
-(in-package :blast)
+(in-package :void)
 
 ;;; enemy ships a la tac scan
 
@@ -10,14 +10,14 @@
 
 (define-method fire xr7 (direction)
   [expend-action-points self 15]
-  (let* ((world *active-world*)
-	 (player [get-player *active-world*]))
+  (let* ((world *world*)
+	 (player [get-player *world*]))
     (labels ((draw-beam (image)
 	       (multiple-value-bind (x0 y0) 
 		   [viewport-coordinates self]
 		 (multiple-value-bind (x1 y1)
 		     [viewport-coordinates player]
-		   (rlx:draw-line x0 y0 x1 y1 
+		   (xe2:draw-line x0 y0 x1 y1 
 				  :destination image)))))
       [damage player 2]
       [say self "You sustain 2 damage from the laser."]
@@ -31,9 +31,9 @@
 
 (define-method seek xr7 ()
   (clon:with-field-values (row column) self
-    (when (< [distance-to-player *active-world* row column] <chase-distance>)
-      (let ((direction [direction-to-player *active-world* row column])
-	    (world *active-world*))
+    (when (< [distance-to-player *world* row column] <chase-distance>)
+      (let ((direction [direction-to-player *world* row column])
+	    (world *world*))
 	(if (< [distance-to-player self] 8)
 	    (progn
 	      [>>fire self direction]
@@ -72,7 +72,7 @@
 (define-method orient rail-particle ()
   (if <path>
       (destructuring-bind (row column) (pop <path>)
-	(setf <direction> (rlx:direction-to <row> <column> row column)))
+	(setf <direction> (xe2:direction-to <row> <column> row column)))
       [die self]))
 
 (define-method impel rail-particle (row column)
@@ -94,8 +94,8 @@
   (decf <clock>)
   (when (zerop <clock>)
     [die self])
-  ;; (setf <direction> (direction-to <row> <column> [player-row *active-world*]
-  ;; 				  [player-column *active-world*]))
+  ;; (setf <direction> (direction-to <row> <column> [player-row *world*]
+  ;; 				  [player-column *world*]))
   [drop-trail self nil]
   [move self <direction>])
 
@@ -168,8 +168,8 @@
   (if (< [distance-to-player self] 20)
       (let ((cannon [equipment-slot self :center-bay]))
 	[expend-default-action-points self]
-	(when <open> [fire cannon [player-row *active-world*]
-			   [player-column *active-world*]]))))
+	(when <open> [fire cannon [player-row *world*]
+			   [player-column *world*]]))))
 					  
 (define-method damage guardic-eye (points)
   ;; only damage when open
@@ -288,7 +288,7 @@ with 8-way fire and heavy armor."))
 (define-method fire vomac-cannon (direction)
   (if [expend-energy <equipper> [stat-value self :energy-cost]]
       (let (wave)
-	(dolist (dir (delete :here rlx:*compass-directions*))
+	(dolist (dir (delete :here xe2:*compass-directions*))
 	  (setf wave (clone =defleptor-wave=))
 	  [drop <equipper> wave]
 	  [play-sample <equipper> "defleptor3"]
@@ -314,7 +314,7 @@ with 8-way fire and heavy armor."))
   (stepping :initform t)
   (attacking-with :initform :robotic-arm)
   (max-weight :initform (make-stat :base 25))
-  (direction :initform (rlx:random-direction))
+  (direction :initform (xe2:random-direction))
   (strength :initform (make-stat :base 4 :min 0 :max 30))
   (dexterity :initform (make-stat :base 5 :min 0 :max 30))
   (intelligence :initform (make-stat :base 11 :min 0 :max 30))
@@ -350,7 +350,7 @@ with 8-way fire and heavy armor."))
   (name :initform "Star corridor with turbulence")
   (tile :initform "vomac-starfield2"))
 
-(define-prototype star-corridor (:parent rlx:=world=)
+(define-prototype star-corridor (:parent xe2:=world=)
   (ambient-light :initform :total)
   (required-modes :initform '(:vomac :vehicle :spacesuit))
   (scale :initform '(100 m))

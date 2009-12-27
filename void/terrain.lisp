@@ -1,4 +1,4 @@
-(in-package :blast)
+(in-package :void)
 
 ;;; Empty space.
 
@@ -52,7 +52,7 @@ mission, the Arch Gamma Corporation."))
   (if (> 0 <clock>)
       [die self]
       (progn 
-	(do-cells (cell [cells-at *active-world* <row> <column>])
+	(do-cells (cell [cells-at *world* <row> <column>])
 	  (when [is-player cell]
 	    [damage cell 5]
 	    [>>say :narrator "RADIOACTIVE HAZARD!"]))
@@ -165,7 +165,7 @@ this."))
   
 ;;; The ruins of Zeta Base, the game's first location.
 
-(define-prototype zeta-base (:parent rlx:=world=)
+(define-prototype zeta-base (:parent xe2:=world=)
   (name :initform "Zeta Base Ruins")
   (edge-condition :initform :block)
   (required-modes :initform '(:vehicle :spacesuit))
@@ -263,7 +263,7 @@ this."))
    
 (define-method drop-plasma-debris zeta-base ()
   (clon:with-field-values (height width) self
-    (let ((plasma (rlx:render-plasma height width :graininess 0.4))
+    (let ((plasma (xe2:render-plasma height width :graininess 0.4))
 	  (value nil))
       (dotimes (i (- height 10))
 	(dotimes (j (- width 10))
@@ -274,7 +274,7 @@ this."))
 
 (define-method drop-plasma-space zeta-base ()
   (clon:with-field-values (height width) self
-    (let ((plasma (rlx:render-plasma height width :graininess 0.1))
+    (let ((plasma (xe2:render-plasma height width :graininess 0.1))
 	  (value nil))
       (dotimes (i height)
 	(dotimes (j width)
