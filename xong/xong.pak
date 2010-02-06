@@ -2,6 +2,7 @@
  (:name ".default-font" :type :font :properties (:height 14 :width 7) :data "7x14b")
 
  (:name "npc" :type :image :file "npc.png")
+ (:name "explode" :type :sample :file "explode.wav" :properties (:volume 10))
  (:name "player" :type :image :file "player.png")
  (:name "player-empty" :type :image :file "player-empty.png")
  (:name "gate-open" :type :image :file "gate-open.png")

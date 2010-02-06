@@ -488,8 +488,8 @@ reach new areas and items. The puck also picks up the color.")
     (dotimes (i height)
       (dotimes (j width)
 	[drop-cell self (clone =floor=) i j]))
-    ;; (dotimes (i 10)
-    ;;   [drop-cell self (clone =karma= :clock nil) (random height) (random width)])
+    (dotimes (i 10)
+      [drop-cell self (clone =karma= :clock nil) (random height) (random width)])
     (let ((beckoner (clone =beckoner=))
 	  (urhere (clone =balloon= 
 			 :style :flat

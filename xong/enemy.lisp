@@ -278,7 +278,16 @@ explode with deadly plasma radiation!"))
       (assert (and row column))
       (dotimes (n (+ 9 (random 10)))
 	(let ((karma (clone =karma=)))
-;;	  [set-color karma color]
+	  (labels ((do-circle (image)
+		     (prog1 t
+		       (multiple-value-bind (x y) 
+			   [viewport-coordinates self]
+			 (let ((x0 (+ x 8))
+			       (y0 (+ y 8)))
+			   (draw-circle x0 y0 40 :destination image)
+			   (draw-circle x0 y0 35 :destination image))))))
+	    [>>add-overlay :viewport #'do-circle])
+	  [play-sample self "explode"]
 	  [set-clock karma (+ 10 (random 10))]
 	  (let ((limit 10))
 	    (block placing
