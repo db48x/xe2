@@ -272,21 +272,21 @@ defeat enemies by guiding them into the black holes. Be careful; black
 holes can only eat one object before closing. Not only that, they
 explode with deadly plasma radiation!"))
 
-(define-method spew-plasma hole ()
+(define-method spew-karma hole ()
   (clon:with-field-values (row column) self
     (let ((color (car (one-of *colors*))))
       (assert (and row column))
       (dotimes (n (+ 9 (random 10)))
-	(let ((plasma (clone =plasma=)))
-	  [set-color plasma color]
-	  [set-clock plasma (+ 10 (random 10))]
+	(let ((karma (clone =karma=)))
+;;	  [set-color karma color]
+	  [set-clock karma (+ 10 (random 10))]
 	  (let ((limit 10))
 	    (block placing
 	      (loop do (let ((r (+ row (- (random 3) (random 5))))
 			     (c (+ column (- (random 3) (random 5)))))
 			 (if [line-of-sight *world* row column r c]
 			     (progn 
-			       [drop-cell *world* plasma r c]
+			       [drop-cell *world* karma r c]
 			       (return-from placing))
 			     ;; try again
 			     (decf limit)))
@@ -296,7 +296,7 @@ explode with deadly plasma radiation!"))
   (when <open>
     (assert (and <row> <column>))
     (unless <nospew>
-      [spew-plasma self])
+      [spew-karma self])
     (progn [play-sample self "hole-suck"]
 	   (if [in-category stepper :puck]
 	       [die stepper]

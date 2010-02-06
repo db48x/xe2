@@ -100,15 +100,6 @@ reach new areas and items. The puck also picks up the color.")
 
 ;;; Radioactive gas
 
-(defvar *plasma-tiles* '(:purple "plasma-purple"
-			:black "plasma-black"
-			:red "plasma-red"
-			:blue "plasma-blue"
-			:orange "plasma-orange"
-			:green "plasma-green"
-			:white "plasma-white"
-			:yellow "plasma-yellow"))
-
 (defcell plasma
   (tile :initform "plasma-white")
   (color :initform :white)
@@ -477,6 +468,9 @@ reach new areas and items. The puck also picks up the color.")
 	(percent-of-time 1
 	  [play-sample self (car (one-of <samples>))]
 	  [drop self (clone =dancefloor=)])
+	(do-cells (cell [cells-at *world* <row> <column>])
+	  (when (has-field :hit-points cell)
+	    [damage cell 1]))
 	[move self dir])))
 
 ;;; Menu level
@@ -494,8 +488,8 @@ reach new areas and items. The puck also picks up the color.")
     (dotimes (i height)
       (dotimes (j width)
 	[drop-cell self (clone =floor=) i j]))
-    (dotimes (i 10)
-      [drop-cell self (clone =karma= :clock nil) (random height) (random width)])
+    ;; (dotimes (i 10)
+    ;;   [drop-cell self (clone =karma= :clock nil) (random height) (random width)])
     (let ((beckoner (clone =beckoner=))
 	  (urhere (clone =balloon= 
 			 :style :flat
