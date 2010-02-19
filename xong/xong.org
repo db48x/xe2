@@ -1,3 +1,4 @@
+** TODO 8-way firing arkanoid?
 ** TODO PUSH/n/POP: lisp fighter cons game
 ** TODO don't pick up spare P pucks or C chevrons unless needed
 ** TODO change background color to deep purple again

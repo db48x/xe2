@@ -1,0 +1,55 @@
+#+TITLE: DREZ ideas
+
+* Pronunciation
+
+ DEE-rezz
+
+* Links
+
+** TODO Read "Fix your timestep" article
+** TODO Decouple physics from framerate: http://code.google.com/p/lispbuilder/wiki/UsingLispbuilderSDL#Frame_Rate_and_Timestep
+** TODO Find/create bd, snare, hihat samples
+** TODO Code event/sequencer basics
+** TODO Basic UI/button config
+
+* Thoughts
+
+** Trigger beats and loops with your feet (or any other kind of controller)
+** Variety of input options: mouse, dance pad, joystick, keyboard, MIDI, network
+** Simple, button-based interface usable with simpler controllers (like dance pad)
+** Supplement CL audio capabilities with external programs
+** Establish a consistent beat via numeric input or tap-tempo
+** Layer looped triggers to create a beat
+** Basic sequencer subdivides a group into beats/ticks
+** Musical trigger event lists; make these the same as XE2 events
+** Ecasound programmatic integration?
+** Rez-ish color coded interface widgets and simple cell-mode layout
+** Atari Basic Programming style UI
+** Choreography edit UI
+** Piano roll edit ui
+** simfiles ideas, i.e. beats plus freestyling game
+
+* Tasks
+
+** TODO Reexamine old music code.... ligeti, ecaspace
+** TODO Decide on music event data format, simple hierarchical OSC-ish namespace?
+** TODO Find some external programs to create and process basic samples.
+
+* Music representation
+** Events
+*** One possibility: (start-time &rest p-fields)
+*** Another: (integer-tick type &rest p-fields)
+**** tick is relative to pattern 
+*** Pattern: (sorted vector of events
+** Channels
+*** Numbered 1-8+
+*** Monophonic
+*** Delivers p-fields to a function at event trigger time, this defines what happens on the channel.
+*** Event params must match function.
+*** Sampler channel type accepts these p-fields: &key sample-name-or-number
+** Projects
+*** named
+*** foo/ directory and foo/foo.drez
+*** foo.drez contains channel and sample defs
+*** foo/bar.wav, baz.wav, etc
+

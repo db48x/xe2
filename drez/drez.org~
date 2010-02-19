@@ -1,0 +1,29 @@
+#+TITLE: DREZ ideas
+
+* Thoughts
+
+** Trigger beats and loops with your feet (or any other kind of controller)
+** Variety of input options: mouse, dance pad, joystick, keyboard, MIDI, network
+** Simple, button-based interface usable with simpler controllers (like dance pad)
+** Supplement CL audio capabilities with external programs
+** Establish a consistent beat via numeric input or tap-tempo
+** Layer looped triggers to create a beat
+** Basic sequencer subdivides a group into beats/ticks
+** Musical trigger event lists; make these the same as XE2 events
+** Ecasound programmatic integration?
+
+** Rez-ish color coded interface widgets and simple cell-mode layout
+** Atari Basic Programming style UI
+
+* Tasks
+
+** TODO Reexamine old music code.... ligeti, ecaspace
+** TODO Decide on music event data format, simple hierarchical OSC-ish namespace?
+** TODO Find some external programs to create and process basic samples.
+
+* Music representation
+** Events
+*** One possibility: (start-time &rest p-fields)
+*** Another: (integer-tick &rest p-fields)
+*** Pattern: sorted vector of events
+
