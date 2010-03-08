@@ -61,44 +61,45 @@
   (:nicknames :xe2)
   (:use :common-lisp :clon) 
   (:export *default-frame-width* *default-frame-height* =viewport=
-  =equipment= *default-world-axis-size* *default-world-z-size*
-  =browser= install-widgets *initialization-hook* initialize-engine
-  split-string-on-lines message *screen-width* transform-method-body
-  roll-under make-stat =formatter= initialize-colors
-  *standard-categories* *default-action-points* =world= roll
-  bind-key-to-method *colors* get-color =prompt= =menu-item=
-  =direction-chooser= define-method *default-font* *startup*
-  field-value set-field-value object-fields dispatch-event run
-  *user-init-file-name* distance icon-resource icon-image
-  *compass-directions* *compass-opposites* find-resource-property
-  compose-blank-fields font-width font-height *browser* browser
-  set-browser transform-field-reference *screen-height* =inventory=
-  formatted-line-width formatted-line-height formatted-string-height
-  formatted-string-width get-color create-image draw-image play
-  define-prototype has-field defcell *choose-direction-menu*
-  set-field-options field-option-value index-resource find-module-path
-  index-module load-image-resource load-lisp-resource *executable*
-  *resource-handlers* load-resource find-resource find-resource-object
-  *colors* *world* load-user-init-file *module-directories*
-  resource-to-plist make-event =widget= *active-widgets*
-  bind-key-to-prompt-insertion make-field-initializer clone
-  make-field-initializer-body make-key-modifier-symbol make-key-string
-  normalize-event make-keyword make-object queue-head queue-max
-  queue-count *sender* make-special-variable-name field-reference-p
-  null-parent *message-send-symbol-suffix* *x11-color-data*
-  object-name object-parent send send-super send-queue self
-  opposite-direction object-address-string object step-in-direction
-  direction-to =cell= plasma-rect subdivide-rect render-plasma
-  add-hook run-hook queue-tail make-queue queue unqueue queue-message
-  queued-messages-p unqueue-message send-queue field-value
-  random-direction load-font-resource draw-string-solid read-pak
-  *resource-table* initialize-resource-table percent-of-time
-  render-formatted-paragraph make-formatted-string draw-string-shaded
-  render-formatted-string render-formatted-line resource
-  font-text-extents write-sexp-to-file with-message-sender
-  *message-sender* =textbox= read-sexp-from-file write-pak *grammar*
-  one-of left-hand-side right-hand-side expansions generate
-  send-event-to-widgets play-music halt-music seek-music
+	   *frequency* *output-chunksize* *output-channels*
+  *dt* *physics-function* =equipment= *default-world-axis-size*
+  *default-world-z-size* =browser= install-widgets
+  *initialization-hook* initialize-engine split-string-on-lines
+  message *screen-width* transform-method-body roll-under make-stat
+  =formatter= initialize-colors *standard-categories*
+  *default-action-points* =world= roll bind-key-to-method *colors*
+  get-color =prompt= =menu-item= =direction-chooser= define-method
+  *default-font* *startup* field-value set-field-value object-fields
+  dispatch-event run *user-init-file-name* distance icon-resource
+  icon-image *compass-directions* *compass-opposites*
+  find-resource-property compose-blank-fields font-width font-height
+  *browser* browser set-browser transform-field-reference
+  *screen-height* =inventory= formatted-line-width
+  formatted-line-height formatted-string-height formatted-string-width
+  get-color create-image draw-image play define-prototype has-field
+  defcell *choose-direction-menu* set-field-options field-option-value
+  index-resource find-module-path index-module load-image-resource
+  load-lisp-resource *executable* *resource-handlers* load-resource
+  find-resource find-resource-object *colors* *world*
+  load-user-init-file *module-directories* resource-to-plist
+  make-event =widget= *active-widgets* bind-key-to-prompt-insertion
+  make-field-initializer clone make-field-initializer-body
+  make-key-modifier-symbol make-key-string normalize-event
+  make-keyword make-object queue-head queue-max queue-count *sender*
+  make-special-variable-name field-reference-p null-parent
+  *message-send-symbol-suffix* *x11-color-data* object-name
+  object-parent send send-super send-queue self opposite-direction
+  object-address-string object step-in-direction direction-to =cell=
+  plasma-rect subdivide-rect render-plasma add-hook run-hook
+  queue-tail make-queue queue unqueue queue-message queued-messages-p
+  unqueue-message send-queue field-value random-direction
+  load-font-resource draw-string-solid read-pak *resource-table*
+  initialize-resource-table percent-of-time render-formatted-paragraph
+  make-formatted-string draw-string-shaded render-formatted-string
+  render-formatted-line resource font-text-extents write-sexp-to-file
+  with-message-sender *message-sender* =textbox= read-sexp-from-file
+  write-pak *grammar* one-of left-hand-side right-hand-side expansions
+  generate send-event-to-widgets play-music halt-music seek-music
   *joystick-mapping* *generic-joystick-mapping* *ps3-joystick-mapping*
   draw-resource-image *event-handler-function* *use-sound*
   trace-rectangle trace-row trace-column trace-octagon trace-line

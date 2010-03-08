@@ -57,6 +57,14 @@ disabled."
   "Generate an all-purpose sequence number."
   (+ x (incf *sequence-number*)))
 
+;;; Physics timestep callback
+
+;; These must be set before initialization.
+
+(defvar *dt* 10)
+
+(defvar *physics-function* nil)
+
 ;;; Mixer channels
 
 (defvar *channels* 64 "Number of audio mixer channels to use.")
@@ -129,7 +137,7 @@ and the like."
 ;; TODO why does this crash: 
 ;;  (show-widgets))
 
-;;; Key repeat
+;;; Key repeat emulation
 
 (defvar *key-table* (make-hash-table :test 'equal))
 
@@ -534,12 +542,15 @@ window. Set this in the game startup file.")
   "Initialize the console, open a window, and play.
 We want to process all inputs, update the game state, then update the
 display."
-  (if *fullscreen*
-      (sdl:window *screen-width* *screen-height*
-		  :title-caption *window-title*
-		  :flags sdl:SDL-FULLSCREEN)
-      (sdl:window *screen-width* *screen-height*
-		  :title-caption *window-title*))
+  (let ((fps (make-instance 'sdl:fps-unlocked :dt *dt* :ps-fn *physics-function*)))
+    (if *fullscreen*
+	(sdl:window *screen-width* *screen-height*
+		    :fps fps 
+		    :title-caption *window-title*
+		    :flags sdl:SDL-FULLSCREEN)
+	(sdl:window *screen-width* *screen-height*
+		    :fps fps
+		    :title-caption *window-title*)))
   (reset-joystick)
   (sdl:clear-display sdl:*black*)
   (show-widgets)
@@ -606,12 +617,12 @@ display."
 				   (setf (gethash event *key-table*) -1)))
 			     (break-events event)))))
       (:idle ()
-	     (when *timer-p*
+	     (if *timer-p*
 	       (if (zerop *clock*)
 		   (progn 
 		     (sdl:clear-display sdl:*black*)
 		     ;; send held events
-		     (when *held-keys*
+ 		     (when *held-keys*
 		       (send-held-events))
 		     ;; send timer event
 		     (dispatch-event *timer-event*)
@@ -622,7 +633,15 @@ display."
 		     (show-widgets)
 		     (sdl:update-display)
 		     (setf *clock* *timer-interval*))
-		   (decf *clock*)))))))
+		   (decf *clock*))
+		 ;; clean this up. these two cases aren't that different.
+		 (progn 
+		   (sdl:clear-display sdl:*black*)
+		   (when *held-keys*
+		     (send-held-events))
+		   (show-widgets)
+		   (sdl:update-display)))))))
+		 
 
 ;;; The .xe2rc user init file
 
@@ -1273,6 +1292,52 @@ The default destination is the main window."
   (sdl:draw-rectangle-* x y width height :color (find-resource-object color)
 			:surface destination))
 
+;;; Audio
+
+(defvar *frequency* 44100)
+
+(defvar *output-chunksize* 128)
+
+(defvar *output-channels* 2)
+
+(defvar *sample-format* SDL-CFFI::AUDIO-S16LSB)
+
+(defun cffi-sample-type (sdl-sample-type)
+  (ecase sdl-sample-type
+    (SDL-CFFI::AUDIO-U8 :uint8) ; Unsigned 8-bit samples
+    (SDL-CFFI::AUDIO-S8 :int8) ; Signed 8-bit samples
+    (SDL-CFFI::AUDIO-U16LSB :uint16) ; Unsigned 16-bit samples, in little-endian byte order
+    (SDL-CFFI::AUDIO-S16LSB :int16) ; Signed 16-bit samples, in little-endian byte order
+    ;; (SDL-CFFI::AUDIO-U16MSB nil) ; Unsigned 16-bit samples, in big-endian byte order
+    ;; (SDL-CFFI::AUDIO-S16MSB nil) ; Signed 16-bit samples, in big-endian byte order
+    (SDL-CFFI::AUDIO-U16 :uint16)  ; same as SDL(SDL-CFFI::AUDIO-U16LSB (for backwards compatability probably)
+    (SDL-CFFI::AUDIO-S16 :int16) ; same as SDL(SDL-CFFI::AUDIO-S16LSB (for backwards compatability probably)
+    (SDL-CFFI::AUDIO-U16SYS :uint16) ; Unsigned 16-bit samples, in system byte order
+    (SDL-CFFI::AUDIO-S16SYS :int16) ; Signed 16-bit samples, in system byte order
+    ))
+
+(defun cffi-chunk-buffer (chunk)
+  (sdl:fp chunk))
+
+(defun convert-cffi-sample (chunk)
+  (let* ((input-buffer (cffi-chunk-buffer chunk))
+	 (type (cffi-sample-type *sample-format*))
+	 (size (length (cffi:mem-ref input-buffer type))))
+    (assert (eq *sample-format* SDL-CFFI::AUDIO-S16LSB)) ;; for now
+    (let ((output-buffer (make-array size)))
+	(prog1 output-buffer
+	  (dotimes (n size)
+	    (setf (aref output-buffer n)
+		  (/ (float (cffi:mem-aref input-buffer type n))
+		     32768.0)))))))
+
+;(defun convert-internal-audio (input-buffer output-stream)
+
+;; (REGISTER-MUSIC-MIXER 
+;;     (lambda (user stream len)
+;;       &#039;FILL-THE-AUDIO-OUTPUT-BUFFER))
+
+
 ;;; Engine status
 
 (defun quit (&optional shutdown)
@@ -1286,11 +1351,9 @@ The default destination is the main window."
   (setf *next-module* module-name)
   (sdl:push-quit-event))
 
-(defparameter *audio-chunksize* 512)
-
 (defvar *copyright-text*
 "XE2 Game Engine
-Copyright (C) 2006, 2007, 2008, 2009 David O'Toole
+Copyright (C) 2006, 2007, 2008, 2009, 2010 David O'Toole
 <dto@gnu.org>
 
 This program is free software: you can redistribute it and/or modify
@@ -1334,7 +1397,7 @@ and its .startup resource is loaded."
   (loop while (and (not *quitting*)
 		   *next-module*)
      do (unwind-protect
-	     ;; dynamically load libs (needed for GNU/Linux)
+	     ;; dynamically load libs (needed for GNU/Lpinux)
 	     (progn (cffi:define-foreign-library sdl
 		      (:darwin (:or (:framework "SDL")
 				    (:default "libSDL")))
@@ -1385,7 +1448,10 @@ and its .startup resource is loaded."
 		      (initialize-colors)
 		      (when *use-sound*
 			;; try opening sound
-			(when (null (sdl-mixer:open-audio :chunksize *audio-chunksize*))
+			(when (null (sdl-mixer:open-audio :frequency *frequency*
+							  :chunksize *output-chunksize*
+							  :format *sample-format*
+							  :channels *output-channels*))
 			  ;; if that didn't work, disable effects/music
 			  (message "Could not open audio driver. Disabling sound effects and music.")
 			  (setf *use-sound* nil))

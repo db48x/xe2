@@ -436,7 +436,7 @@
 
  (:name "black-thunder" :type :music :file "black0999.ogg" :properties (:volume 18))
 
- (:name "blast-lisp" :type :lisp :file "blast.lisp" :properties (:autoload t))
+ (:name "void-lisp" :type :lisp :file "void.lisp" :properties (:autoload t))
  (:name "effect-lisp" :type :lisp :file "effect.lisp" :properties (:autoload t))
  (:name "terrain-lisp" :type :lisp :file "terrain.lisp" :properties (:autoload t)) 
  (:name "sector-lisp" :type :lisp :file "sector.lisp" :properties (:autoload t))

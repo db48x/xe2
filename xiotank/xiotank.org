@@ -1,0 +1,70 @@
+#+TITLE: 7-Day Roguelike 2010 CHALLENGE Ideas
+
+* TODO RELEASE 7DRL ENTRY
+DEADLINE: <2010-03-14 Sun 23:59>
+
+* Tasks
+** DONE Translate game design doc into asset/code todos
+CLOSED: [2010-03-08 Mon 10:44]
+** DONE square/triangle/sine icons in pink/blue/green (sprites?)
+CLOSED: [2010-03-08 Mon 10:44]
+** TODO generate waveforms programmatically for all notes
+** TODO establish pulsators for beats
+** TODO draw tank and walls and background and some basic enemies
+** TODO set up tank and basic dungeon
+** TODO light and sound reveal locations of objects even on dark portions of map
+** TODO tank firing waves with sound
+** TODO firing enemies
+** TODO oscillators and tone clusters
+** TODO [#C] disembarking pilot
+** TODO themes a la xiobreak
+
+* Entry mail
+
+** About the entrant
+
+I am David O'Toole and I program games in Common Lisp. My blog is at
+http://lispgamesdev.blogspot.com, where I will be making daily
+progress reports.
+
+** Re-use declaration
+
+For my entry I will be re-using my own Common Lisp game engine called
+XE2 (see http://dto.github.com/notebook/xe2-reference.html for
+details.) Among its features are support for grid-based worlds of
+interacting objects, sprites, basic lighting and field-of-view, sound,
+and other useful code.
+
+Aside from the XE2 library itself, all game logic and assets (sound,
+images) will be original and produced during the 7 days of the
+challenge.
+
+** Start time
+
+ 11:59 PM on Sunday March 7 2010, US Eastern Time.
+
+** Game concept
+
+In this roguelike you control a tank pilot who can enter and exit
+different tank vehicles. The tank can fire sound waves in 8
+directions. There are square waves, sine waves, and triangle
+waves. You select which wave to fire with the Z, X, C keys. The
+numeric keypad and/or nethack keys are used for choosing a direction
+to move in. Either CONTROL or ALT, combined with a directional key, to
+fire the currently selected waveform in that direction.
+
+To eliminate enemy bullets, fire the corresponding wave types at
+them. Other activities involve firing waves at oscillators to turn
+them on and off. Combining tones can unlock puzzle elements and create
+chords. Oscillators have a number frequency or note attached. C4
+etc. Tracker game.
+
+Some waves must be identified by sound alone.
+
+The pilot can disembark from the tank and even take over other tanks,
+and there are certain areas where the tank cannot go. The pilot is
+extremely vulnerable, and has only one hit point.
+
+Death is permanent, the game ends when you run out of hit points. 
+
+The goal is to defeat all the enemies and unlock all the gates.

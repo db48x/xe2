@@ -1,0 +1,46 @@
+(
+ (:name "splash" :type :image :file "xiotank.png")
+
+ (:name "purity" :type :music :file "purity.ogg" :properties (:volume 13))
+ (:name "launchpad" :type :image :file "launchpad.png")
+
+ (:name "blue-space" :type :image :file "blue-space.png")
+ (:name "purple-space" :type :image :file "purple-space.png")
+ (:name "green-space" :type :image :file "green-space.png")
+ (:name "magenta-space" :type :image :file "magenta-space.png")
+
+ (:name "saw-yellow" :type :image :file "saw-yellow.png")
+ (:name "saw-magenta" :type :image :file "saw-magenta.png")
+ (:name "saw-cyan" :type :image :file "saw-cyan.png")
+ (:name "saw-green" :type :image :file "saw-green.png")
+
+ (:name "sine-yellow" :type :image :file "sine-yellow.png")
+ (:name "sine-magenta" :type :image :file "sine-magenta.png")
+ (:name "sine-cyan" :type :image :file "sine-cyan.png")
+ (:name "sine-green" :type :image :file "sine-green.png")
+
+ (:name "square-yellow" :type :image :file "square-yellow.png")
+ (:name "square-magenta" :type :image :file "square-magenta.png")
+ (:name "square-cyan" :type :image :file "square-cyan.png")
+ (:name "square-green" :type :image :file "square-green.png")
+
+ (:name "A-2-sine" :type :sample :file "A-2-sine.wav" :properties (:volume 20))
+ (:name "A-2-square" :type :sample :file "A-2-square.wav" :properties (:volume 20))
+ (:name "A-2-saw" :type :sample :file "A-2-saw.wav" :properties (:volume 20))
+ (:name "A-4-sine" :type :sample :file "A-4-sine.wav" :properties (:volume 20))
+ (:name "A-4-square" :type :sample :file "A-4-square.wav" :properties (:volume 20))
+ (:name "A-4-saw" :type :sample :file "A-4-saw.wav" :properties (:volume 20))
+
+ (:name "tank-disabled" :type :image :file "tank-disabled.png")
+ (:name "tank-north" :type :image :file "tank-north.png")
+ (:name "tank-east" :type :alias :data ":rotate 90:tank-north")
+ (:name "tank-south" :type :alias :data ":rotate 180:tank-north")
+ (:name "tank-west" :type :alias :data ":rotate 270:tank-north")
+ (:name "tank-northeast" :type :image :file "tank-northeast.png")
+ (:name "tank-southeast" :type :alias :data ":rotate 90:tank-northeast")
+ (:name "tank-southwest" :type :alias :data ":rotate 180:tank-northeast")
+ (:name "tank-northwest" :type :alias :data ":rotate 270:tank-northeast")
+
+ (:name "help-message" :type :text :file "README")
+ (:name ".startup" :type :lisp :file "xiotank.lisp" :properties (:autoload t))
+)
