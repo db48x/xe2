@@ -1,4 +1,0 @@
-(
- (:name "help-message" :type :text :file "README")
- (:name ".startup" :type :lisp :file "drez.lisp" :properties (:autoload t))
-)
