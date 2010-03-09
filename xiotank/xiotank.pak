@@ -1,8 +1,13 @@
 (
  (:name "splash" :type :image :file "xiotank.png")
 
- (:name "purity" :type :music :file "purity.ogg" :properties (:volume 13))
+ (:name "purity" :type :music :file "purity.ogg" :properties (:volume 18))
  (:name "launchpad" :type :image :file "launchpad.png")
+ (:name "block" :type :image :file "block.png")
+ (:name "shocker" :type :image :file "shocker.png")
+
+ (:name "white-noise" :type :image :file "white-noise.png")
+ (:name "white-noise2" :type :image :file "white-noise2.png")
 
  (:name "blue-space" :type :image :file "blue-space.png")
  (:name "purple-space" :type :image :file "purple-space.png")
@@ -14,6 +19,8 @@
  (:name "saw-cyan" :type :image :file "saw-cyan.png")
  (:name "saw-green" :type :image :file "saw-green.png")
 
+
+
  (:name "sine-yellow" :type :image :file "sine-yellow.png")
  (:name "sine-magenta" :type :image :file "sine-magenta.png")
  (:name "sine-cyan" :type :image :file "sine-cyan.png")
@@ -24,12 +31,16 @@
  (:name "square-cyan" :type :image :file "square-cyan.png")
  (:name "square-green" :type :image :file "square-green.png")
 
- (:name "A-2-sine" :type :sample :file "A-2-sine.wav" :properties (:volume 20))
- (:name "A-2-square" :type :sample :file "A-2-square.wav" :properties (:volume 20))
- (:name "A-2-saw" :type :sample :file "A-2-saw.wav" :properties (:volume 20))
- (:name "A-4-sine" :type :sample :file "A-4-sine.wav" :properties (:volume 20))
- (:name "A-4-square" :type :sample :file "A-4-square.wav" :properties (:volume 20))
- (:name "A-4-saw" :type :sample :file "A-4-saw.wav" :properties (:volume 20))
+ (:name "A-2-sine" :type :sample :file "A-2-sine.wav" :properties (:volume 4))
+ (:name "A-2-square" :type :sample :file "A-2-square.wav" :properties (:volume 4))
+ (:name "A-2-saw" :type :sample :file "A-2-saw.wav" :properties (:volume 4))
+ (:name "A-4-sine" :type :sample :file "A-4-sine.wav" :properties (:volume 4))
+ (:name "A-4-square" :type :sample :file "A-4-square.wav" :properties (:volume 4))
+ (:name "A-4-saw" :type :sample :file "A-4-saw.wav" :properties (:volume 4))
+
+ (:name "noise-white" :type :sample :file "white-noise.wav" :properties (:volume 4))
+ (:name "pop" :type :sample :file "pop.wav" :properties (:volume 40))
+ (:name "ouch" :type :sample :file "ouch.wav" :properties (:volume 70))
 
  (:name "tank-disabled" :type :image :file "tank-disabled.png")
  (:name "tank-north" :type :image :file "tank-north.png")

@@ -31,12 +31,9 @@
 
 (in-package :xiotank)
 
-(setf xe2:*dt* 10)
-(setf xe2:*physics-function* #'(lambda (&rest ignore)
-				 [run-cpu-phase *world* :timer]))
+(setf xe2:*dt* 30)
 
 ;;; Sound waves
-
 
 (defparameter *wave-types* '(:sine :square :saw))
 (defparameter *wave-colors* '(:yellow :cyan :magenta :green))
@@ -55,39 +52,92 @@
     (:square :green "square-green" :yellow "square-yellow" :magenta "square-magenta" :cyan "square-cyan")
     (:saw :green "saw-green" :yellow "saw-yellow" :magenta "saw-magenta" :cyan "saw-cyan")))
 
-(defun wave-image (type color)
+(defun wave-image (type &optional (color :green))
   (assert (and (member type *wave-types*)
 	       (member color *wave-colors*)))
-  (getf (cdr (assoc type *wave-tiles*))
+  (getf (cdr (assoc type *wave-images*))
 	color))
 
 (defsprite wave
+  (team :initform :player)
+  (color :initform :green)
   (type :initform :sine)
+  (clock :initform 60)
   (image :initform nil)
   (direction :initform nil)
   (speed :initform (make-stat :base 20))
   (movement-distance :initform (make-stat :base 2))
-  (movement-cost :initform (make-stat :base 10))
+  (movement-cost :initform (make-stat :base 20))
   (categories :initform '(:wave :actor)))
 
-(define-method start wave (&key note (type :sine) (direction :north))
+(define-method start wave (&key (note "A-4") (type :sine) (direction :north) (team :player) (color :green))
   (setf <type> type)
-  (setf <image> (wave-image type))
+  (setf <team> team)
+  [update-image self (wave-image type color)]
   (setf <sample> (wave-sample type note))
   (setf <direction> direction))
 
 (define-method run wave ()
-  [expend-action-points self 2]
-  (mutliple-value-bind (y x) (xe2:step-in-direction <y> <x> <direction>
-						    [stat-value self :movement-distance])
-		       [update-position self x y]))
+  (decf <clock>)
+  (if (minusp <clock>)
+      [die self]
+      (progn [expend-action-points self 2]
+	     (when <direction> 
+	       (multiple-value-bind (y x) (xe2:step-in-direction <y> <x> <direction>
+								 [stat-value self :movement-distance])
+		 [update-position self x y])
+	       [play-sample self <sample>]))))
 
-;;(define-method do-collision wave ()
+(define-method do-collision wave (object)
+  (when (and (not [in-category object :wave])
+	     (has-field :team object)
+	     (not (eq <team> (field-value :team object)))
+	     (has-field :hit-points object))
+    [damage object 1]
+    [die self]))
 				
 ;;(define-method die wave 
 
+;;; The tank sonic cannon
+
+(defparameter *wave-cannon-reload-time* 20)
+
+(defcell wave-cannon
+  (tile :initform "gun")
+  (reload-clock :initform 0)
+  (categories :initform '(:item :weapon :equipment))
+  (equip-for :initform '(:center-bay))
+  (weight :initform 7000)
+  (accuracy :initform (make-stat :base 100))
+  (attack-power :initform (make-stat :base 12))
+  (attack-cost :initform (make-stat :base 10))
+  (energy-cost :initform (make-stat :base 1)))
+
+(define-method fire wave-cannon (direction)
+  (if (plusp <reload-clock>)
+      nil ;; (decf <reload-clock>)
+      (progn 
+	(setf <reload-clock> *wave-cannon-reload-time*)
+	(if [expend-energy <equipper> [stat-value self :energy-cost]]
+	    (let ((wave (clone =wave=)))
+	      (multiple-value-bind (x y) [viewport-coordinates <equipper>]
+		[drop-sprite <equipper> wave (+ x 4) (+ y 4)]
+		[start wave :direction direction :team (field-value :team <equipper>)
+		       :color (field-value :color <equipper>)
+		       :type (field-value :wave-type <equipper>)]))
+	    (when [is-player <equipper>]
+	      [say <equipper> "Not enough energy to fire!"])))))
+
+(define-method recharge wave-cannon ()
+  (decf <reload-clock>))
+
+;;; The tank!
+
 (defcell tank 
   (tile :initform "tank-north")
+  (team :initform :player)
+  (color :initform :green)
+  (wave-type :initform :sine)
   (hit-points :initform (make-stat :base 45 :min 0 :max 45))
   (movement-cost :initform (make-stat :base 10))
   (max-items :initform (make-stat :base 2))
@@ -103,8 +153,17 @@
   (direction :initform :north)
   (attacking-with :initform nil)
   (firing-with :initform :center-bay)
-  (categories :initform '(:actor :player :target :container :light-source :vehicle :repairable))
+  (categories :initform '(:actor :obstacle :player :target :container :light-source :vehicle :repairable))
   (equipment-slots :initform '(:left-bay :right-bay :center-bay :extension)))
+
+(define-method loadout tank ()
+  [make-inventory self]
+  [make-equipment self]
+  [equip self [add-item self (clone =wave-cannon=)]])
+
+(define-method damage tank (points)
+  [play-sample self "ouch"]
+  [parent>>damage self points])
 
 (defparameter *tank-tiles* '(:north "tank-north"
 			     :south "tank-south"
@@ -120,10 +179,83 @@
   (setf <tile> (getf *tank-tiles* direction))
   [parent>>move self direction])
 
+(define-method fire tank (direction)
+  [play-sample self "pop"]
+  [parent>>fire self direction])
+
 (define-method run tank ()
-  nil)
+  (let ((cannon [equipment-slot self :center-bay]))
+    (when cannon [recharge cannon])))
+  
+(define-method quit tank ()
+  (xe2:quit :shutdown))
+
+;;; White noise
+
+(defcell noise 
+  (tile :initform (car (one-of '("white-noise" "white-noise2"))))
+  (categories :initform '(:actor))
+  (clock :initform (random 20)))
+
+(define-method run noise ()
+  (decf <clock>)
+  [play-sample self "noise-white"]
+  (if (minusp <clock>) [die self]
+      [move self (random-direction)]))
+
+;;; Basic enemy
+
+(defcell shocker 
+  (tile :initform "shocker")
+  (team :initform :enemy)
+  (color :initform :cyan)
+  (wave-type :initform :square)
+  (hit-points :initform (make-stat :base 2 :min 0 :max 45))
+  (movement-cost :initform (make-stat :base 10))
+  (max-items :initform (make-stat :base 2))
+  (speed :initform (make-stat :base 10 :min 0 :max 25))
+  (strength :initform (make-stat :base 10))
+  (defense :initform (make-stat :base 10))
+  (hearing-range :initform 15)
+  (energy :initform (make-stat :base 40 :min 0 :max 40 :unit :gj))
+  (hit-points :initform (make-stat :base 45 :min 0 :max 45))
+  (movement-cost :initform (make-stat :base 10))
+  (max-items :initform (make-stat :base 2))
+  (stepping :initform t)
+  (direction :initform :north)
+  (attacking-with :initform nil)
+  (firing-with :initform :center-bay)
+  (categories :initform '(:actor :obstacle :target :container :light-source :vehicle :repairable))
+  (equipment-slots :initform '(:left-bay :right-bay :center-bay :extension)))
+
+(define-method loadout shocker ()
+  [make-inventory self]
+  [make-equipment self]
+  [equip self [add-item self (clone =wave-cannon=)]])
+
+(define-method damage shocker (points)
+  [die self])
+
+(define-method run shocker ()
+  (let ((cannon [equipment-slot self :center-bay]))
+    (when cannon [recharge cannon]))
+  (let ((dir [direction-to-player self]))
+  (if (> 10 [distance-to-player self])
+      [fire self dir]
+      (if [obstacle-in-direction-p *world* <row> <column> dir]
+	  [move self (random-direction)]
+	  [move self dir]))))
+
+(define-method die shocker () 
+  (dotimes (n 10)
+    [drop self (clone =noise=)])
+  [parent>>die self])
   
 ;;;; Basic blue world
+
+(defcell block 
+  (tile :initform "block")
+  (categories :initform '(:obstacle :opaque)))
 
 (defcell blue-space 
   (tile :initform "blue-space"))
@@ -157,9 +289,11 @@
     (dotimes (j width)
       [drop-cell self (clone =blue-space=)
 		 i j]))
-  ;; (dotimes (i 20)
-  ;;   [drop-cell self (clone =star=) (random height) (random width)]
-  ;;   [drop-base self (random height) (random width) (+ 5 (random 10))])
+  (labels ((drop-block (r c)
+	     [drop-cell self (clone =block=) r c]))
+    (trace-rectangle #'drop-block 0 0 height width))
+  (dotimes (n 10)
+    [drop-cell self (clone =shocker=) (random 10) (random 10) :loadout t])
   [drop-cell self (clone =launchpad=) (- height 8) 5])
 
 ;;; Splash screen
@@ -238,10 +372,9 @@
     (when char
 	[print-stat self :hit-points :warn-below 10 :show-max t]
 	[print-stat-bar self :hit-points :color ".red" :divisor 2]
+	[space self]
 	[print-stat self :energy :warn-below 10 :show-max t]
 	[print-stat-bar self :energy :color ".yellow" :divisor 2]
-
-;;	[print self (format nil "   SCORE:~S" [stat-value char :score])]
 	[newline self])))
 
 ;;; Custom bordered viewport
@@ -532,6 +665,8 @@
 	       ;; (xe2:enable-timer)
 	       ;; (xe2:set-frame-rate 30)
 	       ;; (xe2:set-timer-interval 1)
+	       (setf xe2:*physics-function* #'(lambda (&rest ignore)
+						(when *world* [run-cpu-phase *world* :timer])))
 
 	       (xe2:enable-held-keys 1 3)
 	       ;;

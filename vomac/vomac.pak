@@ -397,6 +397,7 @@
  (:name "ion-shield" :type :image :file "combelt.png")
  (:name "launchpad" :type :image :file "launchpad.png")
  (:name "gateway" :type :image :file "gateway.png")
+ (:name "gateway" :type :image :file "gateway.png")
  (:name "star" :type :image :file "star.png")
  (:name "void" :type :image :file "void.png")
  (:name "starfield" :type :image :file "starfield.png")

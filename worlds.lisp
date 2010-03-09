@@ -793,6 +793,7 @@ along grid squares between R1,C1 and R2,C2."
 Sends a :do-collision message for every detected collision."
   (with-field-values (width height tile-size sprite-grid sprite-table grid) self
     (dolist (sprite (or sprites <sprites>))
+      
       ;; figure out which grid squares we really need to scan
       (let* ((x (field-value :x sprite)) 
 	     (y (field-value :y sprite)) 
@@ -801,6 +802,7 @@ Sends a :do-collision message for every detected collision."
 	     (top (1- (floor (/ y tile-size))))
 	     (bottom (1+ (floor (/ (+ y (field-value :height sprite)) tile-size)))))
 	;; find out which scanned squares actually intersect the sprite
+;;	(message "COLLIDE-SPRITES DEBUG: ~S" (list x y left right top bottom))
 	(block colliding
 	  (dotimes (i (max 0 (- bottom top)))
 	    (dotimes (j (max 0 (- right left)))

@@ -872,11 +872,11 @@ May be affected by the player's :hearing-range stat, if any."
 	   (range (if (clon:has-field :hearing-range player)
 		      (clon:field-value :hearing-range player)
 		      *default-sample-hearing-range*))
-	   (dist (if [is-located self]
-		     (distance <column> <row> 
-			       [player-column *world*]
-			       [player-row *world*])
-		     0)))
+	   (dist (multiple-value-bind (row col) 
+		     [grid-coordinates self]
+		   (distance col row
+			     [player-column *world*]
+			     [player-row *world*]))))
       (when (> range dist)
 	(play-sample sample-name)))))
 

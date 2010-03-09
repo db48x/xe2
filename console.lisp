@@ -59,11 +59,13 @@ disabled."
 
 ;;; Physics timestep callback
 
-;; These must be set before initialization.
-
 (defvar *dt* 10)
 
 (defvar *physics-function* nil)
+
+(defun do-physics (&rest args) 
+  (when (functionp *physics-function*)
+    (apply *physics-function* args)))
 
 ;;; Mixer channels
 
@@ -542,7 +544,8 @@ window. Set this in the game startup file.")
   "Initialize the console, open a window, and play.
 We want to process all inputs, update the game state, then update the
 display."
-  (let ((fps (make-instance 'sdl:fps-unlocked :dt *dt* :ps-fn *physics-function*)))
+  (setf *physics-function* nil)
+  (let ((fps (make-instance 'sdl:fps-unlocked :dt *dt* :ps-fn #'do-physics)))
     (if *fullscreen*
 	(sdl:window *screen-width* *screen-height*
 		    :fps fps 
@@ -1296,7 +1299,7 @@ The default destination is the main window."
 
 (defvar *frequency* 44100)
 
-(defvar *output-chunksize* 128)
+(defvar *output-chunksize* 512)
 
 (defvar *output-channels* 2)
 
