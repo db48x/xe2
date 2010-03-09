@@ -33,6 +33,54 @@
 
 (setf xe2:*dt* 30)
 
+;;; Text labels
+
+(defcell label 
+  (categories :initform '(:drawn :actor :label))
+  text stroke-color background-color timeout)
+
+(define-method initialize label (&key text (stroke-color ".white") (background-color ".gray30")
+					(style :label) (timeout nil))
+  (setf <text> text)
+  (setf <stroke-color> stroke-color)
+  (setf <background-color> background-color)
+  (setf <style> style)
+  (setf <timeout> (if (floatp timeout)
+		      ;; specify in (roughly) seconds if floating
+		      (truncate (* 15 timeout))
+		      ;; leave as frames if integer
+		      timeout)))
+  
+(define-method draw label (x y image)
+  (clon:with-field-values (text style) self
+    (let* ((offset (ecase style
+		     (:label 16)
+		     (:flat 0)))
+	   (x0 x)
+	   (y0 y)
+	   (x1 (+ x0 offset))
+	   (y1 y0)
+	   (margin 4)
+	   (height (+ (* 2 margin) (apply #'+ (mapcar #'formatted-line-height text))))
+	   (width (+ (* 2 margin) (apply #'max (mapcar #'formatted-line-width text)))))
+      (draw-box x1 y1 width height 
+		:stroke-color <stroke-color>
+		:color <background-color>
+		:destination image)
+      ;; (when (eq style :label)
+      ;; 	(draw-line x0 y0 x1 y1 :destination image))
+      (let ((x2 (+ margin x1))
+	    (y2 (+ margin y1)))
+	(dolist (line text)
+	  (render-formatted-line line x2 y2 :destination image)
+	  (incf y2 (formatted-line-height line)))))))
+
+(define-method run label ()
+  [expend-default-action-points self]
+  (when (integerp <timeout>)
+    (when (minusp (decf <timeout>))
+      [die self])))
+
 ;;; Sound waves
 
 (defparameter *waveforms* '(:sine :square :saw))
@@ -58,11 +106,15 @@
   (getf (cdr (assoc type *wave-images*))
 	color))
 
+(defparameter *pulse-delay* 8)
+
 (defsprite wave
   (team :initform :player)
   (color :initform :green)
   (waveform :initform :sine)
+  (note :initform "A-4")
   (clock :initform 60)
+  (pulse :initform (random *pulse-delay*))
   (image :initform nil)
   (direction :initform nil)
   (speed :initform (make-stat :base 20))
@@ -73,6 +125,7 @@
 (define-method start wave (&key (note "A-4") (waveform :sine) (direction :north) (team :player) (color :green))
   (setf <waveform> waveform)
   (setf <team> team)
+  (setf <note> note)
   [update-image self (wave-image waveform color)]
   (setf <sample> (wave-sample waveform note))
   (setf <direction> direction))
@@ -86,7 +139,11 @@
 	       (multiple-value-bind (y x) (xe2:step-in-direction <y> <x> <direction>
 								 [stat-value self :movement-distance])
 		 [update-position self x y])
-	       [play-sample self <sample>]))))
+	       ;; decide whether to beep.
+	       (if (zerop <pulse>)
+		   (progn (setf <pulse> *pulse-delay*)
+			  [play-sample self <sample>])
+		   (decf <pulse>))))))
 
 (define-method do-collision wave (object)
   (when (and (not [in-category object :wave])
@@ -95,6 +152,60 @@
 	     (not (eq <team> (field-value :team object))))
     [hit object]
     [die self]))
+
+;;; Pulsators 
+
+(defparameter *default-pulsator-delay* 20)
+
+(defcell pulsator 
+  (tile :initform "pulsator")
+  (delay :initform *default-pulsator-delay*)
+  (clock :initform 0)
+  (team :initform :neutral)
+  (state :initform nil)	 
+  (categories :initform '(:obstacle :target :actor)))
+
+(define-method update-tile pulsator (&optional pulsing)
+  (setf <tile> (if pulsing "pulsator-pulse"
+		   (if <state> "pulsator-on" "pulsator"))))
+
+(define-method tap pulsator (delay)
+  (setf <delay> delay))
+
+(define-method start pulsator (&optional delay)
+  (unless <state>
+    (when delay (setf <delay> delay))
+    (setf <state> t)
+    [update-tile self]))
+
+(define-method stop pulsator ()
+  (unless (null <state>)
+    (setf <state> nil)
+    [update-tile self]
+    (setf <clock> 0)))
+
+(define-method run pulsator ()
+  [update-tile self]
+  (when <state>
+    (if (zerop <clock>)
+	(progn [play-sample self "pulse"]
+	       [update-tile self t]
+	       (labels ((do-circle (image)
+	     (prog1 t
+	       (multiple-value-bind (x y) 
+		   [viewport-coordinates self]
+		 (let ((x0 (+ x 8))
+		       (y0 (+ y 8)))
+		   (draw-circle x0 y0 40 :destination image)
+		   (draw-circle x0 y0 35 :destination image))))))
+		 [>>add-overlay :viewport #'do-circle])
+	       (setf <clock> <delay>))
+	(decf <clock>))))
+  
+(define-method hit pulsator ()
+  (if <state> [stop self] [start self]))
+  
+
 
 ;;; Oscillators
 
@@ -129,12 +240,17 @@
     [intone self waveform note]
     (setf <state> t)
     [update-tile self]
-    (setf <channel> (xe2:play-sample (wave-sample waveform note) :loop t))))
+    (let ((label (clone =label= :text (list (list (list <note>))))))
+      [drop self label]))
+    (setf <channel> (xe2:play-sample (wave-sample waveform note) :loop t)))
 
 (define-method stop oscillator ()
   (unless (null <channel>)
     (setf <state> nil)
     [update-tile self]
+    (let ((label [category-at-p *world* <row> <column> :label]))
+      (when label
+	[die label]))
     (xe2:halt-sample <channel>)
     (setf <channel> nil)))
 
@@ -145,7 +261,7 @@
 				
 ;;(define-method die wave 
 
-;;; The tank sonic cannon
+;;; The sonic cannon
 
 (defparameter *wave-cannon-reload-time* 20)
 
@@ -171,6 +287,7 @@
 		[drop-sprite <equipper> wave (+ x 4) (+ y 4)]
 		[start wave :direction direction :team (field-value :team <equipper>)
 		       :color (field-value :color <equipper>)
+;;		       :note (car (one-of (list "A-4"  "A-2")))
 		       :waveform (field-value :waveform <equipper>)]))
 	    (when [is-player <equipper>]
 	      [say <equipper> "Not enough energy to fire!"])))))
@@ -240,7 +357,7 @@
 ;;; White noise
 
 (defcell noise 
-  (tile :initform (car (one-of '("white-noise" "white-noise2"))))
+  (tile :initform (car (one-of '("white-noise" "white-noise2" "white-noise3" "white-noise4"))))
   (categories :initform '(:actor))
   (clock :initform (random 20)))
 
@@ -297,6 +414,7 @@
 (define-method die shocker () 
   (dotimes (n 10)
     [drop self (clone =noise=)])
+  [play-sample self "yelp"]
   [parent>>die self])
   
 ;;;; Basic blue world
@@ -314,21 +432,7 @@
   (scale :initform '(3 m))
   (edge-condition :initform :block))
 
-;;(define-method begin-ambient-loop blue-world ()
-;;  (play-music "purity" :loop t))
-
-;; (define-method drop-base blue-world (row column &optional (size 5))
-;;   (labels ((drop-panel (r c)
-;; 	     (prog1 nil [drop-cell self (clone =xiotank-base=) r c])))
-;;     (trace-rectangle #'drop-panel row column size size :fill)
-;;     (dotimes (i 8)
-;;       [drop-cell self (clone =guardic-eye=) 
-;; 		 (+ row (random size)) (+ column (random size)) :loadout t])
-;;     (dotimes (i (* 2 size))
-;;       [drop-cell self (clone =xiotank-wires=)
-;; 		 (+ row (random size)) (+ column (random size))])))
-
-(define-method generate blue-world (&key (height 24)
+(define-method generate blue-world (&key (height 28)
 					    (width 50)
 					    sequence-number)
   (setf <height> height <width> width)
@@ -342,15 +446,18 @@
   ;;   (trace-rectangle #'drop-block 0 0 height width))
   (let ((osc1 (clone =oscillator=))
 	(osc2 (clone =oscillator=))
-	(osc3 (clone =oscillator=)))
+	(osc3 (clone =oscillator=))
+	(pulse (clone =pulsator=)))
     (dotimes (n 10)
       [drop-cell self (clone =shocker=) (random 10) (random 10) :loadout t])
     [drop-cell self osc1 4 4]
-    [drop-cell self osc2 4 6]
-    [drop-cell self osc3 4 8]
+    [drop-cell self osc2 4 8]
+    [drop-cell self osc3 4 12]
     [intone osc1 :sine "A-2"]
     [intone osc2 :sine "660"]
     [intone osc3 :sine "792"]
+    [drop-cell self pulse 4 16]
+    [tap pulse 30]
     [drop-cell self (clone =launchpad=) (- height 8) 5]))
 
 ;;; Splash screen
@@ -722,6 +829,7 @@
 	       ;; (xe2:enable-timer)
 	       ;; (xe2:set-frame-rate 30)
 	       ;; (xe2:set-timer-interval 1)
+	       (xe2:halt-music 1000)
 	       (setf xe2:*physics-function* #'(lambda (&rest ignore)
 						(when *world* [run-cpu-phase *world* :timer])))
 
@@ -762,7 +870,7 @@
     ;; 	  (funcall #'send nil :print-formatted-string quickhelp string))
     ;; 	[newline quickhelp]))
     ;; ;;
-    ;;(play-music "xiotank-theme" :loop t)
+    (play-music "purity" :loop t)
     (set-music-volume 255)	       
     ;;
     [resize stack :width *xiotank-window-width* :height (- *xiotank-window-height* 20)]

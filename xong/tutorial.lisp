@@ -1,6 +1,6 @@
 (in-package :xong)
 
-;;; Text overlay balloons
+;;; Text labels
 
 (defcell balloon 
   (categories :initform '(:drawn :actor))

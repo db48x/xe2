@@ -8,7 +8,10 @@ DEADLINE: <2010-03-14 Sun 23:59>
 CLOSED: [2010-03-08 Mon 10:44]
 ** DONE square/triangle/sine icons in pink/blue/green (sprites?)
 CLOSED: [2010-03-08 Mon 10:44]
-** TODO emulate key repeat
+** TODO pushing blocks around to connect dataflow thingies and unlock stuff
+** TODO data corruption (forbidden parts of map)
+** TODO change waves via wave blocks that bounce back a powerup
+** TODO fix things speeding up when 2 directionals are pressed. (allow only one move per turn)
 ** TODO [#C] generate waveforms programmatically for all notes
 ** TODO establish pulsators for beats
 ** TODO draw tank and walls and background and some basic enemies

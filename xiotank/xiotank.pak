@@ -1,4 +1,6 @@
 (
+ (:name ".default-font" :type :font :properties (:height 13 :width 6) :data "6x13")
+
  (:name "splash" :type :image :file "xiotank.png")
 
  (:name "purity" :type :music :file "purity.ogg" :properties (:volume 18))
@@ -8,6 +10,8 @@
 
  (:name "white-noise" :type :image :file "white-noise.png")
  (:name "white-noise2" :type :image :file "white-noise2.png")
+ (:name "white-noise3" :type :image :file "white-noise3.png")
+ (:name "white-noise4" :type :image :file "white-noise4.png")
 
  (:name "blue-space" :type :image :file "blue-space.png")
  (:name "purple-space" :type :image :file "purple-space.png")
@@ -19,17 +23,23 @@
  (:name "saw-cyan" :type :image :file "saw-cyan.png")
  (:name "saw-green" :type :image :file "saw-green.png")
 
-
-
  (:name "sine-yellow" :type :image :file "sine-yellow.png")
  (:name "sine-magenta" :type :image :file "sine-magenta.png")
  (:name "sine-cyan" :type :image :file "sine-cyan.png")
  (:name "sine-green" :type :image :file "sine-green.png")
 
+ (:name "pulsator" :type :image :file "pulsator.png") 
+ (:name "pulsator-on" :type :image :file "pulsator-on.png")  
+ (:name "pulsator-pulse" :type :image :file "pulsator-pulse.png")  
+
  (:name "square-yellow" :type :image :file "square-yellow.png")
  (:name "square-magenta" :type :image :file "square-magenta.png")
  (:name "square-cyan" :type :image :file "square-cyan.png")
  (:name "square-green" :type :image :file "square-green.png")
+
+ (:name "yelp" :type :sample :file "yelp.wav" :properties (:volume 10))
+ (:name "pulse" :type :sample :file "pulse.wav" :properties (:volume 10))
+ (:name "blop" :type :sample :file "blop.wav" :properties (:volume 10))
 
  (:name "660-sine" :type :sample :file "660-sine.wav" :properties (:volume 8))
  (:name "792-sine" :type :sample :file "792-sine.wav" :properties (:volume 8))
