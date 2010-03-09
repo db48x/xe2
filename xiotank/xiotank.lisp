@@ -83,7 +83,7 @@
 
 ;;; Sound waves
 
-(defparameter *waveforms* '(:sine :square :saw))
+(defparameter *waveforms* '(:sine :square :saw :bass))
 (defparameter *wave-colors* '(:yellow :cyan :magenta :green))
 
 (defparameter *wave-samples*
@@ -202,13 +202,13 @@
 	       (setf *pulsing* t)
 	       (setf <trip> nil)
 	       (labels ((do-circle (image)
-	     (prog1 t
-	       (multiple-value-bind (x y) 
-		   [viewport-coordinates self]
-		 (let ((x0 (+ x 8))
-		       (y0 (+ y 8)))
-		   (draw-circle x0 y0 40 :destination image)
-		   (draw-circle x0 y0 35 :destination image))))))
+			  (prog1 t
+			    (multiple-value-bind (x y) 
+				[viewport-coordinates self]
+			      (let ((x0 (+ x 8))
+				    (y0 (+ y 8)))
+				(draw-circle x0 y0 40 :destination image)
+				(draw-circle x0 y0 35 :destination image))))))
 		 [>>add-overlay :viewport #'do-circle])
 	       (setf <clock> <delay>))
 	(progn (if <trip>
@@ -249,6 +249,53 @@
       [move <wave> (field-value :direction <wave>) 17]
       [refresh <wave>])
     (setf <wave> nil)))
+
+;;; Turrets
+
+(defcell turret
+  (tile :initform "turret-right-on")
+  (team :initform :neutral) wave
+  (default-cost :initform (make-stat :base 10))
+  (speed :initform (make-stat :base 20))
+  (categories :initform '(:actor :obstacle :target)))
+
+(define-method run turret ()
+  [expend-action-points self 10]
+  (setf <wave> (clone =wave=))
+  [start <wave> :direction :east
+	 :team :neutral
+	 :waveform :saw]
+  (when (and *pulsing* <wave>)
+    [add-sprite *world* <wave>]
+    (multiple-value-bind (x y) [xy-coordinates self]
+      [update-position <wave> x y]
+      [refresh <wave>])))
+
+(define-method hit turret (&optional object)
+  [run self]
+  nil)
+
+;;; Triggers just play a sample once per hit
+
+(defcell trigger
+  (tile :initform "trigger")
+  (sample :initform nil)
+  (team :initform :neutral) wave
+  (default-cost :initform (make-stat :base 10))
+  (speed :initform (make-stat :base 20))
+  (categories :initform '(:actor :obstacle :target)))
+
+(define-method run trigger ()
+  [expend-action-points self 10])
+
+(define-method intone trigger (sample)
+  (setf <sample> sample))
+
+(define-method hit trigger (&optional object)
+  (when <sample> 
+    [play-sample self <sample>]
+    (dotimes (n 6)
+      [drop self (clone =particle=)])))
 
 ;;; Oscillators
 
@@ -410,6 +457,21 @@
   (if (minusp <clock>) [die self]
       [move self (random-direction)]))
 
+;;; Phonic particles
+
+(defcell particle 
+  (tile :initform "particle")
+  (direction :initform (car (one-of '(:north :south :east :west))))
+  (categories :initform '(:actor))
+  (clock :initform (random 20)))
+
+(define-method run particle ()
+  (decf <clock>)
+  (setf <tile> (car (one-of '("particle" "particle2" "particle3"))))
+  ;;[play-sample self "particle-sound-1"]
+  (if (minusp <clock>) [die self]
+      [move self <direction>]))
+
 ;;; Basic enemy
 
 (defcell shocker 
@@ -475,7 +537,11 @@
   (scale :initform '(3 m))
   (edge-condition :initform :block))
 
-(define-method generate blue-world (&key (height 28)
+(defparameter *bass-notes* '("C-2-bass" "C#2-bass" "D-2-bass" "D#2-bass" "E-2-bass" 
+	      "F-2-bass" "F#2-bass" "G-2-bass" "G#2-bass" "A-2-bass" "A#2-bass"
+	      "B-2-bass" "C-3-bass"))
+
+(define-method generate blue-world (&key (height 27)
 					    (width 50)
 					    sequence-number)
   (setf <height> height <width> width)
@@ -504,6 +570,13 @@
     (dotimes (n 3)
       (let ((delay (clone =delay=)))
 	[drop-cell self delay 4 (+ 20 (* 4 n))]))
+    (dotimes (n 3)
+      (let ((turret (clone =turret=)))
+	[drop-cell self turret (+ n 13) (+ 20 (* 4 n))]))
+    (dotimes (n 12)
+      (let ((trigger (clone =trigger=)))
+	[intone trigger (car (one-of *bass-notes*))]
+	[drop-cell self trigger (+ n 18) (+ 20 (* 2 n))]))
     [drop-cell self (clone =launchpad=) (- height 8) 5]))
 
 ;;; Splash screen

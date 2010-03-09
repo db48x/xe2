@@ -9,6 +9,7 @@ CLOSED: [2010-03-08 Mon 10:44]
 ** DONE square/triangle/sine icons in pink/blue/green (sprites?)
 CLOSED: [2010-03-08 Mon 10:44]
 ** TODO pushing blocks around to connect dataflow thingies and unlock stuff
+** TODO turrets that fire autokill waves on the beat automatically until a frequency comes
 ** TODO drop sonic corruption bombs
 ** TODO data corruption (forbidden parts of map)
 ** TODO change waves via wave blocks that bounce back a powerup
