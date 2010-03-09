@@ -61,7 +61,7 @@
   (:nicknames :xe2)
   (:use :common-lisp :clon) 
   (:export *default-frame-width* *default-frame-height* =viewport=
-	   *frequency* *output-chunksize* *output-channels*
+	   *frequency* *output-chunksize* *output-channels* halt-sample
   *dt* *physics-function* =equipment= *default-world-axis-size*
   *default-world-z-size* =browser= install-widgets
   *initialization-hook* initialize-engine split-string-on-lines

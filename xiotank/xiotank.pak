@@ -31,6 +31,9 @@
  (:name "square-cyan" :type :image :file "square-cyan.png")
  (:name "square-green" :type :image :file "square-green.png")
 
+ (:name "660-sine" :type :sample :file "660-sine.wav" :properties (:volume 8))
+ (:name "792-sine" :type :sample :file "792-sine.wav" :properties (:volume 8))
+
  (:name "A-2-sine" :type :sample :file "A-2-sine.wav" :properties (:volume 4))
  (:name "A-2-square" :type :sample :file "A-2-square.wav" :properties (:volume 4))
  (:name "A-2-saw" :type :sample :file "A-2-saw.wav" :properties (:volume 4))
@@ -41,6 +44,13 @@
  (:name "noise-white" :type :sample :file "white-noise.wav" :properties (:volume 4))
  (:name "pop" :type :sample :file "pop.wav" :properties (:volume 40))
  (:name "ouch" :type :sample :file "ouch.wav" :properties (:volume 70))
+
+ (:name "osc-sine-on" :type :image :file "osc-sine-on.png")
+ (:name "osc-sine-off" :type :image :file "osc-sine-off.png")
+ (:name "osc-square-on" :type :image :file "osc-square-on.png")
+ (:name "osc-square-off" :type :image :file "osc-square-off.png")
+ (:name "osc-saw-on" :type :image :file "osc-saw-on.png")
+ (:name "osc-saw-off" :type :image :file "osc-saw-off.png")
 
  (:name "tank-disabled" :type :image :file "tank-disabled.png")
  (:name "tank-north" :type :image :file "tank-north.png")

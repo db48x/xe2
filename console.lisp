@@ -1162,6 +1162,10 @@ of the music."
 	     (resource-object resource)
 	     args))))
 
+(defun halt-sample (channel &rest args)
+  (when *use-sound*
+    (apply #'sdl-mixer:halt-sample :channel channel args)))
+
 ;;; Font operations
 
 ;; A PAK entry for a font looks like this: 
@@ -1299,7 +1303,7 @@ The default destination is the main window."
 
 (defvar *frequency* 44100)
 
-(defvar *output-chunksize* 512)
+(defvar *output-chunksize* 1024)
 
 (defvar *output-channels* 2)
 

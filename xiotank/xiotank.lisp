@@ -35,7 +35,7 @@
 
 ;;; Sound waves
 
-(defparameter *wave-types* '(:sine :square :saw))
+(defparameter *waveforms* '(:sine :square :saw))
 (defparameter *wave-colors* '(:yellow :cyan :magenta :green))
 
 (defparameter *wave-samples*
@@ -44,7 +44,7 @@
     (:square "A-2-square" "A-4-square")))
 
 (defun wave-sample (type &optional (note "A-4"))
-  (assert (member type *wave-types*))
+  (assert (member type *waveforms*))
   (concatenate 'string note "-" (string-downcase (symbol-name type))))
 
 (defparameter *wave-images*
@@ -53,7 +53,7 @@
     (:saw :green "saw-green" :yellow "saw-yellow" :magenta "saw-magenta" :cyan "saw-cyan")))
 
 (defun wave-image (type &optional (color :green))
-  (assert (and (member type *wave-types*)
+  (assert (and (member type *waveforms*)
 	       (member color *wave-colors*)))
   (getf (cdr (assoc type *wave-images*))
 	color))
@@ -61,7 +61,7 @@
 (defsprite wave
   (team :initform :player)
   (color :initform :green)
-  (type :initform :sine)
+  (waveform :initform :sine)
   (clock :initform 60)
   (image :initform nil)
   (direction :initform nil)
@@ -70,11 +70,11 @@
   (movement-cost :initform (make-stat :base 20))
   (categories :initform '(:wave :actor)))
 
-(define-method start wave (&key (note "A-4") (type :sine) (direction :north) (team :player) (color :green))
-  (setf <type> type)
+(define-method start wave (&key (note "A-4") (waveform :sine) (direction :north) (team :player) (color :green))
+  (setf <waveform> waveform)
   (setf <team> team)
-  [update-image self (wave-image type color)]
-  (setf <sample> (wave-sample type note))
+  [update-image self (wave-image waveform color)]
+  (setf <sample> (wave-sample waveform note))
   (setf <direction> direction))
 
 (define-method run wave ()
@@ -90,11 +90,58 @@
 
 (define-method do-collision wave (object)
   (when (and (not [in-category object :wave])
+	     [in-category object :target]
 	     (has-field :team object)
-	     (not (eq <team> (field-value :team object)))
-	     (has-field :hit-points object))
-    [damage object 1]
+	     (not (eq <team> (field-value :team object))))
+    [hit object]
     [die self]))
+
+;;; Oscillators
+
+(defparameter *oscillator-tiles* '((:sine "osc-sine-off" "osc-sine-on")
+				   (:square "osc-square-off" "osc-square-on")
+				   (:saw "osc-saw-off" "osc-saw-on")))
+
+(defun oscillator-tile (waveform &optional state)
+  (assert (member waveform *waveforms*))
+  (let ((tiles (cdr (assoc waveform *oscillator-tiles*))))
+    (if (null state) (first tiles) (second tiles))))
+
+(defcell oscillator 
+  (categories :initform '(:actor :obstacle :target))
+  channel
+  (team :initform :neutral)
+  (waveform :initform :sine)
+  (note :initform "A-2")
+  (state :initform nil))
+
+(define-method intone oscillator (waveform &optional (note "A-2"))
+  [stop self]
+  (setf <waveform> waveform)
+  (setf <note> note)
+  [update-tile self])
+  
+(define-method update-tile oscillator ()
+  (setf <tile> (oscillator-tile <waveform> <state>)))
+
+(define-method start oscillator (waveform &optional (note "A-2"))
+  (unless <channel>
+    [intone self waveform note]
+    (setf <state> t)
+    [update-tile self]
+    (setf <channel> (xe2:play-sample (wave-sample waveform note) :loop t))))
+
+(define-method stop oscillator ()
+  (unless (null <channel>)
+    (setf <state> nil)
+    [update-tile self]
+    (xe2:halt-sample <channel>)
+    (setf <channel> nil)))
+
+(define-method run oscillator () nil)
+
+(define-method hit oscillator ()
+  (if <state> [stop self] [start self <waveform> <note>]))
 				
 ;;(define-method die wave 
 
@@ -124,7 +171,7 @@
 		[drop-sprite <equipper> wave (+ x 4) (+ y 4)]
 		[start wave :direction direction :team (field-value :team <equipper>)
 		       :color (field-value :color <equipper>)
-		       :type (field-value :wave-type <equipper>)]))
+		       :waveform (field-value :waveform <equipper>)]))
 	    (when [is-player <equipper>]
 	      [say <equipper> "Not enough energy to fire!"])))))
 
@@ -137,7 +184,7 @@
   (tile :initform "tank-north")
   (team :initform :player)
   (color :initform :green)
-  (wave-type :initform :sine)
+  (waveform :initform :sine)
   (hit-points :initform (make-stat :base 45 :min 0 :max 45))
   (movement-cost :initform (make-stat :base 10))
   (max-items :initform (make-stat :base 2))
@@ -161,9 +208,9 @@
   [make-equipment self]
   [equip self [add-item self (clone =wave-cannon=)]])
 
-(define-method damage tank (points)
+(define-method hit tank ()
   [play-sample self "ouch"]
-  [parent>>damage self points])
+  [parent>>damage self 1])
 
 (defparameter *tank-tiles* '(:north "tank-north"
 			     :south "tank-south"
@@ -209,7 +256,7 @@
   (tile :initform "shocker")
   (team :initform :enemy)
   (color :initform :cyan)
-  (wave-type :initform :square)
+  (waveform :initform :square)
   (hit-points :initform (make-stat :base 2 :min 0 :max 45))
   (movement-cost :initform (make-stat :base 10))
   (max-items :initform (make-stat :base 2))
@@ -233,18 +280,19 @@
   [make-equipment self]
   [equip self [add-item self (clone =wave-cannon=)]])
 
-(define-method damage shocker (points)
+(define-method hit shocker ()
   [die self])
 
 (define-method run shocker ()
   (let ((cannon [equipment-slot self :center-bay]))
     (when cannon [recharge cannon]))
   (let ((dir [direction-to-player self]))
-  (if (> 10 [distance-to-player self])
-      [fire self dir]
-      (if [obstacle-in-direction-p *world* <row> <column> dir]
-	  [move self (random-direction)]
-	  [move self dir]))))
+    (if (> 10 [distance-to-player self])
+	(progn [fire self dir]
+	       (xe2:percent-of-time 3 [move self dir]))
+	(if [obstacle-in-direction-p *world* <row> <column> dir]
+	    [move self (random-direction)]
+	    [move self dir]))))
 
 (define-method die shocker () 
   (dotimes (n 10)
@@ -266,8 +314,8 @@
   (scale :initform '(3 m))
   (edge-condition :initform :block))
 
-(define-method begin-ambient-loop blue-world ()
-  (play-music "purity" :loop t))
+;;(define-method begin-ambient-loop blue-world ()
+;;  (play-music "purity" :loop t))
 
 ;; (define-method drop-base blue-world (row column &optional (size 5))
 ;;   (labels ((drop-panel (r c)
@@ -280,8 +328,8 @@
 ;;       [drop-cell self (clone =xiotank-wires=)
 ;; 		 (+ row (random size)) (+ column (random size))])))
 
-(define-method generate blue-world (&key (height 200)
-					    (width 30)
+(define-method generate blue-world (&key (height 24)
+					    (width 50)
 					    sequence-number)
   (setf <height> height <width> width)
   [create-default-grid self]
@@ -289,12 +337,21 @@
     (dotimes (j width)
       [drop-cell self (clone =blue-space=)
 		 i j]))
-  (labels ((drop-block (r c)
-	     [drop-cell self (clone =block=) r c]))
-    (trace-rectangle #'drop-block 0 0 height width))
-  (dotimes (n 10)
-    [drop-cell self (clone =shocker=) (random 10) (random 10) :loadout t])
-  [drop-cell self (clone =launchpad=) (- height 8) 5])
+  ;; (labels ((drop-block (r c)
+  ;; 	     (prog1 nil [drop-cell self (clone =block=) r c])))
+  ;;   (trace-rectangle #'drop-block 0 0 height width))
+  (let ((osc1 (clone =oscillator=))
+	(osc2 (clone =oscillator=))
+	(osc3 (clone =oscillator=)))
+    (dotimes (n 10)
+      [drop-cell self (clone =shocker=) (random 10) (random 10) :loadout t])
+    [drop-cell self osc1 4 4]
+    [drop-cell self osc2 4 6]
+    [drop-cell self osc3 4 8]
+    [intone osc1 :sine "A-2"]
+    [intone osc2 :sine "660"]
+    [intone osc3 :sine "792"]
+    [drop-cell self (clone =launchpad=) (- height 8) 5]))
 
 ;;; Splash screen
   
