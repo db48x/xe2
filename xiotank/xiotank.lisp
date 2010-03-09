@@ -145,22 +145,28 @@
 			  [play-sample self <sample>])
 		   (decf <pulse>))))))
 
+(define-method refresh wave ()
+  (setf <clock> 60))
+
 (define-method do-collision wave (object)
   (when (and (not [in-category object :wave])
 	     [in-category object :target]
 	     (has-field :team object)
 	     (not (eq <team> (field-value :team object))))
-    [hit object]
+    [hit object self]
     [die self]))
 
 ;;; Pulsators 
 
 (defparameter *default-pulsator-delay* 20)
 
+(defparameter *pulsing* nil)
+
 (defcell pulsator 
   (tile :initform "pulsator")
   (delay :initform *default-pulsator-delay*)
   (clock :initform 0)
+  (trip :initform nil)
   (team :initform :neutral)
   (state :initform nil)	 
   (categories :initform '(:obstacle :target :actor)))
@@ -174,8 +180,11 @@
 
 (define-method start pulsator (&optional delay)
   (unless <state>
+    (setf <clock> 0)
     (when delay (setf <delay> delay))
     (setf <state> t)
+    (setf <trip> nil)
+    (setf *pulsing* t)
     [update-tile self]))
 
 (define-method stop pulsator ()
@@ -190,6 +199,8 @@
     (if (zerop <clock>)
 	(progn [play-sample self "pulse"]
 	       [update-tile self t]
+	       (setf *pulsing* t)
+	       (setf <trip> nil)
 	       (labels ((do-circle (image)
 	     (prog1 t
 	       (multiple-value-bind (x y) 
@@ -200,12 +211,44 @@
 		   (draw-circle x0 y0 35 :destination image))))))
 		 [>>add-overlay :viewport #'do-circle])
 	       (setf <clock> <delay>))
-	(decf <clock>))))
+	(progn (if <trip>
+		   (setf *pulsing* nil)
+		   (progn (setf <trip> t)
+			  (setf *pulsing* t)))
+	       (decf <clock>)))))
   
-(define-method hit pulsator ()
+(define-method hit pulsator (&optional object)
   (if <state> [stop self] [start self]))
-  
 
+;;; Wave delays that respond to pulses
+
+(defcell delay 
+  (tile :initform "delay")
+  (wave :initform nil)
+  (coords :initform nil)
+  (team :initform :neutral)
+  (default-cost :initform (make-stat :base 10))
+  (speed :initform (make-stat :base 20))
+  (categories :initform '(:actor :obstacle :target)))
+
+(define-method hit delay (&optional object)
+  (when [in-category object :wave]
+    (setf <wave> object)
+    (setf <coords> (multiple-value-bind (x y)
+		       [xy-coordinates object]
+		     (list x y)))
+    [remove-sprite *world* object]))
+
+(define-method run delay ()
+  [expend-action-points self 10]
+  (setf <tile> (if <wave> "delay-on" "delay"))
+  (when (and *pulsing* <wave>)
+    [add-sprite *world* <wave>]
+    (destructuring-bind (x y) <coords>
+      [update-position <wave> x y]
+      [move <wave> (field-value :direction <wave>) 17]
+      [refresh <wave>])
+    (setf <wave> nil)))
 
 ;;; Oscillators
 
@@ -256,7 +299,7 @@
 
 (define-method run oscillator () nil)
 
-(define-method hit oscillator ()
+(define-method hit oscillator (&optional object)
   (if <state> [stop self] [start self <waveform> <note>]))
 				
 ;;(define-method die wave 
@@ -325,7 +368,7 @@
   [make-equipment self]
   [equip self [add-item self (clone =wave-cannon=)]])
 
-(define-method hit tank ()
+(define-method hit tank (&optional object)
   [play-sample self "ouch"]
   [parent>>damage self 1])
 
@@ -397,7 +440,7 @@
   [make-equipment self]
   [equip self [add-item self (clone =wave-cannon=)]])
 
-(define-method hit shocker ()
+(define-method hit shocker (&optional object)
   [die self])
 
 (define-method run shocker ()
@@ -450,14 +493,17 @@
 	(pulse (clone =pulsator=)))
     (dotimes (n 10)
       [drop-cell self (clone =shocker=) (random 10) (random 10) :loadout t])
-    [drop-cell self osc1 4 4]
-    [drop-cell self osc2 4 8]
-    [drop-cell self osc3 4 12]
+    [drop-cell self osc1 8 20]
+    [drop-cell self osc2 8 24]
+    [drop-cell self osc3 8 28]
     [intone osc1 :sine "A-2"]
     [intone osc2 :sine "660"]
     [intone osc3 :sine "792"]
     [drop-cell self pulse 4 16]
     [tap pulse 30]
+    (dotimes (n 3)
+      (let ((delay (clone =delay=)))
+	[drop-cell self delay 4 (+ 20 (* 4 n))]))
     [drop-cell self (clone =launchpad=) (- height 8) 5]))
 
 ;;; Splash screen

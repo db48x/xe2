@@ -6,6 +6,8 @@
  (:name "purity" :type :music :file "purity.ogg" :properties (:volume 18))
  (:name "launchpad" :type :image :file "launchpad.png")
  (:name "block" :type :image :file "block.png")
+ (:name "delay" :type :image :file "delay.png")
+ (:name "delay-on" :type :image :file "delay-on.png")
  (:name "shocker" :type :image :file "shocker.png")
 
  (:name "white-noise" :type :image :file "white-noise.png")
