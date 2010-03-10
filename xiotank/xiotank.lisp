@@ -33,7 +33,6 @@
 
 (setf xe2:*dt* 30)
 
-
 ;;; Text labels
 
 (defcell label 
@@ -265,7 +264,7 @@
 
 (define-method run turret ()
   [expend-action-points self 10]
-  (when (and *pulsing* <wave>)
+  (when  *pulsing*
     (setf <wave> (clone =wave=))
     [start <wave> :direction :east
 	   :team :neutral
@@ -278,6 +277,23 @@
 (define-method hit turret (&optional object)
   [run self]
   nil)
+
+;;; Shield
+
+(defcell shield
+  (tile :initform "shield")
+  (team :initform :neutral)
+  (default-cost :initform (make-stat :base 10))
+  (speed :initform (make-stat :base 20))
+  (hit-points :initform (make-stat :base 5 :min 0))
+  (categories :initform '(:actor :target)))
+
+(define-method hit shield (&optional wave)
+  (when [in-category wave :wave]
+    [play-sample self "ice"]
+    [damage self 1]))
+
+(define-method run shield () nil)
 
 ;;; Triggers just play a sample once per hit
 
@@ -429,6 +445,7 @@
 
 (defcell tank 
   (tile :initform "tank-north")
+  (dead :initform nil)
   (team :initform :player)
   (color :initform :green)
   (waveform :initform :sine)
@@ -469,13 +486,27 @@
 			     :southwest "tank-southwest"))
 
 (define-method move tank (direction)
-  (setf <direction> direction)
-  (setf <tile> (getf *tank-tiles* direction))
-  [parent>>move self direction])
+  (unless <dead>
+    (setf <direction> direction)
+    (setf <tile> (getf *tank-tiles* direction))
+    [parent>>move self direction]))
 
 (define-method fire tank (direction)
-  [play-sample self "pop"]
-  [parent>>fire self direction])
+  (unless <dead>
+    [play-sample self "pop"]
+    [parent>>fire self direction]))
+
+(define-method shield tank ()
+  (unless <dead>
+    (if (>= [stat-value self :energy] 5) 
+	(labels ((drop-shield (r c)
+		   (prog1 nil
+		     [drop-cell *world* (clone =shield=) r c :no-collisions t])))
+	  (trace-rectangle #'drop-shield (- <row> 2) (- <column> 2) 5 5)
+	  [play-sample self "saddown"]
+	  ;;[stat-effect self :energy -10]
+	  )
+	[say self "Not enough energy to activate shield."])))
 
 (define-method run tank ()
   (let ((cannon [equipment-slot self :center-bay]))
@@ -483,6 +514,13 @@
   
 (define-method quit tank ()
   (xe2:quit :shutdown))
+
+(define-method die tank ()
+  (unless <dead>
+    (setf <tile> "tank-disabled")
+    [play-sample self "gameover"]
+    [say self "YOU DIED."]
+    (setf <dead> t)))
 
 ;;; White noise
 
@@ -821,8 +859,7 @@
 	    ("J" (:control) "fire :south .")
 	    ("N" (:control) "fire :southeast .")
 	    ;;
-	    ("W" nil "wait .")
-	    ("SPACE" nil "wait .")
+	    ("SPACE" nil "shield .")
 	    ("PERIOD" (:control) "restart .")
 	    ("KP-ENTER" nil "enter .")
 	    ("RETURN" nil "enter .")
@@ -867,9 +904,8 @@
 	    ("X" (:control) "fire :south .")
 	    ("C" (:control) "fire :southeast .")
 	    ;;
-	    ("S" nil "wait .")
 	    ("ESCAPE" (:control) "show-location .")
-	    ("SPACE" nil "wait .")
+	    ("SPACE" nil "shield .")
 	    ("PERIOD" (:control) "restart .")
 	    ("P" (:control) "quit ."))))
   
@@ -917,8 +953,7 @@
 	    ("W" (:control) "fire :south .")
 	    ("V" (:control) "fire :southeast .")
 	    ;;
-	    ("S" nil "wait .")
-	    ("SPACE" nil "wait .")
+	    ("SPACE" nil "shield .")
 	    ("KP-ENTER" nil "enter .")
 	    ("RETURN" nil "enter .")
 	    ("ESCAPE" (:control) "show-location .")

@@ -817,7 +817,8 @@ Sends a :do-collision message for every detected collision."
 		    (vector-push-extend sprite (aref sprite-grid i0 j0))
 		    ;; collide the sprite with the cells on this square
 		    (do-cells (cell (aref grid i0 j0))
-		      (when (and [in-category cell :obstacle]
+		      (when (and (or [in-category cell :target]
+				     [in-category cell :obstacle])
 				 [is-located cell])
 			[do-collision sprite cell]))))))))
 	;; now find collisions with other sprites

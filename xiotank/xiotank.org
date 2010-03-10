@@ -10,24 +10,18 @@ CLOSED: [2010-03-08 Mon 10:44]
 CLOSED: [2010-03-08 Mon 10:44]
 ** TODO receivers
 ** TODO fix doc clickable
-** TODO stronger bullets and shield
+** TODO fix not being able to get out of shield
+** TODO stronger bullets
 ** TODO energy powerups
 ** TODO pushing blocks around to connect dataflow thingies and unlock stuff
 ** TODO turrets that fire autokill waves on the beat automatically until a frequency comes
-** TODO drop sonic corruption bombs
-** TODO data corruption (forbidden parts of map)
-** TODO change waves via wave blocks that bounce back a powerup
-** TODO fix things speeding up when 2 directionals are pressed. (allow only one move per turn)
+** TODO [#B] drop sonic corruption bombs
+** TODO [#B] data corruption (forbidden parts of map)
+** TODO [#C] change waves via wave blocks that bounce back a powerup
+** TODO [#B] fix things speeding up when 2 directionals are pressed. (allow only one move per turn)
 ** TODO [#C] generate waveforms programmatically for all notes
-** TODO establish pulsators for beats
-** TODO draw tank and walls and background and some basic enemies
-** TODO set up tank and basic dungeon
-** TODO light and sound reveal locations of objects even on dark portions of map
-** TODO tank firing waves with sound
-** TODO firing enemies
-** TODO oscillators and tone clusters
-** TODO [#C] disembarking pilot
-** TODO themes a la xiobreak
+** TODO [#C] light and sound reveal locations of objects even on dark portions of map
+** TODO [#C] themes a la xiobreak
 
 * Entry mail
 

@@ -5,6 +5,7 @@
  (:name "turret-right" :type :image :file "turret-right.png")
 
  (:name "splash" :type :image :file "xiotank.png")
+ (:name "shield" :type :image :file "shield.png")
 
  (:name "purity" :type :music :file "purity.ogg" :properties (:volume 18))
  (:name "launchpad" :type :image :file "launchpad.png")
@@ -48,6 +49,8 @@
  (:name "particle3" :type :image :file "particle3.png")
 
  (:name "saddown" :type :sample :file "saddown.wav" :properties (:volume 30))
+ (:name "gameover" :type :sample :file "gameover.wav" :properties (:volume 80))
+ (:name "ice" :type :sample :file "ice.wav" :properties (:volume 10))
  (:name "yelp" :type :sample :file "yelp.wav" :properties (:volume 10))
  (:name "pulse" :type :sample :file "pulse.wav" :properties (:volume 10))
  (:name "blop" :type :sample :file "blop.wav" :properties (:volume 10))
