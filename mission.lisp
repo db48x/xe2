@@ -74,7 +74,12 @@ concatenation.")
 	(t (list phrase))))
 
 ;; (generate 'mission)
-
+;; examples:
+;; (AT MARS PLEASE COLLECT A-BIOSILICATES IN EXCHANGE FOR MUON-PISTOL)
+;; (AT NEBULA-M PLEASE DEFEAT XIOBLADE IN EXCHANGE FOR MUON-PISTOL)
+;; (AT CORVA-3 PLEASE RETRIEVE DOCUMENTS AND ACTIVATE BUTTON IN EXCHANGE FOR
+;;       ION-SHIELD-BELT)
+;; 
 ;; TODO allow variable substitution
 ;; TODO boil down to world addresses
 

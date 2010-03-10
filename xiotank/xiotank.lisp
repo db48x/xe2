@@ -193,6 +193,7 @@
 (define-method stop pulsator ()
   (unless (null <state>)
     (setf <state> nil)
+    (setf *pulsing* nil)
     [update-tile self]
     (setf <clock> 0)))
 
@@ -257,7 +258,7 @@
 
 (defcell turret
   (tile :initform "turret-right-on")
-  (team :initform :neutral) wave
+  (team :initform :player) wave
   (default-cost :initform (make-stat :base 10))
   (speed :initform (make-stat :base 20))
   (categories :initform '(:actor :obstacle :target)))
@@ -267,7 +268,7 @@
   (when *pulsing*
     (setf <wave> (clone =wave=))
     [start <wave> :direction :east
-	   :team :neutral
+	   :team :player
 	   :waveform :saw]
     [add-sprite *world* <wave>]
     (multiple-value-bind (x y) [xy-coordinates self]
@@ -300,7 +301,8 @@
 (defcell trigger
   (tile :initform "trigger")
   (sample :initform nil)
-  (team :initform :neutral) wave
+  (team :initform :neutral)
+  wave
   (default-cost :initform (make-stat :base 10))
   (speed :initform (make-stat :base 20))
   (categories :initform '(:actor :obstacle :target)))
@@ -339,7 +341,7 @@
   (pushnew note *notes* :test 'equal))
 
 (defun remove-note (note)
-  (setf *notes* (delete note *notes :test 'equal)))
+  (setf *notes* (delete note *notes* :test 'equal)))
 
 (defun note-playing-p (note)
   (member note *notes* :test 'equal))
@@ -372,6 +374,7 @@
 
 (define-method start oscillator (waveform &optional (note "A-2"))
   (unless <channel>
+    (add-note note)
     [intone self waveform note]
     (setf <state> t)
     [update-tile self]
@@ -381,6 +384,7 @@
 
 (define-method stop oscillator ()
   (unless (null <channel>)
+    (remove-note <note>)
     (setf <state> nil)
     [update-tile self]
     (let ((label [category-at-p *world* <row> <column> :label]))
@@ -404,6 +408,17 @@
   (waveform :initform :sine)
   (note :initform "A-2")
   (state :initform nil))
+
+(define-method tune resonator (note)
+  (setf <note> note))
+
+(define-method run resonator ()
+  (setf <tile> (if (note-playing-p <note>)
+		   "resonator-on"
+		   "resonator")))
+
+(define-method hit resonator (&optional object)
+  nil)
 
 ;;; The sonic cannon
 
@@ -596,9 +611,24 @@
   (dotimes (n 10)
     [drop self (clone =noise=)])
   [play-sample self "yelp"]
-  [parent>>die self])
-  
-;;;; Basic blue world
+  [parent>>die self])  
+
+;;; Basic blue world
+
+(defparameter *xiotank-grammar* 
+  '((puzzle >> (:goto-origin tone+ pulsator enemies powerups :goto-random-position player))
+    (tone+ >> tone (tone :goto-east tone+))
+    (tone >> :drop-tone-pair)
+    (enemies >> :drop-shockers)
+    (powerups >> :drop-powerups)
+    (player >> :drop-player)
+    (pulsator >> :drop-pulsator)))
+
+;; (setf xe2:*grammar* *xiotank-grammar*)
+;; (xe2:generate 'puzzle)
+
+;; (:DROP-TONE-PAIR :GOTO-EAST :DROP-TONE-PAIR :DROP-SHOCKERS :DROP-POWERUPS
+;;  :GOTO-RANDOM-POSITION :DROP-PLAYER)
 
 (defcell block 
   (tile :initform "block")
@@ -608,8 +638,10 @@
   (tile :initform "blue-space"))
 
 (define-prototype blue-world (:parent xe2:=world=)
+  gen-row gen-column
   (ambient-light :initform :total)
   (required-modes :initform nil)
+  (spacing :initform 6)
   (scale :initform '(3 m))
   (edge-condition :initform :block))
 
@@ -622,40 +654,75 @@
 					    sequence-number)
   (setf <height> height <width> width)
   [create-default-grid self]
+  (setf <gen-row> 0 <gen-column 0)
   (dotimes (i height)
     (dotimes (j width)
       [drop-cell self (clone =blue-space=)
 		 i j]))
+  (setf xe2:*grammar* *xiotank-grammar*)
+  (let ((puzzle (generate 'puzzle)))
+    (dolist (op puzzle)
+      (when (and (keywordp op) (clon:has-method op self))
+	(send nil op self)))
+    (setf <description> (prin1-to-string puzzle)))
+  [drop-cell self (clone =launchpad=) (- height 8) 5])
+
+
+(define-method goto-origin blue-world ()
+  (setf <gen-row> 0) (setf <gen-column> 0))
+
+(define-method goto blue-world (r c)
+  (setf <gen-column> (* <spacing> c))
+  (setf <gen-row> (* <spacing> r)))
+
+(define-method goto-east blue-world ()
+  (incf <gen-column> <spacing>))
+
+(define-method goto-random-position blue-world ()
+  [goto self (random 5) (random 5)])
+
+(define-method drop-tone-pair blue-world ()
+  (let ((note (car (one-of *scale*)))
+	(osc (clone =oscillator=))
+	(res (clone =resonator=)))
+    [drop-cell self osc (+ <gen-row> (random 5)) (+ <gen-column> (random 5))]
+    [intone osc :sine note] 
+    [drop-cell self res (+ <gen-row> (random 5)) (+ <gen-column> (random 5))]
+    [tune res note]))
+
+
   ;; (labels ((drop-block (r c)
   ;; 	     (prog1 nil [drop-cell self (clone =block=) r c])))
   ;;   (trace-rectangle #'drop-block 0 0 height width))
-  (let ((osc1 (clone =oscillator=))
-	(osc2 (clone =oscillator=))
-	(osc3 (clone =oscillator=))
-	(pulse (clone =pulsator=)))
-    (dotimes (n 10)
-      [drop-cell self (clone =shocker=) (random 10) (random 10) :loadout t])
-    [drop-cell self osc1 8 20]
-    [drop-cell self osc2 8 24]
-    [drop-cell self osc3 8 28]
-    (destructuring-bind (a b c)
-	(random-cluster)
-      [intone osc1 :sine a]
-      [intone osc2 :sine b]
-      [intone osc3 :sine c])
-    [drop-cell self pulse 4 16]
-    [tap pulse 30]
-    (dotimes (n 3)
-      (let ((delay (clone =delay=)))
-	[drop-cell self delay 4 (+ 20 (* 4 n))]))
-    (dotimes (n 3)
-      (let ((turret (clone =turret=)))
-	[drop-cell self turret (+ n 13) (+ 20 (* 4 n))]))
-    (dotimes (n 4)
-      (let ((trigger (clone =trigger=)))
-	[intone trigger (car (one-of *bass-notes*))]
-	[drop-cell self trigger (+ n 13) (+ 23 (* 4 n))]))
-    [drop-cell self (clone =launchpad=) (- height 8) 5]))
+  ;; (let ((osc1 (clone =oscillator=))
+  ;; 	(osc2 (clone =oscillator=))
+  ;; 	(osc3 (clone =oscillator=))
+  ;; 	(pulse (clone =pulsator=)))
+  ;;   (dotimes (n 10)
+  ;;     [drop-cell self (clone =shocker=) (random 10) (random 10) :loadout t])
+  ;;   [drop-cell self osc1 8 20]
+  ;;   [drop-cell self osc2 8 24]
+  ;;   [drop-cell self osc3 8 28]
+  ;;   (destructuring-bind (a b c)
+  ;; 	(random-cluster)
+  ;;     [intone osc1 :sine a]
+  ;;     [intone osc2 :sine b]
+  ;;     [intone osc3 :sine c])
+  ;;   [drop-cell self pulse 4 16]
+  ;;   [tap pulse 30]
+  ;;   (dotimes (n 3)
+  ;;     (let ((delay (clone =delay=)))
+  ;; 	[drop-cell self delay 4 (+ 20 (* 4 n))]))
+  ;;   (dotimes (n 3)
+  ;;     (let ((turret (clone =turret=)))
+  ;; 	[drop-cell self turret (+ n 13) (+ 20 (* 4 n))]))
+  ;;   (dotimes (n 4)
+  ;;     (let ((trigger (clone =trigger=)))
+  ;; 	[intone trigger (car (one-of *bass-notes*))]
+  ;; 	[drop-cell self trigger (+ n 13) (+ 23 (* 4 n))]))
+
+
+
 
 ;;; Splash screen
   

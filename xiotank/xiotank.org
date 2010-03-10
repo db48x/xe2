@@ -10,7 +10,7 @@ CLOSED: [2010-03-08 Mon 10:44]
 CLOSED: [2010-03-08 Mon 10:44]
 ** TODO receivers
 ** TODO fix doc clickable
-** TODO fix not being able to get out of shield
+** TODO turning turrets when shot
 ** TODO stronger bullets
 ** TODO energy powerups
 ** TODO pushing blocks around to connect dataflow thingies and unlock stuff

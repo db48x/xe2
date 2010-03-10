@@ -9,6 +9,8 @@
 
  (:name "purity" :type :music :file "purity.ogg" :properties (:volume 18))
  (:name "launchpad" :type :image :file "launchpad.png")
+ (:name "resonator" :type :image :file "resonator.png")
+ (:name "resonator-on" :type :image :file "resonator-on.png")
  (:name "block" :type :image :file "block.png")
  (:name "delay" :type :image :file "delay.png")
  (:name "delay-on" :type :image :file "delay-on.png")
@@ -49,7 +51,7 @@
  (:name "particle3" :type :image :file "particle3.png")
 
  (:name "saddown" :type :sample :file "saddown.wav" :properties (:volume 30))
- (:name "gameover" :type :sample :file "gameover.wav" :properties (:volume 80))
+ (:name "gameover" :type :sample :file "gameover.wav" :properties (:volume 80	))
  (:name "ice" :type :sample :file "ice.wav" :properties (:volume 10))
  (:name "yelp" :type :sample :file "yelp.wav" :properties (:volume 10))
  (:name "pulse" :type :sample :file "pulse.wav" :properties (:volume 10))
