@@ -33,6 +33,7 @@
 
 (setf xe2:*dt* 30)
 
+
 ;;; Text labels
 
 (defcell label 
@@ -109,6 +110,7 @@
 (defparameter *pulse-delay* 8)
 
 (defsprite wave
+  (description :initform "A sonic wave.")
   (team :initform :player)
   (color :initform :green)
   (waveform :initform :sine)
@@ -163,6 +165,8 @@
 (defparameter *pulsing* nil)
 
 (defcell pulsator 
+  (name :initform "Pulsator")
+  (description :initform "Pulsates to a given beat, activating nearby objects.")
   (tile :initform "pulsator")
   (delay :initform *default-pulsator-delay*)
   (clock :initform 0)
@@ -261,11 +265,11 @@
 
 (define-method run turret ()
   [expend-action-points self 10]
-  (setf <wave> (clone =wave=))
-  [start <wave> :direction :east
-	 :team :neutral
-	 :waveform :saw]
   (when (and *pulsing* <wave>)
+    (setf <wave> (clone =wave=))
+    [start <wave> :direction :east
+	   :team :neutral
+	   :waveform :saw]
     [add-sprite *world* <wave>]
     (multiple-value-bind (x y) [xy-coordinates self]
       [update-position <wave> x y]
@@ -297,7 +301,21 @@
     (dotimes (n 6)
       [drop self (clone =particle=)])))
 
-;;; Oscillators
+;;; Oscillators and tone clusters
+
+(defparameter *scale* '("C-2" "C#2" "D-2" "D#2" "E-2" 
+			"F-2" "F#2" "G-2" "G#2" "A-2" "A#2"
+			"B-2" "C-3"))
+
+(defun random-note () (car (one-of *scale*)))
+
+(defun random-cluster (&optional (size 3))
+  (let (tones (n 0))
+    (loop while (< (length tones) size)
+	  do (pushnew (random-note) tones :test 'equal))
+    tones))
+
+(defparameter *example-cluster* '("C-2" "E-2" "G-2"))
 
 (defvar *notes* nil)
 
@@ -305,7 +323,10 @@
   (pushnew note *notes* :test 'equal))
 
 (defun remove-note (note)
-  (setf *notes* (delete note *notes)))
+  (setf *notes* (delete note *notes :test 'equal)))
+
+(defun note-playing-p (note)
+  (member note *notes* :test 'equal))
 
 (defparameter *oscillator-tiles* '((:sine "osc-sine-off" "osc-sine-on")
 				   (:square "osc-square-off" "osc-square-on")
@@ -357,7 +378,18 @@
 (define-method hit oscillator (&optional object)
   (if <state> [stop self] [start self <waveform> <note>]))
 				
-;;(define-method die wave 
+;;; Resonators
+
+(defcell resonator 
+  (tile :initform "resonator")
+  (categories :initform '(:actor :obstacle :target))
+  channel
+  (team :initform :neutral)
+  (waveform :initform :sine)
+  (note :initform "A-2")
+  (state :initform nil))
+
+
 
 ;;; The sonic cannon
 
@@ -570,9 +602,11 @@
     [drop-cell self osc1 8 20]
     [drop-cell self osc2 8 24]
     [drop-cell self osc3 8 28]
-    [intone osc1 :sine "A-2"]
-    [intone osc2 :sine "660"]
-    [intone osc3 :sine "792"]
+    (destructuring-bind (a b c)
+	(random-cluster)
+      [intone osc1 :sine a]
+      [intone osc2 :sine b]
+      [intone osc3 :sine c])
     [drop-cell self pulse 4 16]
     [tap pulse 30]
     (dotimes (n 3)

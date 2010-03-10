@@ -160,7 +160,6 @@
 
 (define-method hit viewport (x y)
   (when [parent>>hit self x y]
-    
     (let* ((x0 (- x <x>))
 	   (y0 (- y <y>))
 	   (r (truncate (/ y0 <tile-size>)))
