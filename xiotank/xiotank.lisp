@@ -264,7 +264,7 @@
 
 (define-method run turret ()
   [expend-action-points self 10]
-  (when  *pulsing*
+  (when *pulsing*
     (setf <wave> (clone =wave=))
     [start <wave> :direction :east
 	   :team :neutral
@@ -404,8 +404,6 @@
   (waveform :initform :sine)
   (note :initform "A-2")
   (state :initform nil))
-
-
 
 ;;; The sonic cannon
 
@@ -653,10 +651,10 @@
     (dotimes (n 3)
       (let ((turret (clone =turret=)))
 	[drop-cell self turret (+ n 13) (+ 20 (* 4 n))]))
-    (dotimes (n 12)
+    (dotimes (n 4)
       (let ((trigger (clone =trigger=)))
 	[intone trigger (car (one-of *bass-notes*))]
-	[drop-cell self trigger (+ n 18) (+ 20 (* 2 n))]))
+	[drop-cell self trigger (+ n 13) (+ 23 (* 4 n))]))
     [drop-cell self (clone =launchpad=) (- height 8) 5]))
 
 ;;; Splash screen
