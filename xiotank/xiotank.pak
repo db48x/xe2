@@ -47,6 +47,7 @@
  (:name "particle2" :type :image :file "particle2.png")
  (:name "particle3" :type :image :file "particle3.png")
 
+ (:name "saddown" :type :sample :file "saddown.wav" :properties (:volume 30))
  (:name "yelp" :type :sample :file "yelp.wav" :properties (:volume 10))
  (:name "pulse" :type :sample :file "pulse.wav" :properties (:volume 10))
  (:name "blop" :type :sample :file "blop.wav" :properties (:volume 10))

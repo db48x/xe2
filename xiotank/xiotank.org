@@ -8,6 +8,7 @@ DEADLINE: <2010-03-14 Sun 23:59>
 CLOSED: [2010-03-08 Mon 10:44]
 ** DONE square/triangle/sine icons in pink/blue/green (sprites?)
 CLOSED: [2010-03-08 Mon 10:44]
+** TODO stronger bullets and shield
 ** TODO pushing blocks around to connect dataflow thingies and unlock stuff
 ** TODO turrets that fire autokill waves on the beat automatically until a frequency comes
 ** TODO drop sonic corruption bombs

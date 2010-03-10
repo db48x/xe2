@@ -299,6 +299,14 @@
 
 ;;; Oscillators
 
+(defvar *notes* nil)
+
+(defun add-note (note)
+  (pushnew note *notes* :test 'equal))
+
+(defun remove-note (note)
+  (setf *notes* (delete note *notes)))
+
 (defparameter *oscillator-tiles* '((:sine "osc-sine-off" "osc-sine-on")
 				   (:square "osc-square-off" "osc-square-on")
 				   (:saw "osc-saw-off" "osc-saw-on")))
