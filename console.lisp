@@ -69,7 +69,7 @@ disabled."
 
 ;;; Mixer channels
 
-(defvar *channels* 64 "Number of audio mixer channels to use.")
+(defvar *channels* 128 "Number of audio mixer channels to use.")
    
 ;;; Hooks
 

@@ -224,6 +224,39 @@
 (define-method hit pulsator (&optional object)
   (if <state> [stop self] [start self]))
 
+
+;;; Phonic particles
+
+(defcell particle 
+  (tile :initform "particle")
+  (direction :initform (car (one-of '(:north :south :east :west))))
+  (categories :initform '(:actor))
+  (clock :initform (random 20)))
+
+(define-method run particle ()
+  (decf <clock>)
+  (setf <tile> (car (one-of '("particle" "particle2" "particle3"))))
+  ;;[play-sample self "particle-sound-1"]
+  (if (minusp <clock>) [die self]
+      [move self <direction>]))
+
+;;; Phi particles
+
+(defcell phi
+  (tile :initform "phi")
+  (direction :initform (car (one-of '(:north :south :east :west))))
+  (categories :initform '(:actor))
+  (clock :initform (random 20)))
+
+(define-method run phi ()
+  (decf <clock>)
+  (setf <tile> (car (one-of '("phi" "phi2" "phi3"))))
+  ;;[play-sample self "particle-sound-1"]
+  (if (minusp <clock>) 
+      [die self]
+      (progn (percent-of-time 3 [play-sample self (car (one-of '("dtmf1" "dtmf2" "dtmf3")))])
+	     [move self <direction>])))
+
 ;;; Wave delays that respond to pulses
 
 (defcell delay 
@@ -325,12 +358,17 @@
 			"F-2" "F#2" "G-2" "G#2" "A-2" "A#2"
 			"B-2" "C-3"))
 
-(defun random-note () (car (one-of *scale*)))
+(defparameter *scale-white-keys* '("C-2" "D-2" "E-2" 
+			"F-2"  "G-2"  "A-2"
+			"B-2" "C-3"))
 
-(defun random-cluster (&optional (size 3))
+(defun random-note (&optional (scale *scale*))
+  (car (one-of scale)))
+
+(defun random-cluster (&optional (size 3) (scale *scale*))
   (let (tones (n 0))
     (loop while (< (length tones) size)
-	  do (pushnew (random-note) tones :test 'equal))
+	  do (pushnew (random-note scale) tones :test 'equal))
     tones))
 
 (defparameter *example-cluster* '("C-2" "E-2" "G-2"))
@@ -415,7 +453,11 @@
 (define-method run resonator ()
   (setf <tile> (if (note-playing-p <note>)
 		   "resonator-on"
-		   "resonator")))
+		   "resonator"))
+  (when (and *pulsing* (note-playing-p <note>))
+    (dotimes (n 5)
+      [drop self (clone =phi=)])))
+
 
 (define-method hit resonator (&optional object)
   nil)
@@ -468,7 +510,7 @@
   (speed :initform (make-stat :base 10 :min 0 :max 25))
   (strength :initform (make-stat :base 10))
   (defense :initform (make-stat :base 10))
-  (hearing-range :initform 15)
+  (hearing-range :initform 1000)
   (energy :initform (make-stat :base 40 :min 0 :max 40 :unit :gj))
   (hit-points :initform (make-stat :base 45 :min 0 :max 45))
   (movement-cost :initform (make-stat :base 10))
@@ -535,6 +577,15 @@
     [say self "YOU DIED."]
     (setf <dead> t)))
 
+(define-method restart tank ()
+  (let ((tank (clone =tank=)))
+    [destroy *universe*]
+    [set-player *universe* tank]
+    [set-character *status* tank]
+    [play *universe*
+	  :address '(=blue-world=)]
+    [loadout tank]))
+
 ;;; White noise
 
 (defcell noise 
@@ -547,21 +598,6 @@
   [play-sample self "noise-white"]
   (if (minusp <clock>) [die self]
       [move self (random-direction)]))
-
-;;; Phonic particles
-
-(defcell particle 
-  (tile :initform "particle")
-  (direction :initform (car (one-of '(:north :south :east :west))))
-  (categories :initform '(:actor))
-  (clock :initform (random 20)))
-
-(define-method run particle ()
-  (decf <clock>)
-  (setf <tile> (car (one-of '("particle" "particle2" "particle3"))))
-  ;;[play-sample self "particle-sound-1"]
-  (if (minusp <clock>) [die self]
-      [move self <direction>]))
 
 ;;; Basic enemy
 
@@ -599,13 +635,16 @@
 (define-method run shocker ()
   (let ((cannon [equipment-slot self :center-bay]))
     (when cannon [recharge cannon]))
-  (let ((dir [direction-to-player self]))
-    (if (> 10 [distance-to-player self])
-	(progn [fire self dir]
-	       (xe2:percent-of-time 3 [move self dir]))
-	(if [obstacle-in-direction-p *world* <row> <column> dir]
-	    [move self (random-direction)]
-	    [move self dir]))))
+  (let ((dir [direction-to-player self])
+	(dist [distance-to-player self]))
+    (if (< dist 13)
+	(if (> 9 dist)
+	    (progn [fire self dir]
+		   (xe2:percent-of-time 3 [move self dir]))
+	    (if [obstacle-in-direction-p *world* <row> <column> dir]
+		[move self (random-direction)]
+		[move self dir]))
+	(percent-of-time 3 [move self (random-direction)]))))
 
 (define-method die shocker () 
   (dotimes (n 10)
@@ -616,9 +655,10 @@
 ;;; Basic blue world
 
 (defparameter *xiotank-grammar* 
-  '((puzzle >> (:goto-origin tone+ pulsator enemies powerups :goto-random-position player))
-    (tone+ >> tone (tone :goto-east tone+))
+  '((puzzle >> (:generate-tone-cluster :goto-origin tone+ :goto-east pulsator enemies powerups :goto-random-position player))
+    (tone+ >> (tone :goto-east maybe-south tone :goto-east maybe-south tone))
     (tone >> :drop-tone-pair)
+    (maybe-south >> :noop :goto-south)
     (enemies >> :drop-shockers)
     (powerups >> :drop-powerups)
     (player >> :drop-player)
@@ -638,7 +678,7 @@
   (tile :initform "blue-space"))
 
 (define-prototype blue-world (:parent xe2:=world=)
-  gen-row gen-column
+  gen-row gen-column cluster note
   (ambient-light :initform :total)
   (required-modes :initform nil)
   (spacing :initform 6)
@@ -652,6 +692,7 @@
 (define-method generate blue-world (&key (height 27)
 					    (width 50)
 					    sequence-number)
+  (setf *notes* nil)
   (setf <height> height <width> width)
   [create-default-grid self]
   (setf <gen-row> 0 <gen-column 0)
@@ -667,6 +708,14 @@
     (setf <description> (prin1-to-string puzzle)))
   [drop-cell self (clone =launchpad=) (- height 8) 5])
 
+(define-method drop-shockers blue-world ()
+  (dotimes (n 10)
+    [drop-cell self (clone =shocker=) (random <height>) (random <width>) :loadout t]))
+
+(define-method drop-pulsator blue-world ()
+  (let ((pulse (clone =pulsator=)))
+    [drop-cell self pulse <gen-row> <gen-column>]
+    [tap pulse 20]))
 
 (define-method goto-origin blue-world ()
   (setf <gen-row> 0) (setf <gen-column> 0))
@@ -678,11 +727,20 @@
 (define-method goto-east blue-world ()
   (incf <gen-column> <spacing>))
 
+(define-method goto-south blue-world ()
+  (incf <gen-row> <spacing>))
+
+(define-method noop blue-world ()
+  nil)
+
 (define-method goto-random-position blue-world ()
   [goto self (random 5) (random 5)])
 
+(define-method generate-tone-cluster blue-world ()
+  (setf <cluster> (random-cluster 3 *scale-white-keys*)))
+
 (define-method drop-tone-pair blue-world ()
-  (let ((note (car (one-of *scale*)))
+  (let ((note (pop <cluster>))
 	(osc (clone =oscillator=))
 	(res (clone =resonator=)))
     [drop-cell self osc (+ <gen-row> (random 5)) (+ <gen-column> (random 5))]
@@ -925,10 +983,9 @@
 	    ("N" (:control) "fire :southeast .")
 	    ;;
 	    ("SPACE" nil "shield .")
-	    ("PERIOD" (:control) "restart .")
 	    ("KP-ENTER" nil "enter .")
 	    ("RETURN" nil "enter .")
-	    ("ESCAPE" (:control) "show-location .")
+	    ("ESCAPE" nil "restart .")
 	    ("Q" (:control) "quit ."))))
   
 (defparameter *alternate-qwerty-keybindings*
@@ -969,9 +1026,8 @@
 	    ("X" (:control) "fire :south .")
 	    ("C" (:control) "fire :southeast .")
 	    ;;
-	    ("ESCAPE" (:control) "show-location .")
+	    ("ESCAPE" nil "restart .")
 	    ("SPACE" nil "shield .")
-	    ("PERIOD" (:control) "restart .")
 	    ("P" (:control) "quit ."))))
   
 ;; g c r
@@ -1021,8 +1077,7 @@
 	    ("SPACE" nil "shield .")
 	    ("KP-ENTER" nil "enter .")
 	    ("RETURN" nil "enter .")
-	    ("ESCAPE" (:control) "show-location .")
-	    ("PERIOD" (:control) "restart .")
+	    ("ESCAPE" nil "restart .")
 	    ("Q" (:control) "quit ."))))
 
 (define-method install-keybindings xiotank-prompt ()

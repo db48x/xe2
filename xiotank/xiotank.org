@@ -8,9 +8,10 @@ DEADLINE: <2010-03-14 Sun 23:59>
 CLOSED: [2010-03-08 Mon 10:44]
 ** DONE square/triangle/sine icons in pink/blue/green (sprites?)
 CLOSED: [2010-03-08 Mon 10:44]
-** TODO receivers
+** TODO enemy generators that must be silenced with noise bombs.
 ** TODO fix doc clickable
-** TODO turning turrets when shot
+** TODO turning turrets
+** TODO phi beats from resonators
 ** TODO stronger bullets
 ** TODO energy powerups
 ** TODO pushing blocks around to connect dataflow thingies and unlock stuff
