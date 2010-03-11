@@ -737,7 +737,7 @@
   [goto self (random 5) (random 5)])
 
 (define-method generate-tone-cluster blue-world ()
-  (setf <cluster> (random-cluster 3 *scale-white-keys*)))
+  (setf <cluster> (random-cluster 3 *scale*)))
 
 (define-method drop-tone-pair blue-world ()
   (let ((note (pop <cluster>))
