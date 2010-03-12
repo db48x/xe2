@@ -224,7 +224,6 @@
 (define-method hit pulsator (&optional object)
   (if <state> [stop self] [start self]))
 
-
 ;;; Phonic particles
 
 (defcell particle 
@@ -290,27 +289,124 @@
 ;;; Turrets
 
 (defcell turret
-  (tile :initform "turret-right-on")
-  (team :initform :player) wave
+  (tile :initform "turret-east-on")
+  (direction :initform :east)
+  (team :initform :neutral) wave
   (default-cost :initform (make-stat :base 10))
   (speed :initform (make-stat :base 20))
   (categories :initform '(:actor :obstacle :target)))
 
 (define-method run turret ()
   [expend-action-points self 10]
+  [update-tile self]
   (when *pulsing*
     (setf <wave> (clone =wave=))
-    [start <wave> :direction :east
-	   :team :player
+    [start <wave> :direction <direction>
+	   :team :neutral
 	   :waveform :saw]
     [add-sprite *world* <wave>]
     (multiple-value-bind (x y) [xy-coordinates self]
-      [update-position <wave> x y]
+      [update-position <wave> (+ x 4) (+ y 4)]
       [refresh <wave>])))
 
+(define-method update-tile turret ()
+  (setf <tile>
+	(if *pulsing*
+	    (ecase <direction>
+	      (:east "turret-east-on")
+	      (:west "turret-west-on")
+	      (:south "turret-south-on")
+	      (:north "turret-north-on"))
+	    (ecase <direction>
+	      (:east "turret-east")
+	      (:west "turret-west")
+	      (:south "turret-south")
+	      (:north "turret-north")))))
+    
 (define-method hit turret (&optional object)
-  [run self]
+  (setf <direction> 
+	(ecase <direction>
+	  (:east :south)
+	  (:south :west)
+	  (:west :north)
+	  (:north :east)))
+  [update-tile self])
+
+;;; Fences
+
+(defcell wire 
+  (tile :initform "wire-east")
+  (clock :initform 5)
+  (speed :initform (make-stat :base 10))
+  (direction :initform :east)
+  (categories :initform '(:actor :obstacle :target)))
+
+(define-method orient wire (dir &optional (clock 5))
+  (setf <direction> dir)
+  (setf <clock> clock))
+
+(define-method run wire ()
+  (if (zerop <clock>) 
+      [die self]
+      (progn [move self <direction>]
+	     (decf <clock>)
+	     ;; possibly kill something
+	     (let ((thing [category-in-direction-p *world* <row> <column> <direction> :target]))
+	       (when (clon:has-field :hit-points thing)
+		 [damage thing 5]))
+	     (setf <tile> (ecase <direction>
+			    (:east "wire-east")
+			    (:south "wire-south")
+			    (:west "wire-west")
+			    (:north "wire-north"))))))
+
+;; (define-method step wire (stepper)
+;;   (when [is-player stepper]
+;;     [die stepper]))
+
+(defcell fence
+  (tile :initform "fence-east-on")
+  (fence-length :initform 4)
+  (fence-release :initform 30)
+  (fence-release-clock :initform 0)
+  (direction :initform :east)
+  (sample :initform nil)
+  (default-cost :initform (make-stat :base 10))
+  (speed :initform (make-stat :base 10))
+  (categories :initform '(:actor :obstacle :target)))
+
+(define-method run fence ()
+  [expend-action-points self 10]
+  [update-tile self]
+  (when *pulsing*
+    (let ((wire (clone =wire=)))
+      [orient wire <direction> <fence-length>]
+      [drop self wire])))
+
+(define-method update-tile fence ()
+  (setf <tile>
+	(if *pulsing*
+	    (ecase <direction>
+	      (:east "fence-east-on")
+	      (:west "fence-west-on")
+	      (:south "fence-south-on")
+	      (:north "fence-north-on"))
+	    (ecase <direction>
+	      (:east "fence-east")
+	      (:west "fence-west")
+	      (:south "fence-south")
+	      (:north "fence-north")))))
+    
+(define-method hit fence (&optional object)
   nil)
+  ;; (setf <direction> 
+  ;; 	(ecase <direction>
+  ;; 	  (:east :south)
+  ;; 	  (:south :west)
+  ;; 	  (:west :north)
+  ;; 	  (:north :east)))
+  ;; [update-tile self])
+
 
 ;;; Shield
 
@@ -504,7 +600,7 @@
   (team :initform :player)
   (color :initform :green)
   (waveform :initform :sine)
-  (hit-points :initform (make-stat :base 45 :min 0 :max 45))
+  (hit-points :initform (make-stat :base 20 :min 0 :max 20))
   (movement-cost :initform (make-stat :base 10))
   (max-items :initform (make-stat :base 2))
   (speed :initform (make-stat :base 10 :min 0 :max 25))
@@ -512,7 +608,6 @@
   (defense :initform (make-stat :base 10))
   (hearing-range :initform 1000)
   (energy :initform (make-stat :base 40 :min 0 :max 40 :unit :gj))
-  (hit-points :initform (make-stat :base 45 :min 0 :max 45))
   (movement-cost :initform (make-stat :base 10))
   (max-items :initform (make-stat :base 2))
   (stepping :initform t)
@@ -655,7 +750,8 @@
 ;;; Basic blue world
 
 (defparameter *xiotank-grammar* 
-  '((puzzle >> (:generate-tone-cluster :goto-origin tone+ :goto-east pulsator enemies powerups :goto-random-position player))
+  '((puzzle >> (:generate-tone-cluster :goto-origin tone+ :goto-east 
+		pulsator enemies powerups :goto-random-position :drop-extras player))
     (tone+ >> (tone :goto-east maybe-south tone :goto-east maybe-south tone))
     (tone >> :drop-tone-pair)
     (maybe-south >> :noop :goto-south)
@@ -717,6 +813,12 @@
     [drop-cell self pulse <gen-row> <gen-column>]
     [tap pulse 20]))
 
+(define-method drop-extras blue-world ()
+  [drop-cell self (clone =turret=) <gen-row> <gen-column>]
+  [goto-south self]
+  [drop-cell self (clone =fence=) <gen-row> <gen-column>])
+  
+
 (define-method goto-origin blue-world ()
   (setf <gen-row> 0) (setf <gen-column> 0))
 
@@ -747,40 +849,6 @@
     [intone osc :sine note] 
     [drop-cell self res (+ <gen-row> (random 5)) (+ <gen-column> (random 5))]
     [tune res note]))
-
-
-  ;; (labels ((drop-block (r c)
-  ;; 	     (prog1 nil [drop-cell self (clone =block=) r c])))
-  ;;   (trace-rectangle #'drop-block 0 0 height width))
-  ;; (let ((osc1 (clone =oscillator=))
-  ;; 	(osc2 (clone =oscillator=))
-  ;; 	(osc3 (clone =oscillator=))
-  ;; 	(pulse (clone =pulsator=)))
-  ;;   (dotimes (n 10)
-  ;;     [drop-cell self (clone =shocker=) (random 10) (random 10) :loadout t])
-  ;;   [drop-cell self osc1 8 20]
-  ;;   [drop-cell self osc2 8 24]
-  ;;   [drop-cell self osc3 8 28]
-  ;;   (destructuring-bind (a b c)
-  ;; 	(random-cluster)
-  ;;     [intone osc1 :sine a]
-  ;;     [intone osc2 :sine b]
-  ;;     [intone osc3 :sine c])
-  ;;   [drop-cell self pulse 4 16]
-  ;;   [tap pulse 30]
-  ;;   (dotimes (n 3)
-  ;;     (let ((delay (clone =delay=)))
-  ;; 	[drop-cell self delay 4 (+ 20 (* 4 n))]))
-  ;;   (dotimes (n 3)
-  ;;     (let ((turret (clone =turret=)))
-  ;; 	[drop-cell self turret (+ n 13) (+ 20 (* 4 n))]))
-  ;;   (dotimes (n 4)
-  ;;     (let ((trigger (clone =trigger=)))
-  ;; 	[intone trigger (car (one-of *bass-notes*))]
-  ;; 	[drop-cell self trigger (+ n 13) (+ 23 (* 4 n))]))
-
-
-
 
 ;;; Splash screen
   

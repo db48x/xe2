@@ -1,8 +1,28 @@
 (
  (:name ".default-font" :type :font :properties (:height 13 :width 6) :data "6x13")
 
- (:name "turret-right-on" :type :image :file "turret-right-on.png")
- (:name "turret-right" :type :image :file "turret-right.png")
+ (:name "turret-east-on" :type :image :file "turret-right-on.png")
+ (:name "turret-east" :type :image :file "turret-right.png")
+ (:name "turret-south-on" :type :alias :data ":rotate 90:turret-east-on")
+ (:name "turret-south" :type :alias :data ":rotate 90:turret-east")
+ (:name "turret-west-on" :type :alias :data ":rotate 180:turret-east-on")
+ (:name "turret-west" :type :alias :data ":rotate 180:turret-east")
+ (:name "turret-north-on" :type :alias :data ":rotate 270:turret-east-on") 
+ (:name "turret-north" :type :alias :data ":rotate 270:turret-east")
+
+ (:name "fence-east-on" :type :image :file "fence-right-on.png")
+ (:name "fence-east" :type :image :file "fence-right.png")
+ (:name "fence-south-on" :type :alias :data ":rotate 90:fence-east-on")
+ (:name "fence-south" :type :alias :data ":rotate 90:fence-east")
+ (:name "fence-west-on" :type :alias :data ":rotate 180:fence-east-on")
+ (:name "fence-west" :type :alias :data ":rotate 180:fence-east")
+ (:name "fence-north-on" :type :alias :data ":rotate 270:fence-east-on") 
+ (:name "fence-north" :type :alias :data ":rotate 270:fence-east")
+
+ (:name "wire-east" :type :image :file "wire-right.png")
+ (:name "wire-south" :type :alias :data ":rotate 90:wire-east")
+ (:name "wire-west" :type :alias :data ":rotate 180:wire-east")
+ (:name "wire-north" :type :alias :data ":rotate 270:wire-east")
 
  (:name "splash" :type :image :file "xiotank.png")
  (:name "shield" :type :image :file "shield.png")

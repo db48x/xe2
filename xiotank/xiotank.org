@@ -9,11 +9,13 @@ CLOSED: [2010-03-08 Mon 10:44]
 ** DONE square/triangle/sine icons in pink/blue/green (sprites?)
 CLOSED: [2010-03-08 Mon 10:44]
 ** TODO enemy generators that must be silenced with noise bombs.
+** TODO dumb centipede trails that fill up boxes
 ** TODO fix doc clickable
-** TODO turning turrets
+** TODO turning turrets, that fire limited-length wires that activate shit.
 ** TODO phi beats from resonators
 ** TODO stronger bullets
-** TODO energy powerups
+** TODO bombs
+** TODO energy powerups (or energy gradually recharde)
 ** TODO pushing blocks around to connect dataflow thingies and unlock stuff
 ** TODO turrets that fire autokill waves on the beat automatically until a frequency comes
 ** TODO [#B] drop sonic corruption bombs
