@@ -163,7 +163,7 @@
 
 (define-method pause player ()
   [pause *world*])
-
+ 
 (define-method step player (stepper)
   (when [in-category stepper :item]
     [grab self stepper])

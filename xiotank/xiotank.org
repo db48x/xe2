@@ -1,6 +1,6 @@
 #+TITLE: 7-Day Roguelike 2010 CHALLENGE Ideas
 
-* TODO RELEASE 7DRL ENTRY
+* * TODO RELEASE 7DRL ENTRY
 DEADLINE: <2010-03-14 Sun 23:59>
 
 * Tasks
@@ -8,6 +8,7 @@ DEADLINE: <2010-03-14 Sun 23:59>
 CLOSED: [2010-03-08 Mon 10:44]
 ** DONE square/triangle/sine icons in pink/blue/green (sprites?)
 CLOSED: [2010-03-08 Mon 10:44]
+** TODO shocker melee deadly!
 ** TODO push/pop the current coords in world gen
 ** TODO wire gates block way to exit
 ** TODO wall around level with indestructible security stations that generate enemies?

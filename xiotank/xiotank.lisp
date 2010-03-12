@@ -40,8 +40,11 @@
   text stroke-color background-color timeout)
 
 (define-method initialize label (&key text (stroke-color ".white") (background-color ".gray30")
-					(style :label) (timeout nil))
-  (setf <text> text)
+					(style :label) (timeout nil) name tile description)
+  (setf <text> text) 
+  (when tile (setf <tile> tile))
+  (when name (setf <name> name))
+  (when description (setf <description> description))
   (setf <stroke-color> stroke-color)
   (setf <background-color> background-color)
   (setf <style> style)
@@ -260,6 +263,7 @@
 
 (defcell delay 
   (tile :initform "delay")
+  (description :initform "Holds the last wave it receives, releasing when a pulse is heard.")
   (wave :initform nil)
   (coords :initform nil)
   (team :initform :neutral)
@@ -290,6 +294,7 @@
 
 (defcell turret
   (tile :initform "turret-east-on")
+  (description :initform "Fires waves when a pulse is received. When shot, turns 90 degrees.")
   (direction :initform :east)
   (team :initform :neutral) wave
   (default-cost :initform (make-stat :base 10))
@@ -366,6 +371,8 @@
 
 (defcell fence
   (tile :initform "fence-east-on")
+  (description :initform "This object creates a deadly wire fence. 
+Only opens when the right tone is heard.")
   (note :initform "C-1")
   (fence-length :initform 8)
   (clock2 :initform 0)
@@ -398,7 +405,6 @@
 	  [drop-sprite self wire (+ x 4) (+ y 4)])))
     (decf <clock>)))
 
-
 (define-method update-tile fence ()
   (setf <tile>
 	(if *pulsing*
@@ -428,6 +434,7 @@
 
 (defcell shield
   (tile :initform "shield")
+  (description :initform "Wave shield blocks sound waves.")
   (team :initform :neutral)
   (default-cost :initform (make-stat :base 10))
   (speed :initform (make-stat :base 20))
@@ -508,6 +515,7 @@
 (defcell oscillator 
   (categories :initform '(:actor :obstacle :target))
   channel
+  (description :initform "This object emits a tone when struck. Shoot to toggle.")
   (team :initform :neutral)
   (waveform :initform :sine)
   (note :initform "A-2")
@@ -528,7 +536,11 @@
     [intone self waveform note]
     (setf <state> t)
     [update-tile self]
-    (let ((label (clone =label= :text (list (list (list <note>))))))
+    (let ((label (clone =label= 
+			:name "Oscillator" 
+			:description (concatenate 'string "Currently playing tone " <note>)
+			:tile "osc-sine-on"
+			:text (list (list (list <note>))))))
       [drop self label]))
     (setf <channel> (xe2:play-sample (wave-sample waveform note) :loop t)))
 
@@ -552,6 +564,7 @@
 
 (defcell resonator 
   (tile :initform "resonator")
+  (description :initform "Emits energy particles on the beat, when a given tone is heard.")
   (categories :initform '(:actor :obstacle :target))
   channel
   (team :initform :neutral)
@@ -611,6 +624,7 @@
 
 (defcell tank 
   (tile :initform "tank-north")
+  (description :initform "Your trusty XENG Industries Model X10 battle tank supports 8-way movement and firing.")
   (dead :initform nil)
   (team :initform :player)
   (color :initform :green)
@@ -640,6 +654,9 @@
 (define-method hit tank (&optional object)
   [play-sample self "ouch"]
   [parent>>damage self 1])
+
+(define-method pause tank ()
+  [pause *world*])
 
 (defparameter *tank-tiles* '(:north "tank-north"
 			     :south "tank-south"
@@ -714,6 +731,8 @@
 
 (defcell shocker 
   (tile :initform "shocker")
+  (description :initform "Creeps about until catching sight of the player;
+Then it fires and gives chase.")
   (team :initform :enemy)
   (color :initform :cyan)
   (waveform :initform :square)
@@ -767,6 +786,7 @@
 
 (defcell corruption 
   (tile :initform "corruption-east")
+  (description :initform "Deadly digital audio data corruption.")
   (direction :initform :east)
   (clock :initform 200)
   (categories :initform '(:actor)))
@@ -799,6 +819,7 @@
 
 (defcell corruptor 
   (tile :initform "corruptor")
+  (description :initform "Corruptors traverse the level, leaving a trail of deadly malformed data.")
   (team :initform :enemy)
   (color :initform :cyan)
   (waveform :initform :saw)
@@ -874,6 +895,7 @@
 
 (defcell block 
   (tile :initform "block")
+  (description :initform "An impenetrable wall.")
   (team :initform :neutral)
   (categories :initform '(:obstacle :opaque :target)))
 
@@ -881,6 +903,7 @@
   nil)
 
 (defcell blue-space 
+  (description :initform "The mysterious substrate of Frequency World.")
   (tile :initform "blue-space"))
 
 (define-prototype blue-world (:parent xe2:=world=)
@@ -937,7 +960,8 @@
       (trace-rectangle #'collect <gen-row> <gen-column>
 		       <room-size> <room-size>)
       (dotimes (n 3)
-	(setf points (delete (car (one-of points)) points :test 'equal)))
+	(setf points (cdr points)))
+	      ;;(delete (car (one-of points)) points :test 'equal)))
       (dolist (point points)
 	(destructuring-bind (r c) point
 	  [drop-cell self (clone =block=) r c])))))
@@ -1177,6 +1201,8 @@
 	    ("J" (:control) "fire :south .")
 	    ("N" (:control) "fire :southeast .")
 	    ;;
+	    ("P" (:control) "pause .")
+	    ("PAUSE" nil "pause .")
 	    ("SPACE" nil "shield .")
 	    ("KP-ENTER" nil "enter .")
 	    ("RETURN" nil "enter .")
@@ -1223,6 +1249,7 @@
 	    ;;
 	    ("ESCAPE" nil "restart .")
 	    ("SPACE" nil "shield .")
+	    ("PAUSE" nil "pause .")
 	    ("P" (:control) "quit ."))))
   
 ;; g c r
@@ -1273,6 +1300,8 @@
 	    ("KP-ENTER" nil "enter .")
 	    ("RETURN" nil "enter .")
 	    ("ESCAPE" nil "restart .")
+	    ("P" (:control) "pause .")
+	    ("PAUSE" nil "pause .")
 	    ("Q" (:control) "quit ."))))
 
 (define-method install-keybindings xiotank-prompt ()
@@ -1395,7 +1424,7 @@
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
     (xe2:install-widgets splash-prompt splash)
-    [add-page *pager* :game prompt stack viewport terminal *status* quickhelp]
+    [add-page *pager* :game prompt stack viewport terminal *status* ]
     [add-page *pager* :help help]))
 
 (xiotank)
