@@ -8,10 +8,13 @@ DEADLINE: <2010-03-14 Sun 23:59>
 CLOSED: [2010-03-08 Mon 10:44]
 ** DONE square/triangle/sine icons in pink/blue/green (sprites?)
 CLOSED: [2010-03-08 Mon 10:44]
+** TODO push/pop the current coords in world gen
+** TODO wire gates block way to exit
+** TODO wall around level with indestructible security stations that generate enemies?
 ** TODO enemy generators that must be silenced with noise bombs.
 ** TODO dumb centipede trails that fill up boxes
 ** TODO fix doc clickable
-** TODO turning turrets, that fire limited-length wires that activate shit.
+** TODO turning turrets, that fire limited-length wires that activate shit. blue and red wires.
 ** TODO phi beats from resonators
 ** TODO stronger bullets
 ** TODO bombs
@@ -27,6 +30,7 @@ CLOSED: [2010-03-08 Mon 10:44]
 ** TODO [#C] themes a la xiobreak
 
 * Entry mail
+
 
 ** About the entrant
 

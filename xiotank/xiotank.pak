@@ -27,6 +27,17 @@
  (:name "splash" :type :image :file "xiotank.png")
  (:name "shield" :type :image :file "shield.png")
  (:name "gun" :type :image :file "gun.png")
+ (:name "exit" :type :image :file "exit.png")
+
+ (:name "corruptor" :type :image :file "corruptor.png")
+ (:name "corruption-east" :type :image :file "corruption-horz.png")
+ (:name "corruption-south" :type :alias :data ":rotate 90:corruption-east")
+ (:name "corruption-west" :type :alias :data ":rotate 180:corruption-east")
+ (:name "corruption-north" :type :alias :data ":rotate 270:corruption-east")
+ (:name "corruption2-east" :type :image :file "corruption-horz2.png")
+ (:name "corruption2-south" :type :alias :data ":rotate 90:corruption2-east")
+ (:name "corruption2-west" :type :alias :data ":rotate 180:corruption2-east")
+ (:name "corruption2-north" :type :alias :data ":rotate 270:corruption2-east")
 
  (:name "purity" :type :music :file "purity.ogg" :properties (:volume 18))
  (:name "launchpad" :type :image :file "launchpad.png")

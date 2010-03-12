@@ -208,7 +208,7 @@
 	       (labels ((do-circle (image)
 			  (prog1 t
 			    (multiple-value-bind (x y) 
-				[viewport-coordinates self]
+				[image-coordinates self]
 			      (let ((x0 (+ x 8))
 				    (y0 (+ y 8)))
 				(draw-circle x0 y0 40 :destination image)
@@ -334,9 +334,9 @@
 
 ;;; Fences
 
-(defcell wire 
-  (tile :initform "wire-east")
-  (clock :initform 5)
+(defsprite wire 
+  (image :initform "wire-east")
+  (clock :initform 20)
   (speed :initform (make-stat :base 10))
   (direction :initform :east)
   (categories :initform '(:actor :obstacle :target)))
@@ -348,17 +348,17 @@
 (define-method run wire ()
   (if (zerop <clock>) 
       [die self]
-      (progn [move self <direction>]
+      (progn [move self <direction> 5]
 	     (decf <clock>)
-	     ;; possibly kill something
-	     (let ((thing [category-in-direction-p *world* <row> <column> <direction> :target]))
-	       (when (clon:has-field :hit-points thing)
-		 [damage thing 5]))
-	     (setf <tile> (ecase <direction>
+	     (setf <image> (ecase <direction>
 			    (:east "wire-east")
 			    (:south "wire-south")
 			    (:west "wire-west")
 			    (:north "wire-north"))))))
+
+(define-method do-collision wire (object)
+  (when (has-field :hit-points object)
+    [damage object 20]))
 
 ;; (define-method step wire (stepper)
 ;;   (when [is-player stepper]
@@ -366,22 +366,38 @@
 
 (defcell fence
   (tile :initform "fence-east-on")
-  (fence-length :initform 4)
-  (fence-release :initform 30)
-  (fence-release-clock :initform 0)
+  (note :initform "C-1")
+  (fence-length :initform 8)
+  (clock2 :initform 0)
+  (clock :initform 0)
+  (team :initform :neutral)
   (direction :initform :east)
   (sample :initform nil)
   (default-cost :initform (make-stat :base 10))
-  (speed :initform (make-stat :base 10))
+  (speed :initform (make-stat :base 3))
   (categories :initform '(:actor :obstacle :target)))
+
+(define-method tune fence (note)
+  (setf <note> note))
+
+(define-method orient fence (dir &optional (length 8))
+  (setf <direction> dir)
+  (setf <fence-length> length))
 
 (define-method run fence ()
   [expend-action-points self 10]
   [update-tile self]
-  (when *pulsing*
-    (let ((wire (clone =wire=)))
-      [orient wire <direction> <fence-length>]
-      [drop self wire])))
+  (when (not (note-playing-p <note>))
+    (setf <clock> (* 2 <fence-length>)))
+  
+  (when (plusp <clock>)
+    (when (equal (* 2 <fence-length>) <clock>)
+      (let ((wire (clone =wire=)))
+	[orient wire <direction> (* 3 <fence-length>)]
+	(multiple-value-bind (x y) [xy-coordinates self]
+	  [drop-sprite self wire (+ x 4) (+ y 4)])))
+    (decf <clock>)))
+
 
 (define-method update-tile fence ()
   (setf <tile>
@@ -554,7 +570,6 @@
     (dotimes (n 5)
       [drop self (clone =phi=)])))
 
-
 (define-method hit resonator (&optional object)
   nil)
 
@@ -674,6 +689,7 @@
 
 (define-method restart tank ()
   (let ((tank (clone =tank=)))
+    (halt-sample t)
     [destroy *universe*]
     [set-player *universe* tank]
     [set-character *status* tank]
@@ -747,15 +763,105 @@
   [play-sample self "yelp"]
   [parent>>die self])  
 
+;;; Corruption
+
+(defcell corruption 
+  (tile :initform "corruption-east")
+  (direction :initform :east)
+  (clock :initform 200)
+  (categories :initform '(:actor)))
+ 
+(define-method step corruption (stepper)
+  (when [is-player stepper]
+    [die stepper]))
+
+(define-method orient corruption (&optional dir)
+  (when dir (setf <direction> dir))
+  (setf <tile> (if (= 0 (random 2))
+		   (ecase <direction>
+		     (:north "corruption-north")
+		     (:south "corruption-south")
+		     (:east "corruption-east")
+		     (:west "corruption-west"))
+		   (ecase <direction>
+		     (:north "corruption2-north")
+		     (:south "corruption2-south")
+		     (:east "corruption2-east")
+		     (:west "corruption2-west")))))
+
+(define-method run corruption ()
+  (decf <clock>)
+  (if (plusp <clock>)
+      [orient self]
+      [die self]))
+
+;;; Corruptors who leave a trail of digital audio corruption 
+
+(defcell corruptor 
+  (tile :initform "corruptor")
+  (team :initform :enemy)
+  (color :initform :cyan)
+  (waveform :initform :saw)
+  (direction :initform (xe2:random-direction))
+  (movement-cost :initform (make-stat :base 20))
+  (max-items :initform (make-stat :base 2))
+  (speed :initform (make-stat :base 3 :min 0 :max 5))
+  (strength :initform (make-stat :base 10))
+  (defense :initform (make-stat :base 10))
+  (hearing-range :initform 15)
+  (energy :initform (make-stat :base 400 :min 0 :max 40 :unit :gj))
+  (hit-points :initform (make-stat :base 8 :min 0 :max 8))
+  (movement-cost :initform (make-stat :base 10))
+  (max-items :initform (make-stat :base 2))
+  (stepping :initform t)
+  (direction :initform :north)
+  (attacking-with :initform nil)
+  (firing-with :initform :center-bay)
+  (categories :initform '(:actor :obstacle :target :container :light-source :vehicle :repairable))
+  (equipment-slots :initform '(:left-bay :right-bay :center-bay :extension)))
+
+(define-method loadout corruptor ()
+  [make-inventory self]
+  [make-equipment self]
+  [equip self [add-item self (clone =wave-cannon=)]])
+
+(define-method hit corruptor (&optional object)
+  [die self])
+
+(define-method run corruptor ()
+  (let ((cannon [equipment-slot self :center-bay]))
+    (when cannon [recharge cannon]))
+  (let ((dir [direction-to-player self])
+	(dist [distance-to-player self]))
+    (when (> 9 dist)
+      [fire self dir])
+    (when [obstacle-in-direction-p *world* <row> <column> <direction>]
+      (setf <direction> (ecase <direction>
+			  (:north :west)
+			  (:west :south)
+			  (:south :east)
+			  (:east :north))))
+    (let ((corruption (clone =corruption=)))
+      [orient corruption <direction>]
+      [drop self corruption]
+      [move self <direction>])))
+
+(define-method die corruptor () 
+  (dotimes (n 10)
+    [drop self (clone =noise=)])
+  [play-sample self "yelp"]
+  [parent>>die self])  
+
 ;;; Basic blue world
 
 (defparameter *xiotank-grammar* 
   '((puzzle >> (:generate-tone-cluster :goto-origin tone+ :goto-east 
-		pulsator enemies powerups :goto-random-position :drop-extras player))
-    (tone+ >> (tone :goto-east maybe-south tone :goto-east maybe-south tone))
+	         pulsator enemies powerups :goto-random-position :drop-extras player))
+    (tone+ >> (drop-room tone :goto-east maybe-south drop-room tone :goto-east maybe-south drop-room tone))
+    (drop-room >> (:drop-room :drop-shockers))
     (tone >> :drop-tone-pair)
     (maybe-south >> :noop :goto-south)
-    (enemies >> :drop-shockers)
+    (enemies >> (:drop-corruptors))
     (powerups >> :drop-powerups)
     (player >> :drop-player)
     (pulsator >> :drop-pulsator)))
@@ -768,7 +874,11 @@
 
 (defcell block 
   (tile :initform "block")
-  (categories :initform '(:obstacle :opaque)))
+  (team :initform :neutral)
+  (categories :initform '(:obstacle :opaque :target)))
+
+(define-method hit block (&optional other)
+  nil)
 
 (defcell blue-space 
   (tile :initform "blue-space"))
@@ -777,7 +887,8 @@
   gen-row gen-column cluster note
   (ambient-light :initform :total)
   (required-modes :initform nil)
-  (spacing :initform 6)
+  (spacing :initform 13)
+  (room-size :initform 10)
   (scale :initform '(3 m))
   (edge-condition :initform :block))
 
@@ -785,7 +896,7 @@
 	      "F-2-bass" "F#2-bass" "G-2-bass" "G#2-bass" "A-2-bass" "A#2-bass"
 	      "B-2-bass" "C-3-bass"))
 
-(define-method generate blue-world (&key (height 27)
+(define-method generate blue-world (&key (height 80)
 					    (width 50)
 					    sequence-number)
   (setf *notes* nil)
@@ -802,22 +913,34 @@
       (when (and (keywordp op) (clon:has-method op self))
 	(send nil op self)))
     (setf <description> (prin1-to-string puzzle)))
-  [drop-cell self (clone =launchpad=) (- height 8) 5])
+  [drop-cell self (clone =launchpad=) 10 10])
 
 (define-method drop-shockers blue-world ()
-  (dotimes (n 10)
-    [drop-cell self (clone =shocker=) (random <height>) (random <width>) :loadout t]))
+  (dotimes (n 4)
+    [drop-cell self (clone =shocker=) (+ <gen-row> (random <room-size>)) 
+	       (+ <gen-column> (random <width>)) :loadout t]))
+
+(define-method drop-corruptors blue-world ()
+  (dotimes (n 2) 
+    [drop-cell self (clone =corruptor=) (random <height>) (random <width>) :loadout t]))
 
 (define-method drop-pulsator blue-world ()
   (let ((pulse (clone =pulsator=)))
     [drop-cell self pulse <gen-row> <gen-column>]
     [tap pulse 20]))
 
-(define-method drop-extras blue-world ()
-  [drop-cell self (clone =turret=) <gen-row> <gen-column>]
-  [goto-south self]
-  [drop-cell self (clone =fence=) <gen-row> <gen-column>])
-  
+(define-method drop-room blue-world ()
+  (let (points)
+    (labels ((collect (&rest point)
+	       (prog1 nil
+		 (push point points))))
+      (trace-rectangle #'collect <gen-row> <gen-column>
+		       <room-size> <room-size>)
+      (dotimes (n 3)
+	(setf points (delete (car (one-of points)) points :test 'equal)))
+      (dolist (point points)
+	(destructuring-bind (r c) point
+	  [drop-cell self (clone =block=) r c])))))
 
 (define-method goto-origin blue-world ()
   (setf <gen-row> 0) (setf <gen-column> 0))
@@ -844,11 +967,15 @@
 (define-method drop-tone-pair blue-world ()
   (let ((note (pop <cluster>))
 	(osc (clone =oscillator=))
-	(res (clone =resonator=)))
-    [drop-cell self osc (+ <gen-row> (random 5)) (+ <gen-column> (random 5))]
+	(res (clone =resonator=))
+	(fence (clone =fence=)))
+    [drop-cell self osc (+ 2 <gen-row> (random 5)) (+ <gen-column> 3 (random 5))]
     [intone osc :sine note] 
-    [drop-cell self res (+ <gen-row> (random 5)) (+ <gen-column> (random 5))]
-    [tune res note]))
+    [drop-cell self res (+ 2 <gen-row> (random 5)) (+ <gen-column> 3 (random 5))]
+    [tune res note]
+    (let ((fence (clone =fence=)))
+      [tune fence note]
+      [drop-cell self fence (+ <gen-row> 4) (+ <gen-column> 1)])))
 
 ;;; Splash screen
   
