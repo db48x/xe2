@@ -1,6 +1,13 @@
-#+TITLE: 7-Day Roguelike 2010 CHALLENGE Ideas
 
-* * TODO RELEASE 7DRL ENTRY
+* COUNTDOWN
+** TODO some semblance of corridor structure
+** TODO emphasize combat
+** TODO first simplest puzzle level... solvable tone shuffle  (irrelevant tones unlock relevant ones)
+** TODO things to collect?
+** TODO more involved puzzle rooms
+** TODO full help screen
+** TODO quickhelp
+** TODO RELEASE 7DRL ENTRY!!!
 DEADLINE: <2010-03-14 Sun 23:59>
 
 * Tasks

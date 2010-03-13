@@ -204,7 +204,7 @@
   [update-tile self]
   (when <state>
     (if (zerop <clock>)
-	(progn [play-sample self "pulse"]
+	(progn (xe2:play-sample "pulse")
 	       [update-tile self t]
 	       (setf *pulsing* t)
 	       (setf <trip> nil)
@@ -355,6 +355,7 @@
       [die self]
       (progn [move self <direction> 5]
 	     (decf <clock>)
+	     (percent-of-time 10 [play-sample self "woom"])
 	     (setf <image> (ecase <direction>
 			    (:east "wire-east")
 			    (:south "wire-south")
@@ -635,7 +636,7 @@ Only opens when the right tone is heard.")
   (speed :initform (make-stat :base 10 :min 0 :max 25))
   (strength :initform (make-stat :base 10))
   (defense :initform (make-stat :base 10))
-  (hearing-range :initform 1000)
+  (hearing-range :initform 15)
   (energy :initform (make-stat :base 40 :min 0 :max 40 :unit :gj))
   (movement-cost :initform (make-stat :base 10))
   (max-items :initform (make-stat :base 2))
@@ -811,6 +812,7 @@ Then it fires and gives chase.")
 
 (define-method run corruption ()
   (decf <clock>)
+  (percent-of-time 5 [play-sample self "datanoise"])
   (if (plusp <clock>)
       [orient self]
       [die self]))
@@ -872,6 +874,63 @@ Then it fires and gives chase.")
     [drop self (clone =noise=)])
   [play-sample self "yelp"]
   [parent>>die self])  
+
+(defsprite drone
+  (description :initform "A security drone. Manufactures attacking replicant xioforms.")
+  (team :initform :enemy)
+  (color :initform :magenta)
+  (waveform :initform :saw)
+  (alarm-clock :initform 0)
+  (pulse :initform (random *pulse-delay*))
+  (image :initform "drone")
+  (hit-points :initform (make-stat :base 10 :min 0))
+  (direction :initform (random-direction))
+  (speed :initform (make-stat :base 20))
+  (movement-distance :initform (make-stat :base 1))
+  (movement-cost :initform (make-stat :base 20))
+  (categories :initform '(:drone :actor :target)))
+
+;;; Drones
+
+(define-method run drone ()
+  (when (< [distance-to-player self] 10)
+    (if (zerop <alarm-clock>)
+	(progn [play-sample self "alarm"]
+	       (labels ((do-circle (image)
+			  (prog1 t
+			    (multiple-value-bind (x y) 
+				[image-coordinates self]
+			      (let ((x0 (+ x 8))
+				    (y0 (+ y 8)))
+				(draw-circle x0 y0 25 :destination image)
+				(draw-circle x0 y0 30 :destination image)
+				(draw-circle x0 y0 35 :destination image)
+				(draw-circle x0 y0 40 :destination image))))))
+		 [>>add-overlay :viewport #'do-circle])
+	       (setf <alarm-clock> 60))
+	(decf <alarm-clock>)))
+  [move self <direction> [stat-value self :movement-distance]])
+
+(define-method hit drone (&optional thing)
+  (when [in-category thing :wave]
+    [play-sample self "yelp"]
+    [damage self 1]))
+
+(define-method do-collision drone (other)
+  (when [in-category other :obstacle]
+    (unless (percent-of-time 10 (setf <direction> (opposite-direction <direction>)))
+      (setf <direction> (ecase <direction>
+			  (:here :west)
+			  (:northwest :west)
+			  (:northeast :east)
+			  (:north :west)
+			  (:southwest :south)
+			  (:west :south)
+			  (:southeast :east)
+			  (:southwest :south)
+			  (:south :east)
+			  (:east :north))))
+    [move self <direction> [stat-value self :movement-distance]]))
 
 ;;; Basic blue world
 
@@ -981,6 +1040,11 @@ Then it fires and gives chase.")
 
 (define-method noop blue-world ()
   nil)
+
+(define-method drop-extras blue-world ()
+  (let ((drone (clone =drone=)))
+    [add-sprite self drone]
+    [update-position drone (random 100) (random 100)]))
 
 (define-method goto-random-position blue-world ()
   [goto self (random 5) (random 5)])

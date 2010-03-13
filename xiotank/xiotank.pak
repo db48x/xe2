@@ -28,6 +28,7 @@
  (:name "shield" :type :image :file "shield.png")
  (:name "gun" :type :image :file "gun.png")
  (:name "exit" :type :image :file "exit.png")
+ (:name "drone" :type :image :file "drone.png")
 
  (:name "corruptor" :type :image :file "corruptor.png")
  (:name "corruption-east" :type :image :file "corruption-horz.png")
@@ -85,6 +86,13 @@
  (:name "phi" :type :image :file "phi.png")
  (:name "phi2" :type :image :file "phi2.png")
  (:name "phi3" :type :image :file "phi3.png")
+
+ (:name "alarm" :type :sample :file "alarm.wav" :properties (:volume 10))
+ (:name "datanoise" :type :sample :file "datanoise.wav" :properties (:volume 15))
+ (:name "woom" :type :sample :file "woom.wav" :properties (:volume 15))
+
+ (:name "blurp" :type :sample :file "blurp.wav" :properties (:volume 15))
+ (:name "blurp2" :type :sample :file "blurp2.wav" :properties (:volume 15))
 
  (:name "dtmf1" :type :sample :file "dtmf1.wav" :properties (:volume 2))
  (:name "dtmf2" :type :sample :file "dtmf2.wav" :properties (:volume 2))

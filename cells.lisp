@@ -355,7 +355,8 @@ place. (See also worlds.lisp)
 (define-method distance-to-player cell ()
   "Calculate the distance from the current location to the player."
   ;; todo fix for sprites
-  [distance-to-player *world* <row> <column>])
+  (multiple-value-bind (row column) [grid-coordinates self]
+    [distance-to-player *world* row column]))
 
 (define-method direction-to-player cell ()
   "Calculate the general compass direction of the player."
@@ -926,6 +927,9 @@ world, and collision detection is performed between sprites and cells.")
   (width :initform nil :documentation "The cached width of the bounding box.")
   (height :initform nil :documentation "The cached height of the bounding box.")
   (type :initform :sprite))
+
+(define-method image-coordinates sprite ()
+  [get-viewport-coordinates-* (field-value :viewport *world*) <x> <y>])
 
 ;; Convenience macro for defining cells:
 
