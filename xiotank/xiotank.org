@@ -1,18 +1,17 @@
 
 * COUNTDOWN
-
-** TODO randomly placed triples of turret and 2 choosable samples to trigger rhythmically
-** TODO [#A] non-room template corridor thingies in between rooms, some have powerups
-** TODO [#C] limited visibility levels baby! perhaps there could be stealth elements on those levels. like having to avoid firing. or enemies that scan only in certain directions. 
+**
+ TODO randomly placed triples of turret and 2 choosable samples to trigger rhythmically
 ** TODO [#A] 3 levels, level 4 is victory screen.
 ** TODO [#A] working exit moves to next level
-** TODO [#B] some kind of powerup or something in rooms
+** TODO [#B] Narration for important events.
 ** TODO [#B] some semblance of corridor structure
-** TODO [#A] red/green tone sounding *notes* display
-** TODO [#C] backgound texture shading?
-** TODO [#B] audio UI, sequencer notes are tile objects, the grid is THE grid of the sequence
-** TODO [#B] vertical line sweeps across playfield
+** TODO [#B] red/green tone sounding *notes* display
 ** TODO Wishlist
+** TODO [#C] backgound texture shading?
+** TODO [#C] audio UI, sequencer notes are tile objects, the grid is THE grid of the sequence
+** TODO [#C] vertical line sweeps across playfield
+** TODO [#C] limited visibility levels baby! perhaps there could be stealth elements on those levels. like having to avoid firing. or enemies that scan only in certain directions. 
 *** TODO [#B] find role (even superfluous) for all piecesparts
 *** TODO [#B] things to collect?
 ** TODO [#B] RELEASE 7DRL ENTRY!!!
