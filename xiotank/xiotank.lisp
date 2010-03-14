@@ -418,13 +418,13 @@ Only opens when the right tone is heard.")
   [expend-action-points self 10]
   [update-tile self]
   (when (null (note-playing-p <note>))
-    (setf <clock> (* 2 <fence-length>)))
+    (setf <clock> (truncate (/ <fence-length> 2))))
   (when (plusp <clock>)
-    (when (equal (* 2 <fence-length>) <clock>)
+    (when (equal (truncate (/ <fence-length> 2)) <clock>)
       (let ((wire (clone =wire=)))
 	[orient wire <direction> (* 3 <fence-length>)]
 	(multiple-value-bind (x y) [xy-coordinates self]
-	  [drop-sprite self wire (+ x 4) (+ y 4)])))
+	  [drop-sprite self wire (+ x 2) (+ y 2)])))
     (decf <clock>)))
 
 (define-method update-tile fence ()
@@ -473,14 +473,14 @@ Only opens when the right tone is heard.")
 (define-method run antifence ()
   [expend-action-points self 10]
   [update-tile self]
-  (when (note-playing-p <note>)
-    (setf <clock> (* 2 <antifence-length>)))
+  (when (null (note-playing-p <note>))
+    (setf <clock> (truncate (/ <antifence-length> 2))))
   (when (plusp <clock>)
-    (when (equal (* 2 <antifence-length>) <clock>)
+    (when (equal (truncate (/ <antifence-length> 2)) <clock>)
       (let ((wire (clone =wire=)))
 	[orient wire <direction> (* 3 <antifence-length>)]
 	(multiple-value-bind (x y) [xy-coordinates self]
-	  [drop-sprite self wire (+ x 4) (+ y 4)])))
+	  [drop-sprite self wire (+ x 2) (+ y 2)])))
     (decf <clock>)))
 
 (define-method update-tile antifence ()
