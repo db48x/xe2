@@ -1,10 +1,11 @@
 
 * COUNTDOWN
-** TODO some semblance of corridor structure
-** TODO emphasize combat
 ** TODO first simplest puzzle level... solvable tone shuffle  (irrelevant tones unlock relevant ones)
+** TODO emphasize combat
+** TODO find role (even superfluous) for all piecesparts
+** TODO some semblance of corridor structure
 ** TODO things to collect?
-** TODO more involved puzzle rooms
+** TODO gates and exit
 ** TODO full help screen
 ** TODO quickhelp
 ** TODO RELEASE 7DRL ENTRY!!!

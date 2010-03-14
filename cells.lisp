@@ -1102,6 +1102,11 @@ world, and collision detection is performed between sprites and cells.")
 
 (define-method xy-coordinates sprite ()
   (values <x> <y>))
-	  
+
+(define-method drop sprite (cell &optional (delta-row 0) (delta-column 0))
+  (multiple-value-bind (r c)
+      [grid-coordinates self]
+    [drop-cell *world* cell (+ r delta-row) (+ c delta-column)]))
+    
 
 ;;; cells.lisp ends here

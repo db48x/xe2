@@ -88,6 +88,7 @@
  (:name "phi3" :type :image :file "phi3.png")
 
  (:name "alarm" :type :sample :file "alarm.wav" :properties (:volume 10))
+ (:name "sense" :type :sample :file "sense.wav" :properties (:volume 10))
  (:name "datanoise" :type :sample :file "datanoise.wav" :properties (:volume 15))
  (:name "woom" :type :sample :file "woom.wav" :properties (:volume 15))
 

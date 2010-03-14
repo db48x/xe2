@@ -875,6 +875,8 @@ Then it fires and gives chase.")
   [play-sample self "yelp"]
   [parent>>die self])  
 
+;;; Drones
+
 (defsprite drone
   (description :initform "A security drone. Manufactures attacking replicant xioforms.")
   (team :initform :enemy)
@@ -883,25 +885,26 @@ Then it fires and gives chase.")
   (alarm-clock :initform 0)
   (pulse :initform (random *pulse-delay*))
   (image :initform "drone")
-  (hit-points :initform (make-stat :base 10 :min 0))
+;  (hit-points :initform (make-stat :base 10 :min 0))
   (direction :initform (random-direction))
   (speed :initform (make-stat :base 20))
   (movement-distance :initform (make-stat :base 1))
   (movement-cost :initform (make-stat :base 20))
   (categories :initform '(:drone :actor :target)))
 
-;;; Drones
-
 (define-method run drone ()
   (when (< [distance-to-player self] 10)
     (if (zerop <alarm-clock>)
 	(progn [play-sample self "alarm"]
+	       (let ((shocker (clone =shocker=)))
+		 [drop self shocker]
+		 [loadout shocker])
 	       (labels ((do-circle (image)
 			  (prog1 t
 			    (multiple-value-bind (x y) 
 				[image-coordinates self]
-			      (let ((x0 (+ x 8))
-				    (y0 (+ y 8)))
+			      (let ((x0 (+ x 10))
+				    (y0 (+ y 10)))
 				(draw-circle x0 y0 25 :destination image)
 				(draw-circle x0 y0 30 :destination image)
 				(draw-circle x0 y0 35 :destination image)
@@ -917,20 +920,24 @@ Then it fires and gives chase.")
     [damage self 1]))
 
 (define-method do-collision drone (other)
-  (when [in-category other :obstacle]
-    (unless (percent-of-time 10 (setf <direction> (opposite-direction <direction>)))
-      (setf <direction> (ecase <direction>
-			  (:here :west)
-			  (:northwest :west)
-			  (:northeast :east)
-			  (:north :west)
-			  (:southwest :south)
-			  (:west :south)
-			  (:southeast :east)
-			  (:southwest :south)
-			  (:south :east)
-			  (:east :north))))
-    [move self <direction> [stat-value self :movement-distance]]))
+  (if [is-player other]
+      [die other]
+      (when [in-category other :obstacle]
+	;; don't get hung up on the enemies we drop.
+	(unless (and (has-field :team other)
+		     (eq :enemy (field-value :team other)))
+	  (unless (percent-of-time 10 (setf <direction> (opposite-direction <direction>)))
+	    (setf <direction> (ecase <direction>
+				(:here :west)
+				(:northwest :west)
+				(:northeast :east)
+				(:north :west)
+				(:southwest :south)
+				(:west :south)
+				(:southeast :east)
+				(:southwest :south)
+				(:south :east)
+				(:east :north))))))))
 
 ;;; Basic blue world
 
@@ -1044,7 +1051,7 @@ Then it fires and gives chase.")
 (define-method drop-extras blue-world ()
   (let ((drone (clone =drone=)))
     [add-sprite self drone]
-    [update-position drone (random 100) (random 100)]))
+    [update-position drone (+ 200 (random 100)) (+ 200 (random 100))]))
 
 (define-method goto-random-position blue-world ()
   [goto self (random 5) (random 5)])
