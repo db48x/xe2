@@ -187,7 +187,7 @@
   (trip :initform nil)
   (team :initform :neutral)
   (state :initform nil)	 
-  (categories :initform '(:obstacle :target :actor)))
+  (categories :initform '(:obstacle :exclusive :target :actor)))
 
 (define-method update-tile pulsator (&optional pulsing)
   (setf <tile> (if pulsing "pulsator-pulse"
@@ -281,7 +281,7 @@
   (team :initform :neutral)
   (default-cost :initform (make-stat :base 10))
   (speed :initform (make-stat :base 20))
-  (categories :initform '(:actor :obstacle :target)))
+  (categories :initform '(:actor :obstacle :exclusive :target)))
 
 (define-method hit delay (&optional object)
   (when [in-category object :wave]
@@ -311,7 +311,7 @@
   (team :initform :neutral) wave
   (default-cost :initform (make-stat :base 10))
   (speed :initform (make-stat :base 20))
-  (categories :initform '(:actor :obstacle :target)))
+  (categories :initform '(:actor :obstacle :exclusive :target)))
 
 (define-method run turret ()
   [expend-action-points self 10]
@@ -402,7 +402,7 @@ Only opens when the right tone is heard.")
   (sample :initform nil)
   (default-cost :initform (make-stat :base 10))
   (speed :initform (make-stat :base 3))
-  (categories :initform '(:actor :obstacle :target)))
+  (categories :initform '(:actor :obstacle :exclusive :target)))
 
 (define-method tune fence (note)
   (setf <note> note))
@@ -458,7 +458,7 @@ Only opens when the right tone is heard.")
   (sample :initform nil)
   (default-cost :initform (make-stat :base 10))
   (speed :initform (make-stat :base 3))
-  (categories :initform '(:actor :obstacle :target)))
+  (categories :initform '(:actor :obstacle :exclusive :target)))
 
 (define-method tune antifence (note)
   (setf <note> note))
@@ -527,7 +527,7 @@ Only opens when the right tone is heard.")
   wave
   (default-cost :initform (make-stat :base 10))
   (speed :initform (make-stat :base 20))
-  (categories :initform '(:actor :obstacle :target)))
+  (categories :initform '(:actor :obstacle :exclusive :target :sequenced)))
 
 (define-method run trigger ()
   [expend-action-points self 10])
@@ -539,7 +539,7 @@ Only opens when the right tone is heard.")
   (when <sample> 
     [play-sample self <sample>]
     (dotimes (n 6)
-      [drop self (clone =particle=)])))
+      [drop-cell *world* (clone =particle=) <row> <column> :exclusive nil :probe nil])))
 
 ;;; Oscillators and tone clusters
 
@@ -583,7 +583,7 @@ Only opens when the right tone is heard.")
     (if (null state) (first tiles) (second tiles))))
 
 (defcell oscillator 
-  (categories :initform '(:actor :obstacle :target))
+  (categories :initform '(:actor :obstacle :exclusive :target))
   channel
   (description :initform "This object emits a tone when struck. Shoot to toggle.")
   (team :initform :neutral)
@@ -635,7 +635,7 @@ Only opens when the right tone is heard.")
 (defcell resonator 
   (tile :initform "resonator")
   (description :initform "Emits energy particles on the beat, when a given tone is heard.")
-  (categories :initform '(:actor :obstacle :target))
+  (categories :initform '(:actor :obstacle :exclusive :target))
   channel
   (team :initform :neutral)
   (waveform :initform :sine)
@@ -824,7 +824,7 @@ Then it fires and gives chase.")
   (direction :initform :north)
   (attacking-with :initform nil)
   (firing-with :initform :center-bay)
-  (categories :initform '(:actor :obstacle :target :container :light-source :vehicle :repairable))
+  (categories :initform '(:actor :obstacle  :target :container :light-source :vehicle :repairable))
   (equipment-slots :initform '(:left-bay :right-bay :center-bay :extension)))
 
 (define-method loadout shocker ()
@@ -913,7 +913,7 @@ Then it fires and gives chase.")
   (direction :initform :north)
   (attacking-with :initform nil)
   (firing-with :initform :center-bay)
-  (categories :initform '(:actor :obstacle :target :container :light-source :vehicle :repairable))
+  (categories :initform '(:actor :obstacle  :target :container :light-source :vehicle :repairable))
   (equipment-slots :initform '(:left-bay :right-bay :center-bay :extension)))
 
 (define-method loadout corruptor ()
@@ -1018,16 +1018,40 @@ Then it fires and gives chase.")
 				(:south :east)
 				(:east :north))))))))
 
+;;; Door to next level
+
+(define-prototype exit (:parent xe2:=gateway=)
+  (tile :initform "exit")
+  (name :initform "Area exit ")
+  (description :initform "Exit to the next area.")
+  (categories :initform '(:gateway :actor :exclusive))
+  (address :initform nil))
+
+(define-method level exit (level)
+  (setf <address> (generate-level-address level)))
+
+(define-method step exit (stepper)
+  (when [is-player stepper]
+    [play-sample self "go"]
+    [say self "You made it to the next level!"]
+    [activate self]))
+
+(define-method run exit ()
+  nil)
+
 ;;; Blue Space
 
 (defparameter *xiotank-grammar* 
-  '((puzzle >> (:drop-border :goto-origin tone+ :goto-origin :goto-south
-	         pulsator enemies powerups :goto-random-position :drop-extras player :drop-exit))
+  '((puzzle >> (:drop-border :goto-origin 
+		:pushloc goto-pulsator-location :drop-pulsator :poploc
+		tone+ :goto-origin :goto-south
+	         enemies powerups :goto-random-position :drop-extras player :drop-exit))
     (tone+ >> (drop-room tone :goto-east maybe-south drop-room tone :goto-east maybe-south drop-room tone))
     (drop-room >> (:drop-room :drop-shockers))
     (tone >> :drop-tone-pair)
-    (maybe-south >> :noop :goto-south)
+    (maybe-south >> :noop :goto-south (:pushloc :goto-south :goto-east :drop-ruin :poploc))
     (enemies >> (:drop-corruptors))
+    (goto-pulsator-location >> :goto-bottom-right :goto-top-right)
     (powerups >> :drop-powerups)
     (player >> :drop-player)
     (pulsator >> :drop-pulsator)))
@@ -1042,7 +1066,7 @@ Then it fires and gives chase.")
   (tile :initform "block")
   (description :initform "An impenetrable wall.")
   (team :initform :neutral)
-  (categories :initform '(:obstacle :opaque :target)))
+  (categories :initform '(:obstacle :opaque :exclusive :target)))
 
 (define-method hit block (&optional other)
   nil)
@@ -1125,6 +1149,7 @@ Then it fires and gives chase.")
 		 (push point points))))
       (trace-rectangle #'collect <gen-row> <gen-column>
 		       <room-size> <room-size>)
+      (percent-of-time 15 [drop-cell self (clone =health=) (+ <gen-row> 1 (random 3)) (+ <gen-column> 2 (random 4))])
       (dotimes (n 4)
 	(setf points (cdr points)))
 	      ;;(delete (car (one-of points)) points :test 'equal)))
@@ -1139,7 +1164,7 @@ Then it fires and gives chase.")
 
 (define-method drop-exit blue-world ()
   (let ((r (- <height> 10))
-	(c 10))
+	(c (+ 3 (random 13))))
     (labels ((drop-block (r c)
 	       (prog1 nil [drop-cell self (clone =block=) r c])))
       (trace-column #'drop-block c r <height>)
@@ -1154,7 +1179,20 @@ Then it fires and gives chase.")
       (let ((fence (clone =antifence=)))
 	[drop-cell self fence r (+ c 1)]
 	[tune fence tone]
-	[free fence]))))
+	[free fence]))
+    (let ((exit (clone =exit=)))
+      (incf r)
+      [drop-cell self exit r (+ c 3)]
+      [level exit <level>])))
+
+(define-method drop-ruin blue-world ()
+  (labels ((drop-block (r c)
+	     (prog1 nil [drop-cell self (clone =delay=) r c])))
+    (let ((row <gen-row>) (column <gen-column>))
+      (trace-row #'drop-block (+ row 2 (random 3))
+		 (+ column 2 (random 2)) (+ column 6 (random 5)))
+      (trace-column #'drop-block (+ column 2 (random 3))
+		 (+ row 2 (random 2)) (+ row 6 (random 5))))))
 
 (define-method goto-origin blue-world ()
   (setf <gen-row> (+ 2 (random 3)))
@@ -1173,10 +1211,25 @@ Then it fires and gives chase.")
 (define-method goto-south blue-world ()
   (incf <gen-row> <spacing>))
 
+(define-method goto-north blue-world ()
+  (decf <gen-row> <spacing>))
+
+(define-method goto-bottom-right blue-world ()
+  (setf <gen-row> (* <spacing> 3))
+  (setf <gen-column> (* <spacing> 3)))
+
+(define-method goto-top-right blue-world ()
+  (setf <gen-row> 3)
+  (setf <gen-column> (* <spacing> 3)))
+
 (define-method noop blue-world ()
   nil)
 
 (define-method drop-extras blue-world ()
+  (dotimes (n 14)
+    (let ((trigger (clone =trigger=)))
+      [drop-cell self trigger (random <height>) (random <width>)]
+      [intone trigger (car (one-of *bass-notes*))]))
   (dotimes (n <level>)
     (let ((drone (clone =drone=)))
       [add-sprite self drone]
@@ -1207,7 +1260,7 @@ Then it fires and gives chase.")
 	       ;; 
 	       [pushloc self]
 	       (if (percent-of-time 40 (prog1 t [goto-south self]))
-		   [goto-east self]
+		   nil
 		   [goto-west self])
 	       [intone osc2 :sine free-tone] 
 	       [drop-cell self osc2 (+ 10 <gen-row> (random 5)) (+ <gen-column> 3 (random 5))]

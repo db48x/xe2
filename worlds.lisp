@@ -254,16 +254,14 @@ placement."
 
 (define-method drop-cell world (cell row column 
 				     &optional &key 
-				     loadout no-stepping no-collisions exclusive probe)
+				     loadout no-stepping no-collisions (exclusive t) (probe t))
   "Put the cell CELL on top of the stack of cells at ROW,
 COLUMN. If LOADOUT is non-nil, then the `loadout' method of the
 dropped cell is invoked after dropping. If NO-COLLISIONS is non-nil,
 then an object is not dropped on top of an obstacle. If EXCLUSIVE is
 non-nil, then two objects with category :exclusive will not be placed
 together. If PROBE is non-nil, try to place the cell in the immediate
-neighborhood.  Return T if a cell is placed; nil otherwise. If both
-NO-COLLISIONS and EXCLUSIVE are both non-nil, an error is signaled."
-  (assert (not (and no-collisions exclusive)))
+neighborhood.  Return T if a cell is placed; nil otherwise."
   (let ((grid <grid>)
 	(tile-size <tile-size>))
     (declare (optimize (speed 3)) 

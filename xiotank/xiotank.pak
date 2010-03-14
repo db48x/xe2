@@ -103,7 +103,7 @@
  (:name "sense" :type :sample :file "sense.wav" :properties (:volume 30))
  (:name "sense2" :type :sample :file "sense2.wav" :properties (:volume 30))
  (:name "datanoise" :type :sample :file "datanoise.wav" :properties (:volume 15))
- (:name "woom" :type :sample :file "woom.wav" :properties (:volume 15))
+ (:name "woom" :type :sample :file "woom.wav" :properties (:volume 6))
 
  (:name "blurp" :type :sample :file "blurp.wav" :properties (:volume 15))
  (:name "blurp2" :type :sample :file "blurp2.wav" :properties (:volume 15))
