@@ -84,6 +84,8 @@
  (:name "particle2" :type :image :file "particle2.png")
  (:name "particle3" :type :image :file "particle3.png")
 
+ (:name "health" :type :image :file "health.png")
+
  (:name "phi" :type :image :file "phi.png")
  (:name "phi2" :type :image :file "phi2.png")
  (:name "phi3" :type :image :file "phi3.png")

@@ -84,6 +84,18 @@
     (when (minusp (decf <timeout>))
       [die self])))
 
+;;; Health powerup
+
+(defcell health 
+  (description :initform "Restores a few hit points worth of repair to your tank.")
+  (tile :initform "health"))
+
+(define-method step health (stepper)
+  (when [is-player stepper]
+    [stat-effect stepper :hit-points 7]
+    [say stepper "Restored some hit points."]
+    [die self]))
+
 ;;; Sound waves
 
 (defparameter *waveforms* '(:sine :square :saw :bass))
@@ -780,6 +792,7 @@ Then it fires and gives chase.")
 (define-method die shocker () 
   (dotimes (n 10)
     [drop self (clone =noise=)])
+  (percent-of-time 3 [drop self (clone =health=)])
   [play-sample self "yelp"]
   [parent>>die self])  
 
@@ -988,7 +1001,7 @@ Then it fires and gives chase.")
   ;;
   (ambient-light :initform :total)
   (required-modes :initform nil)
-  (spacing :initform 13)
+  (spacing :initform 12)
   (room-size :initform 10)
   (scale :initform '(3 m))
   (edge-condition :initform :block))
@@ -1064,7 +1077,7 @@ Then it fires and gives chase.")
     (labels ((drop-block (r c)
 	       (prog1 nil [drop-cell self (clone =block=) r c])))
       (trace-column #'drop-block c r <height>)
-      (trace-column #'drop-block (+ c 8) r <height>))
+      (trace-column #'drop-block (+ c 9) r <height>))
     (dolist (tone <cluster>)
       (incf r)
       (let ((fence (clone =fence=)))
@@ -1086,6 +1099,9 @@ Then it fires and gives chase.")
 
 (define-method goto-east blue-world ()
   (incf <gen-column> <spacing>))
+
+(define-method goto-west blue-world ()
+  (decf <gen-column> <spacing>))
 
 (define-method goto-south blue-world ()
   (incf <gen-row> <spacing>))
@@ -1123,7 +1139,9 @@ Then it fires and gives chase.")
 		 [drop-cell self fence (+ <gen-row> 4) (+ <gen-column> 1)])
 	       ;; 
 	       [pushloc self]
-	       [goto-south self]
+	       (if (percent-of-time 40 (prog1 t [goto-south self]))
+		   [goto-east self]
+		   [goto-west self])
 	       [intone osc2 :sine free-tone] 
 	       [drop-cell self osc2 (+ 10 <gen-row> (random 5)) (+ <gen-column> 3 (random 5))]
 	       [drop-cell self res2 (+ 10 <gen-row> (random 5)) (+ <gen-column> 3 (random 5))]
