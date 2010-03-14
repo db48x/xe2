@@ -1,5 +1,6 @@
 (
  (:name ".default-font" :type :font :properties (:height 13 :width 6) :data "6x13")
+ (:name "quickhelp-message" :type :formatted-text :file "quickhelp.text")
 
  (:name "turret-east-on" :type :image :file "turret-right-on.png")
  (:name "turret-east" :type :image :file "turret-right.png")
@@ -88,7 +89,8 @@
  (:name "phi3" :type :image :file "phi3.png")
 
  (:name "alarm" :type :sample :file "alarm.wav" :properties (:volume 10))
- (:name "sense" :type :sample :file "sense.wav" :properties (:volume 10))
+ (:name "sense" :type :sample :file "sense.wav" :properties (:volume 30))
+ (:name "sense2" :type :sample :file "sense2.wav" :properties (:volume 30))
  (:name "datanoise" :type :sample :file "datanoise.wav" :properties (:volume 15))
  (:name "woom" :type :sample :file "woom.wav" :properties (:volume 15))
 
@@ -165,6 +167,6 @@
  (:name "tank-southwest" :type :alias :data ":rotate 180:tank-northeast")
  (:name "tank-northwest" :type :alias :data ":rotate 270:tank-northeast")
 
- (:name "help-message" :type :text :file "README")
+ (:name "help-message" :type :formatted-text :file "README")
  (:name ".startup" :type :lisp :file "xiotank.lisp" :properties (:autoload t))
 )

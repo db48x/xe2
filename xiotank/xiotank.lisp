@@ -363,7 +363,13 @@
 			    (:north "wire-north"))))))
 
 (define-method do-collision wire (object)
-  (when (has-field :hit-points object)
+  (when (and (has-field :team object)
+	     (eq :player (field-value :team object))
+	     [in-category object :wave])
+    [die object])
+  (when (and (has-field :hit-points object)
+	     (not (and (has-field :team object)
+		       (eq :enemy (field-value :team object)))))
     [damage object 20]))
 
 ;; (define-method step wire (stepper)
@@ -375,6 +381,7 @@
   (description :initform "This object creates a deadly wire fence. 
 Only opens when the right tone is heard.")
   (note :initform "C-1")
+  (free :initform nil)
   (fence-length :initform 8)
   (clock2 :initform 0)
   (clock :initform 0)
@@ -388,6 +395,9 @@ Only opens when the right tone is heard.")
 (define-method tune fence (note)
   (setf <note> note))
 
+(define-method free fence ()
+  (setf <free> t))
+
 (define-method orient fence (dir &optional (length 8))
   (setf <direction> dir)
   (setf <fence-length> length))
@@ -395,9 +405,8 @@ Only opens when the right tone is heard.")
 (define-method run fence ()
   [expend-action-points self 10]
   [update-tile self]
-  (when (not (note-playing-p <note>))
+  (when (null (note-playing-p <note>))
     (setf <clock> (* 2 <fence-length>)))
-  
   (when (plusp <clock>)
     (when (equal (* 2 <fence-length>) <clock>)
       (let ((wire (clone =wire=)))
@@ -422,14 +431,6 @@ Only opens when the right tone is heard.")
     
 (define-method hit fence (&optional object)
   nil)
-  ;; (setf <direction> 
-  ;; 	(ecase <direction>
-  ;; 	  (:east :south)
-  ;; 	  (:south :west)
-  ;; 	  (:west :north)
-  ;; 	  (:north :east)))
-  ;; [update-tile self])
-
 
 ;;; Shield
 
@@ -600,7 +601,7 @@ Only opens when the right tone is heard.")
   (accuracy :initform (make-stat :base 100))
   (attack-power :initform (make-stat :base 12))
   (attack-cost :initform (make-stat :base 10))
-  (energy-cost :initform (make-stat :base 1)))
+  (energy-cost :initform (make-stat :base 0)))
 
 (define-method fire wave-cannon (direction)
   (if (plusp <reload-clock>)
@@ -712,7 +713,7 @@ Only opens when the right tone is heard.")
     [set-player *universe* tank]
     [set-character *status* tank]
     [play *universe*
-	  :address '(=blue-world=)]
+	  :address '(=blue-world= :level 3)]
     [loadout tank]))
 
 ;;; White noise
@@ -745,7 +746,6 @@ Then it fires and gives chase.")
   (defense :initform (make-stat :base 10))
   (hearing-range :initform 15)
   (energy :initform (make-stat :base 40 :min 0 :max 40 :unit :gj))
-  (hit-points :initform (make-stat :base 45 :min 0 :max 45))
   (movement-cost :initform (make-stat :base 10))
   (max-items :initform (make-stat :base 2))
   (stepping :initform t)
@@ -885,7 +885,7 @@ Then it fires and gives chase.")
   (alarm-clock :initform 0)
   (pulse :initform (random *pulse-delay*))
   (image :initform "drone")
-;  (hit-points :initform (make-stat :base 10 :min 0))
+  (hit-points :initform (make-stat :base 12 :min 0))
   (direction :initform (random-direction))
   (speed :initform (make-stat :base 20))
   (movement-distance :initform (make-stat :base 1))
@@ -893,6 +893,7 @@ Then it fires and gives chase.")
   (categories :initform '(:drone :actor :target)))
 
 (define-method run drone ()
+  (percent-of-time 20 [play-sample self "sense2"])
   (when (< [distance-to-player self] 10)
     (if (zerop <alarm-clock>)
 	(progn [play-sample self "alarm"]
@@ -919,6 +920,11 @@ Then it fires and gives chase.")
     [play-sample self "yelp"]
     [damage self 1]))
 
+(define-method die drone ()
+  (dotimes (n 30)
+    [drop self (clone =noise=)])
+  [parent>>die self])
+
 (define-method do-collision drone (other)
   (if [is-player other]
       [die other]
@@ -932,18 +938,17 @@ Then it fires and gives chase.")
 				(:northwest :west)
 				(:northeast :east)
 				(:north :west)
-				(:southwest :south)
 				(:west :south)
 				(:southeast :east)
 				(:southwest :south)
 				(:south :east)
 				(:east :north))))))))
 
-;;; Basic blue world
+;;; Blue Space
 
 (defparameter *xiotank-grammar* 
-  '((puzzle >> (:generate-tone-cluster :goto-origin tone+ :goto-east 
-	         pulsator enemies powerups :goto-random-position :drop-extras player))
+  '((puzzle >> (:goto-origin tone+ :goto-origin :goto-south
+	         pulsator enemies powerups :goto-random-position :drop-extras player :drop-exit))
     (tone+ >> (drop-room tone :goto-east maybe-south drop-room tone :goto-east maybe-south drop-room tone))
     (drop-room >> (:drop-room :drop-shockers))
     (tone >> :drop-tone-pair)
@@ -969,11 +974,18 @@ Then it fires and gives chase.")
   nil)
 
 (defcell blue-space 
-  (description :initform "The mysterious substrate of Frequency World.")
+  (description :initform "The mysterious blue substrate of Frequency World.")
   (tile :initform "blue-space"))
 
 (define-prototype blue-world (:parent xe2:=world=)
-  gen-row gen-column cluster note
+  (locations :initform nil)
+  gen-row gen-column 
+  ;;
+  (level :initform 1)
+  (cluster :initform nil)
+  (free-tones :initform nil)
+  (n :initform 0)
+  ;;
   (ambient-light :initform :total)
   (required-modes :initform nil)
   (spacing :initform 13)
@@ -985,10 +997,21 @@ Then it fires and gives chase.")
 	      "F-2-bass" "F#2-bass" "G-2-bass" "G#2-bass" "A-2-bass" "A#2-bass"
 	      "B-2-bass" "C-3-bass"))
 
-(define-method generate blue-world (&key (height 80)
+(define-method pushloc blue-world ()
+  (push (list <gen-row> <gen-column>) <locations>))
+
+(define-method poploc blue-world ()
+  (let ((loc (pop <locations>)))
+    (if (listp loc)
+	(destructuring-bind (r c) loc
+	  (setf <gen-row> r <gen-column> c))
+	(message "Warning; popping empty location stack."))))
+
+(define-method generate blue-world (&key (height 50)
 					    (width 50)
-					    sequence-number)
+					    (level 1))
   (setf *notes* nil)
+  (setf <level> level)
   (setf <height> height <width> width)
   [create-default-grid self]
   (setf <gen-row> 0 <gen-column 0)
@@ -996,6 +1019,9 @@ Then it fires and gives chase.")
     (dotimes (j width)
       [drop-cell self (clone =blue-space=)
 		 i j]))
+  ;; create a puzzle
+  (setf <cluster> (random-cluster level *scale*))
+  (setf <free-tones> (random-cluster level *scale*))
   (setf xe2:*grammar* *xiotank-grammar*)
   (let ((puzzle (generate 'puzzle)))
     (dolist (op puzzle)
@@ -1015,7 +1041,7 @@ Then it fires and gives chase.")
 
 (define-method drop-pulsator blue-world ()
   (let ((pulse (clone =pulsator=)))
-    [drop-cell self pulse <gen-row> <gen-column>]
+    [drop-cell self pulse (+ <gen-row> 2) (+ <gen-column> 2)]
     [tap pulse 20]))
 
 (define-method drop-room blue-world ()
@@ -1025,12 +1051,31 @@ Then it fires and gives chase.")
 		 (push point points))))
       (trace-rectangle #'collect <gen-row> <gen-column>
 		       <room-size> <room-size>)
-      (dotimes (n 3)
+      (dotimes (n 4)
 	(setf points (cdr points)))
 	      ;;(delete (car (one-of points)) points :test 'equal)))
       (dolist (point points)
 	(destructuring-bind (r c) point
 	  [drop-cell self (clone =block=) r c])))))
+
+(define-method drop-exit blue-world ()
+  (let ((r (- <height> 10))
+	(c 10))
+    (labels ((drop-block (r c)
+	       (prog1 nil [drop-cell self (clone =block=) r c])))
+      (trace-column #'drop-block c r <height>)
+      (trace-column #'drop-block (+ c 8) r <height>))
+    (dolist (tone <cluster>)
+      (incf r)
+      (let ((fence (clone =fence=)))
+	[drop-cell self fence r (+ c 1)]
+	[tune fence tone]))
+    (dolist (tone <free-tones>)
+      (incf r)
+      (let ((fence (clone =fence=)))
+	[drop-cell self fence r (+ c 1)]
+	[tune fence tone]
+	[free fence]))))
 
 (define-method goto-origin blue-world ()
   (setf <gen-row> 0) (setf <gen-column> 0))
@@ -1049,29 +1094,42 @@ Then it fires and gives chase.")
   nil)
 
 (define-method drop-extras blue-world ()
-  (let ((drone (clone =drone=)))
-    [add-sprite self drone]
-    [update-position drone (+ 200 (random 100)) (+ 200 (random 100))]))
+  (dotimes (n <level>)
+    (let ((drone (clone =drone=)))
+      [add-sprite self drone]
+      [update-position drone (+ 200 (random 400)) (+ 200 (random 500))])))
 
 (define-method goto-random-position blue-world ()
   [goto self (random 5) (random 5)])
 
-(define-method generate-tone-cluster blue-world ()
-  (setf <cluster> (random-cluster 3 *scale*)))
-
 (define-method drop-tone-pair blue-world ()
-  (let ((note (pop <cluster>))
+  (let ((note (nth <n> <cluster>))
+	(free-tone (nth <n> <free-tones>))
 	(osc (clone =oscillator=))
 	(res (clone =resonator=))
+	(osc2 (clone =oscillator=))
+	(res2 (clone =resonator=))
 	(fence (clone =fence=)))
-    [drop-cell self osc (+ 2 <gen-row> (random 5)) (+ <gen-column> 3 (random 5))]
-    [intone osc :sine note] 
-    [drop-cell self res (+ 2 <gen-row> (random 5)) (+ <gen-column> 3 (random 5))]
-    [tune res note]
-    (let ((fence (clone =fence=)))
-      [tune fence note]
-      [drop-cell self fence (+ <gen-row> 4) (+ <gen-column> 1)])))
-
+    (if (>= <n> (length <cluster>))
+	(message "Dropping tone pair.")
+	(progn [drop-cell self osc (+ 1 <gen-row> (random 3)) (+ <gen-column> 3 (random 5))]
+	       (incf <n>)
+	       (assert (and note free-tone))
+	       [intone osc :sine note] 
+	       [drop-cell self res (+ 2 <gen-row> (random 5)) (+ <gen-column> 3 (random 5))]
+	       [tune res note]
+	       (let ((fence (clone =fence=)))
+		 [tune fence free-tone]
+		 [drop-cell self fence (+ <gen-row> 4) (+ <gen-column> 1)])
+	       ;; 
+	       [pushloc self]
+	       [goto-south self]
+	       [intone osc2 :sine free-tone] 
+	       [drop-cell self osc2 (+ 10 <gen-row> (random 5)) (+ <gen-column> 3 (random 5))]
+	       [drop-cell self res2 (+ 10 <gen-row> (random 5)) (+ <gen-column> 3 (random 5))]
+	       [tune res2 free-tone]
+	       [poploc self]))))
+    
 ;;; Splash screen
   
 (defvar *pager* nil)
@@ -1146,11 +1204,9 @@ Then it fires and gives chase.")
   [delete-all-lines self]
   (let* ((char <character>))
     (when char
-	[print-stat self :hit-points :warn-below 10 :show-max t]
-	[print-stat-bar self :hit-points :color ".red" :divisor 2]
+	[print-stat self :hit-points :warn-below 7 :show-max t]
+	[print-stat-bar self :hit-points :color ".red"]
 	[space self]
-	[print-stat self :energy :warn-below 10 :show-max t]
-	[print-stat-bar self :energy :color ".yellow" :divisor 2]
 	[newline self])))
 
 ;;; Custom bordered viewport
@@ -1388,8 +1444,8 @@ Then it fires and gives chase.")
 
 ;;; Main program. 
 
-(defun generate-level-address (ignore)
-  '(=blue-world=))
+(defun generate-level-address (level)
+  '(=blue-world= :level 3))
 
 (defparameter *xiotank-window-width* 800)
 (defparameter *xiotank-window-height* 600)
@@ -1464,23 +1520,23 @@ Then it fires and gives chase.")
 			   :width (truncate (/ *xiotank-window-width* 16))]
 	       [adjust viewport]))
       (setf *space-bar-function* #'spacebar))
+    
+    [resize help :height 540 :width 800] 
+    [move help :x 0 :y 0]
+    (let ((text	(find-resource-object "help-message")))
+      (dolist (line text)
+    	(dolist (string line)
+    	  (funcall #'send nil :print-formatted-string help string))
+    	[newline help]))
     ;;
-    ;; [resize help :height 540 :width 800] 
-    ;; [move help :x 0 :y 0]
-    ;; (let ((text	(find-resource-object "help-message")))
-    ;;   (dolist (line text)
-    ;; 	(dolist (string line)
-    ;; 	  (funcall #'send nil :print-formatted-string help string))
-    ;; 	[newline help]))
-    ;; ;;
-    ;; [resize quickhelp :height 85 :width 250] 
-    ;; [move quickhelp :y (- *xiotank-window-height* 130) :x (- *xiotank-window-width* 250)]
-    ;; (let ((text	(find-resource-object "quickhelp-message")))
-    ;;   (dolist (line text)
-    ;; 	(dolist (string line)
-    ;; 	  (funcall #'send nil :print-formatted-string quickhelp string))
-    ;; 	[newline quickhelp]))
-    ;; ;;
+    [resize quickhelp :height 85 :width 250] 
+    [move quickhelp :y (- *xiotank-window-height* 130) :x (- *xiotank-window-width* 250)]
+    (let ((text	(find-resource-object "quickhelp-message")))
+      (dolist (line text)
+    	(dolist (string line)
+    	  (funcall #'send nil :print-formatted-string quickhelp string))
+    	[newline quickhelp]))
+    ;;
     (play-music "purity" :loop t)
     (set-music-volume 255)	       
     ;;
@@ -1495,7 +1551,7 @@ Then it fires and gives chase.")
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
     (xe2:install-widgets splash-prompt splash)
-    [add-page *pager* :game prompt stack viewport terminal *status* ]
+    [add-page *pager* :game prompt stack viewport terminal quickhelp *status* ]
     [add-page *pager* :help help]))
 
 (xiotank)

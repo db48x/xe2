@@ -280,7 +280,7 @@ auto-updated displays."
 	(string-capitalize (subseq str 1 (search "=" str :from-end t))))))
 
 (define-method print-object-tag formatter (ob)
-  [print-image self (field-value :tile ob)]
+  [print-image self (or (field-value :tile ob) (field-value :image ob))]
   [space self]
   [print self (get-some-object-name ob)]
   [space self])

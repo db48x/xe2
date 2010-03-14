@@ -166,7 +166,17 @@
 	   (c (truncate (/ x0 <tile-size>)))
 	   (cells (aref (field-value :grid (or <world> *world*))
 			(+ <origin-y> r) (+ <origin-x> c))))
-      (aref cells (1- (fill-pointer cells))))))
+      (labels ((hit (sprite)
+		 (multiple-value-bind (sx sy) [xy-coordinates sprite]
+		   (let* ((im (field-value :image sprite))
+			  (h (image-height im))
+			  (w (image-width im)))
+		     (when (and (<= sx x0 (+ sx w))
+				(<= sy y0 (+ sy h)))
+		       sprite)))))
+	(assert *world*)
+	(or (some #'hit (field-value :sprites *world*))
+	    (aref cells (1- (fill-pointer cells))))))))
 
 (define-method set-origin viewport (&key x y height width)
   (setf <origin-x> x

@@ -1,14 +1,31 @@
 
 * COUNTDOWN
-** TODO first simplest puzzle level... solvable tone shuffle  (irrelevant tones unlock relevant ones)
-** TODO emphasize combat
-** TODO find role (even superfluous) for all piecesparts
+
+** TODO doc screen 
+** TODO randomly placed triples of turret and 2 choosable samples to trigger rhythmically
+** TODO [#A] non-room template corridor thingies in between rooms, some have powerups
+** TODO [#C] limited visibility levels baby! perhaps there could be stealth elements on those levels. like having to avoid firing. or enemies that scan only in certain directions. 
+** TODO [#A] 3 levels, level 4 is victory screen.
+** TODO working exit moves to next level
+** TODO some kind of powerup or something in rooms
+** DONE first simplest puzzle level... solvable tone shuffle  (irrelevant tones unlock relevant ones)
+CLOSED: [2010-03-13 Sat 23:40]
+*** DONE pushloc/poploc
+CLOSED: [2010-03-13 Sat 23:40]
+*** DONE begin with single tone pair puzzle, 2 rooms, cluster of length 1
+CLOSED: [2010-03-13 Sat 23:40]
 ** TODO some semblance of corridor structure
-** TODO things to collect?
+** TODO red/green tone sounding *notes* display
 ** TODO gates and exit
 ** TODO full help screen
 ** TODO quickhelp
-** TODO RELEASE 7DRL ENTRY!!!
+** TODO backgound texture shading
+** TODO Wishlist
+*** TODO [#B] occasionally enemies leave powerup (life refill?)
+*** TODO [#B] emphasize combat
+*** TODO [#B] find role (even superfluous) for all piecesparts
+*** TODO [#B] things to collect?
+*** TODO [#B] RELEASE 7DRL ENTRY!!!
 DEADLINE: <2010-03-14 Sun 23:59>
 
 * Tasks
