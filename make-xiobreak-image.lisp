@@ -5,7 +5,7 @@
 
 (asdf:oos 'asdf:load-op 'xe2)
 
-(sb-ext:save-lisp-and-die "run-xiobreak"
+(sb-ext:save-lisp-and-die "run-xiotank"
 			  :toplevel (lambda ()
 				      (sb-posix:putenv
 				       (format nil "SBCL_HOME=~A" 

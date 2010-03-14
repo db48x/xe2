@@ -444,6 +444,62 @@ Only opens when the right tone is heard.")
 (define-method hit fence (&optional object)
   nil)
 
+(defcell antifence
+  (tile :initform "antifence-east-on")
+  (description :initform "This object creates a deadly wire antifence. 
+Only opens when the right tone is heard.")
+  (note :initform "C-1")
+  (free :initform nil)
+  (antifence-length :initform 8)
+  (clock2 :initform 0)
+  (clock :initform 0)
+  (team :initform :neutral)
+  (direction :initform :east)
+  (sample :initform nil)
+  (default-cost :initform (make-stat :base 10))
+  (speed :initform (make-stat :base 3))
+  (categories :initform '(:actor :obstacle :target)))
+
+(define-method tune antifence (note)
+  (setf <note> note))
+
+(define-method free antifence ()
+  (setf <free> t))
+
+(define-method orient antifence (dir &optional (length 8))
+  (setf <direction> dir)
+  (setf <antifence-length> length))
+
+(define-method run antifence ()
+  [expend-action-points self 10]
+  [update-tile self]
+  (when (note-playing-p <note>)
+    (setf <clock> (* 2 <antifence-length>)))
+  (when (plusp <clock>)
+    (when (equal (* 2 <antifence-length>) <clock>)
+      (let ((wire (clone =wire=)))
+	[orient wire <direction> (* 3 <antifence-length>)]
+	(multiple-value-bind (x y) [xy-coordinates self]
+	  [drop-sprite self wire (+ x 4) (+ y 4)])))
+    (decf <clock>)))
+
+(define-method update-tile antifence ()
+  (setf <tile>
+	(if *pulsing*
+	    (ecase <direction>
+	      (:east "antifence-east-on")
+	      (:west "antifence-west-on")
+	      (:south "antifence-south-on")
+	      (:north "antifence-north-on"))
+	    (ecase <direction>
+	      (:east "antifence-east")
+	      (:west "antifence-west")
+	      (:south "antifence-south")
+	      (:north "antifence-north")))))
+    
+(define-method hit antifence (&optional object)
+  nil)
+
 ;;; Shield
 
 (defcell shield
@@ -640,6 +696,7 @@ Only opens when the right tone is heard.")
   (tile :initform "tank-north")
   (description :initform "Your trusty XENG Industries Model X10 battle tank supports 8-way movement and firing.")
   (dead :initform nil)
+  (last-turn-moved :initform 0)
   (team :initform :player)
   (color :initform :green)
   (waveform :initform :sine)
@@ -683,9 +740,12 @@ Only opens when the right tone is heard.")
 
 (define-method move tank (direction)
   (unless <dead>
-    (setf <direction> direction)
-    (setf <tile> (getf *tank-tiles* direction))
-    [parent>>move self direction]))
+    (let ((phase (field-value :phase-number *world*)))
+      (unless (= <last-turn-moved> phase)
+	(setf <last-turn-moved> phase)
+	(setf <direction> direction)
+	(setf <tile> (getf *tank-tiles* direction))
+	[parent>>move self direction]))))
 
 (define-method fire tank (direction)
   (unless <dead>
@@ -792,7 +852,7 @@ Then it fires and gives chase.")
 (define-method die shocker () 
   (dotimes (n 10)
     [drop self (clone =noise=)])
-  (percent-of-time 3 [drop self (clone =health=)])
+  (percent-of-time 12 [drop self (clone =health=)])
   [play-sample self "yelp"]
   [parent>>die self])  
 
@@ -910,9 +970,10 @@ Then it fires and gives chase.")
   (when (< [distance-to-player self] 10)
     (if (zerop <alarm-clock>)
 	(progn [play-sample self "alarm"]
-	       (let ((shocker (clone =shocker=)))
-		 [drop self shocker]
-		 [loadout shocker])
+	       (let ((enemy (or (percent-of-time 2 (clone =corruptor=))
+				(clone =shocker=))))
+		 [drop self enemy]
+		 [loadout enemy])
 	       (labels ((do-circle (image)
 			  (prog1 t
 			    (multiple-value-bind (x y) 
@@ -960,7 +1021,7 @@ Then it fires and gives chase.")
 ;;; Blue Space
 
 (defparameter *xiotank-grammar* 
-  '((puzzle >> (:goto-origin tone+ :goto-origin :goto-south
+  '((puzzle >> (:drop-border :goto-origin tone+ :goto-origin :goto-south
 	         pulsator enemies powerups :goto-random-position :drop-extras player :drop-exit))
     (tone+ >> (drop-room tone :goto-east maybe-south drop-room tone :goto-east maybe-south drop-room tone))
     (drop-room >> (:drop-room :drop-shockers))
@@ -1071,6 +1132,11 @@ Then it fires and gives chase.")
 	(destructuring-bind (r c) point
 	  [drop-cell self (clone =block=) r c])))))
 
+(define-method drop-border blue-world ()
+  (labels ((drop-block (r c)
+	     (prog1 nil [drop-cell self (clone =block=) r c])))
+    (trace-rectangle #'drop-block 0 0 <height> <width>)))
+
 (define-method drop-exit blue-world ()
   (let ((r (- <height> 10))
 	(c 10))
@@ -1085,13 +1151,14 @@ Then it fires and gives chase.")
 	[tune fence tone]))
     (dolist (tone <free-tones>)
       (incf r)
-      (let ((fence (clone =fence=)))
+      (let ((fence (clone =antifence=)))
 	[drop-cell self fence r (+ c 1)]
 	[tune fence tone]
 	[free fence]))))
 
 (define-method goto-origin blue-world ()
-  (setf <gen-row> 0) (setf <gen-column> 0))
+  (setf <gen-row> (+ 2 (random 3)))
+  (setf <gen-column> (+ 2 (random 3))))
 
 (define-method goto blue-world (r c)
   (setf <gen-column> (* <spacing> c))
@@ -1460,6 +1527,14 @@ Then it fires and gives chase.")
   ;; [define-key self nil '(:timer) (lambda ()
   ;; 				   [run-cpu-phase *world* :timer])])
 
+;;; Custom formatter.
+
+(define-prototype xiotank-formatter (:parent xe2:=formatter=))
+
+(define-method render xiotank-formatter ()
+  [pause *world* :always]
+  [parent>>render self])
+
 ;;; Main program. 
 
 (defun generate-level-address (level)
@@ -1482,7 +1557,7 @@ Then it fires and gives chase.")
 	 (narrator (clone =narrator=))
 	 (player (clone =tank=))
 	 (splash (clone =splash=))
-	 (help (clone =formatter=))
+	 (help (clone =xiotank-formatter=))
 	 (quickhelp (clone =formatter=))
 	 (viewport (clone =viewport=))
 	 (status (clone =status=))

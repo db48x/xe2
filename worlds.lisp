@@ -90,12 +90,11 @@ At the moment, only 0=off and 1=on are supported.")
   "Returns non-nil when the cell SELF is in the category CATEGORY."
   (member category <categories>))
     
-(define-method pause world ()
+(define-method pause world (&optional always)
   "Toggle the pause state of the world."
   (clon:with-fields (paused) self
-    (message "pausing ~A" paused)
-    (setf paused (if (null paused) t nil))
-    (message "pausing2 ~A" paused)
+    (setf paused (if (null paused)
+		     t (when always t)))
     (if (null paused)
 	[narrateln <narrator> "Resuming game."]
 	[narrateln <narrator> "The game is now paused. Press Control-P or PAUSE to un-pause."])))

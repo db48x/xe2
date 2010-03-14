@@ -20,6 +20,15 @@
  (:name "fence-north-on" :type :alias :data ":rotate 270:fence-east-on") 
  (:name "fence-north" :type :alias :data ":rotate 270:fence-east")
 
+ (:name "antifence-east-on" :type :image :file "antifence-right-on.png")
+ (:name "antifence-east" :type :image :file "antifence-right.png")
+ (:name "antifence-south-on" :type :alias :data ":rotate 90:antifence-east-on")
+ (:name "antifence-south" :type :alias :data ":rotate 90:antifence-east")
+ (:name "antifence-west-on" :type :alias :data ":rotate 180:antifence-east-on")
+ (:name "antifence-west" :type :alias :data ":rotate 180:antifence-east")
+ (:name "antifence-north-on" :type :alias :data ":rotate 270:antifence-east-on") 
+ (:name "antifence-north" :type :alias :data ":rotate 270:antifence-east")
+
  (:name "wire-east" :type :image :file "wire-right.png")
  (:name "wire-south" :type :alias :data ":rotate 90:wire-east")
  (:name "wire-west" :type :alias :data ":rotate 180:wire-east")
