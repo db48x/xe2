@@ -932,11 +932,17 @@ Then it fires and gives chase.")
     (when (> 9 dist)
       [fire self dir])
     (when [obstacle-in-direction-p *world* <row> <column> <direction>]
-      (setf <direction> (ecase <direction>
-			  (:north :west)
-			  (:west :south)
-			  (:south :east)
-			  (:east :north))))
+      (setf <direction> (if (= 0 (random 4))
+			    (ecase <direction>
+			      (:north :west)
+			      (:west :south)
+			      (:south :east)
+			      (:east :north))
+			    (ecase <direction>
+			      (:north :east)
+			      (:west :north)
+			      (:south :west)
+			      (:east :south)))))
     (let ((corruption (clone =corruption=)))
       [orient corruption <direction>]
       [drop self corruption]
@@ -970,7 +976,7 @@ Then it fires and gives chase.")
   (when (< [distance-to-player self] 10)
     (if (zerop <alarm-clock>)
 	(progn [play-sample self "alarm"]
-	       (let ((enemy (or (percent-of-time 2 (clone =corruptor=))
+	       (let ((enemy (or (percent-of-time 5 (clone =corruptor=))
 				(clone =shocker=))))
 		 [drop self enemy]
 		 [loadout enemy])
@@ -1135,7 +1141,7 @@ Then it fires and gives chase.")
 	       (+ <gen-column> (random <width>)) :loadout t]))
 
 (define-method drop-corruptors blue-world ()
-  (dotimes (n 2) 
+  (dotimes (n 3) 
     [drop-cell self (clone =corruptor=) (random <height>) (random <width>) :loadout t]))
 
 (define-method drop-pulsator blue-world ()
