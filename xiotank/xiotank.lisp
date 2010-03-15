@@ -93,7 +93,8 @@
 (define-method step health (stepper)
   (when [is-player stepper]
     [stat-effect stepper :hit-points 7]
-    [say stepper "Restored some hit points."]
+    [play-sample self "saddown"]
+    [say stepper "Tank repaired 7 hit points."]
     [die self]))
 
 ;;; Sound waves
@@ -198,6 +199,7 @@
 
 (define-method start pulsator (&optional delay)
   (unless <state>
+    [say self "A steady pulsation begins."]
     (setf <clock> 0)
     (when delay (setf <delay> delay))
     (setf <state> t)
@@ -207,6 +209,7 @@
 
 (define-method stop pulsator ()
   (unless (null <state>)
+    [say self "The pulsation stops."]
     (setf <state> nil)
     (setf *pulsing* nil)
     [update-tile self]
@@ -341,6 +344,7 @@
 	      (:north "turret-north")))))
     
 (define-method hit turret (&optional object)
+  [say self "The turret turned 90 degrees clockwise."]
   (setf <direction> 
 	(ecase <direction>
 	  (:east :south)
@@ -447,7 +451,7 @@ Only opens when the right tone is heard.")
 (defcell antifence
   (tile :initform "antifence-east-on")
   (description :initform "This object creates a deadly wire antifence. 
-Only opens when the right tone is heard.")
+An ANTI-fence only opens when an offending tone is silenced.")
   (note :initform "C-1")
   (free :initform nil)
   (antifence-length :initform 8)
@@ -523,6 +527,7 @@ Only opens when the right tone is heard.")
 (defcell trigger
   (tile :initform "trigger")
   (sample :initform nil)
+  (description :initform "Each trigger is tuned to a different note; plays the note when struck.")
   (team :initform :neutral)
   wave
   (default-cost :initform (make-stat :base 10))
@@ -602,6 +607,7 @@ Only opens when the right tone is heard.")
 
 (define-method start oscillator (waveform &optional (note "A-2"))
   (unless <channel>
+    [say self (format nil "The note ~A has begun playing." note)]
     (add-note note)
     [intone self waveform note]
     (setf <state> t)
@@ -616,6 +622,7 @@ Only opens when the right tone is heard.")
 
 (define-method stop oscillator ()
   (unless (null <channel>)
+    [say self (format nil "The note ~A has stopped." <note>)]
     (remove-note <note>)
     (setf <state> nil)
     [update-tile self]
@@ -752,17 +759,17 @@ Only opens when the right tone is heard.")
     [play-sample self "pop"]
     [parent>>fire self direction]))
 
-(define-method shield tank ()
-  (unless <dead>
-    (if (>= [stat-value self :energy] 5) 
-	(labels ((drop-shield (r c)
-		   (prog1 nil
-		     [drop-cell *world* (clone =shield=) r c :no-collisions t])))
-	  (trace-rectangle #'drop-shield (- <row> 2) (- <column> 2) 5 5)
-	  [play-sample self "saddown"]
-	  ;;[stat-effect self :energy -10]
-	  )
-	[say self "Not enough energy to activate shield."])))
+;; (define-method shield tank ()
+;;   (unless <dead>
+;;     (if (>= [stat-value self :energy] 5) 
+;; 	(labels ((drop-shield (r c)
+;; 		   (prog1 nil
+;; 		     [drop-cell *world* (clone =shield=) r c :no-collisions t])))
+;; 	  (trace-rectangle #'drop-shield (- <row> 2) (- <column> 2) 5 5)
+;; 	  [play-sample self "saddown"]
+;; 	  ;;[stat-effect self :energy -10]
+;; 	  )
+;; 	[say self "Not enough energy to activate shield."])))
 
 (define-method run tank ()
   (let ((cannon [equipment-slot self :center-bay]))
@@ -775,17 +782,18 @@ Only opens when the right tone is heard.")
   (unless <dead>
     (setf <tile> "tank-disabled")
     [play-sample self "gameover"]
-    [say self "YOU DIED."]
+    [say self "YOU DIED. PRESS ESCAPE TO TRY AGAIN!"]
     (setf <dead> t)))
 
 (define-method restart tank ()
   (let ((tank (clone =tank=)))
+    [say self "Restarting XIOTANK..."]
     (halt-sample t)
     [destroy *universe*]
     [set-player *universe* tank]
     [set-character *status* tank]
     [play *universe*
-	  :address '(=blue-world= :level 3)]
+	  :address (generate-level-address 3)]
     [loadout tank]))
 
 ;;; White noise
@@ -976,6 +984,7 @@ Then it fires and gives chase.")
   (when (< [distance-to-player self] 10)
     (if (zerop <alarm-clock>)
 	(progn [play-sample self "alarm"]
+	       [say self "The drone spawns an enemy!"]
 	       (let ((enemy (or (percent-of-time 5 (clone =corruptor=))
 				(clone =shocker=))))
 		 [drop self enemy]
@@ -1001,6 +1010,7 @@ Then it fires and gives chase.")
     [damage self 1]))
 
 (define-method die drone ()
+  [say self "The drone is destroyed!"]
   (dotimes (n 30)
     [drop self (clone =noise=)])
   [parent>>die self])
@@ -1030,15 +1040,15 @@ Then it fires and gives chase.")
   (tile :initform "exit")
   (name :initform "Area exit ")
   (description :initform "Exit to the next area.")
-  (categories :initform '(:gateway :actor :exclusive))
+  (categories :initform '(:gateway))
   (address :initform nil))
 
 (define-method level exit (level)
   (setf <address> (generate-level-address level)))
 
 (define-method step exit (stepper)
-  (when [is-player stepper]
-    [play-sample self "go"]
+  (halt-sample t)
+  (when [in-category stepper :player]
     [say self "You made it to the next level!"]
     [activate self]))
 
@@ -1085,6 +1095,7 @@ Then it fires and gives chase.")
   (locations :initform nil)
   gen-row gen-column 
   ;;
+  (description :initform "You enter an unknown data facility in Blue Space.")
   (level :initform 1)
   (cluster :initform nil)
   (free-tones :initform nil)
@@ -1118,7 +1129,7 @@ Then it fires and gives chase.")
   (setf <level> level)
   (setf <height> height <width> width)
   [create-default-grid self]
-  (setf <gen-row> 0 <gen-column 0)
+  (setf <gen-row> 0 <gen-column> 0)
   (dotimes (i height)
     (dotimes (j width)
       [drop-cell self (clone =blue-space=)
@@ -1132,7 +1143,7 @@ Then it fires and gives chase.")
     (dolist (op puzzle)
       (when (and (keywordp op) (clon:has-method op self))
 	(send nil op self)))
-    (setf <description> (prin1-to-string puzzle)))
+    (message (prin1-to-string puzzle)))
   [drop-cell self (clone =launchpad=) 10 10])
 
 (define-method drop-shockers blue-world ()
@@ -1189,8 +1200,9 @@ Then it fires and gives chase.")
 	[free fence]))
     (let ((exit (clone =exit=)))
       (incf r)
-      [drop-cell self exit r (+ c 3)]
-      [level exit <level>])))
+      [drop-cell self exit (- r 1) (- c 2)]
+      ;; [drop-cell self exit r (+ c 3)]
+      [level exit (+ 1 <level>)])))
 
 (define-method drop-ruin blue-world ()
   (labels ((drop-block (r c)
@@ -1275,6 +1287,39 @@ Then it fires and gives chase.")
 	       [tune res2 free-tone]
 	       [poploc self]))))
     
+;;; Green Space
+
+(defcell green-space 
+  (description :initform "The mysterious green substrate of Frequency World.")
+  (tile :initform "green-space"))
+
+(define-prototype green-world (:parent xe2:=world=)
+  (locations :initform nil)
+  gen-row gen-column 
+  ;;
+  (description :initform "You enter a safe data archive. You've survived and won!")
+  (level :initform 1)
+  ;;
+  (ambient-light :initform :total)
+  (required-modes :initform nil)
+  (scale :initform '(3 m))
+  (edge-condition :initform :block))
+
+(define-method generate green-world (&key (height 16)
+					    (width 32))
+  (setf *notes* nil)
+  (setf <height> height <width> width)
+  [create-default-grid self]
+  (dotimes (i height)
+    (dotimes (j width)
+      [drop-cell self (clone =green-space=)
+		 i j]))
+  [drop-cell self (clone =launchpad=) 10 10])
+
+(define-method begin-ambient-loop green-world ()
+  (play-music "vixon" :loop t))
+
+
 ;;; Splash screen
   
 (defvar *pager* nil)
@@ -1475,7 +1520,6 @@ Then it fires and gives chase.")
 	    ;;
 	    ("P" (:control) "pause .")
 	    ("PAUSE" nil "pause .")
-	    ("SPACE" nil "shield .")
 	    ("KP-ENTER" nil "enter .")
 	    ("RETURN" nil "enter .")
 	    ("ESCAPE" nil "restart .")
@@ -1520,7 +1564,6 @@ Then it fires and gives chase.")
 	    ("C" (:control) "fire :southeast .")
 	    ;;
 	    ("ESCAPE" nil "restart .")
-	    ("SPACE" nil "shield .")
 	    ("PAUSE" nil "pause .")
 	    ("P" (:control) "quit ."))))
   
@@ -1568,7 +1611,6 @@ Then it fires and gives chase.")
 	    ("W" (:control) "fire :south .")
 	    ("V" (:control) "fire :southeast .")
 	    ;;
-	    ("SPACE" nil "shield .")
 	    ("KP-ENTER" nil "enter .")
 	    ("RETURN" nil "enter .")
 	    ("ESCAPE" nil "restart .")
@@ -1583,9 +1625,6 @@ Then it fires and gives chase.")
 		(:dvorak *dvorak-keybindings*))))
     (dolist (k keys)
       (apply #'bind-key-to-prompt-insertion self k))))
-  ;; ;; we also want to respond to timer events. this is how. 
-  ;; [define-key self nil '(:timer) (lambda ()
-  ;; 				   [run-cpu-phase *world* :timer])])
 
 ;;; Custom formatter.
 
@@ -1598,7 +1637,9 @@ Then it fires and gives chase.")
 ;;; Main program. 
 
 (defun generate-level-address (level)
-  '(=blue-world= :level 3))
+  (if (= level 4)
+      '(=green-world=)
+      (list '=blue-world= :level level)))
 
 (defparameter *xiotank-window-width* 800)
 (defparameter *xiotank-window-height* 600)
@@ -1657,7 +1698,7 @@ Then it fires and gives chase.")
 	       ;;
 	       [set-player universe player]
 	       [play universe
-	       	     :address (generate-level-address 1)
+	       	     :address (generate-level-address 3)
 	       	     :prompt prompt
 	       	     :narrator terminal
 	       	     :viewport viewport]

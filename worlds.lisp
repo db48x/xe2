@@ -966,6 +966,7 @@ narrator, and VIEWPORT as the viewport."
     (setf *world* world)
     (setf *universe* self)
     [set-viewport world <viewport>]
+    [set-world <viewport> world]
     [drop-player-at-entry world player]
     [set-receiver <prompt> world]
     [set-narrator world <narrator>]

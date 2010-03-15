@@ -748,8 +748,6 @@ ITEM. Returns nil if no such match is possible."
 	      [remove-item self item]
 	      (setf (field-value :equipper item) self)
 	      (when (and *message-queue* [is-player self])
-		[>>say :narrator "You have equipped: "]
-		[>>print-object-tag :narrator item]
 		[>>newline :narrator ]))
 	    (progn
 	      ;; explain failure
