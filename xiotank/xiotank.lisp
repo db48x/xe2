@@ -477,7 +477,7 @@ An ANTI-fence only opens when an offending tone is silenced.")
 (define-method run antifence ()
   [expend-action-points self 10]
   [update-tile self]
-  (when (null (note-playing-p <note>))
+  (when (note-playing-p <note>)
     (setf <clock> (truncate (/ <antifence-length> 2))))
   (when (plusp <clock>)
     (when (equal (truncate (/ <antifence-length> 2)) <clock>)
@@ -1060,12 +1060,11 @@ Then it fires and gives chase.")
 (defparameter *xiotank-grammar* 
   '((puzzle >> (:drop-border :goto-origin 
 		:pushloc goto-pulsator-location :drop-pulsator :poploc
-		tone+ :goto-origin :goto-south
-	         enemies powerups :goto-random-position :drop-extras player :drop-exit))
-    (tone+ >> (drop-room tone :goto-east maybe-south drop-room tone :goto-east maybe-south drop-room tone))
+		drop-room tone :goto-east maybe-south drop-room tone :goto-east maybe-south drop-room tone
+	         enemies powerups :goto-origin :drop-extras player :drop-exit))
     (drop-room >> (:drop-room :drop-shockers))
     (tone >> :drop-tone-pair)
-    (maybe-south >> :noop :goto-south (:pushloc :goto-south :goto-east :drop-ruin :poploc))
+    (maybe-south >> :noop :goto-south (:goto-south :pushloc :goto-east :drop-ruin :poploc))
     (enemies >> (:drop-corruptors))
     (goto-pulsator-location >> :goto-bottom-right :goto-top-right)
     (powerups >> :drop-powerups)
@@ -1200,8 +1199,8 @@ Then it fires and gives chase.")
 	[free fence]))
     (let ((exit (clone =exit=)))
       (incf r)
-      [drop-cell self exit (- r 1) (- c 2)]
-      ;; [drop-cell self exit r (+ c 3)]
+      ;; [drop-cell self exit (- r 1) (- c 2)]
+      [drop-cell self exit r (+ c 3)]
       [level exit (+ 1 <level>)])))
 
 (define-method drop-ruin blue-world ()
@@ -1265,7 +1264,7 @@ Then it fires and gives chase.")
 	(osc2 (clone =oscillator=))
 	(res2 (clone =resonator=))
 	(fence (clone =fence=)))
-    (if (>= <n> (length <cluster>))
+    (if (> <n> (length <cluster>))
 	(message "Dropping tone pair.")
 	(progn [drop-cell self osc (+ 1 <gen-row> (random 3)) (+ <gen-column> 3 (random 5))]
 	       (incf <n>)
@@ -1278,9 +1277,9 @@ Then it fires and gives chase.")
 		 [drop-cell self fence (+ <gen-row> 4) (+ <gen-column> 1)])
 	       ;; 
 	       [pushloc self]
-	       (if (percent-of-time 40 (prog1 t [goto-south self]))
+	       (if (percent-of-time 10 (prog1 t [goto-south self]))
 		   nil
-		   [goto-west self])
+		   [goto-east self])
 	       [intone osc2 :sine free-tone] 
 	       [drop-cell self osc2 (+ 10 <gen-row> (random 5)) (+ <gen-column> 3 (random 5))]
 	       [drop-cell self res2 (+ 10 <gen-row> (random 5)) (+ <gen-column> 3 (random 5))]
@@ -1317,8 +1316,7 @@ Then it fires and gives chase.")
   [drop-cell self (clone =launchpad=) 10 10])
 
 (define-method begin-ambient-loop green-world ()
-  (play-music "vixon" :loop t))
-
+  (play-music "vixon"))
 
 ;;; Splash screen
   
