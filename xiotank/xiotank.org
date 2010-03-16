@@ -1,8 +1,7 @@
+* Bugs
+** TODO f1 while dead screws things up
 
 * COUNTDOWN
-** TODO [#A] 3 levels, level 4 is victory screen.
-** TODO [#A] working exit moves to next level
-** TODO [#B] Narration for important events.
 ** TODO [#B] some semblance of corridors
 ** TODO [#C] randomly placed triples of turret and 2 choosable samples to trigger rhythmically
 ** TODO [#C] backgound texture shading?
