@@ -1,5 +1,39 @@
-* Bugs
+* Bugs and feedback
+
+** TODO redraw http://blackthorn-engine.googlecode.com/hg/disp/thopter.png
+** TODO optimize clon allowing both list and hash field-collections
+** TODO optimize run-cpu-phase and everything that handles the world grid (including viewport.lisp)
+** TODO optimize sprites
+** TODO FIX windows 7 crashes?
+** TODO queen bee!
+** TODO indicate player position with circles at startup
+** TODO start paused with message? player in own safe room
+** TODO put tutorial on title screen
+** TODO move license to f3 screen
 ** TODO f1 while dead screws things up
+** TODO change controls
+(03:54:49 PM) David O'Toole: i think i need to modify the key handling system
+(03:55:28 PM) jdz: i'd rather have it fire either in the direction of last move, or the opposite of last move or have the turret direction settable by modifier
+(03:55:41 PM) jdz: with modifier key that is
+(03:55:55 PM) David O'Toole: wait, explain that? the 3rd one
+(03:56:22 PM) jdz: well, you press the modifier and set the turret direction as now, but then when moving the turret stays directed that way
+(03:56:41 PM) jdz: the fire key will fire in that direction until it is changed
+(03:56:52 PM) jdz: the turret direction
+(03:57:12 PM) jdz: just my two cents
+(03:57:42 PM) David O'Toole: ahhhhhh
+(03:57:43 PM) jdz: that way i could set the direction, run in somewhere dangerous and shoot and run out
+(03:57:49 PM) jdz: all without messing up all the controls
+(03:57:51 PM) David O'Toole: that would be easy to implement and super cool!
+(03:58:14 PM) David O'Toole: ok wait. 
+(03:58:18 PM) David O'Toole: so the new scheme would be
+(03:58:24 PM) David O'Toole: moving does not change turret angle
+(04:01:19 PM) David O'Toole: control direction , changes turret angle?
+(04:01:23 PM) David O'Toole: wait we've got to think this out. 
+(04:01:49 PM) David O'Toole: i might need to separate control and alt. ALT changes direction, CONTROL fires (even while moving?)
+(04:02:06 PM) jdz: yes, that's the idea
+(04:02:33 PM) jdz: maybe that's against your idea of game mechanics, i don't know
+(04:02:47 PM) jdz: this way it sure will be possible to move _and_ shoot simultaneously
+(04:10:28 PM) David O'Toole: i think it's a good idea :) 
 
 * COUNTDOWN
 ** TODO [#B] some semblance of corridors

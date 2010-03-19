@@ -1684,10 +1684,6 @@ Then it fires and gives chase.")
     ;;
     (labels ((spacebar ()
 	       ;;
-	       ;; enable pseudo timing
-	       ;; (xe2:enable-timer)
-	       ;; (xe2:set-frame-rate 30)
-	       ;; (xe2:set-timer-interval 1)
 	       (xe2:halt-music 1000)
 	       (setf xe2:*physics-function* #'(lambda (&rest ignore)
 						(when *world* [run-cpu-phase *world* :timer])))

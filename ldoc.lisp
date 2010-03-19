@@ -185,5 +185,6 @@
 			    
 ;; (document-package :clon t)
 ;; (document-package-to-file :xe2 #P"/home/dto/notebook/xe2-reference.org" #P"/home/dto/xe2/doc-preamble.org")
+;; (document-package :xe2 t #P"/home/dto/xe2/doc-preamble.org")
 
 ;;; ldoc.lisp ends here

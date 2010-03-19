@@ -817,32 +817,32 @@ Sends a :do-collision message for every detected collision."
 		      (when (and (or [in-category cell :target]
 				     [in-category cell :obstacle])
 				 [is-located cell])
-			[do-collision sprite cell]))))))))
-	;; now find collisions with other sprites
-	;; we can re-use the sprite-grid data from earlier.
-	(let (collision num-sprites ix)
-	  ;; prepare to detect redundant collisions
-	  (clrhash sprite-table)
-	  (labels ((collide-first (&rest args)
-		     (unless (gethash args sprite-table)
-		       (setf (gethash args sprite-table) t)
-		       (destructuring-bind (a b) args
-			 [do-collision a b]))))
-	    ;; iterate over grid, reporting collisions
-	    (dotimes (i height)
-	      (dotimes (j width)
-		(setf collision (aref sprite-grid i j))
-		(setf num-sprites (length collision))
-		(when (< 1 num-sprites)
-		  (dotimes (i (- num-sprites 1))
-		    (setf ix (1+ i))
-		    (loop do (let ((a (aref collision i))
-				   (b (aref collision ix)))
-			       (incf ix)
-			       (assert (and (clon:object-p a) (clon:object-p b)))
-			       (when (and (not (eq a b)) [collide a b])
-				 (collide-first a b)))
-			  while (< ix num-sprites))))))))))))
+			[do-collision sprite cell]))))))))))
+    ;; now find collisions with other sprites
+    ;; we can re-use the sprite-grid data from earlier.
+    (let (collision num-sprites ix)
+      ;; prepare to detect redundant collisions
+      (clrhash sprite-table)
+      (labels ((collide-first (&rest args)
+		 (unless (gethash args sprite-table)
+		   (setf (gethash args sprite-table) t)
+		   (destructuring-bind (a b) args
+		     [do-collision a b]))))
+	;; iterate over grid, reporting collisions
+	(dotimes (i height)
+	  (dotimes (j width)
+	    (setf collision (aref sprite-grid i j))
+	    (setf num-sprites (length collision))
+	    (when (< 1 num-sprites)
+	      (dotimes (i (- num-sprites 1))
+		(setf ix (1+ i))
+		(loop do (let ((a (aref collision i))
+			       (b (aref collision ix)))
+			   (incf ix)
+			   (assert (and (clon:object-p a) (clon:object-p b)))
+			   (when (and (not (eq a b)) [collide a b])
+			     (collide-first a b)))
+		      while (< ix num-sprites))))))))))
 
 ;;; Universes are composed of connected worlds.
 
