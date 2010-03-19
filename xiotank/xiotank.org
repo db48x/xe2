@@ -1,7 +1,9 @@
 * Bugs and feedback
 
 ** TODO redraw http://blackthorn-engine.googlecode.com/hg/disp/thopter.png
-** TODO optimize clon allowing both list and hash field-collections
+** DONE optimize clon allowing both list and hash field-collections
+CLOSED: [2010-03-19 Fri 06:22]
+** TODO inline fref
 ** TODO optimize run-cpu-phase and everything that handles the world grid (including viewport.lisp)
 ** TODO optimize sprites
 ** TODO FIX windows 7 crashes?

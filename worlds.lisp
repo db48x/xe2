@@ -873,6 +873,7 @@ by symbol name. This enables them to be used as hash keys."
     (:documentation "A collection of connected worlds.")
   (worlds :initform (make-hash-table :test 'equal)
 	  :documentation "Address-to-world mapping.")
+  prompt
   (viewport :initform nil)
   (current-address :initform nil)
   (player :initform nil)
