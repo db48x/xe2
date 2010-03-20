@@ -1,0 +1,23 @@
+** DONE splash screen with music
+CLOSED: [2010-03-20 Sat 11:03]
+** TODO ambient but upbeat first level track
+** TODO darker 2nd track for security levels
+** TODO basic 20x20 moving agent sprite
+** TODO area synth capable of color/sound/music themed environments. use context-free grammars
+** TODO moving sprite player, analog joystick control? could work. check xiobreak dude code
+** TODO controls
+*** TODO push
+*** TODO pop
+*** TODO call
+*** TODO swap
+** TODO a sector is completed when its objective is achieved
+*** TODO radiation areas
+** TODO overworld map whose output data target the area synth.
+** TODO green circuit world theme for maintenance/data archive levels and safer areas
+** TODO magenta security sector with areas that randomly sparkle before a proximity scanner eye opens to spawn enemies.
+** TODO disruptor
+** TODO healing item
+** TODO inert blocks
+** TODO help screen
+** TODO tutorial
+

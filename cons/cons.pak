@@ -1,0 +1,12 @@
+(
+ (:name "cons" :type :music :file "cons.ogg" :properties (:volume 40))
+ (:name "splash" :type :image :file "splash.png")
+ (:name "agent" :type :image :file "agent.png")
+ (:name "cyanworld" :type :image :file "cyanworld.png")
+ (:name "darkcyanworld" :type :image :file "darkcyanworld.png")
+ (:name "greenworld" :type :image :file "greenworld.png")
+ (:name "darkgreenworld" :type :image :file "darkgreenworld.png")
+
+ (:name ".default-font" :type :font :properties (:height 14 :width 7) :data "7x14b")
+ (:name ".startup" :type :lisp :file "cons.lisp" :properties (:autoload t))
+)
