@@ -16,6 +16,8 @@ CLOSED: [2010-03-20 Sat 11:03]
 ** TODO green circuit world theme for maintenance/data archive levels and safer areas
 ** TODO magenta security sector with areas that randomly sparkle before a proximity scanner eye opens to spawn enemies.
 ** TODO disruptor
+** TODO bomb
+** TODO xentipedes
 ** TODO healing item
 ** TODO inert blocks
 ** TODO help screen
