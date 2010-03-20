@@ -19,7 +19,6 @@
  (:name ".take" :type :image :file "take.png")
  (:name ".turn" :type :image :file "turn.png")
  (:name ".use" :type :image :file "use.png")
- (:name ".startup" :type :lisp :file "standard.lisp")
  (:name ".overlay-northeast" :type :image :file "overlay-northeast.png")
  (:name ".overlay-southeast" :type :alias :data ":rotate 90:.overlay-northeast")
  (:name ".overlay-southwest" :type :alias :data ":rotate 180:.overlay-northeast")
@@ -28,4 +27,5 @@
  (:name ".overlay-south" :type :alias :data ":rotate 90:.overlay-east")
  (:name ".overlay-west" :type :alias :data ":rotate 180:.overlay-east")
  (:name ".overlay-north" :type :alias :data ":rotate 270:.overlay-east")
+ (:name ".startup" :type :lisp :file "standard.lisp" :properties (:autoload t))
 )

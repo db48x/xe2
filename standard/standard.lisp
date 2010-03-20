@@ -23,25 +23,25 @@
 ;;; Code:
 
 (eval-when (:execute :load-toplevel :compile-toplevel) 
-  (require :rlx))
+  (require :xe2))
 
-(defpackage :rlx-standard
-  (:documentation "A default startup splash screen and menu for RLX.")
-  (:use :rlx :common-lisp)
-  (:export rlx-standard))
+(defpackage :xe2-standard
+  (:documentation "A default startup splash screen and menu for XE2.")
+  (:use :xe2 :common-lisp)
+  (:export xe2-standard))
 
-(in-package :rlx-standard)
+(in-package :xe2-standard)
 
 ;;; Choosing modules from a menu
 
-(define-prototype module-launcher (:parent rlx:=menu-item=)
+(define-prototype module-launcher (:parent xe2:=menu-item=)
   (tile :initform ".asterisk"))
   
 (define-method open module-launcher ()
   (prog1 nil
-    (rlx:reset <name>)))
+    (xe2:reset <name>)))
 
-(define-prototype standard-prompt (:parent rlx:=prompt=)
+(define-prototype standard-prompt (:parent xe2:=prompt=)
   (default-keybindings :initform '(("UP" nil "cursor-previous .")
 				   ("DOWN" nil "cursor-next .")
 				   ("SPACE" nil "follow ."))))
@@ -49,12 +49,12 @@
 ;;; Quitting the menu
 
 (define-prototype quit-launcher (:parent =menu-item=)
-  (name :initform "Quit RLX")
+  (name :initform "Quit XE2")
   (tile :initform ".destroy-self"))
 
 (define-method open quit-launcher ()
   (prog1 nil
-    (rlx:quit :shutdown)))
+    (xe2:quit :shutdown)))
 
 ;;; The splash screen widget
 
@@ -65,15 +65,15 @@
 (defparameter *splash-height* 100)
   
 (define-method render splash ()
-  (rlx:draw-resource-image ".splash-screen"
+  (xe2:draw-resource-image ".splash-screen"
 		       (- (/ <width> 2) *splash-width*)
 		       (- (/ <height> 2) *splash-height*)
 		       :destination <image>))
 
 (defun show-default-splash-screen ()
   (let ((splash (clone =splash=))
-	(browser (clone rlx:=browser=))
-	(modules (rlx:find-all-modules))
+	(browser (clone xe2:=browser=))
+	(modules (xe2:find-all-modules))
 	(prompt (clone =standard-prompt=))
 	(quit (clone =quit-launcher=)))
     [resize splash 
@@ -82,12 +82,13 @@
     [move splash :x 0 :y 0]
     ;; set up browser with list of modules
     [resize browser :height 300 :width 200]
+    [show browser]
     [move browser :x 0 :y 0]
     [set-collection browser 
 		    (apply #'vector quit
 			   (mapcar #'(lambda (m)
-				       (clone =module-launcher= m)))
-				   modules)]
+				       (clone =module-launcher= (list m :name m :description "test")))
+				   modules))]
     ;; set up prompt
     [resize prompt :height 30 :width 400]
     [move prompt :x 0 :y 0]
@@ -96,11 +97,11 @@
     ;; go!
     (install-widgets splash prompt browser)))
     
-(defun rlx-standard ()
-  (setf rlx:*screen-height* 600)
-  (setf rlx:*screen-width* 800)
+(defun xe2-standard ()
+  (setf xe2:*screen-height* 600)
+  (setf xe2:*screen-width* 800)
   (show-default-splash-screen))
 
-(rlx-standard)
+(xe2-standard)
 
 ;;; standard.lisp ends here

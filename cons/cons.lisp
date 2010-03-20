@@ -78,74 +78,113 @@
     (when (minusp (decf <timeout>))
       [die self])))
 
+;;; Player agent
+
+(defsprite agent 
+  (name :initform "Agent")
+  (image :initform "agent")
+  (x :initform 0)
+  (y :initform 0)
+  (score :initform (make-stat :base 0 :min 0))
+  (direction :initform nil)
+  (balls :initform (make-stat :base 5 :min 0))
+  (dead :initform nil)
+  (speed :initform (make-stat :base 10 :min 0 :max 15))
+  (hearing-range :initform 100000)
+  (movement-cost :initform (make-stat :base 10))
+  (movement-distance :initform (make-stat :base 1))
+  (jumping :initform nil)
+  (jump-time :initform (make-stat :base 15))
+  (jump-clock :initform 0)
+  (categories :initform '(:actor :player :massive)))
+
+(define-method quit agent ()
+  (xe2:quit :shutdown))
+
+(define-method aim agent (direction)
+  (assert (member direction '(:east :west :north :south)))
+  (setf <direction> direction))
+
+(define-method move agent (&optional direction distance)
+  [expend-action-points self [stat-value self :movement-cost]]
+  (let ((dir (or direction <direction>)) ;; boosting?
+	(dist (or distance [stat-value self :movement-distance])))
+    (multiple-value-bind (y x) (step-in-direction <y> <x> dir dist)
+      [update-position self x y]
+      (setf <direction> dir))))
+
+(define-method do-collision agent (&optional object)
+  (when object
+    (message "COLLIDING AGENT WITH ~S" (object-name (object-parent object))) 
+    [undo-excursion self]))
+  	
+(define-method run agent ())
+
+;;; Green Space
+
+(defcell green-space 
+  (description :initform "The mysterious green substrate of Frequency World.")
+  (tile :initform "green-space"))
+
+(define-prototype green-world (:parent xe2:=world=)
+  (locations :initform nil)
+  gen-row gen-column 
+  ;;
+  (description :initform "You enter a safe data archive. You've survived and won!")
+  (level :initform 1)
+  ;;
+  (ambient-light :initform :total)
+  (required-modes :initform nil)
+  (scale :initform '(3 m))
+  (edge-condition :initform :block))
+
+(define-method generate green-world (&key (height 16)
+					    (width 32))
+  (setf *notes* nil)
+  (setf <height> height <width> width)
+  [create-default-grid self]
+  (dotimes (i height)
+    (dotimes (j width)
+      [drop-cell self (clone =green-space=)
+		 i j]))
+  [drop-cell self (clone =launchpad=) 10 10])
+
+(define-method begin-ambient-loop green-world ()
+  (play-music "beepptone"))
+
+;;; Key bindings
+
 (defparameter *numpad-keybindings* 
-  '(("KP8" nil "move :north .")
-    ("KP4" nil "move :west .")
-    ("KP6" nil "move :east .")
-    ("KP2" nil "move :south .")
-    ;;
-    ("KP8" (:control) "throw :north .")
-    ("KP4" (:control) "throw :west .")
-    ("KP6" (:control) "throw :east .")
-    ("KP2" (:control) "throw :south .")
-    ;;
-    ("KP8" (:alt) "drop-chevron :north .")
-    ("KP4" (:alt) "drop-chevron :west .")
-    ("KP6" (:alt) "drop-chevron :east .")
-    ("KP2" (:alt) "drop-chevron :south .")
-    ;;
-    ("KP8" (:meta) "drop-chevron :north .")
-    ("KP4" (:meta) "drop-chevron :west .")
-    ("KP6" (:meta) "drop-chevron :east .")
-    ("KP2" (:meta) "drop-chevron :south .")
+  '(("KP8" nil "aim :north .")
+    ("KP4" nil "aim :west .")
+    ("KP6" nil "aim :east .")
+    ("KP2" nil "aim :south .")
     ;; arrows
-    ("UP" nil "move :north .")
-    ("LEFT" nil "move :west .")
-    ("RIGHT" nil "move :east .")
-    ("DOWN" nil "move :south .")
-    ;;
-    ("UP" (:control) "throw :north .")
-    ("LEFT" (:control) "throw :west .")
-    ("RIGHT" (:control) "throw :east .")
-    ("DOWN" (:control) "throw :south .")
-    ;;
-    ("UP" (:alt) "drop-chevron :north .")
-    ("LEFT" (:alt) "drop-chevron :west .")
-    ("RIGHT" (:alt) "drop-chevron :east .")
-    ("DOWN" (:alt) "drop-chevron :south .")
-    ;;
-    ("UP" (:meta) "drop-chevron :north .")
-    ("LEFT" (:meta) "drop-chevron :west .")
-    ("RIGHT" (:meta) "drop-chevron :east .")
-    ("DOWN" (:meta) "drop-chevron :south .")))
+    ("UP" nil "aim :north .")
+    ("LEFT" nil "aim :west .")
+    ("RIGHT" nil "aim :east .")
+    ("DOWN" nil "aim :south .")))
 
 (defparameter *qwerty-keybindings*
   (append *numpad-keybindings*
-	  '(("K" nil "move :north .")
-	    ("H" nil "move :west .")
-	    ("L" nil "move :east .")
-	    ("J" nil "move :south .")
+	  '(("K" nil "aim :north .")
+	    ("H" nil "aim :west .")
+	    ("L" nil "aim :east .")
+	    ("J" nil "aim :south .")
 	    ;;
-	    ("K" (:control) "throw :north .")
-	    ("H" (:control) "throw :west .")
-	    ("L" (:control) "throw :east .")
-	    ("J" (:control) "throw :south .")
-	    ;;
-	    ("K" (:alt) "drop-chevron :north .")
-	    ("H" (:alt) "drop-chevron :west .")
-	    ("L" (:alt) "drop-chevron :east .")
-	    ("J" (:alt) "drop-chevron :south .")
-	    ;;
-	    ("K" (:meta) "drop-chevron :north .")
-	    ("H" (:meta) "drop-chevron :west .")
-	    ("L" (:meta) "drop-chevron :east .")
-	    ("J" (:meta) "drop-chevron :south .")
+	    ("Z" nil "push .")
+	    ("X" nil "pop .")
+	    ("C" nil "call .")
+	    ("V" nil "swap .")
+	    ("SPACE" nil "move .")
 	    ;;
 	    ("P" (:control) "pause .")
 	    ("PAUSE" nil "pause .")
 	    ("ESCAPE" nil "restart .")
 	    ("Q" (:control) "quit ."))))
   
+(define-prototype cons-prompt (:parent xe2:=prompt=))
+
 (define-method install-keybindings cons-prompt ()
   (dolist (k *qwerty-keybindings*)
       (apply #'bind-key-to-prompt-insertion self k)))
@@ -165,6 +204,7 @@
 (define-method render cons-formatter ()
   [pause *world* :always]
   [parent>>render self])
+
 
 ;;; Player status
 
@@ -242,7 +282,7 @@
 (defparameter *cons-window-width* 800)
 (defparameter *cons-window-height* 600)
 
-(defun cons ()
+(defun cons-game ()
   (xe2:message "Initializing CONS...")
   (setf xe2:*window-title* "CONS")
   (clon:initialize)

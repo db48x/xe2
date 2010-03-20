@@ -861,7 +861,7 @@ Please see the included file BINARY-README for instructions."
   (let ((dirnames (mapcar #'(lambda (s)
 			      (subseq s 0 (1- (length s))))
 			  (mapcar #'namestring
-				  (directory (concatenate 'string dir "/*/"))))))
+				  (directory (concatenate 'string (namestring dir) "/*/"))))))
     (remove-if-not #'directory-is-module-p dirnames)))
 
 (defun find-all-modules ()
