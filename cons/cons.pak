@@ -1,5 +1,11 @@
 (
  (:name "cons" :type :music :file "cons.ogg" :properties (:volume 40))
+ (:name "beatup" :type :music :file "beatup.ogg" :properties (:volume 20))
+
+ (:name "quickhelp-message" :type :formatted-text :file "quickhelp.text")
+ (:name "help-message" :type :formatted-text :file "README")
+ (:name "launchpad" :type :image :file "launchpad.png")
+
  (:name "splash" :type :image :file "splash.png")
  (:name "agent" :type :image :file "agent.png")
  (:name "cyanworld" :type :image :file "cyanworld.png")

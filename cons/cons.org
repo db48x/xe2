@@ -1,6 +1,8 @@
 ** DONE splash screen with music
 CLOSED: [2010-03-20 Sat 11:03]
-** TODO ambient but upbeat first level track
+** DONE ambient but upbeat first level track
+CLOSED: [2010-03-20 Sat 14:03]
+** TODO level does not fill grid. only short intersecting horz/vert rows. unlocked levels are visitable, completed levels unlock any adjacent levels
 ** TODO darker 2nd track for security levels
 ** TODO basic 20x20 moving agent sprite
 ** TODO area synth capable of color/sound/music themed environments. use context-free grammars
@@ -17,7 +19,7 @@ CLOSED: [2010-03-20 Sat 11:03]
 ** TODO magenta security sector with areas that randomly sparkle before a proximity scanner eye opens to spawn enemies.
 ** TODO disruptor
 ** TODO bomb
-** TODO xentipedes
+** TODO 
 ** TODO healing item
 ** TODO inert blocks
 ** TODO help screen

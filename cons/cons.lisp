@@ -25,7 +25,7 @@
 
 (in-package :cons-game)
 
-(setf xe2:*dt* 30)
+(setf xe2:*dt* 20)
 
 ;;; Text labels
 
@@ -83,6 +83,7 @@
 (defsprite agent 
   (name :initform "Agent")
   (image :initform "agent")
+  (hit-points :initform (make-stat :base 10 :min 0 :max 10))
   (x :initform 0)
   (y :initform 0)
   (score :initform (make-stat :base 0 :min 0))
@@ -92,7 +93,7 @@
   (speed :initform (make-stat :base 10 :min 0 :max 15))
   (hearing-range :initform 100000)
   (movement-cost :initform (make-stat :base 10))
-  (movement-distance :initform (make-stat :base 1))
+  (movement-distance :initform (make-stat :base 3))
   (jumping :initform nil)
   (jump-time :initform (make-stat :base 15))
   (jump-clock :initform 0)
@@ -110,6 +111,7 @@
   (let ((dir (or direction <direction>)) ;; boosting?
 	(dist (or distance [stat-value self :movement-distance])))
     (multiple-value-bind (y x) (step-in-direction <y> <x> dir dist)
+      [save-excursion self]
       [update-position self x y]
       (setf <direction> dir))))
 
@@ -120,17 +122,21 @@
   	
 (define-method run agent ())
 
-;;; Green Space
+;;; Green level
 
-(defcell green-space 
-  (description :initform "The mysterious green substrate of Frequency World.")
-  (tile :initform "green-space"))
+(defcell road
+  (description :initform "Security vehicle transit area.")
+  (tile :initform "greenworld"))
 
-(define-prototype green-world (:parent xe2:=world=)
-  (locations :initform nil)
+(defcell barrier
+  (description :initform "Impenetrable barrier.")
+  (tile :initform "darkgreenworld")
+  (categories :initform '(:obstacle)))
+
+(define-prototype highway (:parent xe2:=world=)
   gen-row gen-column 
   ;;
-  (description :initform "You enter a safe data archive. You've survived and won!")
+  (description :initform "You enter a long corridor.")
   (level :initform 1)
   ;;
   (ambient-light :initform :total)
@@ -138,19 +144,42 @@
   (scale :initform '(3 m))
   (edge-condition :initform :block))
 
-(define-method generate green-world (&key (height 16)
+(define-method generate highway (&key (height 16)
 					    (width 32))
   (setf *notes* nil)
   (setf <height> height <width> width)
   [create-default-grid self]
   (dotimes (i height)
     (dotimes (j width)
-      [drop-cell self (clone =green-space=)
+      [drop-cell self (clone =road=)
 		 i j]))
+  (dotimes (i 20)
+    [drop-cell self (clone =barrier=) (random <height>) (random <width>)])
   [drop-cell self (clone =launchpad=) 10 10])
 
-(define-method begin-ambient-loop green-world ()
-  (play-music "beepptone"))
+(define-method begin-ambient-loop highway ()
+  (play-music "beatup"))
+
+;;; Splash screen
+  
+(defvar *pager* nil)
+
+(define-prototype splash (:parent =widget=))
+
+(define-method render splash ()
+  (xe2:draw-resource-image "splash" 0 0 
+			   :destination <image>))
+
+(defvar *space-bar-function*)
+
+(define-method dismiss splash ()
+  [select *pager* :game]
+  (when (functionp *space-bar-function*)
+    (funcall *space-bar-function*))
+  (xe2:show-widgets))
+
+(define-prototype splash-prompt (:parent =prompt=)
+  (default-keybindings :initform '(("SPACE" nil "dismiss ."))))
 
 ;;; Key bindings
 
