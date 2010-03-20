@@ -25,7 +25,7 @@
 
 (in-package :cons-game)
 
-(setf xe2:*dt* 20)
+(setf xe2:*dt* 10)
 
 ;;; Text labels
 
@@ -78,49 +78,77 @@
     (when (minusp (decf <timeout>))
       [die self])))
 
-;;; Player agent
+;;; Agent: the player
 
-(defsprite agent 
-  (name :initform "Agent")
-  (image :initform "agent")
-  (hit-points :initform (make-stat :base 10 :min 0 :max 10))
-  (x :initform 0)
-  (y :initform 0)
-  (score :initform (make-stat :base 0 :min 0))
-  (direction :initform nil)
-  (balls :initform (make-stat :base 5 :min 0))
+(defcell agent 
+  (tile :initform "agent-north")
+  (description :initform "You are a sentient warrior cons cell.")
+  (car :initform nil)
+  (cdr :initform nil)
   (dead :initform nil)
-  (speed :initform (make-stat :base 10 :min 0 :max 15))
-  (hearing-range :initform 100000)
+  (last-turn-moved :initform 0)
+  (team :initform :player)
+  (hit-points :initform (make-stat :base 20 :min 0 :max 20))
   (movement-cost :initform (make-stat :base 10))
-  (movement-distance :initform (make-stat :base 3))
-  (jumping :initform nil)
-  (jump-time :initform (make-stat :base 15))
-  (jump-clock :initform 0)
-  (categories :initform '(:actor :player :massive)))
+  (speed :initform (make-stat :base 10 :min 0 :max 25))
+  (strength :initform (make-stat :base 10))
+  (defense :initform (make-stat :base 10))
+  (hearing-range :initform 15)
+  (movement-cost :initform (make-stat :base 10))
+  (stepping :initform t)
+  (direction :initform :north)
+  (light-radius :initform 7)
+  (categories :initform '(:actor :obstacle :player :target :container :light-source)))
 
+(define-method loadout agent () nil)
+
+(define-method hit agent (&optional object)
+  [play-sample self "ouch"]
+  [parent>>damage self 1])
+
+(define-method pause agent ()
+  [pause *world*])
+
+(defparameter *agent-tiles* '(:north "agent-north"
+			     :south "agent-south"
+			     :east "agent-east"
+			     :west "agent-west"))
+
+(define-method aim agent (direction)
+  (setf <direction> direction)
+  (setf <tile> (getf *agent-tiles* direction)))
+
+(define-method move agent (&optional direction)
+  (unless <dead>
+    (let ((phase (field-value :phase-number *world*))
+	  (dir (or direction <direction>)))
+      (unless (= <last-turn-moved> phase)
+	(setf <last-turn-moved> phase)
+	[aim self dir]
+	[parent>>move self dir]))))
+
+(define-method run agent () nil)
+  
 (define-method quit agent ()
   (xe2:quit :shutdown))
 
-(define-method aim agent (direction)
-  (assert (member direction '(:east :west :north :south)))
-  (setf <direction> direction))
+(define-method die agent ()
+  (unless <dead>
+    (setf <tile> "agent-disabled")
+    [play-sample self "gameover"]
+    [say self "You died. Press escape to reset."]
+    (setf <dead> t)))
 
-(define-method move agent (&optional direction distance)
-  [expend-action-points self [stat-value self :movement-cost]]
-  (let ((dir (or direction <direction>)) ;; boosting?
-	(dist (or distance [stat-value self :movement-distance])))
-    (multiple-value-bind (y x) (step-in-direction <y> <x> dir dist)
-      [save-excursion self]
-      [update-position self x y]
-      (setf <direction> dir))))
-
-(define-method do-collision agent (&optional object)
-  (when object
-    (message "COLLIDING AGENT WITH ~S" (object-name (object-parent object))) 
-    [undo-excursion self]))
-  	
-(define-method run agent ())
+(define-method restart agent ()
+  (let ((agent (clone =agent=)))
+    [say self "Restarting CONS..."]
+    (halt-sample t)
+    [destroy *universe*]
+    [set-player *universe* agent]
+    [set-character *status* agent]
+    [play *universe*
+	  :address '(=highway=)]
+    [loadout agent]))
 
 ;;; Green level
 
@@ -144,21 +172,29 @@
   (scale :initform '(3 m))
   (edge-condition :initform :block))
 
-(define-method generate highway (&key (height 16)
-					    (width 32))
+(define-method generate highway (&key (height 80)
+					    (width 50))
   (setf *notes* nil)
   (setf <height> height <width> width)
   [create-default-grid self]
-  (dotimes (i height)
-    (dotimes (j width)
-      [drop-cell self (clone =road=)
+  (labels ((drop-barrier (r c)
+	     (prog1 nil
+	       [drop-cell self (clone =barrier=) r c])))
+    (dotimes (i height)
+      (dotimes (j width)
+	[drop-cell self (clone =road=)
 		 i j]))
-  (dotimes (i 20)
-    [drop-cell self (clone =barrier=) (random <height>) (random <width>)])
-  [drop-cell self (clone =launchpad=) 10 10])
+    (dotimes (i 25)
+      (let ((draw-function (if (= 0 (random 3))
+			       #'trace-row #'trace-column)))
+	(funcall draw-function #'drop-barrier
+		 (+ 10 (random 50))
+		 (+ 10 (random 50))
+		 (+ 10 (random 50)))))
+    [drop-cell self (clone =launchpad=) 10 10]))
 
 (define-method begin-ambient-loop highway ()
-  (play-music "beatup"))
+  (play-music "beatup" :loop t))
 
 ;;; Splash screen
   

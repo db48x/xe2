@@ -6,6 +6,12 @@
  (:name "help-message" :type :formatted-text :file "README")
  (:name "launchpad" :type :image :file "launchpad.png")
 
+ (:name "agent-north" :type :image :file "agent.png")
+ (:name "agent-disabled" :type :image :file "agent-disabled.png")
+ (:name "agent-east" :type :alias :data ":rotate 90:agent-north")
+ (:name "agent-south" :type :alias :data ":rotate 180:agent-north")
+ (:name "agent-west" :type :alias :data ":rotate 270:agent-north")
+
  (:name "splash" :type :image :file "splash.png")
  (:name "agent" :type :image :file "agent.png")
  (:name "cyanworld" :type :image :file "cyanworld.png")
