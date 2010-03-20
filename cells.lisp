@@ -508,9 +508,10 @@ is in the way."
       (unless (eq cell self) 
 	[step cell self]))))
 
-(define-method drop cell (cell &key loadout)
-  "Add CELL to the world at the current location."
-  [drop-cell *world* cell <row> <column> :loadout loadout])
+(define-method drop cell (cell &key loadout (exclusive nil))
+  "Add CELL to the world at the current location. By default,
+EXCLUSIVE is nil; this allows one to drop objects on top of oneself."
+  [drop-cell *world* cell <row> <column> :loadout loadout :exclusive exclusive])
 
 (define-method drop-sprite cell (sprite x y)
   "Add SPRITE to the world at location X,Y."
