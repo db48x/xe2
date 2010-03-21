@@ -354,7 +354,7 @@ line's HELP system is just a method documentation browser
 The prompt can bind single keystrokes (i.e. one or more modifiers
 and a keypress code) to the insertion of an arbitrary string at
 point in the prompt. A string that ends in a period is a
-"terminating" keybinding; a terminating keybinding also completes
+\"terminating\" keybinding; a terminating keybinding also completes
 the command input, causing the resulting command to be executed.
 
 Examples: 
