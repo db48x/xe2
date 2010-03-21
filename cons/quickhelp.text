@@ -1,0 +1,7 @@
+((("CONTROLS:                          " :background ".blue" :foreground ".white"))
+ (("movement: numeric keypad / hjklyubn" :background ".gray20" :foreground ".gray80"))
+ (("shooting: Control-DIRECTION        "  :background ".gray14" :foreground ".gray80"))
+ (("pausing: Pause key or Control-P    "  :background ".gray14" :foreground ".gray80"))
+ (("help: F1 / Pause and click objects "  :background ".gray20" :foreground ".gray80")))
+
+		     
