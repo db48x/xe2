@@ -145,10 +145,11 @@ and the like."
 
 (defvar *held-keys* nil)
 
-(defun enable-held-keys (delay interval)
+(defun enable-held-keys (&rest args)
   "Enable key repeat on every frame when held. Arguments are ignored
 for backward-compatibility."
-  (declare (ignore delay interval))
+  (when args 
+    (message "Warning. DELAY and INTERVAL arguments to XE2:ENABLE-HELD-KEYS are deprecated and ignored."))
   (setf *key-table* (make-hash-table :test 'equal))
   (setf *held-keys* t))
   ;; (let ((delay-milliseconds (truncate (* delay (/ 1000.0 *frame-rate*))))
@@ -469,7 +470,7 @@ scaled by that factor unless marked with the property :nozoom t.")
   (not (getf (resource-properties resource)
 	     :nozoom)))
 
-(defun zoom-image (image factor)
+(defun zoom-image (image &optional (factor *zoom-factor*))
   "Return a zoomed version of IMAGE, zoomed by FACTOR.
 Allocates a new image."
   (assert (integerp *zoom-factor*))
@@ -488,6 +489,7 @@ Don't set this variable directly; use `set-frame-rate' instead.")
 You only need to set the frame rate if you are using the timer; see
 `enable-timer'."
   (message "Setting frame rate to ~S" rate)
+  (message "WARNING: SET-FRAME-RATE is deprecated and does nothing.")
   (setf *frame-rate* rate)
   (setf (sdl:frame-rate) rate))
 

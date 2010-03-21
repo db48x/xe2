@@ -2,6 +2,10 @@
 CLOSED: [2010-03-20 Sat 11:03]
 ** DONE ambient but upbeat first level track
 CLOSED: [2010-03-20 Sat 14:03]
+
+** TODO XE2 EASY SETUP FUNCTIONS
+
+
 ** TODO SNAKE GAME, you are piloting a list! segments=hits?
 
 (05:29:03 PM) Elliott Slaughter: everything you pick up becomes part of the snake

@@ -8,7 +8,7 @@
 
 (asdf:defsystem xe2
   :name "xe2"
-  :version "0.9"
+  :version "1.9"
   :maintainer "David O'Toole"
   :author "David O'Toole"
   :license "General Public License (GPL) Version 3"
@@ -30,6 +30,7 @@
 	       (:file "browser")
 	       (:file "worlds")
 	       (:file "mission")
-	       (:file "path")))
+	       (:file "path")
+	       (:file "util")))
 	       
 	       

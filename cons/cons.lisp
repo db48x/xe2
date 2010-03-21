@@ -270,7 +270,6 @@
   [pause *world* :always]
   [parent>>render self])
 
-
 ;;; Player status
 
 (defvar *status* nil)

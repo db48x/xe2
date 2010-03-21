@@ -510,7 +510,8 @@ is in the way."
 
 (define-method drop cell (cell &key loadout (exclusive nil))
   "Add CELL to the world at the current location. By default,
-EXCLUSIVE is nil; this allows one to drop objects on top of oneself."
+EXCLUSIVE is nil; this allows one to drop objects on top of oneself.
+When LOADOUT is non-nil, call the :loadout method."
   [drop-cell *world* cell <row> <column> :loadout loadout :exclusive exclusive])
 
 (define-method drop-sprite cell (sprite x y)
@@ -546,7 +547,7 @@ EXCLUSIVE is nil; this allows one to drop objects on top of oneself."
 				(list slot nil))
 			    <equipment-slots>)))
 
-(define-method get-max-items cell ()
+(define-method get-ma-items cell ()
   "Return the maximum number of items this container can hold."
   (assert <max-items>)
   [stat-value self :max-items])
