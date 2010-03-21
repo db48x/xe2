@@ -547,7 +547,7 @@ When LOADOUT is non-nil, call the :loadout method."
 				(list slot nil))
 			    <equipment-slots>)))
 
-(define-method get-ma-items cell ()
+(define-method get-max-items cell ()
   "Return the maximum number of items this container can hold."
   (assert <max-items>)
   [stat-value self :max-items])

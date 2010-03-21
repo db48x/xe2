@@ -7,7 +7,7 @@ CLOSED: [2010-03-20 Sat 14:03]
 
 
 ** TODO SNAKE GAME, you are piloting a list! segments=hits?
-
+** TODO line-tracing function
 (05:29:03 PM) Elliott Slaughter: everything you pick up becomes part of the snake
 (05:29:07 PM) dto1138@gmail.com/D824BEDC: and how about you lose a segment when you're hit?
 (05:29:52 PM) Elliott Slaughter: sure
