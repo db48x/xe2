@@ -122,11 +122,6 @@ visually distinguished) version of the line."
 	  [print self " "]
 	  [println self label]))))
 
-(define-method render browser ()
-  (when <visible>
-    [clear self]
-    [parent>>render self]))
-  
 (define-method update browser ()
   (let ((collection <collection>)
 	(cursor <cursor>))
