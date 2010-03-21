@@ -94,69 +94,70 @@
     
 (define-method render viewport ()
   (declare (optimize (speed 3)))
-  [adjust self] ;; hehe
-  (let* ((world (or <world> *world*))
-	 (origin-width <origin-width>)
-	 (origin-height <origin-height>)
-	 (origin-x <origin-x>)
-	 (origin-y <origin-y>)
-	 (pending-draws <pending-draws>)
-	 (image <image>)
-	 (tile nil)
-	 (tile-size <tile-size>)
-	 objects cell)
-    (setf (fill-pointer pending-draws) 0)
-    (with-field-values (grid light-grid environment-grid phase-number
-			     height width sprites 
-			     turn-number ambient-light) world
-      ;; blank the display
-      [clear self]
-      ;; draw the tiles
-      (dotimes (i origin-height)
-	(dotimes (j origin-width)
-	  ;; is this square lit? 
-	  (if (and (array-in-bounds-p grid (+ i origin-y) (+ j origin-x))
-		   (or (eq :total ambient-light)
-		       (= 1 (aref light-grid (+ i origin-y) (+ j origin-x)))))
-	      (progn 
-		(setf objects (aref grid 
-				    (+ i origin-y)
-				    (+ j origin-x)))
-		(dotimes (k (fill-pointer objects))
-		  (setf cell (aref objects k))
-		  (when (object-p cell)
-		    (let ((j0 (* j tile-size))
-			  (i0 (* i tile-size)))
-		      (setf tile (field-value :tile cell))
-		      (when tile (draw-resource-image tile j0 i0 :destination image))
-		      (when (or (member :drawn (field-value :categories cell))
-				(null tile))
-			(vector-push-extend cell pending-draws))))))
+  (when <visible>
+    [adjust self] ;; hehe
+    (let* ((world (or <world> *world*))
+           (origin-width <origin-width>)
+           (origin-height <origin-height>)
+           (origin-x <origin-x>)
+           (origin-y <origin-y>)
+           (pending-draws <pending-draws>)
+           (image <image>)
+           (tile nil)
+           (tile-size <tile-size>)
+           objects cell)
+      (setf (fill-pointer pending-draws) 0)
+      (with-field-values (grid light-grid environment-grid phase-number
+                               height width sprites 
+                               turn-number ambient-light) world
+        ;; blank the display
+        [clear self]
+        ;; draw the tiles
+        (dotimes (i origin-height)
+          (dotimes (j origin-width)
+            ;; is this square lit? 
+            (if (and (array-in-bounds-p grid (+ i origin-y) (+ j origin-x))
+                     (or (eq :total ambient-light)
+                         (= 1 (aref light-grid (+ i origin-y) (+ j origin-x)))))
+                (progn 
+                  (setf objects (aref grid 
+                                      (+ i origin-y)
+                                      (+ j origin-x)))
+                  (dotimes (k (fill-pointer objects))
+                    (setf cell (aref objects k))
+                    (when (object-p cell)
+                      (let ((j0 (* j tile-size))
+                            (i0 (* i tile-size)))
+                        (setf tile (field-value :tile cell))
+                        (when tile (draw-resource-image tile j0 i0 :destination image))
+                        (when (or (member :drawn (field-value :categories cell))
+                                  (null tile))
+                          (vector-push-extend cell pending-draws))))))
 	      ;; not in bounds, or not lit; draw blackness
 	      (draw-resource-image ".blackness" (* j tile-size) (* i tile-size)
 				   :destination image))))
-      ;; draw the sprites
-      (dolist (sprite sprites)
-	;; pull image and calculate screen coordinates
-	(let* ((graphics (field-value :image sprite))
-	       (x0 (field-value :x sprite))
-	       (x1 (- x0 (* tile-size origin-x)))
-	       (y0 (field-value :y sprite))
-	       (y1 (- y0 (* tile-size origin-y))))
-	  (when graphics (draw-resource-image graphics x1 y1 :destination image))))
-      ;; draw the pending ops
-      (map nil #'(lambda (cell)
-		   (multiple-value-bind (x y) [image-coordinates cell]
-		     [draw cell x y image]))
-		   pending-draws)
-      ;; update geometry
-      (let ((width (* tile-size origin-width))
-	    (height (* tile-size origin-height)))
-	(unless (and (= width <width>)
-		     (= height <height>))
-	  [resize self :height height :width width]))
-      ;; draw the overlays
-      [draw-overlays self])))
+        ;; draw the sprites
+        (dolist (sprite sprites)
+          ;; pull image and calculate screen coordinates
+          (let* ((graphics (field-value :image sprite))
+                 (x0 (field-value :x sprite))
+                 (x1 (- x0 (* tile-size origin-x)))
+                 (y0 (field-value :y sprite))
+                 (y1 (- y0 (* tile-size origin-y))))
+            (when graphics (draw-resource-image graphics x1 y1 :destination image))))
+        ;; draw the pending ops
+        (map nil #'(lambda (cell)
+                     (multiple-value-bind (x y) [image-coordinates cell]
+                       [draw cell x y image]))
+             pending-draws)
+        ;; update geometry
+        (let ((width (* tile-size origin-width))
+              (height (* tile-size origin-height)))
+          (unless (and (= width <width>)
+                       (= height <height>))
+            [resize self :height height :width width]))
+        ;; draw the overlays
+        [draw-overlays self]))))
 
 (define-method hit viewport (x y)
   (when [parent>>hit self x y]
@@ -240,61 +241,62 @@
   (border-color :initform ".gray20"))
 		
 (define-method render minimap ()
-  [adjust self] ;; hehe
-  (let* ((world (or <world> *world*))
-	 (origin-width <origin-width>)
-	 (origin-height <origin-height>)
-	 (origin-x <origin-x>)
-	 (origin-y <origin-y>)
-	 (tile-size <tile-size>)
-	 (category-map <category-map>)
-	 (grid (field-value :grid world))
-	 (image <image>)
-	 objects 
-	 cell
-	 categories)
-    (with-field-values (grid light-grid environment-grid phase-number
-			     height width 
-			     turn-number ambient-light) world
-      ;; blank the display
-      [clear self]
-      ;; ;; draw the border
-      ;; (draw-rectangle 0 0 <width> <height>
-      ;; 		      :color <border-color>
-      ;; 		      :destination <image>)
-      ;; draw the minimap
-      (dotimes (i origin-height)
-	(dotimes (j origin-width)
-	  (when (array-in-bounds-p grid i j)
-	    (setf objects (aref grid 
-				(+ i origin-y)
-				(+ j origin-x)))
-	    (block coloring
-	      (dolist (mapping category-map)
-		(destructuring-bind (category color) mapping
-		  (dotimes (k (fill-pointer objects))
-		    (setf cell (aref objects k))
-		    (setf categories (field-value :categories cell))
-		    ;; record location of player-entry-point if any
-		    (when (member :player-entry-point categories)
-		      (draw-circle (* tile-size (- j origin-x))
-				   (* tile-size (- i origin-y))
-				   4 
-				   :destination image 
-				   :color ".yellow"))
-		    (when (member category categories)
-		      (xe2:draw-box (* tile-size j) 
-				    (* tile-size i)
-				    tile-size tile-size
-				    :destination image 
-				    :stroke-color color
-				    :color color)
-		      (return-from coloring)))))))))
-      ;; draw player indicator
-      (draw-circle (* tile-size (- [player-column world] origin-x))
-		   (* tile-size (- [player-row world] origin-y))
-		   4 
-		   :destination image :color ".white"))))
+  (when <visible>
+    [adjust self] ;; hehe
+    (let* ((world (or <world> *world*))
+           (origin-width <origin-width>)
+           (origin-height <origin-height>)
+           (origin-x <origin-x>)
+           (origin-y <origin-y>)
+           (tile-size <tile-size>)
+           (category-map <category-map>)
+           (grid (field-value :grid world))
+           (image <image>)
+           objects 
+           cell
+           categories)
+      (with-field-values (grid light-grid environment-grid phase-number
+                               height width 
+                               turn-number ambient-light) world
+        ;; blank the display
+        [clear self]
+        ;; ;; draw the border
+        ;; (draw-rectangle 0 0 <width> <height>
+        ;; 		      :color <border-color>
+        ;; 		      :destination <image>)
+        ;; draw the minimap
+        (dotimes (i origin-height)
+          (dotimes (j origin-width)
+            (when (array-in-bounds-p grid i j)
+              (setf objects (aref grid 
+                                  (+ i origin-y)
+                                  (+ j origin-x)))
+              (block coloring
+                (dolist (mapping category-map)
+                  (destructuring-bind (category color) mapping
+                    (dotimes (k (fill-pointer objects))
+                      (setf cell (aref objects k))
+                      (setf categories (field-value :categories cell))
+                      ;; record location of player-entry-point if any
+                      (when (member :player-entry-point categories)
+                        (draw-circle (* tile-size (- j origin-x))
+                                     (* tile-size (- i origin-y))
+                                     4 
+                                     :destination image 
+                                     :color ".yellow"))
+                      (when (member category categories)
+                        (xe2:draw-box (* tile-size j) 
+                                      (* tile-size i)
+                                      tile-size tile-size
+                                      :destination image 
+                                      :stroke-color color
+                                      :color color)
+                        (return-from coloring)))))))))
+        ;; draw player indicator
+        (draw-circle (* tile-size (- [player-column world] origin-x))
+                     (* tile-size (- [player-row world] origin-y))
+                     4 
+                     :destination image :color ".white")))))
 
 (defparameter *minimap-help-string* 
 "This is the minimap, a form of radar.

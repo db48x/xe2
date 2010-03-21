@@ -72,20 +72,9 @@
   (history :documentation "Recently browsed collections.")
   (prompt :documentation "Prompt to receive command messages."))
 
-(define-method hide browser ()
-  (setf <visible> nil))
-
-(define-method show browser ()
-  (setf <visible> t))
-
 (define-method set-prompt browser (prompt)
   (setf <prompt> prompt))
 
-(define-method toggle-visible browser ()
-  (if <visible>
-      [hide self]
-      [show self]))
-  
 (define-method cursor-next browser ()
   (when (array-in-bounds-p <collection> (+ 1 <cursor>))
     (incf <cursor>)))
@@ -134,9 +123,9 @@ visually distinguished) version of the line."
 	  [println self label]))))
 
 (define-method render browser ()
-  (if <visible>
-      [parent>>render self]
-      [clear self]))
+  (when <visible>
+    [clear self]
+    [parent>>render self]))
   
 (define-method update browser ()
   (let ((collection <collection>)

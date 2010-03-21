@@ -46,6 +46,7 @@ including an output formatter and a configurable command prompt.
   (image :documentation "The offscreen image buffer containing the widget's rendered output.")
   (width :documentation "The current allocated image width of the widget, in pixels.")
   (height :documentation "The current allocated image height of the widget, in pixels.")
+  (visible :initform t :documentation "The boolean visibility of the widget.")
   (x :documentation "The screen x-coordinate of the left side of the widget's display area.")
   (y :documentation "The screen y-coordinate of the top of the widget's display area."))
 
@@ -61,6 +62,17 @@ including an output formatter and a configurable command prompt.
 (define-method move widget (&key x y)
   "Move the widget to the location X, Y."
   (setf <x> x <y> y))
+
+(define-method show widget ()
+  (setf <visible> t))
+
+(define-method hide widget ()
+  (setf <visible> nil))
+
+(define-method toggle-visible widget ()
+  (if <visible>
+      [hide self]
+      [show self]))
 
 (define-method render widget ()
   "Render the widget to its image. The default implementation leaves
@@ -122,11 +134,12 @@ possibly return one of them."
   (setf <children> children))
 
 (define-method render stack ()
-  (let ((y <y>)
-	(x <x>))
-    (dolist (widget <children>)
-      [move widget :x x :y y]
-      (incf y (field-value :height widget)))))
+  (when <visible>
+    (let ((y <y>)
+          (x <x>))
+      (dolist (widget <children>)
+        [move widget :x x :y y]
+        (incf y (field-value :height widget))))))
 
 (define-method set-children stack (children)
   (setf <children> children))
@@ -298,24 +311,25 @@ auto-updated displays."
   [print self "  :  " :foreground ".gray20"])
 
 (define-method render formatter ()
-  [clear self]
-  [update self]
-  (let ((y <height>) (n 0)
-	line
-	(lines <lines>)
-	(image <image>))
-    (setf n (fill-pointer lines))
-    (when (plusp n)
-      (loop do
-	   (progn 
-	     (setf line (aref lines (- n 1)))
-	     (decf y (formatted-line-height line))
-	     (render-formatted-line line 0 y :destination image)
-	     (decf n))
-	 ;; reached top of output image?
-	 while (and (plusp y) 
-		    ;; ran out of lines to display?
-		    (not (zerop n)))))))
+  (when <visible>
+    [clear self]
+    [update self]
+    (let ((y <height>) (n 0)
+          line
+          (lines <lines>)
+          (image <image>))
+      (setf n (fill-pointer lines))
+      (when (plusp n)
+        (loop do
+              (progn 
+                (setf line (aref lines (- n 1)))
+                (decf y (formatted-line-height line))
+                (render-formatted-line line 0 y :destination image)
+                (decf n))
+              ;; reached top of output image?
+              while (and (plusp y) 
+                         ;; ran out of lines to display?
+                         (not (zerop n))))))))
 
 (defun split-string-on-lines (string)
   (with-input-from-string (stream string)
@@ -528,12 +542,6 @@ normally."
 (define-method move-beginning-of-line prompt ()
   (setf <point> 0))
 
-(define-method show prompt ()
-  (setf <visible> t))
-
-(define-method hide prompt ()
-  (setf <visible> nil))
-
 (define-method render prompt ()
   (when <visible>
     (let* ((image <image>)
@@ -587,12 +595,6 @@ normally."
   (point-row :initform 0)
   (point-column :initform 0)
   (visible :initform t))
-
-(define-method show textbox ()
-  (setf <visible> t))
-
-(define-method hide textbox ()
-  (setf <visible> nil))
 
 (define-method set-buffer textbox (buffer)
   (setf <buffer> buffer))
@@ -745,26 +747,27 @@ This method allocates a new SDL surface when necessary."
 
 (define-method render pager ()
   ;; calculate geometry. always draw
-  [clear self <background-color>]
-  (let ((n 1)
-	(line '()))
-    (dolist (page <pages>)
-      (let ((page-name (car page)))
-	;; build a list of formatted strings
-	(push (cons (concatenate 'string 
-				 <prefix-string>
-				 (format nil "~D" n)
-				 <number-separator-string>
-				 (symbol-name page-name)
-				 <separator-string>)
-		    ;; highlight current page
-		    (if (eq page-name <current-page>)
-			<highlighted-style> <style>))
-	      line))
-      (incf n))
-    (when <pager-message> 
-      (push <pager-message> line))
-    ;; draw the string
-    (render-formatted-line (nreverse line) 0 0 :destination <image>)))
+  (when <visible>
+    [clear self <background-color>]
+    (let ((n 1)
+          (line '()))
+      (dolist (page <pages>)
+        (let ((page-name (car page)))
+          ;; build a list of formatted strings
+          (push (cons (concatenate 'string 
+                                   <prefix-string>
+                                   (format nil "~D" n)
+                                   <number-separator-string>
+                                   (symbol-name page-name)
+                                   <separator-string>)
+                      ;; highlight current page
+                      (if (eq page-name <current-page>)
+                          <highlighted-style> <style>))
+                line))
+        (incf n))
+      (when <pager-message> 
+        (push <pager-message> line))
+      ;; draw the string
+      (render-formatted-line (nreverse line) 0 0 :destination <image>))))
    
 ;;; widgets.lisp ends here
