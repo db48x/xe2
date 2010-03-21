@@ -579,7 +579,7 @@ display."
 					      (case button
 						(1 (when (has-method :select object) 
 						     [select object]))
-						(2 (when (has-method :activate object) 
+						(3 (when (has-method :activate object) 
 						     [activate object]))))
 					    [process-messages *world*]))))))
       (:mouse-button-up-event (:button button :state state :x x :y y)
