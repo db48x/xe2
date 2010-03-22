@@ -542,6 +542,8 @@ window. Set this in the game startup file.")
 (defvar *fullscreen* nil "When non-nil, attempt to use fullscreen mode.")
 
 (defvar *window-title* "XE2")
+(defvar *window-position* :center
+  "Controls the position of the game window. Either a list of coordinates or the symbol :center.")
 
 (defun run-main-loop ()
   "Initialize the console, open a window, and play.
@@ -553,10 +555,12 @@ display."
 	(sdl:window *screen-width* *screen-height*
 		    :fps fps 
 		    :title-caption *window-title*
-		    :flags sdl:SDL-FULLSCREEN)
+		    :flags sdl:SDL-FULLSCREEN
+                    :position *window-position*)
 	(sdl:window *screen-width* *screen-height*
 		    :fps fps
-		    :title-caption *window-title*)))
+		    :title-caption *window-title*
+                    :position *window-position*)))
   (reset-joystick)
   (sdl:clear-display sdl:*black*)
   (show-widgets)
