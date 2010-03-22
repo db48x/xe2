@@ -16,6 +16,8 @@ CLOSED: [2010-03-22 Mon 18:45]
 CLOSED: [2010-03-22 Mon 18:46]
 *** DONE [#A] event capture cell 
 CLOSED: [2010-03-22 Mon 19:06]
+*** TODO [#A] review joystick handling code
+*** TODO [#A] get rid of circle/square nonsense, use :button-1 :button-2
 *** TODO [#A] data propagation between cells
 *** TODO [#A] set up variables
 *** TODO [#A] ok button copies variables to keybindings

@@ -318,34 +318,32 @@ as hash keys."
 ;;; Joystick support (gamepad probably required)
 
 (defparameter *joystick-button-symbols*
-  '(:select :l3 :r3 :l2 :r2 :l1 :r1 :start
-    :up :left :right :down :triangle :circle :cross :square))
-
-(defparameter *ps3-joystick-mapping*
-  '((0 . :select)
-    (1 . :l3)
-    (2 . :r3)
-    (3 . :start)
-    (4 . :up)
-    (5 . :right)
-    (6 . :down)
-    (7 . :left)
-    (8 . :l2)
-    (9 . :r2)
-    (10 . :l1)
-    (11 . :r1)
-    (12 . :triangle)
-    (13 . :circle)
-    (14 . :cross)
-    (15 . :square)))
+  '(:button-0 :button-1 :button-2 :button-3 :button-4 :button-5 :button-6 :button-7 :button-8 :button-9
+    :button-10 :button-11 :button-12 :button-13 :button-14 :button-15 :button-16 :button-17 :button-18 :button-19
+    :left :right :up :down :select :start))
 
 (defparameter *generic-joystick-mapping*
-  '((1 . :square)
-    (2 . :cross)
-    (3 . :circle)
-    (4 . :triangle)
-    (9 . :select)
-    (10 . :start)))
+  '((0 . :button-0)
+    (1 . :button-1)
+    (2 . :button-2)
+    (3 . :button-3)
+    (4 . :button-4)
+    (5 . :button-5)
+    (6 . :button-6)
+    (7 . :button-7)
+    (8 . :button-8)
+    (9 . :button-9)
+    (10 . :button-10)
+    (11 . :button-11)
+    (12 . :button-12)
+    (13 . :button-13)
+    (14 . :button-14)
+    (15 . :button-15)
+    (16 . :button-16)
+    (17 . :button-17)
+    (18 . :button-18)
+    (19 . :button-19)
+    (20 . :button-20)))
 
 (defvar *joystick-dead-zone* 2000)
 
