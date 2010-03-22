@@ -929,12 +929,18 @@ May be affected by the player's :hearing-range stat, if any."
   "Return as values X,Y the world coordinates of CELL."
   (assert (and <row> <column>))
   [get-viewport-coordinates (field-value :viewport *world*)
-			  <row> <column>])
+                            <row> <column>])
 
 (define-method image-coordinates cell ()
   "Return as values X,Y the viewport image coordinates of CELL."
   (assert (and <row> <column>))
   [get-image-coordinates (field-value :viewport *world*)
+                         <row> <column>])
+
+(define-method screen-coordinates cell ()
+  "Return as values X,Y the screen coordinates of CELL."
+  (assert (and <row> <column>))
+  [get-screen-coordinates (field-value :viewport *world*)
 			  <row> <column>])
 
 ;;; User Interaction with keyboard and mouse

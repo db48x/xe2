@@ -60,6 +60,11 @@
 	  (y0 (* size (- cell-row <origin-y>))))
       (values x0 y0))))
 
+(define-method get-screen-coordinates viewport (cell-row cell-column)
+  (let ((size <tile-size>))
+    (let ((x0 (+ (* size (- cell-column <origin-x>)) <x>))
+	  (y0 (+ (* size (- cell-row <origin-y>)) <y>)))
+      (values x0 y0))))
 
 ;; (define-method get-viewport-coordinates viewport (cell-row cell-column)
 ;;   (let ((size <tile-size>))
