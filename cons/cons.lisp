@@ -365,10 +365,6 @@
       [drop-cell self var-cell (random <height>) (random <width>)]))
   (dotimes (n 3)
     (let ((event-cell (clone =event-cell=)))
-      [select event-cell]
-      [drop-cell self event-cell (random <height>) (random <width>)]))
-  (dotimes (n 2)
-    (let ((event-cell (clone =event-cell=)))
       [drop-cell self event-cell (random <height>) (random <width>)])))
 
 

@@ -5,9 +5,12 @@ CLOSED: [2010-03-20 Sat 14:03]
 ** TODO Port cell mode
 *** DONE get basic display working with a few items
 CLOSED: [2010-03-22 Mon 02:46]
+*** DONE [#A] data and variable cells
+*** DONE [#A] "event" cell 
+CLOSED: [2010-03-22 Mon 17:25]
 *** TODO [#A] button cells
 *** TODO [#A] comment cell
-*** TODO [#A] cursor and activation
+*** TODO [#A] cursor and invoking "select" on cells
 *** TODO [#A] data propagation between cells
 *** TODO [#A] event capture cell 
 *** TODO [#B] Function to uniformly pretty-print events
