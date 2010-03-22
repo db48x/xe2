@@ -7,6 +7,7 @@ CLOSED: [2010-03-20 Sat 14:03]
 ** TODO Port cell mode
 *** DONE get basic display working with a few items
 CLOSED: [2010-03-22 Mon 02:46]
+*** TODO implement proper key repeat in prompt
 *** TODO variable write cell
 *** TODO variable read cell
 *** TODO data propagation between cells

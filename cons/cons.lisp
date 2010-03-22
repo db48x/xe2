@@ -387,6 +387,7 @@
 	 (form (clone =form=))
 	 (viewport (clone =view=))
 	 (status (clone =status=))
+	 (form-prompt (clone =prompt=))
 	 (splash-prompt (clone =splash-prompt=))
 	 (terminal (clone =narrator=))
 	 (stack (clone =stack=)))
@@ -410,9 +411,15 @@
     [hide prompt]
     [install-keybindings prompt]
     ;; 
-    [resize form :height 600 :width 800]
+    [resize form :height 500 :width 800]
     [move form :x 0 :y 0]
     ;;[show form]
+    ;;
+    [resize form-prompt :height 20 :width *cons-window-width*]
+    [move form-prompt :x 0 :y (- *cons-window-height* 20)]
+    [show form-prompt]
+    [install-keybindings form-prompt]
+    [set-receiver form-prompt form]
     ;;
     (labels ((spacebar ()
 	       ;;
@@ -473,7 +480,7 @@
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
     (xe2:install-widgets splash-prompt splash)
-    [add-page *pager* :testing form]
+    [add-page *pager* :testing form-prompt form]
     [add-page *pager* :game prompt stack viewport terminal quickhelp *status* ]
     [add-page *pager* :help help]
 ))

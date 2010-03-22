@@ -546,7 +546,7 @@ window. Set this in the game startup file.")
   "Initialize the console, open a window, and play.
 We want to process all inputs, update the game state, then update the
 display."
-  (setf *physics-function* nil)
+;;  (setf *physics-function* nil)
   (let ((fps (make-instance 'sdl:fps-unlocked :dt *dt* :ps-fn #'do-physics)))
     (if *fullscreen*
 	(sdl:window *screen-width* *screen-height*
