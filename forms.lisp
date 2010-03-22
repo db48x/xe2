@@ -36,9 +36,11 @@
   (name :documentation "String name of the form.")
   (column-widths :documentation "A vector of integers where v[x] is the pixel width of form column x.")
   (column-styles :documentation "A vector of property lists used to customize the appearance of columns.")
+  (row-spacing :initform 1 :documentation "Number of pixels to add between rows.")
   (zebra-stripes :documentation "When non-nil, zebra stripes are drawn.")
   (row-styles :documentation "A vector of property lists used to customize the appearance of rows.")
   (border-style :initform t :documentation "When non-nil, draw cell borders.")
+  (draw-blanks :initform t :documentation "When non-nil, draw blank cells.")
   (header-style :initform t :documentation "When non-nil, draw row and column headers.")
   (selected-tool :documentation "Keyword symbol identifying the method to be applied.")
   (tool-data :documentation "Arguments for tool method invocation."))
@@ -84,6 +86,9 @@
 (define-method queue-update form ()
   (setf <needs-update> t))
 
+(defparameter *even-columns-format* '(:background ".gray50" :foreground ".gray10"))
+(defparameter *odd-columns-format* '(:background ".gray45" :foreground ".gray10"))
+
 (define-method render form ()
   [clear self]
   (when <world>
@@ -94,11 +99,18 @@
 	  (setf x 0)
 	  (dotimes (column <columns>)
 	    (let ((cell [cell-at self row column]))
-	      (when cell
-		[compute cell]
-		[form-render cell image x y])
+	      (if (null cell)
+		  (when <draw-blanks>
+		    (draw-box x y 
+			      [column-width self column]
+			      [row-height self row] 
+			      :stroke-color ".gray30"
+			      :color (if (evenp column) ".gray50" ".gray45")
+			      :destination image))
+		  (progn [compute cell]
+			 [form-render cell image x y]))
 	      (incf x (aref <column-widths> column))))
-	  (incf y [row-height self row]))))))
+	  (incf y (+ <row-spacing> [row-height self row])))))))
 	  
 ;;; A data cell just prints out the stored value.
 
@@ -114,7 +126,7 @@
 
 (define-method compute data-cell ()
   ;; update the label
-  (setf <label> (list (cons (format nil "Value: ~S" <data>) *data-cell-style*))))
+  (setf <label> (list (cons (format nil " DATA: ~S  " <data>) *data-cell-style*))))
 
 ;;; A var cell stores a value into a variable. 
 
@@ -132,6 +144,6 @@
   [get-variable *world* <variable>])
 
 (define-method compute var-cell ()
-  (setf <label> (list (cons (format nil "VARIABLE>> ~A" <variable>) *var-cell-style*))))
+  (setf <label> (list (cons (format nil " VARIABLE: ~A  " <variable>) *var-cell-style*))))
 
 ;;; forms.lisp ends here

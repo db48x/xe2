@@ -410,7 +410,7 @@
     [hide prompt]
     [install-keybindings prompt]
     ;; 
-    [resize form :height 800 :width 600]
+    [resize form :height 600 :width 800]
     [move form :x 0 :y 0]
     ;;[show form]
     ;;

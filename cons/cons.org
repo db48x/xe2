@@ -12,6 +12,7 @@ CLOSED: [2010-03-22 Mon 02:46]
 *** TODO data propagation between cells
 *** TODO option cells
 *** TODO toggle-cells
+*** TODO Data entry area like in excel?
 *** TODO default keybindings in initializer
 *** TODO button cells
 *** TODO cursor
