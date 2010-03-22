@@ -8,13 +8,21 @@ CLOSED: [2010-03-22 Mon 02:46]
 *** DONE [#A] data and variable cells
 *** DONE [#A] "event" cell 
 CLOSED: [2010-03-22 Mon 17:25]
-*** TODO [#A] button cells
-*** TODO [#A] comment cell
-*** TODO [#A] cursor and invoking "select" on cells
+*** DONE [#B] default keybindings in initializer
+CLOSED: [2010-03-22 Mon 18:45]
+*** DONE [#A] moving yellow cursor
+CLOSED: [2010-03-22 Mon 18:45]
+*** DONE [#A] invoking "select" on cells
+CLOSED: [2010-03-22 Mon 18:46]
+*** DONE [#A] event capture cell 
+CLOSED: [2010-03-22 Mon 19:06]
 *** TODO [#A] data propagation between cells
-*** TODO [#A] event capture cell 
+*** TODO [#A] set up variables
+*** TODO [#A] ok button copies variables to keybindings
+*** TODO [#B] cancel button resets to default
+*** TODO [#A] comment cell
+*** TODO [#B] header-line with help
 *** TODO [#B] Function to uniformly pretty-print events
-*** TODO [#B] default keybindings in initializer
 *** TODO [#B] implement proper key repeat in prompt // move send-held-events to do-physics??
 *** TODO [#B] row/column headers
 *** TODO [#C] Data entry area like in excel?

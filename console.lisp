@@ -647,8 +647,8 @@ display."
 		   (sdl:clear-display sdl:*black*)
 		   (when *held-keys* ;; TODO move this to do-physics?
 		     (send-held-events))
-		   (show-widgets)
-		   (setf *event* nil)
+		   (show-widgets) 
+		   (setf *event* nil) ;; TODO where to do this? 
 		   (sdl:update-display)))))))
 		 
 

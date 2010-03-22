@@ -126,8 +126,6 @@ When nil, the method DRAW is invoked instead of using a tile.")
 
 (define-method compute cell () nil)
 
-(defparameter *default-cell-label* '((" ------ ")))
-
 (define-method form-label cell ()
   (with-field-values (label) self
     (or (if (null label)
