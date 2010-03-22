@@ -115,13 +115,45 @@ When nil, the method DRAW is invoked instead of using a tile.")
   (max-weight :documentation "Maximum weight this container can hold.")
   (max-items :documentation "Maximum number of items this container can hold.")
   (parent-container :documentation "Link to containing cell, if any.")
+  ;; forms-related fields. see forms.lisp
+  (label :initform nil :documentation "Label (string or formatted line) to be used as display in forms.")
   ;; proxying
   (occupant :documentation "Occupant cell, used to implement drivable vehicles.")
   (proxy :documentation "Link to the proxying cell for this occupant cell.")
   ;; other
   (combination-amount :initform 0 :documentation "Amount of item this cell represents.")
   (combination-key :initform nil :documentation "Only items matching this key will be combined."))
+
+(define-method compute cell () nil)
+
+(defparameter *default-cell-label* '((" ------ ")))
+
+(define-method form-label cell ()
+  (with-field-values (label) self
+    (or (if (null label)
+	    ;; use a substitute label
+	    (cond ((stringp <tile>)
+		   (list (list nil :image <tile>) (list " ") (list (some-name-of self)))))
+	    (etypecase label
+	      (string (list (list label)))
+	      (list label)))
+	*default-cell-label*)))
+  
+(define-method form-width cell () 
+  (formatted-line-width [form-label self]))
+
+(define-method form-height cell ()
+  (formatted-line-height [form-label self]))
     
+(define-method set cell (data)
+  nil)
+
+(define-method get cell ()
+  nil)
+
+(define-method form-render cell (image x y)
+  (render-formatted-line [form-label self] x y :destination image))
+
 (define-method is-located cell ()
   "Returns non-nil if this cell is located somewhere on the grid."
   (or (and (integerp <row>) (integerp <column>))))

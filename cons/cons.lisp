@@ -127,6 +127,10 @@
 	[aim self dir]
 	[parent>>move self dir]))))
 
+(define-method push agent () nil)
+(define-method pop agent () nil)
+(define-method rotate agent () nil)
+
 (define-method run agent () nil)
   
 (define-method quit agent ()
@@ -240,7 +244,7 @@
 	    ("Z" nil "push .")
 	    ("X" nil "pop .")
 	    ("C" nil "call .")
-	    ("V" nil "swap .")
+	    ("V" nil "rotate .")
 	    ("SPACE" nil "move .")
 	    ;;
 	    ("P" (:control) "pause .")
@@ -341,6 +345,22 @@
 		      <height>
 		      :color ".blue" :destination <image>))
 
+
+;;; Joystick screen.
+
+(defvar *form*)
+  
+(define-prototype joystick-world (:parent =world=)
+  (height :initform 12)
+  (width :initform 16))
+
+(define-method generate joystick-world ()
+  [create-default-grid self]
+  (dotimes (n 5)
+    (let ((data-cell (clone =data-cell=)))
+      [drop-cell self data-cell (random <height>) (random <width>)]
+      [set data-cell (random 10)])))
+
 ;;; Main program. 
 
 (defparameter *cons-window-width* 800)
@@ -359,12 +379,14 @@
 	 (splash (clone =splash=))
 	 (help (clone =cons-formatter=))
 	 (quickhelp (clone =formatter=))
+	 (form (clone =form=))
 	 (viewport (clone =view=))
 	 (status (clone =status=))
 	 (splash-prompt (clone =splash-prompt=))
 	 (terminal (clone =narrator=))
 	 (stack (clone =stack=)))
     ;;
+    (setf *form* form)
     (setf *viewport* viewport)
     (setf *status* status)
     ;;
@@ -382,6 +404,10 @@
     [move prompt :x 0 :y 0]
     [hide prompt]
     [install-keybindings prompt]
+    ;; 
+    [resize form :height 800 :width 600]
+    [move form :x 0 :y 0]
+    ;;[show form]
     ;;
     (labels ((spacebar ()
 	       ;;
@@ -397,6 +423,9 @@
 	       	     :narrator terminal
 	       	     :viewport viewport]
 	       [loadout player]
+	       (let ((config-screen (clone =joystick-world=)))
+		 [generate config-screen]
+		 [configure form config-screen])
 	       ;;
 	       [set-character *status* player]
 	       ;;
@@ -439,8 +468,11 @@
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
     (xe2:install-widgets splash-prompt splash)
+    [add-page *pager* :testing form]
     [add-page *pager* :game prompt stack viewport terminal quickhelp *status* ]
-    [add-page *pager* :help help]))
+    [add-page *pager* :help help]
+))
+
 
 (cons-game)
 

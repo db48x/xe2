@@ -31,6 +31,7 @@
 	       (:file "worlds")
 	       (:file "mission")
 	       (:file "path")
-	       (:file "util")))
+	       (:file "util")
+	       (:file "forms")))
 	       
 	       

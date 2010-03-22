@@ -54,6 +54,8 @@ required for travel here." )
   (serialized-sprites :initform nil)
   (sprite-grid :initform nil :documentation "Grid for collecting sprite collision information.")
   (sprite-table :initform nil :documentation "Hash table to prevent redundant collisions.")
+  ;; forms processing
+  (variables :initform "Hash table mapping keyword symbols to values, local to the form.")
   ;; environment 
   (environment-grid :documentation "A two-dimensional array of environment data cells.")
   ;; lighting 
@@ -85,6 +87,16 @@ At the moment, only 0=off and 1=on are supported.")
 
 (defparameter *default-world-axis-size* 10)
 (defparameter *default-world-z-size* 4)
+
+(define-method initialize world ()
+  (setf <variables> (make-hash-table :test 'eq)))
+
+(define-method set-variable world (var value)
+  (let ((vars <variables>))
+    (setf (gethash var vars) value)))
+
+(define-method get-variable world (var)
+  (gethash var <variables>))
 
 (define-method in-category world (category)
   "Returns non-nil when the cell SELF is in the category CATEGORY."
@@ -203,6 +215,11 @@ initialize the arrays for a world of the size specified there."
   "Return the vector of cells at ROW, COLUMN in the world SELF."
   (when (array-in-bounds-p <grid> row column)
     (aref <grid> row column)))
+
+(define-method top-cell-at world (row column)
+  (let ((cells [cells-at self row column]))
+    (when (and cells (not (zerop (fill-pointer cells))))
+      (aref cells (- (fill-pointer cells) 1)))))
 
 (define-method random-place world (&optional &key avoiding distance)
   (clon:with-field-values (width height) self
