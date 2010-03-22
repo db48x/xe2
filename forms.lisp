@@ -100,7 +100,7 @@
 	      (incf x (aref <column-widths> column))))
 	  (incf y [row-height self row]))))))
 	  
-;;; Special cells for use with forms
+;;; A data cell just prints out the stored value.
 
 (defparameter *data-cell-style* '(:foreground ".gray40" :background ".white"))
 
@@ -116,6 +116,22 @@
   ;; update the label
   (setf <label> (list (cons (format nil "Value: ~S" <data>) *data-cell-style*))))
 
+;;; A var cell stores a value into a variable. 
 
+(defparameter *var-cell-style* '(:foreground ".white" :background ".blue"))
+
+(defcell var-cell variable)
+
+(define-method initialize var-cell (variable)
+  (setf <variable> variable))
+
+(define-method set var-cell (value)
+  [set-variable *world* <variable> value])
+
+(define-method get var-cell ()
+  [get-variable *world* <variable>])
+
+(define-method compute var-cell ()
+  (setf <label> (list (cons (format nil "VARIABLE>> ~A" <variable>) *var-cell-style*))))
 
 ;;; forms.lisp ends here

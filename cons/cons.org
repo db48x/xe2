@@ -7,8 +7,13 @@ CLOSED: [2010-03-20 Sat 14:03]
 ** TODO Port cell mode
 *** DONE get basic display working with a few items
 CLOSED: [2010-03-22 Mon 02:46]
-*** TODO [#A] buttons
-*** TODO values that go left-to-right into value buttons
+*** TODO variable write cell
+*** TODO variable read cell
+*** TODO data propagation between cells
+*** TODO option cells
+*** TODO toggle-cells
+*** TODO default keybindings in initializer
+*** TODO button cells
 *** TODO cursor
 *** TODO [#C] scrolling
 *** TODO [#C] row/column headers
@@ -18,21 +23,7 @@ CLOSED: [2010-03-22 Mon 02:46]
 *** TODO Improve slime support http://common-lisp.net/pipermail/slime-devel/2008-August/015390.html
 *** TODO XE2 EASY SETUP FUNCTIONS
 
-*** TODO port cell mode to XE2! rename it...
-(05:13:38 PM) David O'Toole: http://dto.github.com/images/RogueLike-6.png
-(05:13:46 PM) David O'Toole: http://dto.github.com/images/RogueLike-11.png
-(05:13:51 PM) David O'Toole: http://dto.github.com/images/RogueLike-13.png
-(05:14:09 PM) David O'Toole: now all that stuff depends on a spreadsheet mode i wrote for emacs, 
-(05:14:21 PM) David O'Toole: which is just begging to be ported to common lisp.
-(05:14:56 PM) David O'Toole: then XE2 could open a 2nd "dev window"
-(05:15:14 PM) db48x: yea, that is nice
-(05:15:35 PM) David O'Toole: how about this. after my compo entry is done, 
-(05:16:07 PM) David O'Toole: i'll spend some time on the engine itself.... those convenience functions, some api fixes if need be, and also perhaps i'll port cell-mode (that spreadsheet program)
-
 ** TODO SNAKE GAME, you are piloting a list! segments=hits?
-** TODO line-tracing function
-
-
 (05:29:03 PM) Elliott Slaughter: everything you pick up becomes part of the snake
 (05:29:07 PM) dto1138@gmail.com/D824BEDC: and how about you lose a segment when you're hit?
 (05:29:52 PM) Elliott Slaughter: sure
@@ -63,7 +54,7 @@ CLOSED: [2010-03-22 Mon 02:46]
 ** TODO moving sprite player, analog joystick control? could work. check xiobreak dude code
 ** TODO controls
 *** TODO push: add to head of snake
-*** TODO 
+*** TODO pop
 *** TODO call
 *** TODO swap
 ** TODO a sector is completed when its objective is achieved

@@ -359,7 +359,12 @@
   (dotimes (n 5)
     (let ((data-cell (clone =data-cell=)))
       [drop-cell self data-cell (random <height>) (random <width>)]
-      [set data-cell (random 10)])))
+      [set data-cell (random 10)]))
+  (dotimes (n 6)
+    (let ((var-cell (clone =var-cell= (car (one-of '(:foo :bar :baz))))))
+      [drop-cell self var-cell (random <height>) (random <width>)])))
+
+
 
 ;;; Main program. 
 
