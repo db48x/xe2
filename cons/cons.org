@@ -7,19 +7,21 @@ CLOSED: [2010-03-20 Sat 14:03]
 ** TODO Port cell mode
 *** DONE get basic display working with a few items
 CLOSED: [2010-03-22 Mon 02:46]
-*** TODO implement proper key repeat in prompt
-*** TODO variable write cell
-*** TODO variable read cell
-*** TODO data propagation between cells
-*** TODO option cells
-*** TODO toggle-cells
-*** TODO Data entry area like in excel?
-*** TODO default keybindings in initializer
-*** TODO button cells
+*** TODO [#A] data propagation between cells
+*** TODO [#A] button cells
+*** TODO [#A] event capture cell
+*** TODO [#A] comment cell
+*** TODO [#B] default keybindings in initializer
+*** TODO [#B] implement proper key repeat in prompt // move send-held-events to do-physics??
+*** TODO [#C] Formatter shows which buttons you are pressing. hook into event handler?
+*** TODO [#B] Function to uniformly pretty-print events
+*** TODO [#C] option cells
+*** TODO [#C] toggle-cells
+*** TODO [#C] Data entry area like in excel?
 *** TODO cursor
 *** TODO [#C] scrolling
-*** TODO [#C] row/column headers
-*** TODO [#A] only update strings every physics timestep
+*** TODO [#B] row/column headers
+*** TODO [#C] only update strings every physics timestep
 
 ** XE2 CORE IMPROVEMENTS
 *** TODO Improve slime support http://common-lisp.net/pipermail/slime-devel/2008-August/015390.html

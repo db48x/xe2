@@ -89,6 +89,12 @@
 (defparameter *even-columns-format* '(:background ".gray50" :foreground ".gray10"))
 (defparameter *odd-columns-format* '(:background ".gray45" :foreground ".gray10"))
 
+(define-method handle-key form (keylist)
+  ;; capture events.
+)
+
+;; TODO (define-method hit form (x y) 
+
 (define-method render form ()
   [clear self]
   (when <world>

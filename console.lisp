@@ -642,7 +642,7 @@ display."
 		 ;; clean this up. these two cases aren't that different.
 		 (progn 
 		   (sdl:clear-display sdl:*black*)
-		   (when *held-keys*
+		   (when *held-keys* ;; TODO move this to do-physics?
 		     (send-held-events))
 		   (show-widgets)
 		   (sdl:update-display)))))))
