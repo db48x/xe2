@@ -362,7 +362,14 @@
       [set data-cell (random 10)]))
   (dotimes (n 6)
     (let ((var-cell (clone =var-cell= (car (one-of '(:foo :bar :baz))))))
-      [drop-cell self var-cell (random <height>) (random <width>)])))
+      [drop-cell self var-cell (random <height>) (random <width>)]))
+  (dotimes (n 3)
+    (let ((event-cell (clone =event-cell=)))
+      [select event-cell]
+      [drop-cell self event-cell (random <height>) (random <width>)]))
+  (dotimes (n 2)
+    (let ((event-cell (clone =event-cell=)))
+      [drop-cell self event-cell (random <height>) (random <width>)])))
 
 
 

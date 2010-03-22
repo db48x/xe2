@@ -64,7 +64,8 @@
 	   *frequency* *output-chunksize* *output-channels* halt-sample
   *dt* *physics-function* =equipment= *default-world-axis-size*
   *default-world-z-size* =browser= install-widgets 
-  =form= =data-cell= =var-cell= =option-cell= =toggle-cell=
+  =form= =data-cell= =var-cell= =option-cell= =toggle-cell= =event-cell=
+  =comment-cell=
   *initialization-hook* initialize-engine split-string-on-lines
   message *screen-width* transform-method-body roll-under make-stat
   =formatter= initialize-colors *standard-categories*
@@ -75,7 +76,7 @@
   icon-image *compass-directions* *compass-opposites*
   find-resource-property compose-blank-fields font-width font-height
   *browser* browser set-browser transform-field-reference
-  *screen-height* =inventory= formatted-line-width
+  *screen-height* =inventory= formatted-line-width *last-event*
   formatted-line-height formatted-string-height formatted-string-width
   get-color create-image draw-image play define-prototype has-field
   defcell *choose-direction-menu* set-field-options field-option-value

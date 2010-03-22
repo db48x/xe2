@@ -2,28 +2,39 @@
 CLOSED: [2010-03-20 Sat 11:03]
 ** DONE ambient but upbeat first level track
 CLOSED: [2010-03-20 Sat 14:03]
-
-
 ** TODO Port cell mode
 *** DONE get basic display working with a few items
 CLOSED: [2010-03-22 Mon 02:46]
-*** TODO [#A] data propagation between cells
 *** TODO [#A] button cells
-*** TODO [#A] event capture cell
 *** TODO [#A] comment cell
+*** TODO [#A] cursor and activation
+*** TODO [#A] data propagation between cells
+*** TODO [#A] event capture cell 
+*** TODO [#B] Function to uniformly pretty-print events
 *** TODO [#B] default keybindings in initializer
 *** TODO [#B] implement proper key repeat in prompt // move send-held-events to do-physics??
-*** TODO [#C] Formatter shows which buttons you are pressing. hook into event handler?
-*** TODO [#B] Function to uniformly pretty-print events
-*** TODO [#C] option cells
-*** TODO [#C] toggle-cells
-*** TODO [#C] Data entry area like in excel?
-*** TODO cursor
-*** TODO [#C] scrolling
 *** TODO [#B] row/column headers
+*** TODO [#C] Data entry area like in excel?
+*** TODO [#C] Formatter shows which buttons you are pressing. hook into event handler?
+*** TODO [#C] calculate via mouse which cell is clicked
 *** TODO [#C] only update strings every physics timestep
-
-** XE2 CORE IMPROVEMENTS
+*** TODO [#C] option cells
+*** TODO [#C] scrolling
+*** TODO [#C] toggle-cells
+** TODO XE2 CORE IMPROVEMENTS
+** TODO break viewport tile drawing out into method db48x can customize.
+** TODO fix awkward situation for popups
+(05:02:37 PM) David O'Toole: hey! popup controls?? :)
+(05:02:38 PM) David O'Toole: cool
+(05:03:28 PM) db48x: yea
+(05:03:55 PM) db48x: I ended up having to add it to the active-modules while simultaneously removing the prompt from the active list
+(05:04:15 PM) db48x: and pausing the game, and turning off held keys, etc
+(05:04:22 PM) db48x: then setting a continuation to turn it all back on
+(05:04:57 PM) Mowah [~no@81-234-104-159-no80.tbcn.telia.com] entered the room.
+(05:06:39 PM) David O'Toole: ah. ok, i should fix that. 
+(05:06:44 PM) db48x: I need a thought-bubble graphic to stick underneath the textbox
+(05:06:59 PM) db48x: hmm
+** CONS!
 *** TODO Improve slime support http://common-lisp.net/pipermail/slime-devel/2008-August/015390.html
 *** TODO XE2 EASY SETUP FUNCTIONS
 

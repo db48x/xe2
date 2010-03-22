@@ -185,6 +185,8 @@ for backward-compatibility."
 
 ;;; Event handling and widgets
 
+(defvar *event* nil)
+
 (defun send-event-to-widgets (event)
   "Keyboard, mouse, joystick, and timer events are represented as
 event lists of the form:
@@ -233,6 +235,7 @@ else.")
 
 (defun dispatch-event (event)
   "Send EVENT to the handler function."
+  (setf *event* event)
   (if *event-handler-function*
       (progn (message "TRANSLATED EVENT: ~A" event)
 	     (funcall *event-handler-function* event))
@@ -645,6 +648,7 @@ display."
 		   (when *held-keys* ;; TODO move this to do-physics?
 		     (send-held-events))
 		   (show-widgets)
+		   (setf *event* nil)
 		   (sdl:update-display)))))))
 		 
 

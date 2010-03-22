@@ -152,4 +152,29 @@
 (define-method compute var-cell ()
   (setf <label> (list (cons (format nil " VARIABLE: ~A  " <variable>) *var-cell-style*))))
 
+;;; Event cell picks up last event when clicked
+
+(defparameter *event-cell-style* '(:foreground ".yellow" :background ".forest green"))
+
+(defcell event-cell event capturing)
+
+(define-method set event-cell (event)
+  (setf <event> event))
+
+(define-method get event-cell ()
+  <event>)
+
+(define-method compute event-cell ()
+  (when (and <capturing> *event*)
+    (setf <event> *event*)
+    (setf <capturing> nil))
+  ;; update the label
+  (setf <label> (list (cons (format nil " EVENT: ~S  " <event>) *event-cell-style*))))
+
+(define-method select event-cell ()
+  ;; capture next event
+  (setf <capturing> t)
+  (setf <label> "CAPTURING EVENT..."))
+
+
 ;;; forms.lisp ends here
