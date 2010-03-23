@@ -9,6 +9,8 @@ CLOSED: [2010-03-23 Tue 06:35]
 *** DONE [#A] set up variables
 CLOSED: [2010-03-23 Tue 06:35]
 *** TODO [#A] finish working dialog box!!
+**** TODO tidy up event handling code
+**** TODO deactivate held keys when in dialog boxes
 **** TODO [#A] implement proper key repeat in prompt // move send-held-events to do-physics??
 **** TODO [#A] cancel button resets to default
 **** TODO [#A] ok button copies variables to keybindings

@@ -175,7 +175,6 @@ for backward-compatibility."
 
 (defun hold-event (event)
   (when (null (gethash event *key-table*))
-    (message "Inserting event ~A" event)
     (setf (gethash event *key-table*) 0)))
 
 (defun release-held-event (event)
