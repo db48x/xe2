@@ -704,13 +704,14 @@ This method allocates a new SDL surface when necessary."
   (pager-height :initform 20
 		:documentation "Height in pixels of the pager")
   (background-color :initform ".gray18")
-  (style :initform '(:foreground ".gray60")
-	 :documentation "Text style properties for pager display")
   (prefix-string :initform " F")
   (number-separator-string :initform ": ")
   (separator-string :initform "  ")
-  (highlighted-style :initform '(:foreground ".gray20" :background ".white")))
-
+  (style :initform '(:foreground ".gray60")
+	 :documentation "Text style properties for pager display")
+  (highlighted-style :initform '(:foreground ".gray20" :background ".white"))
+  (properties :initform (make-hash-table :test 'eq)))
+  
 (define-method initialize pager ()
   [parent>>initialize self]
   [auto-position self]
@@ -721,6 +722,16 @@ This method allocates a new SDL surface when necessary."
     [define-key self "F2" nil #'s2]
     [define-key self "F3" nil #'s3]))
 
+(define-method page-property pager (page-name property-keyword)
+  (getf (gethash page-name <properties>) property-keyword))
+
+(define-method set-page-property pager (page-name property-keyword value)
+  (setf (gethash page-name <properties>)
+	(let ((props (gethash page-name <properties>)))
+	  (setf (getf props property-keyword) value)
+	  props))
+  (message "Page property set. ~A" (list page-name (gethash page-name <properties>))))
+
 (define-method select pager (page)
   (let ((newpage (etypecase page
 		   (number (car (nth (- page 1) <pages>)))
@@ -729,6 +740,10 @@ This method allocates a new SDL surface when necessary."
 	(message "WARNING: Cannot find page.")
 	(progn 
 	  (setf <current-page> newpage)
+	  ;; respect held keys property setting
+	  (if [page-property self newpage :held-keys]
+	      (enable-held-keys)
+	      (disable-held-keys))
 	  ;; insert self always as first widget
 	  (apply #'xe2:install-widgets self (cdr (assoc newpage <pages>)))))))
 
@@ -736,7 +751,8 @@ This method allocates a new SDL surface when necessary."
   [resize self :width width :height <pager-height>]
   [move self :x 0 :y (- xe2:*screen-height* <pager-height>)])
 
-(define-method add-page pager (keyword &rest widgets)
+(define-method add-page pager (keyword widgets &rest properties)
+  (assert (listp widgets))
   (push (cons keyword widgets) <pages>))
 
 (define-method get-page-names pager ()
