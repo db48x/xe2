@@ -112,9 +112,9 @@
 (defparameter *odd-columns-format* '(:background ".gray45" :foreground ".gray10"))
 
 (define-method handle-key form (event)
+  ;; possibly forward event to current cell. used for the event cell, see below.
   (let ((cell [current-cell self]))
     (when (and cell (has-method :handle-key cell))
-      ;; forward event
       [handle-key cell event]))
   ;; resume normal processing
   [parent>>handle-key self event])
@@ -128,24 +128,29 @@
 				   row-spacing rows columns draw-blanks column-widths) self
       [compute-geometry self]
       (let ((image <image>)
-	    (x 0) (y 0)
+	    (x 0) (y 0) (data nil)
 	    (cursor-dimensions nil))
 	(dotimes (row rows)
 	  (setf x 0)
+	  (setf data nil)
 	  (dotimes (column columns)
 	    (let ((column-width (aref column-widths column))
 		  (row-height (aref row-heights row))
 		  (cell [cell-at self row column]))
 	      (if (null cell)
-		  (when draw-blanks
-		    (draw-box x y 
-			      column-width 
-			      row-height  
-			      :stroke-color ".gray30"
-			      :color (if (evenp column) ".gray50" ".gray45")
-			      :destination image))
-		  (progn [compute cell]
-			 [form-render cell image x y]))
+		  (progn (setf data nil)
+			 (when draw-blanks
+			   (draw-box x y 
+				     column-width 
+				     row-height  
+				     :stroke-color ".gray30"
+				     :color (if (evenp column) ".gray50" ".gray45")
+				     :destination image)))
+		  (progn (when data 
+			   [set cell data])
+			 [compute cell]
+			 (setf data [get cell])
+			 [form-render cell image x y column-width]))
 	      ;; possibly draw cursor
 	      (when (and (= row cursor-row) (= column cursor-column))
 		(setf cursor-dimensions (list x y column-width row-height)))
@@ -195,25 +200,6 @@
 (define-method move-cursor-right form ()
   [move-cursor self :right])
 
-
-		;; move to beginning or end of line
-      ;; 		(:beginning-of-line 
-      ;; 		 (list cursor-row 0))
-      ;; 		(:end-of-line 
-
-      ;; 		 (list cursor-row (- cols 1)))))))
-      ;; (setf <cursor> new-cursor)
-      ;; (if <raw-display-p>
-      ;; 	  ;; just move point to where cursor should go
-      ;; 	  (progn
-      ;; 	    (let ((buffer-position (+ 1 (second new-cursor)
-      ;; 				      (* (first new-cursor)
-      ;; 					 (+ 1 (grid-columns grid))))))
-      ;; 	      (goto-char buffer-position))))
-      ;; ;; now render
-      ;; [render: self]))
-
-
 ;;; A data cell just prints out the stored value.
 
 (defparameter *data-cell-style* '(:foreground ".gray40" :background ".white"))
@@ -228,9 +214,9 @@
 
 (define-method compute data-cell ()
   ;; update the label
-  (setf <label> (list (cons (format nil " DATA: ~S  " <data>) *data-cell-style*))))
+  (setf <label> (list (cons (format nil " ~S  " <data>) *data-cell-style*))))
 
-;;; A var cell stores a value into a variable. 
+;;; A var cell stores a value into a variable, and reads it.
 
 (defparameter *var-cell-style* '(:foreground ".white" :background ".blue"))
 
@@ -246,9 +232,9 @@
   [get-variable *world* <variable>])
 
 (define-method compute var-cell ()
-  (setf <label> (list (cons (format nil " VARIABLE: ~A  " <variable>) *var-cell-style*))))
+  (setf <label> (list (cons (format nil ">> ~A  " <variable>) *var-cell-style*))))
 
-;;; Event cell picks up last event when clicked
+;;; Event cell picks up next event when clicked
 
 (defparameter *event-cell-style* '(:foreground ".yellow" :background ".forest green"))
 
@@ -269,11 +255,27 @@
   (setf <label> 
 	(list (cons (if <capturing>
 			" CAPTURING... "
-			(format nil " EVENT: ~S  " <event>)) *event-cell-style*))))
+			(format nil " ~S " <event>)) *event-cell-style*))))
 
 (define-method select event-cell ()
   ;; capture next event
   (setf <capturing> t))
 
+;;; Comment cell just displays text.
+
+(defparameter *comment-cell-style* '(:foreground ".white" :background ".gray20"))
+
+(defcell comment-cell comment)
+
+(define-method initialize comment-cell (comment)
+  (setf <comment> comment))
+  
+(define-method set comment-cell (comment) nil)
+
+(define-method get comment-cell ()
+  <comment>)
+
+(define-method compute comment-cell () 
+  (setf <label> (list (cons (format nil " ~A " <comment>) *comment-cell-style*))))
 
 ;;; forms.lisp ends here

@@ -1,33 +1,23 @@
-** DONE splash screen with music
-CLOSED: [2010-03-20 Sat 11:03]
-** DONE ambient but upbeat first level track
-CLOSED: [2010-03-20 Sat 14:03]
 ** TODO Port cell mode
 *** DONE get basic display working with a few items
 CLOSED: [2010-03-22 Mon 02:46]
 *** DONE [#A] data and variable cells
 *** DONE [#A] "event" cell 
 CLOSED: [2010-03-22 Mon 17:25]
-*** DONE [#B] default keybindings in initializer
-CLOSED: [2010-03-22 Mon 18:45]
-*** DONE [#A] moving yellow cursor
-CLOSED: [2010-03-22 Mon 18:45]
-*** DONE [#A] invoking "select" on cells
-CLOSED: [2010-03-22 Mon 18:46]
-*** DONE [#A] event capture cell 
-CLOSED: [2010-03-22 Mon 19:06]
-*** DONE [#A] review joystick handling code
-CLOSED: [2010-03-22 Mon 19:24]
-*** DONE [#A] get rid of circle/square nonsense, use :button-1 :button-2
-CLOSED: [2010-03-22 Mon 19:25]
-*** TODO [#A] data propagation between cells
-*** TODO [#A] set up variables
-*** TODO [#A] ok button copies variables to keybindings
-*** TODO [#B] cancel button resets to default
-*** TODO [#A] comment cell
-*** TODO [#B] header-line with help
-*** TODO [#B] Function to uniformly pretty-print events
-*** TODO [#B] implement proper key repeat in prompt // move send-held-events to do-physics??
+*** DONE allow general background color for cells (pixel spacer?)
+CLOSED: [2010-03-23 Tue 06:35]
+*** DONE [#A] set up variables
+CLOSED: [2010-03-23 Tue 06:35]
+*** TODO [#A] finish working dialog box!!
+**** TODO [#A] implement proper key repeat in prompt // move send-held-events to do-physics??
+**** TODO [#A] cancel button resets to default
+**** TODO [#A] ok button copies variables to keybindings
+**** TODO [#B] header-line with help
+**** TODO [#B] Function to uniformly pretty-print events
+*** TODO [#C] simple customizer grammar
+*** TODO [#C] cursor and save-excursion for the logo world gen stuff
+*** DONE [#A] comment cell
+CLOSED: [2010-03-23 Tue 05:55]
 *** TODO [#B] row/column headers
 *** TODO [#C] Data entry area like in excel?
 *** TODO [#C] Formatter shows which buttons you are pressing. hook into event handler?

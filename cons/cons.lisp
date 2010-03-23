@@ -352,22 +352,27 @@
   
 (define-prototype joystick-world (:parent =world=)
   (height :initform 12)
-  (width :initform 16))
+  (width :initform 6))
 
 (define-method generate joystick-world ()
   [create-default-grid self]
-  (dotimes (n 5)
-    (let ((data-cell (clone =data-cell=)))
-      [drop-cell self data-cell (random <height>) (random <width>)]
-      [set data-cell (random 10)]))
-  (dotimes (n 6)
-    (let ((var-cell (clone =var-cell= (car (one-of '(:foo :bar :baz))))))
-      [drop-cell self var-cell (random <height>) (random <width>)]))
-  (dotimes (n 3)
-    (let ((event-cell (clone =event-cell=)))
-      [drop-cell self event-cell (random <height>) (random <width>)])))
-
-
+  ;; todo write 
+  (let ((row 1))
+    (labels ((drop-config-row (command)
+	       (let ((event-cell (clone =event-cell=))
+		     (var-cell (clone =var-cell= command))
+		     (data-cell (clone =data-cell=)))
+		 [drop-cell self event-cell row 1]
+		 [drop-cell self var-cell row 2]
+		 [drop-cell self data-cell row 3])
+	       (incf row)))
+      (let ((c1 (clone =comment-cell= "Input event"))
+	    (c2 (clone =comment-cell= "Command to run")))
+	[drop-cell self c1 row 1]
+	[drop-cell self c2 row 2]
+	(incf row))
+      (dolist (dir '(:up :down :left :right :push :pop :rotate :call))
+	(drop-config-row dir)))))
 
 ;;; Main program. 
 

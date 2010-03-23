@@ -146,10 +146,12 @@ possibly return one of them."
 	(font-height font))))
 
 (defun formatted-string-width (S)
-  (destructuring-bind (string &key image (font *default-font*) &allow-other-keys) S
-    (if image 
-	(image-width image)
-	(* (font-width font) (length string)))))
+  (destructuring-bind (string &key image width (font *default-font*) &allow-other-keys) S
+    (declare (ignore string))
+    (or width
+	(if image 
+	    (image-width image)
+	    (* (font-width font) (length string))))))
 
 (defun formatted-line-height (line)
   (apply #'max (mapcar #'formatted-string-height line)))
@@ -164,9 +166,16 @@ for rendered text in the line. (This is used to make text align with
 inline images that are larger than the text height---see also
 `render-formatted-line')."
   (destructuring-bind (string &key (foreground ".white") 
-			      (font *default-font*)
-			      background image)
+		       width
+		       (font *default-font*)
+		       background image)
       formatted-string
+    ;; if :width is specified, draw a background square of that width
+    (when (integerp width)
+      (draw-box x y width (formatted-string-height formatted-string)
+		:stroke-color background :color background
+		:destination destination))
+    ;; now draw foreground image or text
     (if image
 	(draw-image (typecase image
 		      (string (find-resource-object image))
