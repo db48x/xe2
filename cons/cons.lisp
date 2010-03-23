@@ -488,9 +488,10 @@
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
     (xe2:install-widgets splash-prompt splash)
-    [add-page *pager* :testing form-prompt form]
-    [add-page *pager* :game prompt stack viewport terminal quickhelp *status* ]
-    [add-page *pager* :help help]
+    [add-page *pager* :testing (list form-prompt form)]
+    [add-page *pager* :game (list prompt stack viewport terminal quickhelp *status*)]
+    [set-page-property *pager* :game :held-keys :t]
+    [add-page *pager* :help (list help)]
 ))
 
 

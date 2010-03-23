@@ -57,16 +57,6 @@ disabled."
   "Generate an all-purpose sequence number."
   (+ x (incf *sequence-number*)))
 
-;;; Physics timestep callback
-
-(defvar *dt* 10)
-
-(defvar *physics-function* nil)
-
-(defun do-physics (&rest args) 
-  (when (functionp *physics-function*)
-    (apply *physics-function* args)))
-
 ;;; Mixer channels
 
 (defvar *channels* 128 "Number of audio mixer channels to use.")
@@ -201,6 +191,16 @@ for backward-compatibility."
 	       (message "Breaking ~S due to match with ~S." event2 event)
 	       (remhash event2 *key-table*))))
     (maphash #'break-it *key-table*)))
+
+;;; Physics timestep callback
+
+(defvar *dt* 10)
+
+(defvar *physics-function* nil)
+
+(defun do-physics (&rest args) 
+  (when (functionp *physics-function*)
+    (apply *physics-function* args)))
 
 ;;; Event handling and widgets
 
@@ -662,8 +662,7 @@ display."
 		 ;; clean this up. these two cases aren't that different.
 		 (progn 
 		   (sdl:clear-display sdl:*black*)
-		   (when *held-keys* ;; TODO move this to do-physics?
-		     (send-held-events))
+		   (when *held-keys* (send-held-events)) ;; TODO move this to do-physics?
 		   (show-widgets) 
 		   (sdl:update-display)))))))
 		 

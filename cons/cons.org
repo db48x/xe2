@@ -9,13 +9,16 @@ CLOSED: [2010-03-23 Tue 06:35]
 *** DONE [#A] set up variables
 CLOSED: [2010-03-23 Tue 06:35]
 *** TODO [#A] finish working dialog box!!
-**** TODO tidy up event handling code
-**** TODO deactivate held keys when in dialog boxes
+**** DONE tidy up event handling code
+CLOSED: [2010-03-23 Tue 17:45]
+**** TODO page configuration plist tells whether to use held keys or not
+**** TODO deactivate held keys when in dialog boxes 
 **** TODO [#A] implement proper key repeat in prompt // move send-held-events to do-physics??
 **** TODO [#A] cancel button resets to default
 **** TODO [#A] ok button copies variables to keybindings
 **** TODO [#B] header-line with help
 **** TODO [#B] Function to uniformly pretty-print events
+**** TODO hold down shift/l2 to move a single space
 *** TODO [#C] simple customizer grammar
 *** TODO [#C] cursor and save-excursion for the logo world gen stuff
 *** DONE [#A] comment cell
