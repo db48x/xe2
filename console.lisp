@@ -139,6 +139,18 @@ and the like."
 ;; TODO why does this crash: 
 ;;  (show-widgets))
 
+(defun install-widget (widget)
+  (unless (find widget *module-widgets*)
+    (setf *module-widgets* (append *module-widgets* (list widget))))
+  (unless (find widget *active-widgets*)
+    (setf *active-widgets* (append *active-widgets* (list widget))))
+  (show-widgets))
+
+(defun uninstall-widget (widget)
+  (setf *module-widgets* (delete widget *module-widgets* :test #'eq))
+  (setf *active-widgets* (delete widget *active-widgets* :test #'eq))
+  (show-widgets))
+
 ;;; Key repeat emulation
 
 (defvar *key-table* (make-hash-table :test 'equal))
