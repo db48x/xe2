@@ -173,6 +173,14 @@ for backward-compatibility."
   (setf *held-keys* nil))
 ;;  (sdl:disable-key-repeat))
 
+(defun hold-event (event)
+  (when (null (gethash event *key-table*))
+    (message "Inserting event ~A" event)
+    (setf (gethash event *key-table*) 0)))
+
+(defun release-held-event (event)
+  (setf (gethash event *key-table*) -1))
+
 (defun send-held-events ()
   (unless (null *key-table*)
     (maphash #'(lambda (event counter)
@@ -196,8 +204,6 @@ for backward-compatibility."
     (maphash #'break-it *key-table*)))
 
 ;;; Event handling and widgets
-
-(defvar *event* nil)
 
 (defun send-event-to-widgets (event)
   "Keyboard, mouse, joystick, and timer events are represented as
@@ -619,9 +625,7 @@ display."
       (:key-down-event (:key key :mod-key mod)
 		       (let ((event (make-event key mod)))
 			 (if *held-keys*
-			     (when (null (gethash event *key-table*))
-			       (message "Inserting event ~A" event)
-			       (setf (gethash event *key-table*) 0))
+			     (hold-event event)
 			     (dispatch-event event))))
       (:key-up-event (:key key :mod-key mod)
 		     (when *held-keys*
@@ -635,8 +639,8 @@ display."
 				   ;; This event hasn't yet been sent,
 				   ;; but the key release happened
 				   ;; now. Mark this entry as pending
-				   ;; deletion (by setting its value to -1)
-				   (setf (gethash event *key-table*) -1)))
+				   ;; deletion.
+				   (release-held-event event)))
 			     (break-events event)))))
       (:idle ()
 	     (if *timer-p*
@@ -662,7 +666,6 @@ display."
 		   (when *held-keys* ;; TODO move this to do-physics?
 		     (send-held-events))
 		   (show-widgets) 
-		   (setf *event* nil) ;; TODO where to do this? 
 		   (sdl:update-display)))))))
 		 
 
