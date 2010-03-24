@@ -100,6 +100,9 @@ keywords like :control, :alt, and so on."
   (remhash (normalize-event (cons key-name modifiers))
 	   <keymap>))
 
+(define-method clear-keymap widget ()
+  (setf <keymap> (make-hash-table :test 'equal)))
+
 (define-method handle-key widget (keylist)
   "Look up and invoke the function (if any) bound to KEYLIST. Return t
 if a binding was found, nil otherwise."

@@ -8,14 +8,19 @@ CLOSED: [2010-03-22 Mon 17:25]
 CLOSED: [2010-03-23 Tue 06:35]
 *** DONE [#A] set up variables
 CLOSED: [2010-03-23 Tue 06:35]
-*** TODO [#A] finish working dialog box!!
+*** TODO [#A] finish working dialog box!
 **** DONE tidy up event handling code
 CLOSED: [2010-03-23 Tue 17:45]
-**** TODO page configuration plist tells whether to use held keys or not
-**** TODO deactivate held keys when in dialog boxes 
-**** TODO [#A] implement proper key repeat in prompt // move send-held-events to do-physics??
-**** TODO [#A] cancel button resets to default
+**** DONE page configuration plist tells whether to use held keys or not
+CLOSED: [2010-03-23 Tue 18:25]
+**** DONE deactivate held keys when in dialog boxes 
+CLOSED: [2010-03-23 Tue 18:25]
+**** DONE [#A] change joystick form to store prompt insertions instead of method keywords
+CLOSED: [2010-03-23 Tue 20:53]
+**** TODO link/command button. maps /highlights prefixes to whatever text link typed
 **** TODO [#A] ok button copies variables to keybindings
+**** TODO [#A] cancel button resets to default
+**** TODO [#A] implement proper key repeat in prompt // movedevshot send-held-events to do-physics??
 **** TODO [#B] header-line with help
 **** TODO [#B] Function to uniformly pretty-print events
 **** TODO hold down shift/l2 to move a single space

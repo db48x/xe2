@@ -114,10 +114,10 @@
 (define-method handle-key form (event)
   ;; possibly forward event to current cell. used for the event cell, see below.
   (let ((cell [current-cell self]))
-    (when (and cell (has-method :handle-key cell))
-      [handle-key cell event]))
-  ;; resume normal processing
-  [parent>>handle-key self event])
+    (if (and cell (has-method :handle-key cell))
+	(or [handle-key cell event]
+	    [parent>>handle-key self event])
+	[parent>>handle-key self event])))
 
 ;; TODO (define-method hit form (x y) 
 
@@ -248,8 +248,10 @@
 
 (define-method handle-key event-cell (event)
   (when <capturing> 
-    (setf <event> event)
-    (setf <capturing> nil)))
+    ;; signal that we handled this event
+    (prog1 t
+      (setf <event> event)
+      (setf <capturing> nil))))
   
 (define-method compute event-cell () 
   (setf <label> 
@@ -277,5 +279,37 @@
 
 (define-method compute comment-cell () 
   (setf <label> (list (cons (format nil " ~A " <comment>) *comment-cell-style*))))
+
+;;; Button cell executes some lambda.
+
+(defparameter *button-cell-style* '(:foreground ".yellow" :background ".red"))
+
+(defparameter *button-cell-highlight-style* '(:foreground ".red" :background ".white"))
+
+(defparameter *button-cell-highlight-time* 15)
+
+(defcell button-cell button clock)
+
+(define-method initialize button-cell (&key closure text)
+  (setf <closure> closure)
+  (setf <clock> 0)
+  (setf <label> (list (cons text *button-cell-style*))))
+  
+(define-method set button-cell (button) nil)
+
+(define-method get button-cell () <closure>)
+
+(define-method compute button-cell () 
+  (with-fields (label clock) self
+    (unless (zerop clock)
+      (decf clock))
+    (setf (cdr (first label))
+	  (if (plusp clock)
+	      *button-cell-highlight-style*
+	      *button-cell-style*))))
+
+(define-method select button-cell ()
+  (funcall <closure>)
+  (setf <clock> *button-cell-highlight-time*))
 
 ;;; forms.lisp ends here

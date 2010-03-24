@@ -149,6 +149,7 @@
     (halt-sample t)
     [destroy *universe*]
     [set-player *universe* agent]
+    [set-player *form* agent]
     [set-character *status* agent]
     [play *universe*
 	  :address '(=highway=)]
@@ -266,7 +267,7 @@
     (dolist (k keys)
       (apply #'bind-key-to-prompt-insertion self k))))
 
-;;; Custom formatter.
+;;; Custom formatter pauses when shown; it's the help screen
 
 (define-prototype cons-formatter (:parent xe2:=formatter=))
 
@@ -345,35 +346,67 @@
 		      <height>
 		      :color ".blue" :destination <image>))
 
-
 ;;; Joystick screen.
 
 (defvar *form*)
   
+(defparameter *default-commands*
+  '(("aim :north ." "UP")
+    ("aim :south ." "DOWN")
+    ("aim :east ." "RIGHT")
+    ("aim :west ." "LEFT")
+    ("push ." "Z")
+    ("pop ." "X")
+    ("call ." "C")
+    ("rotate ." "V")
+    ("move ." "SPACE")
+    ("quit ." "Q" :control)))
+
 (define-prototype joystick-world (:parent =world=)
-  (height :initform 12)
-  (width :initform 6))
+  (height :initform 18)
+  (width :initform 6)
+  (prompt :initform nil))
+
+(define-method set-prompt joystick-world (prompt)
+  (setf <prompt> prompt))
+
+(define-method configure-keybindings joystick-world ()
+  (clon:with-field-values (prompt) self
+    [clear-keymap prompt]
+    (labels ((install (command event)
+	       (destructuring-bind (key &rest modifiers) event
+		 (message "Installing ~S" event)
+		 (bind-key-to-prompt-insertion prompt key modifiers
+					       :insertion command))))
+      (message "Configuring keybindings.")
+      (maphash #'install <variables>))))
 
 (define-method generate joystick-world ()
   [create-default-grid self]
   ;; todo write 
   (let ((row 1))
-    (labels ((drop-config-row (command)
+    (labels ((drop-config-row (command event)
 	       (let ((event-cell (clone =event-cell=))
-		     (var-cell (clone =var-cell= command))
-		     (data-cell (clone =data-cell=)))
+		     (var-cell (clone =var-cell= command)))
 		 [drop-cell self event-cell row 1]
-		 [drop-cell self var-cell row 2]
-		 [drop-cell self data-cell row 3])
+		 [set event-cell event]
+		 [drop-cell self var-cell row 2])
 	       (incf row)))
       (let ((c1 (clone =comment-cell= "Input event"))
-	    (c2 (clone =comment-cell= "Command to run")))
+	    (c2 (clone =comment-cell= "Command")))
 	[drop-cell self c1 row 1]
 	[drop-cell self c2 row 2]
 	(incf row))
-      (dolist (dir '(:up :down :left :right :push :pop :rotate :call))
-	(drop-config-row dir)))))
-
+      (dolist (command *default-commands*)
+	(destructuring-bind (command-string &rest event) command
+	  (drop-config-row command-string event)))
+      (incf row)
+      [drop-cell self (clone =button-cell= 
+			     :closure #'(lambda () 
+					  [configure-keybindings self])
+			     :text "  APPLY  ")
+		 row 2])))
+			
 ;;; Main program. 
 
 (defparameter *cons-window-width* 800)
@@ -445,6 +478,7 @@
 	       [loadout player]
 	       (let ((config-screen (clone =joystick-world=)))
 		 [generate config-screen]
+		 [set-prompt config-screen prompt]
 		 [configure form config-screen])
 	       ;;
 	       [set-character *status* player]
@@ -488,7 +522,7 @@
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
     (xe2:install-widgets splash-prompt splash)
-    [add-page *pager* :testing (list form-prompt form)]
+    [add-page *pager* :testing (list form)]
     [add-page *pager* :game (list prompt stack viewport terminal quickhelp *status*)]
     [set-page-property *pager* :game :held-keys :t]
     [add-page *pager* :help (list help)]
