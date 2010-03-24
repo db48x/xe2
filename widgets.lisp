@@ -163,7 +163,6 @@ possibly return one of them."
 
 (defun formatted-string-width (S)
   (destructuring-bind (string &key image width (font *default-font*) &allow-other-keys) S
-    (declare (ignore string))
     (or width
 	(if image 
 	    (image-width image)

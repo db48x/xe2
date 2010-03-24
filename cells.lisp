@@ -153,7 +153,7 @@ When nil, the method DRAW is invoked instead of using a tile.")
 
 (define-method form-render cell (image x y width)
   (let* ((label [form-label self])
-	 (shortfall (- width (formatted-string-width label)))
+	 (shortfall (- width (formatted-line-width label)))
 	 (color
 	  (or (when (and (listp label)
 			 (listp (last label)))
@@ -161,10 +161,9 @@ When nil, the method DRAW is invoked instead of using a tile.")
 	      ".cyan"))
 	 (spacer (when (plusp shortfall) 
 		   (list nil :width shortfall :background color))))
-    (render-formatted-line (if spacer 
-			       (append label (list spacer))
-			       label)
-			   x y :destination image)))
+    (let ((line (if spacer (append label (list spacer))
+		    label)))
+      (render-formatted-line line x y :destination image))))
 
 (define-method is-located cell ()
   "Returns non-nil if this cell is located somewhere on the grid."

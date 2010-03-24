@@ -161,7 +161,6 @@
 	  (incf y (+ row-spacing (aref row-heights row))))
 	;; render cursor if any
 	(when cursor-dimensions
-	  (message "DEBUG: ~S" cursor-dimensions)
 	  (destructuring-bind (x y w h) cursor-dimensions
 	    [draw-cursor self x y w h]))))))
 
@@ -227,7 +226,6 @@
   (setf <variable> variable))
 
 (define-method set var-cell (value)
-  (message "Setting ~S to value ~S" <variable> value)
   [set-variable *world* <variable> value])
 
 (define-method get var-cell ()
@@ -256,10 +254,22 @@
       (setf <capturing> nil))))
   
 (define-method compute event-cell () 
+  (message "COMPUTING ~S" <event>)
   (setf <label> 
 	(list (cons (if <capturing>
 			" CAPTURING... "
-			(format nil " ~S " <event>)) *event-cell-style*))))
+			(destructuring-bind (key &rest modifiers) <event>
+			  (if modifiers
+			      (format nil " ~A " 
+				      (concatenate 'string
+						   (apply #'concatenate 'string 
+							  (mapcar #'(lambda (mod)
+								      (format nil "~A " mod))
+								  modifiers))
+						   key))
+			      (concatenate 'string " " key " "))))
+		    *event-cell-style*)))
+  (message "LABELING ~S" <label>))
 
 (define-method select event-cell ()
   ;; capture next event
