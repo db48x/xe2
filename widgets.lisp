@@ -245,6 +245,7 @@ PROPERTIES are chosen from:
       If this is a string, the corresponding resource image is 
       found and displayed. If this is an image object, the image 
       itself is displayed.
+  - :WIDTH --- Occupy this pixel width if set to an integer.
   - :FONT ---  Font name. Defaults to *default-font*.
 ")
   (lines :documentation "Vector of lines.")
