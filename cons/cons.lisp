@@ -371,15 +371,15 @@
   (setf <prompt> prompt))
 
 (define-method configure-keybindings joystick-world ()
-  (clon:with-field-values (prompt) self
+  (clon:with-field-values (prompt variables) self
+    (assert (hash-table-p variables))
     [clear-keymap prompt]
     (labels ((install (command event)
 	       (destructuring-bind (key &rest modifiers) event
 		 (message "Installing ~S" event)
-		 (bind-key-to-prompt-insertion prompt key modifiers
-					       :insertion command))))
-      (message "Configuring keybindings.")
-      (maphash #'install <variables>))))
+		 (bind-key-to-prompt-insertion prompt key modifiers command))))
+      (message "Configuring ~S keybindings." (hash-table-count variables))
+      (maphash #'install variables))))
 
 (define-method generate joystick-world ()
   [create-default-grid self]
@@ -387,10 +387,12 @@
   (let ((row 1))
     (labels ((drop-config-row (command event)
 	       (let ((event-cell (clone =event-cell=))
-		     (var-cell (clone =var-cell= command)))
+		     (var-cell (clone =var-cell= command))
+		     (data-cell (clone =data-cell= )))
 		 [drop-cell self event-cell row 1]
 		 [set event-cell event]
-		 [drop-cell self var-cell row 2])
+		 [drop-cell self var-cell row 2]
+		 [drop-cell self data-cell row 3])
 	       (incf row)))
       (let ((c1 (clone =comment-cell= "Input event"))
 	    (c2 (clone =comment-cell= "Command")))
@@ -454,7 +456,6 @@
     ;; 
     [resize form :height 500 :width 800]
     [move form :x 0 :y 0]
-    ;;[show form]
     ;;
     [resize form-prompt :height 20 :width *cons-window-width*]
     [move form-prompt :x 0 :y (- *cons-window-height* 20)]
@@ -466,7 +467,11 @@
 	       ;;
 	       (xe2:halt-music 1000)
 	       (setf xe2:*physics-function* #'(lambda (&rest ignore)
-						(when *world* [run-cpu-phase *world* :timer])))
+						(when *world* [run-cpu-phase *world* :timer]
+						      ;; (maphash #'(lambda (&rest args)
+						      ;; 		   (message "VAR: ~S" args))
+						      ;; 	       (field-value :variables *world*))
+						      )))
 	       (xe2:enable-held-keys 1 3)
 	       ;;
 	       [set-player universe player]

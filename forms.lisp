@@ -124,7 +124,7 @@
 (define-method render form ()
   [clear self]
   (when <world>
-    (with-field-values (cursor-row cursor-column row-heights
+    (with-field-values (cursor-row cursor-column row-heights world
 				   row-spacing rows columns draw-blanks column-widths) self
       [compute-geometry self]
       (let ((image <image>)
@@ -146,11 +146,12 @@
 				     :stroke-color ".gray30"
 				     :color (if (evenp column) ".gray50" ".gray45")
 				     :destination image)))
-		  (progn (when data 
-			   [set cell data])
-			 [compute cell]
-			 (setf data [get cell])
-			 [form-render cell image x y column-width]))
+		  (let ((*world* world))
+		    (when data 
+		      [set cell data])
+		    [compute cell]
+		    (setf data [get cell])
+		    [form-render cell image x y column-width]))
 	      ;; possibly draw cursor
 	      (when (and (= row cursor-row) (= column cursor-column))
 		(setf cursor-dimensions (list x y column-width row-height)))
@@ -226,6 +227,7 @@
   (setf <variable> variable))
 
 (define-method set var-cell (value)
+  (message "Setting ~S to value ~S" <variable> value)
   [set-variable *world* <variable> value])
 
 (define-method get var-cell ()
@@ -311,5 +313,7 @@
 (define-method select button-cell ()
   (funcall <closure>)
   (setf <clock> *button-cell-highlight-time*))
+
+;; (error cons-game::*form*)
 
 ;;; forms.lisp ends here

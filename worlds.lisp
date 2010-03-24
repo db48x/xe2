@@ -55,7 +55,7 @@ required for travel here." )
   (sprite-grid :initform nil :documentation "Grid for collecting sprite collision information.")
   (sprite-table :initform nil :documentation "Hash table to prevent redundant collisions.")
   ;; forms processing
-  (variables :initform "Hash table mapping values to values, local to the form.")
+  (variables :initform nil :documentation "Hash table mapping values to values, local to the form.")
   ;; environment 
   (environment-grid :documentation "A two-dimensional array of environment data cells.")
   ;; lighting 
@@ -92,8 +92,7 @@ At the moment, only 0=off and 1=on are supported.")
   (setf <variables> (make-hash-table :test 'equal)))
 
 (define-method set-variable world (var value)
-  (let ((vars <variables>))
-    (setf (gethash var vars) value)))
+  (setf (gethash var <variables>) value))
 
 (define-method get-variable world (var)
   (gethash var <variables>))
