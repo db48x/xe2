@@ -1,62 +1,5 @@
-** TODO Port cell mode
-*** DONE get basic display working with a few items
-CLOSED: [2010-03-22 Mon 02:46]
-*** DONE [#A] data and variable cells
-*** DONE [#A] "event" cell 
-CLOSED: [2010-03-22 Mon 17:25]
-*** DONE allow general background color for cells (pixel spacer?)
-CLOSED: [2010-03-23 Tue 06:35]
-*** DONE [#A] set up variables
-CLOSED: [2010-03-23 Tue 06:35]
-*** DONE [#A] finish working dialog box!
-CLOSED: [2010-03-24 Wed 01:33]
-**** DONE tidy up event handling code
-CLOSED: [2010-03-23 Tue 17:45]
-**** DONE page configuration plist tells whether to use held keys or not
-CLOSED: [2010-03-23 Tue 18:25]
-**** DONE deactivate held keys when in dialog boxes 
-CLOSED: [2010-03-23 Tue 18:25]
-**** DONE [#A] change joystick form to store prompt insertions instead of method keywords
-CLOSED: [2010-03-23 Tue 20:53]
-**** TODO better error message about missing methods
-**** TODO generate color schemes via CFG
-**** TODO link/command button. maps /highlights prefixes to whatever text link typed
-**** TODO [#A] ok button copies variables to keybindings
-**** TODO [#A] cancel button resets to default
-**** TODO [#A] implement proper key repeat in prompt // movedevshot send-held-events to do-physics??
-**** TODO [#B] header-line with help
-**** TODO [#B] Function to uniformly pretty-print events
-**** TODO hold down shift/l2 to move a single space
-*** TODO [#C] simple customizer grammar
-*** TODO [#C] cursor and save-excursion for the logo world gen stuff
-*** DONE [#A] comment cell
-CLOSED: [2010-03-23 Tue 05:55]
-*** TODO [#B] row/column headers
-*** TODO [#C] Data entry area like in excel?
-*** TODO [#C] Formatter shows which buttons you are pressing. hook into event handler?
-*** TODO [#C] calculate via mouse which cell is clicked
-*** TODO [#C] only update strings every physics timestep
-*** TODO [#C] option cells
-*** TODO [#C] scrolling
-*** TODO [#C] toggle-cells
-** TODO XE2 CORE IMPROVEMENTS
-** TODO break viewport tile drawing out into method db48x can customize.
-** TODO fix awkward situation for popups
-(05:02:37 PM) David O'Toole: hey! popup controls?? :)
-(05:02:38 PM) David O'Toole: cool
-(05:03:28 PM) db48x: yea
-(05:03:55 PM) db48x: I ended up having to add it to the active-modules while simultaneously removing the prompt from the active list
-(05:04:15 PM) db48x: and pausing the game, and turning off held keys, etc
-(05:04:22 PM) db48x: then setting a continuation to turn it all back on
-(05:04:57 PM) Mowah [~no@81-234-104-159-no80.tbcn.telia.com] entered the room.
-(05:06:39 PM) David O'Toole: ah. ok, i should fix that. 
-(05:06:44 PM) db48x: I need a thought-bubble graphic to stick underneath the textbox
-(05:06:59 PM) db48x: hmm
 ** CONS!
-*** TODO Improve slime support http://common-lisp.net/pipermail/slime-devel/2008-August/015390.html
-*** TODO XE2 EASY SETUP FUNCTIONS
-
-** TODO SNAKE GAME, you are piloting a list! segments=hits?
+*** TODO SNAKE GAME, you are piloting a list! segments=hits?
 (05:29:03 PM) Elliott Slaughter: everything you pick up becomes part of the snake
 (05:29:07 PM) dto1138@gmail.com/D824BEDC: and how about you lose a segment when you're hit?
 (05:29:52 PM) Elliott Slaughter: sure
@@ -80,26 +23,49 @@ CLOSED: [2010-03-23 Tue 05:55]
 (05:35:11 PM) dto1138@gmail.com/D824BEDC: oh, should it be random access though? i.e. 1 2 3 4 5?
 (05:35:13 PM) dto1138@gmail.com/D824BEDC: keys
 (05:35:46 PM) dto1138@gmail.com/D824BEDC: or should one only be able to use the topmost for CALL? i think it's an interesting restriction. I could have ROTATEF instead of swap
-** TODO level does not fill grid. only short intersecting horz/vert rows. unlocked levels are visitable, completed levels unlock any adjacent levels
-** TODO darker 2nd track for security levels
-** TODO basic moving guy
-** TODO area synth capable of color/sound/music themed environments. use context-free grammars
-** TODO moving sprite player, analog joystick control? could work. check xiobreak dude code
-** TODO controls
-*** TODO push: add to head of snake
-*** TODO pop
-*** TODO call
-*** TODO swap
-** TODO a sector is completed when its objective is achieved
-*** TODO radiation areas
-** TODO overworld map whose output data target the area synth.
-** TODO green circuit world theme for maintenance/data archive levels and safer areas
-** TODO magenta security sector with areas that randomly sparkle before a proximity scanner eye opens to spawn enemies.
-** TODO disruptor
-** TODO bomb
-** TODO dark areas
-** TODO healing item
-** TODO inert blocks
-** TODO help screen
-** TODO tutorial
+*** TODO level does not fill grid. only short intersecting horz/vert rows. unlocked levels are visitable, completed levels unlock any adjacent levels
+*** TODO darker 2nd track for security levels
+*** TODO basic moving guy
+*** TODO area synth capable of color/sound/music themed environments. use context-free grammars
+*** TODO moving sprite player, analog joystick control? could work. check xiobreak dude code
+*** TODO controls
+**** TODO push: add to head of snake
+**** TODO pop
+**** TODO call
+**** TODO swap
+*** TODO a sector is completed when its objective is achieved
+**** TODO radiation areas
+*** TODO overworld map whose output data target the area synth.
+*** TODO green circuit world theme for maintenance/data archive levels and safer areas
+*** TODO magenta security sector with areas that randomly sparkle before a proximity scanner eye opens to spawn enemies.
+*** TODO disruptor
+*** TODO bomb
+*** TODO dark areas
+*** TODO healing item
+*** TODO inert blocks
+*** TODO help screen
+*** TODO tutorial
+** TODO PORT CELL MODE
+*** TODO [#A] cancel button resets to default
+*** TODO [#A] implement proper key repeat in prompt // movedevshot send-held-events to do-physics??
+*** TODO [#B] Function to uniformly pretty-print events
+*** TODO [#B] header-line with help
+*** TODO [#B] link/command button. maps /highlights prefixes to whatever text link typed
+*** TODO [#B] row/column headers
+*** TODO [#C] Data entry area like in excel?
+*** TODO [#C] Formatter shows which buttons you are pressing. hook into event handler?
+*** TODO [#C] calculate via mouse which cell is clicked
+*** TODO [#C] cursor and save-excursion for the logo world gen stuff
+*** TODO [#C] only update strings every physics timestep
+*** TODO [#C] option cells
+*** TODO [#C] scrolling
+*** TODO [#C] simple customizer grammar
+*** TODO [#C] toggle-cells
+** XE2 CORE IMPROVEMENTS
+*** TODO [#A] hold down shift/l2 to move a single space in xiotank?
+*** TODO [#C] better error message about missing methods
+*** TODO [#C] generate color schemes via CFG
+
+*** TODO Improve slime support http://common-lisp.net/pipermail/slime-devel/2008-August/015390.html
+*** TODO XE2 EASY SETUP FUNCTIONS (see util.lisp)
 
