@@ -259,14 +259,14 @@
 			" CAPTURING... "
 			(destructuring-bind (key &rest modifiers) <event>
 			  (if modifiers
-			      (let ((mod-string (format nil " ~A " 
+			      (let ((mod-string (format nil " ~A" 
 							(apply #'concatenate 'string 
 							       (mapcar #'(lambda (mod)
 									   (format nil "~A " mod))
 								       modifiers)))))
 				(if (string= "JOYSTICK" key)
-				    (concatenate 'string " " key mod-string)
-				    (concatenate 'string mod-string key)))
+				    (concatenate 'string key mod-string)
+				    (concatenate 'string mod-string key " ")))
 			      (concatenate 'string " " key " "))))
 		    *event-cell-style*))))
 
