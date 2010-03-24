@@ -254,22 +254,21 @@
       (setf <capturing> nil))))
   
 (define-method compute event-cell () 
-  (message "COMPUTING ~S" <event>)
   (setf <label> 
 	(list (cons (if <capturing>
 			" CAPTURING... "
 			(destructuring-bind (key &rest modifiers) <event>
 			  (if modifiers
-			      (format nil " ~A " 
-				      (concatenate 'string
-						   (apply #'concatenate 'string 
-							  (mapcar #'(lambda (mod)
-								      (format nil "~A " mod))
-								  modifiers))
-						   key))
+			      (let ((mod-string (format nil " ~A " 
+							(apply #'concatenate 'string 
+							       (mapcar #'(lambda (mod)
+									   (format nil "~A " mod))
+								       modifiers)))))
+				(if (string= "JOYSTICK" key)
+				    (concatenate 'string " " key mod-string)
+				    (concatenate 'string mod-string key)))
 			      (concatenate 'string " " key " "))))
-		    *event-cell-style*)))
-  (message "LABELING ~S" <label>))
+		    *event-cell-style*))))
 
 (define-method select event-cell ()
   ;; capture next event
