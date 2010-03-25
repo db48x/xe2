@@ -189,9 +189,10 @@ At the moment, only 0=off and 1=on are supported.")
 (define-method create-default-grid world ()
   "If height and width have been set in a world's definition,
 initialize the arrays for a world of the size specified there."
-  (when (and (numberp <width>)
-	     (numberp <height>))
-    [create-grid self :width <width> :height <height>]))
+  (if (and (numberp <width>)
+	   (numberp <height>))
+      [create-grid self :width <width> :height <height>]
+      (error "Cannot create default grid without height and width set.")))
 
 (define-method location-name world ()
   "Return the location name."
@@ -224,15 +225,22 @@ initialize the arrays for a world of the size specified there."
     (setf xe2:*grammar* grammar)
     (let ((program (generate 'world)))
       (or program (error "ERROR: Nothing was generated from this grammar."))
+      (message (prin1-to-string program))
+      [create-default-grid self]
       (dolist (op program)
 	(typecase op
 	  (keyword (if (clon:has-method op self)
-		       (send nil op self)
+		       (progn (message (prin1-to-string op))
+			      (send nil op self))
 		       (message "WARNING: Found keyword without corresponding method in turtle program.")))
 	  (symbol (when (null (keywordp op))
 		    (when (boundp op)
+		      (message "PUSHING ~S" (list op (symbol-value op)))
 		      (push (symbol-value op) stack))))
-	  (number (push op stack)))))))
+	  (number (message "PUSHING ~S" op)
+	     (push op stack)))
+	(message (prin1-to-string (list '---stack---- stack)))))))
+
 
 (define-method generate-with world (parameters)
   (apply #'send self :generate self parameters))
@@ -268,16 +276,18 @@ location."
   "Move N squares forward while painting cells. Clones N cells where N
 is the integer on the top of the stack."
   (clon:with-fields (paint stack) self
-    (let ((distance (pop stack)))
-      (if (integerp distance)
-	  (dotimes (n distance)
-	    [drop-cell self (clone (symbol-value paint)) <row> <column>]
-	    (multiple-value-bind (row column) 
-		(step-in-direction <row> <column> <direction>)
-	      (if (array-in-bounds-p <grid> row column)
-		  (setf <row> row <column> column)
-		  (error "Turtle left drawing area during DRAW."))))
-	  (error "Must pass an integer as distance for DRAW.")))))
+    (if (not (clon:object-p paint))
+	(error "No paint set.")
+	(let ((distance (pop stack)))
+	  (if (integerp distance)
+	      (dotimes (n distance)
+		[drop-cell self (clone paint) <row> <column>]
+		(multiple-value-bind (row column) 
+		    (step-in-direction <row> <column> <direction>)
+		  (if (array-in-bounds-p <grid> row column)
+		      (setf <row> row <column> column)
+		      (error "Turtle left drawing area during DRAW."))))
+	      (error "Must pass an integer as distance for DRAW."))))))
 
 (define-method pushloc world ()
   "Push the current row,col location onto the stack."
@@ -290,6 +300,24 @@ is the integer on the top of the stack."
 	(destructuring-bind (r c) loc
 	  (setf <row> r <column> c))
 	(error "Invalid location argument for POPLOC. Must be a list of two integers."))))
+
+(define-method right world ()
+  "Turn N degrees clockwise, where N is 0, 45, or 90."
+  (with-fields (direction stack) self
+    (labels ((turn45 () (setf direction (getf *right-turn* direction))))
+      (ecase (pop stack)
+	(0 nil)
+	(45 (turn45))
+	(90 (turn45) (turn45))))))
+
+(define-method left world ()
+  "Turn N degrees counter-clockwise, where N is 0, 45, or 90."
+  (with-fields (direction stack) self
+    (labels ((turn45 () (setf direction (getf *left-turn* direction))))
+      (ecase (pop stack)
+	(0 nil)
+	(45 (turn45))
+	(90 (turn45) (turn45))))))
 
 ;;; Narration
 

@@ -305,6 +305,28 @@
   (clon:with-field-values (direction row column) caller
     (multiple-value-bind (r c) (step-in-direction row column direction)
       [drop-cell *world* (clone =particle= direction) r c])))
+
+;;; Storage container 
+
+(define-prototype storage (:parent xe2:=world=)
+  (description :initform "Program storage center.")
+  (height :initform 25)
+  (width :initform 45)
+  (level :initform 1)
+  (ambient-light :initform :total)
+  (required-modes :initform nil)
+  (scale :initform '(1 xm))
+  (edge-condition :initform :block)
+  (grammar :initform 
+	   '((world >> (=block= :color 
+			10 :draw 
+			90 :right 
+			10 :draw 
+			90 :right 
+			10 :draw 
+			90 :right
+			10 :draw
+			=launchpad= :color :drop)))))
   
 ;;; Basic level
 
@@ -631,7 +653,7 @@
 	       ;;
 	       [set-player universe player]
 	       [play universe
-	       	     :address '(=highway=)
+	       	     :address '(=storage=)
 	       	     :prompt prompt
 	       	     :narrator terminal
 	       	     :viewport viewport]

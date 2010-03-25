@@ -1,7 +1,10 @@
 ** CONS!
+*** DONE when puzzle output is a plain symbol, push symbol-value foo onto arg stack then write =shocker= :drop
+CLOSED: [2010-03-25 Thu 16:53]
+*** DONE integrate PIC/LOGO concepts into World http://en.wikipedia.org/wiki/Pic_language
+CLOSED: [2010-03-25 Thu 16:53]
 *** TODO auto-loadout
-*** TODO integrate PIC/LOGO concepts into World http://en.wikipedia.org/wiki/Pic_language
-*** TODO when puzzle output is a plain symbol, push symbol-value foo onto arg stack then write =shocker= :drop
+*** TODO TEST :origin :right =wall= :color 10 draw right 10 draw right 10 draw right
 *** TODO http://en.wikipedia.org/wiki/Lindenmayer_system
 *** TODO turn off held keys? 
 *** TODO basic enemies
