@@ -1,4 +1,9 @@
 ** CONS!
+*** TODO auto-loadout
+*** TODO integrate PIC/LOGO concepts into World http://en.wikipedia.org/wiki/Pic_language
+*** TODO when puzzle output is a plain symbol, push symbol-value foo onto arg stack then write =shocker= :drop
+*** TODO http://en.wikipedia.org/wiki/Lindenmayer_system
+*** TODO turn off held keys? 
 *** TODO basic enemies
 *** TODO TERRAIN: area synth capable of color/sound/music themed environments. use context-free grammars
 **** TODO level does not fill grid. only short intersecting horz/vert rows. unlocked levels are visitable, completed levels unlock any adjacent levels
@@ -11,6 +16,7 @@
 *** TODO bomb
 *** TODO healing item
 *** TODO macrovirus
+*** TODO bases that grow tentacles and require bombs to destroy
 *** TODO xiocollector
 *** TODO inert blocks
 *** TODO help screen

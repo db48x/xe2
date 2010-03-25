@@ -40,7 +40,14 @@ interacting cells. The world object performs the following tasks:
 "A list of keywords specifying which modes of transportation are
 required for travel here." )
   (categories :initform "The set of categories this world is in.")
-  (mission-grammar :initform '())
+  ;; turtle graphics
+  (grammar :initform '() :documentation "Context-free grammar for level generation.")
+  (stack :initform '() :documentation "Stack for logo system.")
+  (row :initform 0)
+  (column :initform 0)
+  (direction :initform :east)
+  (paint :initform nil)
+  ;;
   (scale :initform '(1 m)
 	 :documentation "Scale per square side in the form (N UNIT) where UNIT is m, km, ly etc.")
   (player :documentation "The player cell (or sprite).")
@@ -178,7 +185,6 @@ At the moment, only 0=off and 1=on are supported.")
 			       :narrator :browser :viewport :player))
 	(setf <serialized-grid> nil)
 	(setf <serialized-sprites> nil)))))
-
     
 (define-method create-default-grid world ()
   "If height and width have been set in a world's definition,
@@ -201,6 +207,89 @@ initialize the arrays for a world of the size specified there."
   (setf (field-value condition 
 		     (aref <environment-grid> row column))
 	value))
+
+;;; LOGO-like level generation capabilities 
+
+;; Use turtle graphics to generate levels! One may write turtle
+;; programs by hand, or use context-free grammars to generate the
+;; turtle commands, or generate them programmatically in other ways.
+;; See also grammars.lisp.
+
+(define-method generate world (&rest parameters)
+  "Generate a world, reading generation parameters from the plist
+  PARAMETERS."  
+  (declare (ignore parameters))
+  (with-fields (grammar stack) self
+    (assert grammar)
+    (setf xe2:*grammar* grammar)
+    (let ((program (generate 'world)))
+      (or program (error "ERROR: Nothing was generated from this grammar."))
+      (dolist (op program)
+	(typecase op
+	  (keyword (if (clon:has-method op self)
+		       (send nil op self)
+		       (message "WARNING: Found keyword without corresponding method in turtle program.")))
+	  (symbol (when (null (keywordp op))
+		    (when (boundp op)
+		      (push (symbol-value op) stack))))
+	  (number (push op stack)))))))
+
+(define-method generate-with world (parameters)
+  (apply #'send self :generate self parameters))
+
+(define-method color world ()
+  "Set the color to =FOO= where FOO is the prototype symbol on top of
+the stack."
+  (let ((prototype (pop <stack>)))
+    (if (clon:object-p prototype)
+	(setf <paint> prototype)
+	(error "Must pass a =FOO= prototype symbol as a COLOR."))))
+
+(define-method drop world ()
+  "Clone the current <paint> object and drop it at the current turtle
+location."
+  (clon:with-field-values (paint row column) self
+    (if (clon:object-p paint)
+	[drop-cell self (clone paint) row column]
+	(error "Nothing to drop. Use =FOO= :COLOR to set the paint color."))))
+
+(define-method jump world ()
+  "Jump N squares forward where N is the integer on the top of the stack."
+  (let ((distance (pop stack)))
+    (if (integerp distance)
+	(multiple-value-bind (row column) 
+	    (step-in-direction <row> <column> <direction> distance)
+	  (if (array-in-bounds-p <grid> row column)
+	      (setf <row> row <column> column)
+	      (error "Turtle left drawing area during MOVE.")))
+	(error "Must pass an integer as distance for MOVE."))))
+      
+(define-method draw world ()
+  "Move N squares forward while painting cells. Clones N cells where N
+is the integer on the top of the stack."
+  (clon:with-fields (paint stack) self
+    (let ((distance (pop stack)))
+      (if (integerp distance)
+	  (dotimes (n distance)
+	    [drop-cell self (clone (symbol-value paint)) <row> <column>]
+	    (multiple-value-bind (row column) 
+		(step-in-direction <row> <column> <direction>)
+	      (if (array-in-bounds-p <grid> row column)
+		  (setf <row> row <column> column)
+		  (error "Turtle left drawing area during DRAW."))))
+	  (error "Must pass an integer as distance for DRAW.")))))
+
+(define-method pushloc world ()
+  "Push the current row,col location onto the stack."
+  (push (list <row> <column>) <stack>))
+
+(define-method poploc world ()
+  "Jump to the location on the top of the stack, and pop the stack."
+  (let ((loc (pop <stack>)))
+    (if (and (listp loc) (= 2 (length loc)) (every #'integerp loc))
+	(destructuring-bind (r c) loc
+	  (setf <row> r <column> c))
+	(error "Invalid location argument for POPLOC. Must be a list of two integers."))))
 
 ;;; Narration
 
@@ -777,15 +866,6 @@ along grid squares between R1,C1 and R2,C2."
 	 (old-column (field-value :column cell)))
     [delete-cell self cell old-row old-column]
     [drop-cell self cell row column]))
-
-(define-method generate world (&rest parameters)
-  "Generate a world, reading generation parameters from the plist
-  PARAMETERS."  
-  (declare (ignore parameters))
-  nil)
-
-(define-method generate-with world (parameters)
-  (apply #'send self :generate self parameters))
 
 ;;; The sprite layer. See also viewport.lisp
 

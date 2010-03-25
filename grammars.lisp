@@ -1,4 +1,4 @@
-;;; mission.lisp --- context-free grammar sentence generator
+;;; grammars.lisp --- more procedural generation hacks
 
 ;; Copyright (C) 2009  David O'Toole
 
@@ -79,13 +79,6 @@ concatenation.")
 ;; (AT NEBULA-M PLEASE DEFEAT XIOBLADE IN EXCHANGE FOR MUON-PISTOL)
 ;; (AT CORVA-3 PLEASE RETRIEVE DOCUMENTS AND ACTIVATE BUTTON IN EXCHANGE FOR
 ;;       ION-SHIELD-BELT)
-;; 
-;; TODO allow variable substitution
-;; TODO boil down to world addresses
-
-;; Missions are the fundamentally available things, 
-;; Gateways lead to missions, 
-;; Generating the "null" mission starts the game.
 
 (defstruct goal 
   name 
@@ -120,4 +113,4 @@ concatenation.")
 
   
 
-;;; mission.lisp ends here
+;;; grammars.lisp ends here

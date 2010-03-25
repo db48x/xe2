@@ -44,8 +44,7 @@
 ;;; Requirements:
 
 ;; This program requires a Common Lisp implementation and the
-;; LISPBUILDER-SDL packages. These are available from:
-;; http://lispbuilder.sourceforge.net/lispbuilder-sdl.html
+;; LISPBUILDER-SDL packages. See the included file INSTALL.
 
 ;; ASDF users can do the following:
 ;;
