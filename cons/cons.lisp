@@ -78,13 +78,48 @@
     (when (minusp (decf <timeout>))
       [die self])))
 
+;;; List body segments
+
+(defcell segment 
+  (tile :initform "segment")
+  (item-tile :initform nil :documentation "When non-nil, superimpose this tile.")
+  (description :initform "List snake body segment.")
+  (direction :initform :north :documentation "When non-nil, move once in this direction.")
+  (last-direction :initform :north)
+  (movement-cost :initform (make-stat :base 10))
+  (speed :initform (make-stat :base 10 :min 0 :max 10))
+  (categories :initform '(:actor :opaque :target :segment :drawn))
+  (team :initform :player))
+
+(define-method run segment ()
+  (when <direction>
+    [move self <direction>]
+    (setf <direction> nil)))
+
+(define-method move segment (direction)
+  (setf <last-direction> direction)
+  [parent>>move self direction :ignore-obstacles])
+
+(define-method queue-move segment (direction)
+  (setf <direction> direction))
+
+(define-method show-item segment (item-tile)
+  (setf <item-tile> item-tile))
+
+(define-method draw segment (x y image)
+  (draw-resource-image <tile> x y :destination image)
+  (when <item-tile>
+    (draw-resource-image <item-tile> x y :destination image)))
+
 ;;; Agent: the player
 
 (defcell agent 
   (tile :initform "agent-north")
   (description :initform "You are a sentient warrior cons cell.")
-  (car :initform nil)
-  (cdr :initform nil)
+  (segments :initform nil)
+  (items :initform nil)
+  (direction :initform :north)
+  (last-direction :initform :north :documentation "Last direction actually moved.")
   (dead :initform nil)
   (last-turn-moved :initform 0)
   (team :initform :player)
@@ -96,11 +131,10 @@
   (hearing-range :initform 15)
   (movement-cost :initform (make-stat :base 10))
   (stepping :initform t)
-  (direction :initform :north)
   (light-radius :initform 7)
   (categories :initform '(:actor :obstacle :player :target :container :light-source)))
 
-(define-method loadout agent () nil)
+(define-method loadout agent ())
 
 (define-method hit agent (&optional object)
   [play-sample self "ouch"]
@@ -125,11 +159,32 @@
       (unless (= <last-turn-moved> phase)
 	(setf <last-turn-moved> phase)
 	[aim self dir]
-	[parent>>move self dir]))))
+	(when [parent>>move self dir]
+	  ;; now move segments
+	  (let ((next-dir <last-direction>))
+	    (dolist (segment <segments>)
+	      [queue-move segment next-dir]
+	      (setf next-dir (field-value :last-direction segment))))
+	  (setf <last-direction> dir))))))
+
+(define-method add-segment agent (&optional force-row force-column)
+  (clon:with-fields (segments) self
+    (multiple-value-bind (row column)
+	(if (or (null segments) (or force-row force-column))
+	    (step-in-direction <row> <column> (opposite-direction <last-direction>))
+	    (when (and (consp segments)
+		       (consp (last segments))
+		       (clon:object-p (car (last segments))))
+	      (clon:with-field-values (row column last-direction) (car (last segments))
+		(step-in-direction row column (opposite-direction last-direction)))))
+      (let ((segment (clone =segment=)))
+	[drop-cell *world* segment (or force-row) (or force-column column)]
+	(push segment segments)))))
 
 (define-method push agent () nil)
 (define-method pop agent () nil)
 (define-method rotate agent () nil)
+(define-method call agent () nil)
 
 (define-method run agent () nil)
   
@@ -155,15 +210,15 @@
 	  :address '(=highway=)]
     [loadout agent]))
 
-;;; Green level
+;;; Basic level
 
 (defcell road
   (description :initform "Security vehicle transit area.")
-  (tile :initform "greenworld"))
+  (tile :initform "darkcyanworld"))
 
 (defcell barrier
   (description :initform "Impenetrable barrier.")
-  (tile :initform "darkgreenworld")
+  (tile :initform "cyanworld")
   (categories :initform '(:obstacle)))
 
 (define-prototype highway (:parent xe2:=world=)
@@ -479,6 +534,9 @@
 	       	     :narrator terminal
 	       	     :viewport viewport]
 	       [loadout player]
+	       (clon:with-field-values (row column) player 
+		 (dotimes (n 7)
+		   [add-segment player (- (+ row 8) n) column]))
 	       (let ((config-screen (clone =joystick-world=)))
 		 [generate config-screen]
 		 [set-prompt config-screen prompt]

@@ -512,7 +512,7 @@ are as with `format'."
 (define-method move cell (direction &optional ignore-obstacles)
   "Move this cell one step in DIRECTION on the grid. If
 IGNORE-OBSTACLES is non-nil, the move will occur even if an obstacle
-is in the way."
+is in the way. Returns non-nil if a move occurred."
   (let ((world *world*))
     (multiple-value-bind (r c) 
 	(step-in-direction <row> <column> direction)
