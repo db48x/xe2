@@ -364,7 +364,7 @@
 
 (define-prototype joystick-world (:parent =world=)
   (height :initform 18)
-  (width :initform 6)
+  (width :initform 4)
   (prompt :initform nil))
 
 (define-method set-prompt joystick-world (prompt)
@@ -387,15 +387,13 @@
   (let ((row 1))
     (labels ((drop-config-row (command event)
 	       (let ((event-cell (clone =event-cell=))
-		     (var-cell (clone =var-cell= command))
-		     (data-cell (clone =data-cell= )))
+		     (var-cell (clone =var-cell= command)))
 		 [drop-cell self event-cell row 1]
 		 [set event-cell event]
-		 [drop-cell self var-cell row 2]
-		 [drop-cell self data-cell row 3])
+		 [drop-cell self var-cell row 2])
 	       (incf row)))
-      (let ((c1 (clone =comment-cell= "Input event"))
-	    (c2 (clone =comment-cell= "Command")))
+      (let ((c1 (clone =comment-cell= "Keypress"))
+	    (c2 (clone =comment-cell= "Resulting action")))
 	[drop-cell self c1 row 1]
 	[drop-cell self c2 row 2]
 	(incf row))
@@ -527,7 +525,7 @@
     (setf *pager* (clone =pager=))
     [auto-position *pager*]
     (xe2:install-widgets splash-prompt splash)
-    [add-page *pager* :testing (list form)]
+    [add-page *pager* :config (list form)]
     [add-page *pager* :game (list prompt stack viewport terminal quickhelp *status*)]
     [set-page-property *pager* :game :held-keys :t]
     [add-page *pager* :help (list help)]

@@ -1,17 +1,16 @@
 ** CONS!
 *** DONE basic moving guy
 CLOSED: [2010-03-24 Wed 02:33]
-*** TODO implement player snake
-**** TODO create some segments
-**** TODO player pick up segments
-**** TODO player drop segments
+*** TODO BASIC MECHANICS: implement snake player
 **** TODO segments follow each other
+**** TODO segments display the inventory tiles
+**** TODO player pick up objects
+**** TODO player drop objects
 **** TODO distruptor gun
 **** TODO call
 **** TODO rotate
 **** TODO basic enemy
-*** TODO [#B] darker 2nd track for security levels
-*** TODO area synth capable of color/sound/music themed environments. use context-free grammars
+*** TODO TERRAIN: area synth capable of color/sound/music themed environments. use context-free grammars
 **** TODO level does not fill grid. only short intersecting horz/vert rows. unlocked levels are visitable, completed levels unlock any adjacent levels
 **** TODO a sector is completed when its objective is achieved
 **** TODO radiation areas
@@ -25,6 +24,7 @@ CLOSED: [2010-03-24 Wed 02:33]
 *** TODO help screen
 *** TODO tutorial
 ** TODO PORT CELL MODE
+*** TODO [#A] Don't run dataflow every frame
 *** TODO [#A] cancel button resets to default
 *** TODO [#A] implement proper key repeat in prompt // movedevshot send-held-events to do-physics??
 *** TODO [#B] Function to uniformly pretty-print events
@@ -44,7 +44,7 @@ CLOSED: [2010-03-24 Wed 02:33]
 *** TODO [#A] hold down shift/l2 to move a single space in xiotank?
 *** TODO [#C] better error message about missing methods
 *** TODO [#C] generate color schemes via CFG
-
+*** TODO more documentation
 *** TODO Improve slime support http://common-lisp.net/pipermail/slime-devel/2008-August/015390.html
 *** TODO XE2 EASY SETUP FUNCTIONS (see util.lisp)
 

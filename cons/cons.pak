@@ -1,6 +1,7 @@
 (
  (:name "cons" :type :music :file "cons.ogg" :properties (:volume 40))
  (:name "beatup" :type :music :file "beatup.ogg" :properties (:volume 20))
+ (:name "darker" :type :music :file "darker.ogg" :properties (:volume 20)) 
 
  (:name "quickhelp-message" :type :formatted-text :file "quickhelp.text")
  (:name "help-message" :type :formatted-text :file "README")
