@@ -226,9 +226,10 @@
 	  [say self "Cannot drop item."]
 	  (progn
 	    (let ((item (car items)))
-	      (when (clon:object-p item)
-		(setf items (delete item items))
-		[drop-cell *world* item row column])))))))
+	      (if (clon:object-p item)
+		  (progn (setf items (delete item items))
+			 [drop-cell *world* item row column])
+		  [say self "Nothing to drop."])))))))
 	       
 (define-method rotate agent () 
   (clon:with-fields (items) self
@@ -273,6 +274,12 @@
   (tile :initform "block")
   (categories :initform '(:item :obstacle :target)))
 
+;;; Bombs!
+
+(defcell bomb
+  (tile :initform "bomb")
+  (categories :initform '(:item :obstacle :target)))
+
 ;;; Particle gun
 
 (defcell particle 
@@ -299,7 +306,6 @@
     (multiple-value-bind (r c) (step-in-direction row column direction)
       [drop-cell *world* (clone =particle= direction) r c])))
   
-
 ;;; Basic level
 
 (defcell road
@@ -338,8 +344,8 @@
       [drop-cell self (clone =block=) (random height) (random width)])
     (dotimes (i 20)
       [drop-cell self (clone =gun=) (random height) (random width)])
-    ;; (dotimes (i 20)
-    ;;   [drop-cell self (clone =bomb=) (random height) (random width)])
+    (dotimes (i 20)
+      [drop-cell self (clone =bomb=) (random height) (random width)])
     (dotimes (i 25)
       (let ((draw-function (if (= 0 (random 3))
 			       #'trace-row #'trace-column)))
