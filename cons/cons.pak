@@ -9,6 +9,7 @@
 
  (:name "segment" :type :image :file "segment.png")
  (:name "gun" :type :image :file "gun.png")
+ (:name "particle" :type :image :file "particle.png")
  (:name "bomb" :type :image :file "bomb.png")
  (:name "block" :type :image :file "block.png")
 

@@ -1,4 +1,4 @@
-;;; cons.lisp --- a game about lisp
+;; cons.lisp --- a game about lisp
 
 ;; Copyright (C) 2010  David O'Toole
 
@@ -25,7 +25,7 @@
 
 (in-package :cons-game)
 
-(setf xe2:*dt* 10)
+(setf xe2:*dt* 15)
 
 ;;; Text labels
 
@@ -134,7 +134,10 @@
   (light-radius :initform 7)
   (categories :initform '(:actor :obstacle :player :target :container :light-source)))
 
-(define-method loadout agent ())
+(define-method loadout agent ()
+  (clon:with-field-values (row column) self
+    (dotimes (n 3)
+      [add-segment self (- (+ row 4) n) column])))
 
 (define-method hit agent (&optional object)
   [play-sample self "ouch"]
@@ -160,12 +163,24 @@
 	(setf <last-turn-moved> phase)
 	[aim self dir]
 	(when [parent>>move self dir]
-	  ;; now move segments
-	  (let ((next-dir <last-direction>))
-	    (dolist (segment <segments>)
-	      [queue-move segment next-dir]
-	      (setf next-dir (field-value :last-direction segment))))
+	  [move-segments self]
 	  (setf <last-direction> dir))))))
+
+(define-method move-segments agent ()
+  (clon:with-field-values (items last-direction segments) self
+    (let ((next-dir last-direction))
+      (dolist (segment segments)
+	[queue-move segment next-dir]
+	(setf next-dir (field-value :last-direction segment))))))
+
+(define-method update-tiles agent ()
+  (clon:with-field-values (items segments) self
+    (let ((n 0)
+	  (num-items (length items)))
+      (dolist (segment segments)
+	[show-item segment (when (< n num-items)
+			     (field-value :tile (nth n items)))]
+	(incf n)))))
 
 (define-method add-segment agent (&optional force-row force-column)
   (clon:with-fields (segments) self
@@ -181,12 +196,53 @@
 	[drop-cell *world* segment (or force-row) (or force-column column)]
 	(push segment segments)))))
 
-(define-method push agent () nil)
-(define-method pop agent () nil)
-(define-method rotate agent () nil)
-(define-method call agent () nil)
+(define-method space-at-head agent ()
+  (step-in-direction <row> <column> <direction>))
 
-(define-method run agent () nil)
+(define-method category-at-head agent (category)
+  (multiple-value-bind (row column) 
+      [space-at-head self]
+    [category-at-p *world* row column category]))
+
+(define-method item-at-head agent ()
+  [category-at-head self :item])
+
+(define-method obstacle-at-head agent ()
+  [category-at-head self :obstacle])
+  
+(define-method push agent () 
+  ;; TODO verify enough segments
+  (let ((item [item-at-head self]))
+    (if item
+	(progn (push item <items>)
+	       [delete-from-world item])
+	[say self "Nothing to push."])))
+	
+(define-method pop agent ()
+  (clon:with-fields (items) self
+    (multiple-value-bind (row column)
+	[space-at-head self]
+      (if [category-at-head self :obstacle]
+	  [say self "Cannot drop item."]
+	  (progn
+	    (let ((item (car items)))
+	      (setf items (delete item items))
+	      [drop-cell *world* item row column]))))))
+	       
+(define-method rotate agent () 
+  (clon:with-fields (items) self
+    (let ((tail (pop items)))
+      (setf items (append items (list tail))))))
+
+(define-method call agent ()
+  (let ((item (car <items>)))
+    (if (and item [in-category item :item]
+	     (clon:has-method :call item))
+	[call item self]
+	[say self "Cannot call."])))
+
+(define-method run agent () 
+  [update-tiles self])
   
 (define-method quit agent ()
   (xe2:quit :shutdown))
@@ -209,6 +265,39 @@
     [play *universe*
 	  :address '(=highway=)]
     [loadout agent]))
+
+;;; Inert blocks
+
+(defcell block 
+  (tile :initform "block")
+  (categories :initform '(:item :obstacle :target)))
+
+;;; Particle gun
+
+(defcell particle 
+  (tile :initform "particle")
+  (movement-cost :initform (make-stat :base 10))
+  (speed :initform (make-stat :base 5 :min 0 :max 10))
+  (categories :initform '(:actor))
+  (direction :initform :north))
+
+(define-method initialize particle (direction)
+  (setf <direction> direction))
+
+(define-method run particle ()
+  (unless [move self <direction>]
+    [die self]))
+
+(defcell gun
+  agent
+  (tile :initform "gun")
+  (categories :initform '(:item :target :function)))
+
+(define-method call gun (caller)
+  (clon:with-field-values (direction row column) caller
+    (multiple-value-bind (r c) (step-in-direction row column direction)
+      [drop-cell *world* (clone =particle= direction) r c])))
+  
 
 ;;; Basic level
 
@@ -244,6 +333,12 @@
       (dotimes (j width)
 	[drop-cell self (clone =road=)
 		 i j]))
+    (dotimes (i 20)
+      [drop-cell self (clone =block=) (random height) (random width)])
+    (dotimes (i 20)
+      [drop-cell self (clone =gun=) (random height) (random width)])
+    ;; (dotimes (i 20)
+    ;;   [drop-cell self (clone =bomb=) (random height) (random width)])
     (dotimes (i 25)
       (let ((draw-function (if (= 0 (random 3))
 			       #'trace-row #'trace-column)))
@@ -534,9 +629,6 @@
 	       	     :narrator terminal
 	       	     :viewport viewport]
 	       [loadout player]
-	       (clon:with-field-values (row column) player 
-		 (dotimes (n 7)
-		   [add-segment player (- (+ row 8) n) column]))
 	       (let ((config-screen (clone =joystick-world=)))
 		 [generate config-screen]
 		 [set-prompt config-screen prompt]
