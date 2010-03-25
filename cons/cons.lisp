@@ -310,23 +310,46 @@
 
 (define-prototype storage (:parent xe2:=world=)
   (description :initform "Program storage center.")
-  (height :initform 25)
-  (width :initform 45)
+  (height :initform 100)
+  (width :initform 100)
   (level :initform 1)
   (ambient-light :initform :total)
   (required-modes :initform nil)
   (scale :initform '(1 xm))
   (edge-condition :initform :block)
   (grammar :initform 
-	   '((world >> (=block= :color 
-			10 :draw 
-			90 :right 
-			10 :draw 
-			90 :right 
-			10 :draw 
+	   '((world >> (=launchpad= :color :drop
 			90 :right
-			10 :draw
-			=launchpad= :color :drop)))))
+			20 :jump 
+			90 :left
+			20 :jump
+			90 :left
+			room 90 :left 
+			room 90 :left 
+			room 90 :left
+			room 90 :right
+			room2 45 :right room2 45 :right room2))
+	     (room >> (=barrier= :color 
+		       10 :draw 
+		       90 :right 
+		       10 :draw 
+		       90 :right 
+		       10 :draw))
+	     (room2 >> (=barrier= :color 
+			5 :draw 
+			90 :right 
+			5 :draw 
+			90 :right 
+			5 :draw 
+			90 :right
+		        10 :draw)))))
+			
+		      
+			
+			
+	      
+
+	
   
 ;;; Basic level
 

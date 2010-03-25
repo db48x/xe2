@@ -263,7 +263,7 @@ location."
 
 (define-method jump world ()
   "Jump N squares forward where N is the integer on the top of the stack."
-  (let ((distance (pop stack)))
+  (let ((distance (pop <stack>)))
     (if (integerp distance)
 	(multiple-value-bind (row column) 
 	    (step-in-direction <row> <column> <direction> distance)
