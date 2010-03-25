@@ -1,15 +1,5 @@
 ** CONS!
-*** DONE basic moving guy
-CLOSED: [2010-03-24 Wed 02:33]
-*** TODO BASIC MECHANICS: implement snake player
-**** TODO segments follow each other
-**** TODO segments display the inventory tiles
-**** TODO player pick up objects
-**** TODO player drop objects
-**** TODO distruptor gun
-**** TODO call
-**** TODO rotate
-**** TODO basic enemy
+*** TODO basic enemies
 *** TODO TERRAIN: area synth capable of color/sound/music themed environments. use context-free grammars
 **** TODO level does not fill grid. only short intersecting horz/vert rows. unlocked levels are visitable, completed levels unlock any adjacent levels
 **** TODO a sector is completed when its objective is achieved
