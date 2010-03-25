@@ -226,8 +226,9 @@
 	  [say self "Cannot drop item."]
 	  (progn
 	    (let ((item (car items)))
-	      (setf items (delete item items))
-	      [drop-cell *world* item row column]))))))
+	      (when (clon:object-p item)
+		(setf items (delete item items))
+		[drop-cell *world* item row column])))))))
 	       
 (define-method rotate agent () 
   (clon:with-fields (items) self
