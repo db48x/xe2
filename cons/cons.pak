@@ -27,6 +27,19 @@
  (:name "greenworld" :type :image :file "greenworld.png")
  (:name "darkgreenworld" :type :image :file "darkgreenworld.png")
 
+ (:name "orangeworld" :type :image :file "orangeworld.png")
+ (:name "darkorangeworld" :type :image :file "darkorangeworld.png")
+
+ (:name "orangeworld" :type :image :file "orangeworld.png")
+ (:name "darkorangeworld" :type :image :file "darkorangeworld.png")
+ (:name "darkorangeworld2" :type :image :file "darkorangeworld2.png")
+ (:name "darkorangeworld3" :type :image :file "darkorangeworld3.png")
+ (:name "darkorangeworld4" :type :image :file "darkorangeworld4.png")
+
+ (:name "break" :type :sample :file "break.wav" :properties (:volume 20))
+ (:name "fire" :type :sample :file "fire.wav" :properties (:volume 20))
+ (:name "break2" :type :sample :file "break2.wav" :properties (:volume 13))
+
  (:name ".default-font" :type :font :properties (:height 14 :width 7) :data "7x14b")
  (:name ".startup" :type :lisp :file "cons.lisp" :properties (:autoload t))
 )

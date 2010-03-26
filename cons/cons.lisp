@@ -25,7 +25,7 @@
 
 (in-package :cons-game)
 
-(setf xe2:*dt* 15)
+(setf xe2:*dt* 20)
 
 ;;; Text labels
 
@@ -272,6 +272,7 @@
 
 (defcell block 
   (tile :initform "block")
+  (team :initform :neutral)
   (categories :initform '(:item :obstacle :target)))
 
 ;;; Bombs!
@@ -280,12 +281,17 @@
   (tile :initform "bomb")
   (categories :initform '(:item :obstacle :target)))
 
+(defun same-team (obj1 obj2)
+  (eq (field-value :team obj1)
+      (field-value :team obj2)))
+
 ;;; Particle gun
 
 (defcell particle 
   (tile :initform "particle")
   (movement-cost :initform (make-stat :base 10))
   (speed :initform (make-stat :base 5 :min 0 :max 10))
+  (team :initform :player)
   (categories :initform '(:actor))
   (direction :initform :north))
 
@@ -293,8 +299,15 @@
   (setf <direction> direction))
 
 (define-method run particle ()
-  (unless [move self <direction>]
-    [die self]))
+  (multiple-value-bind (r c) (step-in-direction <row> <column> <direction>)
+    (let ((thing (or [category-at-p *world* r c :obstacle]
+		     [category-at-p *world* r c :target])))
+      (if (null thing)
+	  [move self <direction>]
+	  (progn (when (and (clon:has-method :hit thing)
+			    (not (same-team self thing)))
+		   [hit thing])
+		 [die self])))))
 
 (defcell gun
   agent
@@ -304,14 +317,49 @@
 (define-method call gun (caller)
   (clon:with-field-values (direction row column) caller
     (multiple-value-bind (r c) (step-in-direction row column direction)
+      [play-sample caller "fire"]
       [drop-cell *world* (clone =particle= direction) r c])))
 
 ;;; Storage container 
 
+(defcell orange-barrier
+  (description :initform "Impenetrable barrier.")
+  (tile :initform "orangeworld")
+  (categories :initform '(:obstacle)))
+
+(defcell blue-brick
+  (description :initform "Breakable brick.")
+  (hit-points :initform (make-stat :base 20 :min 0))
+  (tile :initform "darkorangeworld2")
+  (categories :initform '(:obstacle)))
+
+(define-method hit blue-brick ()
+  [play-sample self "break"]
+  [damage self 1])
+
+(define-method die blue-brick ()
+  [play-sample self "break2"]
+  [parent>>die self])
+
+(defcell purple-brick
+  (description :initform "Impenetrable barrier.")
+  (hit-points :initform (make-stat :base 10 :min 0))
+  (tile :initform "darkorangeworld3")
+  (categories :initform '(:obstacle)))
+
+(defcell orange-barrier4
+  (description :initform "Impenetrable barrier.")
+  (tile :initform "darkorangeworld4")
+  (categories :initform '(:obstacle)))
+
+(defcell orange-road
+  (description :initform "Security vehicle transit area.")
+  (tile :initform "darkorangeworld"))
+
 (define-prototype storage (:parent xe2:=world=)
-  (description :initform "Program storage center.")
-  (height :initform 100)
-  (width :initform 100)
+  (description :initform "Security logging station.")
+  (height :initform 120)
+  (width :initform 120)
   (level :initform 1)
   (ambient-light :initform :total)
   (required-modes :initform nil)
@@ -321,36 +369,65 @@
 	   '((world >> (=launchpad= :color :drop
 			90 :right
 			20 :jump 
+			=gun= :color :drop
 			90 :left
-			20 :jump
+		        30 :jump
 			90 :left
-			room 90 :left 
-			room 90 :left 
-			room 90 :left
-			room 90 :right
-			room2 45 :right room2 45 :right room2))
-	     (room >> (=barrier= :color 
+			:pushloc security-structure :poploc
+			90 :right 90 :right 40 :jump
+			security-structure))
+	     (side-chamber >> (:pushloc
+			       room3 90 random-turn
+			       room3 90 :left
+			       1 :jump
+			       gun-maybe
+			       :poploc))
+	     (gun-maybe >> :noop :noop (=gun= :color :drop))
+	     (security-structure >> (room 90 :left 
+				     room 90 :left 
+				     room 90 :left
+				     room 90 :right
+				     room2 45 random-turn room2 45 random-turn room2
+				     side-chamber))
+             (random-turn >> :right :left)
+	     (random-barrier >> =orange-barrier= =purple-brick= =orange-barrier4=)
+	     (room >> (=orange-barrier= :color 
 		       10 :draw 
 		       90 :right 
-		       10 :draw 
+		       4 :draw
+		       1 :jump
+		       3 :draw
 		       90 :right 
 		       10 :draw))
-	     (room2 >> (=barrier= :color 
+	     (room2 >> (random-barrier :color 
 			5 :draw 
 			90 :right 
 			5 :draw 
 			90 :right 
-			5 :draw 
+			4 :draw
+			2 :jump
+			3 :draw
 			90 :right
-		        10 :draw)))))
-			
-		      
-			
-			
-	      
+		        10 :draw))
+	     (room3 >> (=blue-brick= :color 
+			3 :draw 
+			90 :right 
+			4 :draw 
+			90 :right 
+			4 :draw 
+			90 :right
+		        4 :draw)))))
 
-	
-  
+(define-method generate storage (&rest params)
+  [create-default-grid self]
+  (dotimes (row <height>)
+    (dotimes (column <width>)
+      [drop-cell self (clone =orange-road=) row column]))
+  [parent>>generate self])
+
+(define-method begin-ambient-loop storage ()
+  (play-music "beatup" :loop t))
+
 ;;; Basic level
 
 (defcell road

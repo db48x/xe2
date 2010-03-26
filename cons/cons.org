@@ -3,6 +3,7 @@
 CLOSED: [2010-03-25 Thu 16:53]
 *** DONE integrate PIC/LOGO concepts into World http://en.wikipedia.org/wiki/Pic_language
 CLOSED: [2010-03-25 Thu 16:53]
+*** TODO swatches
 *** TODO auto-loadout
 *** TODO TEST :origin :right =wall= :color 10 draw right 10 draw right 10 draw right
 *** TODO http://en.wikipedia.org/wiki/Lindenmayer_system

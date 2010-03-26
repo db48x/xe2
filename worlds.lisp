@@ -226,7 +226,8 @@ initialize the arrays for a world of the size specified there."
     (let ((program (generate 'world)))
       (or program (error "ERROR: Nothing was generated from this grammar."))
       (message (prin1-to-string program))
-      [create-default-grid self]
+      (unless <grid>
+	[create-default-grid self])
       (dolist (op program)
 	(typecase op
 	  (keyword (if (clon:has-method op self)
@@ -241,9 +242,11 @@ initialize the arrays for a world of the size specified there."
 	     (push op stack)))
 	(message (prin1-to-string (list '---stack---- stack)))))))
 
-
 (define-method generate-with world (parameters)
   (apply #'send self :generate self parameters))
+
+(define-method origin world ()
+  (setf <row> 0 <column> 0))
 
 (define-method color world ()
   "Set the color to =FOO= where FOO is the prototype symbol on top of
@@ -290,16 +293,17 @@ is the integer on the top of the stack."
 	      (error "Must pass an integer as distance for DRAW."))))))
 
 (define-method pushloc world ()
-  "Push the current row,col location onto the stack."
-  (push (list <row> <column>) <stack>))
+  "Push the current row,col location (and direction) onto the stack."
+  (push (list <row> <column> <direction>) <stack>))
 
 (define-method poploc world ()
   "Jump to the location on the top of the stack, and pop the stack."
   (let ((loc (pop <stack>)))
-    (if (and (listp loc) (= 2 (length loc)) (every #'integerp loc))
-	(destructuring-bind (r c) loc
-	  (setf <row> r <column> c))
-	(error "Invalid location argument for POPLOC. Must be a list of two integers."))))
+    (message "LOC: ~S" loc)
+    (if (and (listp loc) (= 3 (length loc)))
+	(destructuring-bind (r c dir) loc
+	  (setf <row> r <column> c <direction> dir))
+	(error "Invalid location argument for POPLOC. Must be a list of two integers plus a keyword."))))
 
 (define-method right world ()
   "Turn N degrees clockwise, where N is 0, 45, or 90."
@@ -318,6 +322,9 @@ is the integer on the top of the stack."
 	(0 nil)
 	(45 (turn45))
 	(90 (turn45) (turn45))))))
+
+(define-method noop world ()
+  nil)
 
 ;;; Narration
 
