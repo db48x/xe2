@@ -320,6 +320,10 @@
       [play-sample caller "fire"]
       [drop-cell *world* (clone =particle= direction) r c])))
 
+;;; Color themes
+
+
+
 ;;; Storage container 
 
 (defcell orange-barrier
@@ -397,26 +401,26 @@
 				     room 90 :left
 				     room 90 :right
 				     6 :jump
-				     :pushloc room2 45 random-turn room2 :poploc
+				     :pushloc room2 90 random-turn room2 :poploc
 				     side-chamber))
              (random-turn >> :right :left)
-	     (random-barrier >> =orange-barrier= =purple-brick= =orange-barrier4=)
+	     (random-brick >> =purple-brick= =blue-brick=)
 	     (room >> (=orange-barrier= :color 
 		       10 :draw 
 		       90 :right 
 		       4 :draw
-		       1 :jump
-		       3 :draw
+		       2 :jump
+		       4 :draw
 		       90 :right 
 		       10 :draw))
-	     (room2 >> (random-barrier :color 
+	     (room2 >> (random-brick :color 
 			5 :draw 
 			90 :right 
 			5 :draw 
 			90 :right 
-			4 :draw
-			2 :jump
-			3 :draw
+			2 :draw
+			1 :jump
+			2 :draw
 			90 :right
 		        10 :draw))
 	     (room3 >> (=blue-brick= :color 

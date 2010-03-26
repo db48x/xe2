@@ -38,6 +38,15 @@
 
  (:name "brick-darkmagenta2" :type :canvas :properties (:width 16 :height 16 :background ".dark magenta"))
 
+ (:name "security-foreground" :type :canvas :properties (:width 16 :height 16 :background ".DeepSkyBlue1"))
+ (:name "security-background" :type :canvas :properties (:width 16 :height 16 :background ".DeepSkyBlue3"))
+ (:name "archive-foreground" :type :canvas :properties (:width 16 :height 16 :background ".dark olive green"))
+ (:name "archive-background" :type :canvas :properties (:width 16 :height 16 :background ".olive drab"))
+ (:name "reactor-foreground" :type :canvas :properties (:width 16 :height 16 :background ".DarkOrange1"))
+ (:name "reactor-background" :type :canvas :properties (:width 16 :height 16 :background ".orange1"))
+ (:name "corridor-foreground" :type :canvas :properties (:width 16 :height 16 :background ".purple2"))
+ (:name "corridor-background" :type :canvas :properties (:width 16 :height 16 :background ".purple4"))
+
  (:name "break" :type :sample :file "break.wav" :properties (:volume 20))
  (:name "fire" :type :sample :file "fire.wav" :properties (:volume 20))
  (:name "break2" :type :sample :file "break2.wav" :properties (:volume 13))

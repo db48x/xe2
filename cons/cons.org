@@ -1,18 +1,24 @@
 ** CONS!
 *** TODO TERRAIN: area synth capable of color/sound/music themed environments. use context-free grammars
-**** TODO swatches
-**** TODO level does not fill grid. only short intersecting horz/vert rows. unlocked levels are visitable, completed levels unlock any adjacent levels
-**** TODO a sector is completed when its objective is achieved
-**** TODO radiation areas
-**** TODO dark areas
-**** TODO overworld map whose output data target the area synth.
+**** DONE swatches
+CLOSED: [2010-03-26 Fri 01:28]
+**** TODO colorable brick
+*** TODO xiotank level needs wave gun
 **** TODO green circuit world theme for maintenance/data archive levels and safer areas
 **** TODO magenta security sector with areas that randomly sparkle before a proximity scanner eye opens to spawn enemies.
+**** TODO orange storage container
+**** TODO blue maze
+**** TODO overworld map whose output data target the area synth.
+***** TODO overworld does not fill grid. only short intersecting horz/vert rows. unlocked levels are visitable, completed levels unlock any adjacent levels
+***** TODO a sector is completed when its objective is achieved
+***** TODO when a section is completed the adjacent squares become visitable
+**** TODO radiation areas
+**** TODO dark areas
 *** TODO [#B] turn off held keys? 
 *** TODO bomb
 *** TODO healing item
 *** TODO macrovirus
-*** TODO bases that grow tentacles and require bombs to destroy
+*** TODO bases that spawn enemies/tentacles and require bombs to reach/destroy?
 *** TODO xiocollector
 *** TODO help screen
 *** TODO tutorial
