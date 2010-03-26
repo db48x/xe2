@@ -344,8 +344,17 @@
 (defcell purple-brick
   (description :initform "Impenetrable barrier.")
   (hit-points :initform (make-stat :base 10 :min 0))
+  ;; (tile :initform "darkorangeworld3")
   (tile :initform "darkorangeworld3")
   (categories :initform '(:obstacle)))
+
+(define-method hit purple-brick ()
+  [play-sample self "break"]
+  [damage self 1])
+
+(define-method die purple-brick ()
+  [play-sample self "break2"]
+  [parent>>die self])
 
 (defcell orange-barrier4
   (description :initform "Impenetrable barrier.")
@@ -387,7 +396,8 @@
 				     room 90 :left 
 				     room 90 :left
 				     room 90 :right
-				     room2 45 random-turn room2 45 random-turn room2
+				     6 :jump
+				     :pushloc room2 45 random-turn room2 :poploc
 				     side-chamber))
              (random-turn >> :right :left)
 	     (random-barrier >> =orange-barrier= =purple-brick= =orange-barrier4=)

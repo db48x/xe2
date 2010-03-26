@@ -36,6 +36,8 @@
  (:name "darkorangeworld3" :type :image :file "darkorangeworld3.png")
  (:name "darkorangeworld4" :type :image :file "darkorangeworld4.png")
 
+ (:name "brick-darkmagenta2" :type :canvas :properties (:width 16 :height 16 :background ".dark magenta"))
+
  (:name "break" :type :sample :file "break.wav" :properties (:volume 20))
  (:name "fire" :type :sample :file "fire.wav" :properties (:volume 20))
  (:name "break2" :type :sample :file "break2.wav" :properties (:volume 13))

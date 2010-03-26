@@ -978,17 +978,17 @@ table."
     	    (load fasl))
 	;; create the fasl for the first time. 
 	(load (compile-file source)))))
-	      
+
 (defun load-canvas-resource (resource)
   (destructuring-bind (&key width height background)
       (resource-properties resource)
-    (let ((canvas (create-canvas width height))
-	  (background (resource-data resource)))
+    (let ((canvas (create-image width height)))
       (prog1 canvas
 	(when background
 	  (draw-box 0 0 width height 
 		    ;; TODO support arbitrary rgb and other drawing commands
-		    :color (concatenate 'string "." background)
+		    :stroke-color background
+		    :color background
 		    :destination canvas))))))
 
 (defun load-color-resource (resource)
