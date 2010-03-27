@@ -49,6 +49,7 @@
  (:name "corruption2-north" :type :alias :data ":rotate 270:corruption2-east")
 
  (:name "purity" :type :music :file "purity.ogg" :properties (:volume 20))
+ (:name "neo-eof" :type :music :file "neo-eof.ogg" :properties (:volume 20)) 
  (:name "vixon" :type :music :file "vixon.ogg" :properties (:volume 18))
  (:name "launchpad" :type :image :file "launchpad.png")
  (:name "resonator" :type :image :file "resonator.png")
