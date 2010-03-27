@@ -1158,6 +1158,57 @@ world, and collision detection is performed between sprites and cells.")
   (multiple-value-bind (r c)
       [grid-coordinates self]
     [drop-cell *world* cell (+ r delta-row) (+ c delta-column)]))
-    
+  
+;;; Popup text labels
+
+(defcell label 
+  (categories :initform '(:drawn :actor :label))
+  text stroke-color background-color timeout)
+
+(define-method initialize label (&key text (stroke-color ".white") (background-color ".gray30")
+					(style :label) (timeout nil) name tile description)
+  (setf <text> text) 
+  (when tile (setf <tile> tile))
+  (when name (setf <name> name))
+  (when description (setf <description> description))
+  (setf <stroke-color> stroke-color)
+  (setf <background-color> background-color)
+  (setf <style> style)
+  (setf <timeout> (if (floatp timeout)
+		      ;; specify in (roughly) seconds if floating
+		      (truncate (* 15 timeout)) ;; TODO fixme
+		      ;; leave as frames if integer
+		      timeout)))
+  
+(define-method draw label (x y image)
+  (clon:with-field-values (text style) self
+    (let* ((offset (ecase style
+		     (:label 16)
+		     (:flat 0)))
+	   (x0 x)
+	   (y0 y)
+	   (x1 (+ x0 offset))
+	   (y1 y0)
+	   (margin 4)
+	   (height (+ (* 2 margin) (apply #'+ (mapcar #'formatted-line-height text))))
+	   (width (+ (* 2 margin) (apply #'max (mapcar #'formatted-line-width text)))))
+      (draw-box x1 y1 width height 
+		:stroke-color <stroke-color>
+		:color <background-color>
+		:destination image)
+      ;; (when (eq style :label)
+      ;; 	(draw-line x0 y0 x1 y1 :destination image))
+      (let ((x2 (+ margin x1))
+	    (y2 (+ margin y1)))
+	(dolist (line text)
+	  (render-formatted-line line x2 y2 :destination image)
+	  (incf y2 (formatted-line-height line)))))))
+
+(define-method run label ()
+  [expend-default-action-points self]
+  (when (integerp <timeout>)
+    (when (minusp (decf <timeout>))
+      [die self])))
+
 
 ;;; cells.lisp ends here

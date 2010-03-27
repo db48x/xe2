@@ -62,7 +62,7 @@
   (:export *default-frame-width* *default-frame-height* =viewport=
 	   *frequency* *output-chunksize* *output-channels* halt-sample
   *dt* *physics-function* =equipment= *default-world-axis-size*
-  *default-world-z-size* =browser= install-widgets 
+  *default-world-z-size* =browser= install-widgets =label=
   =form= =data-cell= =var-cell= =option-cell= =toggle-cell= =event-cell=
   =comment-cell= install-widget uninstall-widget =button-cell=
   *initialization-hook* initialize-engine split-string-on-lines
