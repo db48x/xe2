@@ -238,6 +238,8 @@ initialize the arrays for a world of the size specified there."
 		    (when (boundp op)
 		      (message "PUSHING ~S" (list op (symbol-value op)))
 		      (push (symbol-value op) stack))))
+	  (string (message "PUSHING ~S" op)
+	     (push op stack))
 	  (number (message "PUSHING ~S" op)
 	     (push op stack)))
 	(message (prin1-to-string (list '---stack---- stack)))))))

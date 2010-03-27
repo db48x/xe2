@@ -1,13 +1,155 @@
 (in-package :cons-game)
 
-;;; Inert blocks
+;;; Systematic variations 
 
-(defcell block 
-  (tile :initform "block")
-  (team :initform :neutral)
-  (categories :initform '(:item :obstacle :target)))
+(defparameter *security-theme* '(:floor "security-background"
+				 :barrier "security-foreground"
+				 :accent "security-accent"
+				 :music "beatup" :loop t))
 
-;;; Reactor world
+(defparameter *archive-theme* '(:floor "archive-background"
+				 :barrier "archive-foreground"
+				 :accent "archive-accent"
+				 :music "mello" :loop t))
+
+(defparameter *storage-theme* '(:floor "storage-background"
+				 :barrier "storage-foreground"
+				 :accent "storage-accent"
+				 :music "purity" :loop t))
+
+(defparameter *reactor-theme* '(:floor "reactor-background"
+				 :barrier "reactor-foreground"
+				 :accent "reactor-accent"
+				 :music "beatup" :loop t))
+
+(defparameter *corridor-theme* '(:floor "corridor-background"
+				 :barrier "corridor-foreground"
+				 :accent "corridor-accent"
+				 :music "beatup" :loop t))
+
+;;; Indestructible wall of many colors
+
+(defcell floor 
+  (categories :initform '(:floor)))
+  
+(define-method initialize floor (&optional theme)
+  (setf <tile> (getf theme :floor)))
+
+(defcell barrier 
+  (auto-loadout :initform t)
+  (categories :initform '(:obstacle :barrier :target)))
+
+(define-method initialize barrier (&optional theme)
+  (setf <tile> (getf theme :barrier)))
+
+(define-method loadout barrier ()
+  (setf <tile> (getf (field-value :theme *world*) :barrier)))
+
+;;; Generic sector of alien base; this is specialized below.
+
+(define-prototype sector (:parent xe2:=world=)
+  (theme :initform nil)
+  (ambient-light :initform :total)
+  (required-modes :initform nil)
+  (scale :initform '(1 xm))
+  (edge-condition :initform :block)
+  (grammar :initform 
+	   '((world >> (=launchpad= :color :drop)))))
+
+(define-method drop-floor sector (r c)
+  [drop-cell self (clone =floor= <theme>) r c])
+
+(define-method drop-barrier sector (r c)
+  [drop-cell self (clone =barrier= <theme>) r c])
+
+(define-method generate sector (&rest params)
+  [create-default-grid self]
+  (dotimes (row <height>)
+    (dotimes (column <width>)
+      [drop-floor self row column]))
+  [parent>>generate self])
+
+(define-method begin-ambient-loop sector ()
+  (destructuring-bind (&key music loop &allow-other-keys)
+      <theme>
+    (when music (play-music music :loop loop))))
+
+;;; Storage area, where the player breaks in 
+
+(define-prototype storage (:parent =sector=)
+  (description :initform "Maintenance equipment storage.")
+  (theme :initform *storage-theme*)
+  (height :initform 45)
+  (width :initform 60)
+  (ambient-light :initform :total)
+  (required-modes :initform nil)
+  (scale :initform '(1 xm))
+  (edge-condition :initform :block)
+  (grammar :initform 
+	   '((world >> (=launchpad= :color :drop
+			90 :right
+			5 :jump 
+			=gun= :color :drop
+			90 :left
+			:pushloc room-row :poploc
+			90 :right 12 :jump 90 :left
+			:pushloc room-row :poploc
+			90 :right 12 :jump 90 :left
+			:pushloc room-row :poploc
+			90 :right 12 :jump 90 :left
+			:drop-shockers))
+	     (room-row >> (10 :jump
+			   :pushloc room :poploc 
+			   10 :jump 
+			   :pushloc room :poploc 
+			   10 :jump 
+			   :pushloc room :poploc 
+			   10 :jump 
+			   :pushloc room :poploc ))
+	     (shocker-maybe >> :noop :noop (=shocker= :color :drop))
+             (random-turn >> :right :left)
+	     (room >> (=barrier= :color 
+		       8 :draw 
+		       90 :right 
+		       4 :draw
+		       2 :jump
+		       2 :draw
+		       90 :right 
+		       8 :draw
+		       90 :right
+		       4 :draw)
+	      (=barrier= :color 
+		       5 :draw 
+		       90 :right 
+		       7 :draw
+		       90 :right
+	               5 :draw
+		       90 :right 
+		       3 :draw
+	               2 :jump
+		       90 :right
+		       2 :draw)
+	      (=barrier= :color
+	       2 :draw
+	       2 :jump
+	       4 :draw 
+	       90 :right
+	       8 :draw
+	       90 :right
+	       4 :draw 
+	       :pushloc
+	       90 :right
+	       6 :draw
+	       :poploc
+	       3 :draw
+	       90 :right
+	       8 :draw)))))
+
+(define-method drop-shockers storage ()
+  (dotimes (n 5)
+    [drop-cell self (clone =shocker=) (random <height>) (random <width>)]))
+
+;;; Reactor core sector
 
 (defcell orange-barrier
   (description :initform "Impenetrable barrier.")
@@ -52,7 +194,7 @@
   (description :initform "Core maintenance vehicle transit area.")
   (tile :initform "darkorangeworld"))
 
-(define-prototype reactor (:parent xe2:=world=)
+(define-prototype reactor (:parent =sector=)
   (description :initform "Power core station.")
   (height :initform 120)
   (width :initform 120)
@@ -130,11 +272,6 @@
 (defcell road
   (description :initform "Security vehicle transit area.")
   (tile :initform "darkcyanworld"))
-
-(defcell barrier
-  (description :initform "Impenetrable barrier.")
-  (tile :initform "cyanworld")
-  (categories :initform '(:obstacle)))
 
 (define-prototype highway (:parent xe2:=world=)
   gen-row gen-column 

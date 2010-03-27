@@ -1159,6 +1159,8 @@ world, and collision detection is performed between sprites and cells.")
       [grid-coordinates self]
     [drop-cell *world* cell (+ r delta-row) (+ c delta-column)]))
   
+(define-method hit cell (&optional other) nil)
+
 ;;; Popup text labels
 
 (defcell label 

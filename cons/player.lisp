@@ -18,6 +18,9 @@
     [move self <direction>]
     (setf <direction> nil)))
 
+(define-method hit segment (&optional other)
+  [hit [get-player *world*]])
+
 (define-method move segment (direction)
   (setf <last-direction> direction)
   [parent>>move self direction :ignore-obstacles])
