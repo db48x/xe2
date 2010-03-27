@@ -291,8 +291,9 @@
 						      ;; 		   (message "VAR: ~S" args))
 						      ;; 	       (field-value :variables *world*))
 						      )))
-	       (xe2:enable-held-keys 1 3)
-	       ;;
+	       ;; (xe2:enable-held-keys 1 3)
+	       ;; (xe2:enable-held-keys 1 3)
+ 	       ;;
 	       [set-player universe player]
 	       [play universe
 	       	     :address '(=storage=)
@@ -348,7 +349,7 @@
     (xe2:install-widgets splash-prompt splash)
     [add-page *pager* :config (list form)]
     [add-page *pager* :game (list prompt stack viewport terminal quickhelp *status*)]
-    [set-page-property *pager* :game :held-keys :t]
+    [set-page-property *pager* :game :held-keys t]
     [add-page *pager* :help (list help)]
 ))
 
