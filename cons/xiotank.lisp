@@ -752,6 +752,7 @@ An ANTI-fence only opens when an offending tone is silenced.")
 
 (defcell shocker 
   (tile :initform "shocker")
+  (auto-loadout :initform t)
   (description :initform "Creeps about until catching sight of the player;
 Then it fires and gives chase.")
   (team :initform :enemy)

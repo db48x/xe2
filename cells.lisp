@@ -75,6 +75,7 @@ rules. By defining new prototypes based on cells, you can change the
 rules and run the game the way you want.
 Sprites are also based on cells. See `defsprite'.")
   (type :initform :cell)
+  (auto-loadout :initform nil :documentation "When non-nil, the :loadout method is invoked upon entry into a world.")
   (team :initform nil :documentation "Keyword symbol of team, if any.")
   (weight :documentation "Weight of the cell, in kilograms.")
   (tile :initform nil :documentation "Resource name of image. 

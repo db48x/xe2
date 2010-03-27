@@ -239,6 +239,7 @@
  (:name "break2" :type :sample :file "break2.wav" :properties (:volume 13))
 
  (:name ".default-font" :type :font :properties (:height 14 :width 7) :data "7x14b")
+ (:name "cons-package-lisp" :type :lisp :file "cons-package.lisp" :properties (:autoload t))
  (:name "xiotank-lisp" :type :lisp :file "xiotank.lisp" :properties (:autoload t))
  (:name ".startup" :type :lisp :file "cons.lisp" :properties (:autoload t))
 )

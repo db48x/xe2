@@ -18,11 +18,6 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(defpackage :cons-game
-  (:documentation "CONS is an alternate universe sci-fi shooter game.")
-  (:use :xe2 :common-lisp)
-  (:export cons-game))
-
 (in-package :cons-game)
 
 (setf xe2:*dt* 20)
@@ -141,7 +136,7 @@
 
 (define-method hit agent (&optional object)
   [play-sample self "buzzouch"]
-  [parent>>damage self 1])
+  [damage self 1])
 
 (define-method pause agent ()
   [pause *world*])
@@ -391,7 +386,7 @@
 			       1 :jump
 			       gun-maybe
 			       :poploc))
-	     (gun-maybe >> :noop :noop (=gun= :color :drop))
+	     (gun-maybe >> :noop :noop (=shocker= :color :drop))
 	     (security-structure >> (room 90 :left 
 				     room 90 :left 
 				     room 90 :left

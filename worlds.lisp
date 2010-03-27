@@ -397,13 +397,18 @@ placement."
 				     loadout no-stepping no-collisions (exclusive t) (probe t))
   "Put the cell CELL on top of the stack of cells at ROW,
 COLUMN. If LOADOUT is non-nil, then the `loadout' method of the
-dropped cell is invoked after dropping. If NO-COLLISIONS is non-nil,
-then an object is not dropped on top of an obstacle. If EXCLUSIVE is
-non-nil, then two objects with category :exclusive will not be placed
-together. If PROBE is non-nil, try to place the cell in the immediate
-neighborhood.  Return T if a cell is placed; nil otherwise."
+dropped cell is invoked after dropping. If the field <auto-loadout> is
+non-nil in the CELL, then the `loadout' method is invoked regardless
+of the value of LOADOUT.
+
+If NO-COLLISIONS is non-nil, then an object is not dropped on top of
+an obstacle. If EXCLUSIVE is non-nil, then two objects with
+category :exclusive will not be placed together. If PROBE is non-nil,
+try to place the cell in the immediate neighborhood.  Return T if a
+cell is placed; nil otherwise."
   (let ((grid <grid>)
-	(tile-size <tile-size>))
+	(tile-size <tile-size>)
+	(auto-loadout (field-value :auto-loadout cell)))
     (declare (optimize (speed 3)) 
 	     (type (simple-array vector (* *)) grid)
 	     (fixnum tile-size row column))
@@ -415,7 +420,7 @@ neighborhood.  Return T if a cell is placed; nil otherwise."
 			(vector-push-extend cell (aref grid row column))
 			(setf (field-value :row cell) row)
 			(setf (field-value :column cell) column)
-			(when loadout
+			(when (or loadout auto-loadout)
 			  [loadout cell])
 			(unless no-stepping
 			  [step-on-current-square cell]))))
