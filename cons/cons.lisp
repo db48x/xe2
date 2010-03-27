@@ -140,7 +140,7 @@
       [add-segment self (- (+ row 4) n) column])))
 
 (define-method hit agent (&optional object)
-  [play-sample self "ouch"]
+  [play-sample self "buzzouch"]
   [parent>>damage self 1])
 
 (define-method pause agent ()
@@ -288,7 +288,7 @@
 ;;; Particle gun
 
 (defcell particle 
-  (tile :initform "particle")
+  (tile :initform "blueparticle")
   (movement-cost :initform (make-stat :base 10))
   (speed :initform (make-stat :base 5 :min 0 :max 10))
   (team :initform :player)
