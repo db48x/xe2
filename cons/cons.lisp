@@ -1,4 +1,4 @@
-;; cons.lisp --- a game about lisp
+;;; cons.lisp --- a game about lisp
 
 ;; Copyright (C) 2010  David O'Toole
 
@@ -319,10 +319,6 @@
     (multiple-value-bind (r c) (step-in-direction row column direction)
       [play-sample caller "fire"]
       [drop-cell *world* (clone =particle= direction) r c])))
-
-;;; Color themes
-
-
 
 ;;; Storage container 
 
