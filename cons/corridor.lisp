@@ -74,10 +74,9 @@
 
 (define-method impel rail-particle (row column)
   (multiple-value-bind (r c) [grid-coordinates self]
-    (setf <direction> (direction-to r c row column))
-    [move self <direction>]
-    [drop-trail self nil]))
-
+    (setf <direction> (direction-to r c row column))))
+;;    [move self <direction>]
+  
 (define-method run rail-particle ()
   (decf <clock>)
   (setf <image> (car (one-of (list "rail-particle" "rail-particle2"))))
@@ -95,7 +94,8 @@
 
 (define-method do-collision rail-particle (&optional object)
   (cond ([in-category object :obstacle]
-	 [hit object] [die self])
+	 (unless (same-team object self)
+	   [hit object] [die self]))
 	((and (not [in-category object :rail])
 	       (has-field :team object)
 	       (not (eq <team> (field-value :team object))))
@@ -119,18 +119,20 @@
       (let ((particle (clone =rail-particle=)))
 	[play-sample <equipper> "bip"]
 	(multiple-value-bind (x y) [xy-coordinates <equipper>]
-	  [drop-sprite *world* particle x y]
-	  [impel particle row column]))
+	    [drop-sprite *world* particle (+ x 8) (+ y 8)]
+	    [impel particle row column]))
       [say self "Not enough energy to fire!"]))
 
 ;;; the eyeboss
 
-(defparameter *guardic-eye-open-time* 5)
-(defparameter *guardic-eye-closed-time* 8)
+(defparameter *guardic-eye-open-time* 10)
+(defparameter *guardic-eye-closed-time* 30)
 
 (defcell guardic-eye
   (name :initform "Guardic eye")
   (tile :initform "guardic")
+  (team :initform :enemy)
+  (auto-loadout :initform t)
   (hit-points :initform (make-stat :base 4 :max 4 :min 0))
   (open :initform nil)
   (clock :initform (random *guardic-eye-closed-time*))
@@ -152,6 +154,7 @@
   [equip self [add-item self (clone =rail-cannon=)]])
 
 (define-method run guardic-eye ()
+  [expend-default-action-points self]
   ;; open or close eye
   (decf <clock>)
   (if (zerop <clock>)
@@ -167,15 +170,21 @@
   ;; attack!
   (if (< [distance-to-player self] 20)
       (let ((cannon [equipment-slot self :center-bay]))
-	[expend-default-action-points self]
-	(when <open> [fire cannon [player-row *world*]
-			   [player-column *world*]]))))
+	(if <open> 
+	    (progn [fire cannon [player-row *world*]
+			 [player-column *world*]])
+	    (percent-of-time 3 [move self (random-direction)])))))
 					  
 (define-method damage guardic-eye (points)
   ;; only damage when open
   (if <open>
     [parent>>damage self points]
     [say self "Cannot damage closed eye."]))
+
+(define-method hit guardic-eye (&optional object)
+  (when object
+    [play-sample self (if <open> "munch1" "ice")]
+    [damage self 1]))
 
 (defcell guardic 
   (name :initform "Electric eye")

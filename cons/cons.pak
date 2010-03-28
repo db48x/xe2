@@ -71,7 +71,7 @@
 
  (:name "speedup" :type :sample :file "speedup.wav" :properties (:volume 30))
 
- (:name "error" :type :sample :file "error.wav" :properties (:volume 3))
+ (:name "error" :type :sample :file "error.wav" :properties (:volume 18))
  (:name "player" :type :image :file "player.png")
  (:name "floor" :type :image :file "floor.png")
 
@@ -405,6 +405,7 @@
 
  (:name "crate" :type :image :file "tech-box.png")
  (:name "crate-special" :type :image :file "tech-box-special.png")
+ (:name "archive-crate" :type :image :file "archive-crate.png")
  (:name "crate-debris" :type :image :file "tech-box-debris.png")
  (:name "bit" :type :image :file "bit.png")
  (:name "bit2" :type :image :file "bit2.png")
@@ -795,8 +796,8 @@
  (:name "security-foreground" :type :canvas :properties (:width 16 :height 16 :background ".DeepSkyBlue1"))
  (:name "security-background" :type :canvas :properties (:width 16 :height 16 :background ".DeepSkyBlue3"))
  (:name "security-accent" :type :canvas :properties (:width 16 :height 16 :background ".magenta"))
- (:name "archive-foreground" :type :canvas :properties (:width 16 :height 16 :background ".blue"))
- (:name "archive-background" :type :canvas :properties (:width 16 :height 16 :background ".gray20"))
+ (:name "archive-foreground" :type :canvas :properties (:width 16 :height 16 :background ".goldenrod1"))
+ (:name "archive-background" :type :canvas :properties (:width 16 :height 16 :background ".OliveDrab4"))
  (:name "archive-accent" :type :canvas :properties (:width 16 :height 16 :background ".yellow"))
  (:name "storage-foreground" :type :canvas :properties (:width 16 :height 16 :background ".orange1"))
  (:name "storage-background" :type :canvas :properties (:width 16 :height 16 :background ".gray20"))
@@ -831,6 +832,7 @@
  (:name "terrain-lisp" :type :lisp :file "terrain.lisp" :properties (:autoload t))
  (:name "corridor-lisp" :type :lisp :file "corridor.lisp" :properties (:autoload t))
  (:name "reactor-lisp" :type :lisp :file "reactor.lisp"  :properties (:autoload t))
+ (:name "archive-lisp" :type :lisp :file "archive.lisp"  :properties (:autoload t))
  (:name "storage-lisp" :type :lisp :file "storage.lisp" :properties (:autoload t))
  (:name "player-lisp" :type :lisp :file "player.lisp" :properties (:autoload t))
  (:name "enemies-lisp" :type :lisp :file "enemies.lisp" :properties (:autoload t))
