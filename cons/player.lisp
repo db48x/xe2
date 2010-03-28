@@ -159,12 +159,17 @@
 			 [drop-cell *world* item row column])
 		  [say self "Nothing to drop."])))))))
 	       
+(define-method expend-item agent ()
+  (pop <items>))
+
 (define-method rotate agent () 
   (clon:with-fields (items) self
     (let ((tail (pop items)))
       (setf items (append items (list tail))))))
 
-(define-method call agent ()
+(define-method call agent (&optional direction)
+  (when direction
+    [aim self direction])
   (let ((item (car <items>)))
     (if (and item [in-category item :item]
 	     (clon:has-method :call item))

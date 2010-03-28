@@ -46,22 +46,37 @@
 ;;; Key bindings
 
 (defparameter *numpad-keybindings* 
-  '(("KP8" nil "aim :north .")
-    ("KP4" nil "aim :west .")
-    ("KP6" nil "aim :east .")
-    ("KP2" nil "aim :south .")
+  '(("KP8" nil "move :north .")
+    ("KP4" nil "move :west .")
+    ("KP6" nil "move :east .")
+    ("KP2" nil "move :south .")
     ;; arrows
-    ("UP" nil "aim :north .")
-    ("LEFT" nil "aim :west .")
-    ("RIGHT" nil "aim :east .")
-    ("DOWN" nil "aim :south .")))
+    ("UP" nil "move :north .")
+    ("LEFT" nil "move :west .")
+    ("RIGHT" nil "move :east .")
+    ("DOWN" nil "move :south .")
+    ;; call without moving
+    ("KP8" (:shift) "call :north .")
+    ("KP4" (:shift) "call :west .")
+    ("KP6" (:shift) "call :east .")
+    ("KP2" (:shift) "call :south .")
+    ;; arrows call without moving
+    ("UP" (:shift) "call :north .")
+    ("LEFT" (:shift) "call :west .")
+    ("RIGHT" (:shift) "call :east .")
+    ("DOWN" (:shift) "call :south .")))
 
 (defparameter *qwerty-keybindings*
   (append *numpad-keybindings*
-	  '(("K" nil "aim :north .")
-	    ("H" nil "aim :west .")
-	    ("L" nil "aim :east .")
-	    ("J" nil "aim :south .")
+	  '(("K" nil "move :north .")
+	    ("H" nil "move :west .")
+	    ("L" nil "move :east .")
+	    ("J" nil "move :south .")
+	    ;;
+	    ("K" (:shift) "call :north .")
+	    ("H" (:shift) "call :west .")
+	    ("L" (:shift) "call :east .")
+	    ("J" (:shift) "call :south .")
 	    ;;
 	    ("Z" nil "push .")
 	    ("X" nil "pop .")

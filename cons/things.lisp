@@ -93,7 +93,8 @@
   (clon:with-field-values (direction row column) caller
     (multiple-value-bind (r c) (step-in-direction row column direction)
       [play-sample caller "fire"]
-      [drop-cell *world* (clone =bomb=) r c])))
+      [drop-cell *world* (clone =bomb=) r c]
+      [expend-item caller])))
 
 ;;; Bomb cannon
 

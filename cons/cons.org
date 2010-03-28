@@ -1,5 +1,7 @@
 ** CONS!e
-*** TODO enable sdl key repeat and rework controls to xong-ish
+*** TODO fix buster particles to hit adjacent objexxxxx
+*** DONE rework controls to xong-ish
+CLOSED: [2010-03-28 Sun 03:41]
 *** TODO storage sector
 **** TODO lightly infested areas
 *** TODO weapon powerup?
