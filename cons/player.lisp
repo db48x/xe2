@@ -53,7 +53,7 @@
   (speed :initform (make-stat :base 10 :min 0 :max 25))
   (strength :initform (make-stat :base 10))
   (defense :initform (make-stat :base 10))
-  (hearing-range :initform 15)
+  (hearing-range :initform 25)
   (movement-cost :initform (make-stat :base 10))
   (stepping :initform t)
   (light-radius :initform 7)

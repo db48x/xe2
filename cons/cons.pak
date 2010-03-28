@@ -1,5 +1,108 @@
 (
 
+ (:name "fat-bits" :type :bitmap-font :file "fat-bits.bmp" 
+ 	:properties (:width 14 :height 15
+		     :character-map "0123456789"
+                     :color-key (:r 0 :g 0 :b 0)))
+
+ (:name "brick-purple" :type :image :file "brick-purple.png")
+ (:name "brick-black" :type :image :file "brick-black.png")
+ (:name "brick-red" :type :image :file "brick-red.png")
+ (:name "brick-blue" :type :image :file "brick-blue.png")
+ (:name "brick-orange" :type :image :file "brick-orange.png")
+ (:name "brick-green" :type :image :file "brick-green.png")
+ (:name "brick-yellow" :type :image :file "brick-yellow.png")
+ (:name "brick-white" :type :image :file "brick-white.png")
+
+ (:name "sparkblur" :type :image :file "sparkblur.png")
+ (:name "sparkblur2" :type :image :file "sparkblur2.png")
+ (:name "sparkblur3" :type :image :file "sparkblur3.png")
+
+ (:name "rezblur1" :type :image :file "rezblur1.png")
+ (:name "rezblur2" :type :image :file "rezblur2.png")
+ (:name "rezblur3" :type :image :file "rezblur3.png")
+ (:name "rezblur4" :type :image :file "rezblur4.png")
+ (:name "rezblur5" :type :image :file "rezblur5.png")
+
+ (:name "rezlight1" :type :image :file "rezlight1.png")
+ (:name "rezlight2" :type :image :file "rezlight2.png")
+ (:name "rezlight3" :type :image :file "rezlight3.png")
+ (:name "rezlight4" :type :image :file "rezlight4.png")
+ (:name "rezlight5" :type :image :file "rezlight5.png")
+
+ (:name "psiblur1" :type :image :file "psiblur1.png")
+ (:name "psiblur2" :type :image :file "psiblur2.png")
+ (:name "psiblur3" :type :image :file "psiblur3.png")
+ (:name "psiblur4" :type :image :file "psiblur4.png")
+ (:name "psiblur5" :type :image :file "psiblur5.png")
+
+ (:name "chiblur1" :type :image :file "chiblur1.png")
+ (:name "chiblur2" :type :image :file "chiblur2.png")
+ (:name "chiblur3" :type :image :file "chiblur3.png")
+ (:name "chiblur4" :type :image :file "chiblur4.png")
+ (:name "chiblur5" :type :image :file "chiblur5.png")
+
+ (:name "psifuzz1" :type :image :file "psifuzz1.png")
+ (:name "psifuzz2" :type :image :file "psifuzz2.png")
+
+ (:name "spark-pop" :type :sample :file "spark-pop.wav" :properties (:volume 4))
+ (:name "spark" :type :sample :file "spark.wav" :properties (:volume 2))
+ (:name "ohoh" :type :sample :file "ohoh.wav" :properties (:volume 4))
+ (:name "hard-brick" :type :image :file "hard-brick.png")
+ (:name "bass1" :type :sample :file "bass1.wav" :properties (:volume 13))
+ (:name "bass2" :type :sample :file "bass2.wav" :properties (:volume 13))
+ (:name "bass3" :type :sample :file "bass3.wav" :properties (:volume 4))
+
+ (:name "snare1" :type :sample :file "snare1.wav" :properties (:volume 20))
+ (:name "snare2" :type :sample :file "snare2.wav" :properties (:volume 20))
+
+ (:name "bd" :type :sample :file "bd.wav" :properties (:volume 20))
+
+ (:name "zap1" :type :sample :file "zap1.wav" :properties (:volume 10))
+ (:name "zap2" :type :sample :file "zap2.wav" :properties (:volume 10))
+ (:name "zap3" :type :sample :file "zap3.wav" :properties (:volume 10))
+ (:name "zap4" :type :sample :file "zap4.wav" :properties (:volume 10))
+ (:name "zap5" :type :sample :file "zap5.wav" :properties (:volume 10))
+ (:name "zap6" :type :sample :file "zap6.wav" :properties (:volume 10))
+ (:name "zap7" :type :sample :file "zap7.wav" :properties (:volume 10))
+
+
+ (:name "doom" :type :sample :file "doom.wav" :properties (:volume 40))
+
+ (:name "speedup" :type :sample :file "speedup.wav" :properties (:volume 30))
+
+ (:name "error" :type :sample :file "error.wav" :properties (:volume 3))
+ (:name "player" :type :image :file "player.png")
+ (:name "floor" :type :image :file "floor.png")
+
+ (:name "grow" :type :image :file "grow.png")
+ (:name "extra" :type :image :file "extra.png")
+ (:name "ball" :type :image :file "ball.png")
+ (:name "big-ball" :type :image :file "big-ball.png")
+ (:name "bomb" :type :image :file "bomb.png")
+ 
+ (:name "hero" :type :image :file "hero.png")
+ (:name "bullet" :type :image :file "bullet.png")
+
+ (:name "plat1-closed" :type :image :file "plat1-closed.png")
+ (:name "plat1-open" :type :image :file "plat1-open.png")
+
+ (:name "wall" :type :image :file "wall.png")
+ (:name "splash" :type :image :file "xiobreak.png")
+ (:name "ouch" :type :sample :file "ouch.wav" :properties (:volume 10))
+ (:name "explode" :type :sample :file "explode.wav" :properties (:volume 49))
+ (:name "plasma-tone" :type :sample :file "plasma-tone.wav" :properties (:volume 10))
+ (:name "next" :type :music :file "next.ogg" :properties (:volume 56))
+ (:name "kodama" :type :music :file "kodama.ogg" :properties (:volume 95))
+
+ (:name "nextpiano" :type :sample :file "nextpiano.wav" :properties (:volume 10))
+ (:name "nextpiano2" :type :sample :file "nextpiano2.wav" :properties (:volume 5))
+ (:name "rappy" :type :music :file "rappy.ogg" :properties (:volume 20))
+ (:name "buzzo" :type :music :file "buzzo.ogg" :properties (:volume 40))
+ (:name "radiolarians" :type :music :file "radiolarians-xxx.ogg" :properties (:volume 60))
+ (:name "bip" :type :sample :file "bip.wav" :properties (:volume 3))
+ (:name "serve" :type :sample :file "serve.wav" :properties (:volume 10))
+
  (:name "knock" :type :sample :file "knock.wav" :properties (:volume 30))
  (:name "activate" :type :sample :file "activate.wav" :properties (:volume 3))
  (:name "fanfare" :type :sample :file "fanfare.wav" :properties (:volume 30))

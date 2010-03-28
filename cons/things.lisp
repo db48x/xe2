@@ -4,6 +4,58 @@
   (eq (field-value :team obj1)
       (field-value :team obj2)))
 
+;;; Glittering flash gives clues on locations of explosions/damage
+
+(defcell flash 
+  (clock :initform 2)
+  (tile :initform "flash-1")
+  (categories :initform '(:actor))
+  (speed :initform (make-stat :base 10)))
+
+(define-method run flash ()
+  [expend-action-points self 10]
+  (case <clock>
+    (1 (setf <tile> "flash-2"))
+    (0 [>>die self]))
+  (decf <clock>))
+
+;;; Sparkle is a bigger but faster flash.
+
+(defcell sparkle 
+  (clock :initform 1)
+  (tile :initform "sparkle")
+  (categories :initform '(:actor))
+  (speed :initform (make-stat :base 10)))
+
+(define-method run sparkle ()
+  [expend-action-points self 10]
+  (case <clock>
+    (1 (setf <tile> "sparkle"))
+    (0 [>>die self]))
+  (decf <clock>))
+
+;;; An explosion.
+
+(defcell explosion 
+  (name :initform "Explosion")
+  (categories :initform '(:actor))
+  (tile :initform "explosion")
+  (speed :initform (make-stat :base 4))
+  (damage-per-turn :initform 5)
+  (clock :initform 2))
+
+(define-method run explosion ()
+  (if (zerop <clock>)
+      [die self]
+      (progn
+	(percent-of-time 10 [play-sample self "crunch"])
+	(decf <clock>)
+	[expend-action-points self 20]
+	(dotimes (n (random 3))
+	  [drop self (clone =particle=)])
+	(xe2:do-cells (cell [cells-at *world* <row> <column>])
+	  [damage cell <damage-per-turn>]))))
+
 ;;; Particle gun
 
 (defcell buster-particle 
@@ -344,7 +396,7 @@
 
 (defcell phi
   (tile :initform "phi")
-  (direction :initform (car (one-of '(:north :south :east :west))))
+  (direction :initform (car (one-of '(:north :northeast :northwest :southeast :southwest :south :east :west))))
   (categories :initform '(:actor))
   (clock :initform (random 20)))
 
@@ -426,56 +478,6 @@
 	    [damage cell 5]
 	    [>>say :narrator "RADIOACTIVE HAZARD!"]))
 	[move self (random-direction)])))
-
-;;; Glittering flash gives clues on locations of explosions/damage
-
-(defcell flash 
-  (clock :initform 2)
-  (tile :initform "flash-1")
-  (categories :initform '(:actor))
-  (speed :initform (make-stat :base 10)))
-
-(define-method run flash ()
-  [expend-action-points self 10]
-  (case <clock>
-    (1 (setf <tile> "flash-2"))
-    (0 [>>die self]))
-  (decf <clock>))
-
-;;; Sparkle is a bigger but faster flash.
-
-(defcell sparkle 
-  (clock :initform 1)
-  (tile :initform "sparkle")
-  (categories :initform '(:actor))
-  (speed :initform (make-stat :base 10)))
-
-(define-method run sparkle ()
-  [expend-action-points self 10]
-  (case <clock>
-    (1 (setf <tile> "sparkle"))
-    (0 [>>die self]))
-  (decf <clock>))
-
-;;; An explosion.
-
-(defcell explosion 
-  (name :initform "Explosion")
-  (categories :initform '(:actor))
-  (tile :initform "explosion")
-  (speed :initform (make-stat :base 10))
-  (damage-per-turn :initform 5)
-  (clock :initform 2))
-
-(define-method run explosion ()
-  (if (zerop <clock>)
-      [die self]
-      (progn
-	[play-sample self "crunch"]
-	(decf <clock>)
-	[expend-action-points self 10]
-	(xe2:do-cells (cell [cells-at *world* <row> <column>])
-	  [damage cell <damage-per-turn>]))))
 
 ;;; A melee weapon: the Shock Probe
 
