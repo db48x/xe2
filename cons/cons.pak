@@ -659,7 +659,7 @@
  (:name "alarm" :type :sample :file "alarm.wav" :properties (:volume 10))
  (:name "sense" :type :sample :file "sense.wav" :properties (:volume 30))
  (:name "sense2" :type :sample :file "sense2.wav" :properties (:volume 30))
- (:name "datanoise" :type :sample :file "datanoise.wav" :properties (:volume 15))
+ (:name "datanoise" :type :sample :file "datanoise.wav" :properties (:volume 9))
  (:name "woom" :type :sample :file "woom.wav" :properties (:volume 6))
 
  (:name "blurp" :type :sample :file "blurp.wav" :properties (:volume 15))
@@ -670,7 +670,7 @@
  (:name "dtmf3" :type :sample :file "dtmf3.wav" :properties (:volume 2))
 
  (:name "saddown" :type :sample :file "saddown.wav" :properties (:volume 30))
- (:name "gameover" :type :sample :file "gameover.wav" :properties (:volume 80	))
+ (:name "gameover" :type :sample :file "gameover.wav" :properties (:volume 40))
  (:name "ice" :type :sample :file "ice.wav" :properties (:volume 10))
  (:name "yelp" :type :sample :file "yelp.wav" :properties (:volume 10))
  (:name "pulse" :type :sample :file "pulse.wav" :properties (:volume 10))

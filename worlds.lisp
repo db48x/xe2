@@ -244,7 +244,7 @@ initialize the arrays for a world of the size specified there."
   (apply #'send self :generate self parameters))
 
 (define-method origin world ()
-  (setf <row> 0 <column> 0))
+  (setf <row> 0 <column> 0 <direction> :east))
 
 (define-method color world ()
   "Set the color to =FOO= where FOO is the prototype symbol on top of
@@ -276,9 +276,9 @@ location."
     (if (integerp distance)
 	(multiple-value-bind (row column) 
 	    (step-in-direction <row> <column> <direction> distance)
-	  (if (array-in-bounds-p <grid> row column)
-	      (setf <row> row <column> column)
-	      (error "Turtle left drawing area during MOVE.")))
+	  (setf <row> row <column> column)
+	  (when (not (array-in-bounds-p <grid> row column))
+	    (message "Turtle left drawing area during MOVE.")))
 	(error "Must pass an integer as distance for MOVE."))))
       
 (define-method draw world ()
@@ -293,9 +293,9 @@ is the integer on the top of the stack."
 		[drop-cell self (clone paint) <row> <column>]
 		(multiple-value-bind (row column) 
 		    (step-in-direction <row> <column> <direction>)
-		  (if (array-in-bounds-p <grid> row column)
-		      (setf <row> row <column> column)
-		      (error "Turtle left drawing area during DRAW."))))
+		  (setf <row> row <column> column)
+		  (when (array-in-bounds-p <grid> row column)
+		      (message "Turtle left drawing area during DRAW."))))
 	      (error "Must pass an integer as distance for DRAW."))))))
 
 (define-method pushloc world ()

@@ -74,15 +74,17 @@
   (floor :initform "reactor-background")
   (barrier :initform "reactor-foreground")
   (accent :initform "reactor-accent")
-  (height :initform 120)
-  (width :initform 120)
+  (height :initform 55)
+  (width :initform 55)
   (level :initform 1)
   (ambient-light :initform :total)
   (required-modes :initform nil)
   (scale :initform '(1 xm))
   (edge-condition :initform :block)
   (grammar :initform 
-	   '((world >> (:pushloc
+	   '((world >> (rod-square
+			:origin
+			:pushloc
 			45 :right 
 			5 :jump
 			=exit= :color :drop
@@ -90,12 +92,19 @@
 			90 :right
 			20 :jump 
 			90 :left
-			20 :jump 
+			25 :jump 
 			90 :left
 			:pushloc security-structure :poploc
-			:drop-drones
-			90 :right 90 :right 40 :jump
-			security-structure))
+			:drop-drones))
+	     (rod-angle >> 90 45)
+	     (rod >> (9 :jump
+		      :pushloc 
+		      =barrier= :color 
+		      rod-angle :right 
+		      7 :draw
+		      :poploc))
+	     (rod-row >> (rod rod rod rod rod 10 :jump 90 :right))
+	     (rod-square >> (rod-row rod-row rod-row rod-row))
 	     (side-chamber >> (:pushloc
 			       room3 90 random-turn
 			       room3 90 :left
