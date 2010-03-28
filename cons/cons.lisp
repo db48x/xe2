@@ -184,16 +184,18 @@
 (defvar *form*)
   
 (defparameter *default-commands*
-  '(("aim :north ." "UP")
-    ("aim :south ." "DOWN")
-    ("aim :east ." "RIGHT")
-    ("aim :west ." "LEFT")
-    ("push ." "Z")
-    ("pop ." "X")
-    ("call ." "C")
-    ("rotate ." "V")
-    ("move ." "SPACE")
-    ("quit ." "Q" :control)))
+  '(("move :north ." "UP")
+    ("move :south ." "DOWN")
+    ("move :east ." "RIGHT")
+    ("move :west ." "LEFT")
+    ("call :north ." "UP" :shift)
+    ("call :south ." "DOWN" :shift)
+    ("call :east ." "RIGHT" :shift)
+    ("call :west ." "LEFT" :shift)
+    ("do-action ." "Z")
+    ("rotate ." "X")
+    ("quit ." "Q" :control)
+    ("pause ." "P" :control)))
 
 (define-prototype joystick-world (:parent =world=)
   (height :initform 18)
@@ -308,7 +310,7 @@
  	       ;;
 	       [set-player universe player]
 	       [play universe
-	       	     :address '(=storage=)
+	       	     :address '(=reactor=)
 	       	     :prompt prompt
 	       	     :narrator terminal
 	       	     :viewport viewport]

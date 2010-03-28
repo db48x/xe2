@@ -1,6 +1,17 @@
 (in-package :cons-game)
 
+;;; Sector exit
+
+(define-prototype exit (:parent xe2:=launchpad=)
+  (tile :initform "launchpad")
+  (categories :initform '(:gateway :player-entry-point :action)))
+
+(define-method do-action exit ()
+  [activate self])
+
 ;;; Systematic variations 
+
+;; TODO remove this section. 
 
 (defparameter *security-theme* '(:floor "security-background"
 				 :barrier "security-foreground"
@@ -78,133 +89,44 @@
   [drop-border self]
   [parent>>generate self])
 
-;; (define-method begin-ambient-loop sector ()
-;;   (destructuring-bind (&key music loop &allow-other-keys)
-;;       <theme>
-;;     (when music (play-music music :loop loop))))
+;;; Sector gateway can point to any kind of sector
 
-;;; Reactor core sector
+(defparameter *sector-names* '(=security= =archive= =storage= =reactor= =corridor=))
 
-(defcell orange-barrier
-  (description :initform "Impenetrable barrier.")
-  (tile :initform "orangeworld")
-  (categories :initform '(:obstacle)))
+(defparameter *sector-tiles* '(=security= "security-gateway"
+			       =archive= "archive-gateway"
+			       =storage= "storage-gateway"
+			       =reactor= "reactor-gateway"
+			       =corridor= "corridor-gateway"))
 
-(defcell blue-brick
-  (description :initform "Breakable brick.")
-  (hit-points :initform (make-stat :base 20 :min 0))
-  (tile :initform "darkorangeworld2")
-  (categories :initform '(:obstacle)))
+(define-prototype sector-gateway (:parent xe2:=gateway=)
+  (tile :initform "unknown-gateway")
+  (world :initform nil))
 
-(define-method hit blue-brick ()
-  [play-sample self "break"]
-  [damage self 1])
+(define-method initialize sector-gateway (address)
+  (setf <address> address)
+  [update-tile self])
 
-(define-method die blue-brick ()
-  [play-sample self "break2"]
-  [parent>>die self])
+(define-method update-tile sector-gateway ()
+  (setf <tile> (getf *sector-tiles* (car <address>))))
 
-(defcell purple-brick
-  (description :initform "Impenetrable barrier.")
-  (hit-points :initform (make-stat :base 10 :min 0))
-  ;; (tile :initform "darkorangeworld3")
-  (tile :initform "darkorangeworld3")
-  (categories :initform '(:obstacle)))
+;;; Alien base consists of a grid of sectors
 
-(define-method hit purple-brick ()
-  [play-sample self "break"]
-  [damage self 1])
-
-(define-method die purple-brick ()
-  [play-sample self "break2"]
-  [parent>>die self])
-
-(defcell orange-barrier4
-  (description :initform "Impenetrable barrier.")
-  (tile :initform "darkorangeworld4")
-  (categories :initform '(:obstacle)))
-
-(defcell orange-road
-  (description :initform "Core maintenance vehicle transit area.")
-  (tile :initform "darkorangeworld"))
-
-(define-prototype reactor (:parent =sector=)
-  (description :initform "Power core station.")
-  (floor :initform "reactor-background")
-  (barrier :initform "reactor-foreground")
-  (accent :initform "reactor-accent")
-  (height :initform 120)
-  (width :initform 120)
-  (level :initform 1)
-  (ambient-light :initform :total)
-  (required-modes :initform nil)
-  (scale :initform '(1 xm))
+(define-prototype alien-base (:parent xe2:=world=)
+  (overworld :initform t)
+  (height :initform 20)
+  (width :initform 20)
+  (tile-size :initform 32)
   (edge-condition :initform :block)
-  (grammar :initform 
-	   '((world >> (=launchpad= :color :drop
-			:drop-scanners
-			90 :right
-			20 :jump 
-			=gun= :color :drop
-			90 :left
-		        30 :jump
-			90 :left
-			:pushloc security-structure :poploc
-			90 :right 90 :right 40 :jump
-			security-structure))
-	     (side-chamber >> (:pushloc
-			       room3 90 random-turn
-			       room3 90 :left
-			       1 :jump
-			       gun-maybe
-			       :poploc))
-	     (gun-maybe >> :noop :noop (=shocker= :color :drop))
-	     (security-structure >> (room 90 :left 
-				     room 90 :left 
-				     room 90 :left
-				     room 90 :right
-				     6 :jump
-				     :pushloc room2 90 random-turn room2 :poploc
-				     side-chamber))
-             (random-turn >> :right :left)
-	     (random-brick >> =purple-brick= =blue-brick=)
-	     (room >> (=barrier= :color 
-		       10 :draw 
-		       90 :right 
-		       4 :draw
-		       2 :jump
-		       4 :draw
-		       90 :right 
-		       10 :draw))
-	     (room2 >> (random-brick :color 
-			5 :draw 
-			90 :right 
-			5 :draw 
-			90 :right 
-			2 :draw
-			1 :jump
-			2 :draw
-			90 :right
-		        10 :draw))
-	     (room3 >> (=blue-brick= :color 
-			3 :draw 
-			90 :right 
-			4 :draw 
-			90 :right 
-			4 :draw 
-			90 :right
-		        4 :draw)))))
+  (ambient-light :initform :total))
 
-(define-method generate reactor (&rest params)
+(define-method generate alien-base (&rest params)
   [create-default-grid self]
   (dotimes (row <height>)
     (dotimes (column <width>)
-      [drop-cell self (clone =orange-road=) row column]))
-  [parent>>generate self])
+      [drop-cell self (clone =sector-gateway= (list (car (one-of *sector-names*)))) row column]))
+  [drop-cell self (clone =exit=) 0 0])
 
-(define-method drop-scanners reactor ()
-  (dotimes (n 2)
-    [drop-cell self (clone =scanner=) (random <height>) (random <width>)]))
 
 ;;; Corridor with opening eyes
 

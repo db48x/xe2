@@ -93,14 +93,14 @@
 (define-method set-world viewport (world)
   (setf <world> world))
 
-(define-method set-tile-size viewport (size)
-  (assert (integerp size))
-  (setf <tile-size> size))
+(define-method set-tile-size viewport (&optional size)
+  (setf <tile-size> (or size (field-value :tile-size <world>))))
     
 (define-method render viewport ()
   (declare (optimize (speed 3)))
   (when <visible>
     [adjust self] ;; hehe
+    [set-tile-size self]
     (let* ((world (or <world> *world*))
            (origin-width <origin-width>)
            (origin-height <origin-height>)

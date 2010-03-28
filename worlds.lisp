@@ -33,6 +33,7 @@ interacting cells. The world object performs the following tasks:
   - Performs collision detection for sprites and cells
 ")
   (name :initform "Unknown" :documentation "Name of the world.")
+  (overworld :initform nil)
   (paused :initform nil :documentation "Non-nil when the game is paused.")
   (description :initform "Unknown area." :documentation "Brief description of area.")
   (tile-size :initform 16 :documentation "Size in pixels of a grid tile.")

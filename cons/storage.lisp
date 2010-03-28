@@ -81,10 +81,11 @@ around."))
   (tile :initform "crate-special"))
   
 (define-method die crate-special ()
-  [drop self (ecase (random 3)
+  [drop self (ecase (random 4)
 	       (0 (clone =health=))
 	       (1 (clone =bomb-defun=))
-	       (2 (clone =shocker=)))]
+	       (2 (clone =shocker=))
+	       (3 (clone =blue-key=)))]
   [parent>>die self])
 
 (define-method hit crate-special (&optional hitter)
@@ -109,7 +110,7 @@ around."))
 			5 :jump
 			90 :right
 			4 :jump
-			=launchpad= :color :drop
+			=exit= :color :drop
 			:poploc
 			90 :right
 			5 :jump 
@@ -198,10 +199,10 @@ around."))
   (dotimes (n 10)
     [drop-cell self (clone =shocker=) (random <height>) (random <width>)]))
 
-(define-method drop-biclops storage ()
-  (dotimes (n 2)
-    [drop-cell self (clone =biclops=) (random <height>) (random <width>)]))
+(define-method drop-scanners storage ()
+  (dotimes (n 4)
+    [drop-cell self (clone =scanner=) (random <height>) (random <width>)]))
 
 (define-method begin-ambient-loop storage ()
-  (play-music "neo-eof" :loop t))
+  (play-music "beatup" :loop t))
     

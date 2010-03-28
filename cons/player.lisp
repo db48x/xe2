@@ -60,10 +60,18 @@
   (categories :initform '(:actor :obstacle :player :target :container :light-source)))
 
 (define-method loadout agent ()
-  (push (clone =buster-defun=) <items>)
-  (clon:with-field-values (row column) self
-    (dotimes (n 3)
-      [add-segment self (- (+ row 4) n) column])))
+  (push (clone =buster-defun=) <items>))
+
+(define-method start agent ()
+  (clon:with-fields (segments) self
+    (let ((segs (length segments)))
+      (setf segments nil)
+      (if (field-value :overworld *world*)
+	  (setf <tile> "player32")
+	  (clon:with-field-values (row column) self
+	    (setf <tile> "agent-north")
+	    (dotimes (n segs)
+	      [add-segment self (- (+ row 4) n) column]))))))
 
 (define-method hit agent (&optional object)
   [play-sample self "ouch"]
