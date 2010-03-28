@@ -549,7 +549,7 @@
 
 (define-prototype lepton-particle (:parent xe2:=cell=)
   (categories :initform '(:actor :target))
-  (speed :initform (make-stat :base 14))
+  (speed :initform (make-stat :base 8))
   (stepping :initform t)
   (hit-damage :initform (make-stat :base 7))
   (default-cost :initform (make-stat :base 2))

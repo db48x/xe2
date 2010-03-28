@@ -1,13 +1,7 @@
 ** CONS!e
 *** TODO enable sdl key repeat and rework controls to xong-ish
 *** TODO storage sector
-**** TODO start with basic buster gun in an introductory level
-**** TODO storage boxes with mystery items (and/or surprise macrovirii)
-**** TODO healing item
-**** TODO data files (scores)
-**** TODO bombs 
 **** TODO lightly infested areas
-*** TODO get restart function working in cons
 *** TODO weapon powerup?
 *** TODO corridor sector
 *** TODO security sector
@@ -16,7 +10,8 @@
 *** TODO xiotank sector!
 *** TODO overworld map whose output data target the area synth.
 **** TODO overworld does not fill grid. only short intersecting horz/vert rows. 
-**** unlocked levels are visitable, completed levels unlock any adjacent levels
+**** unlocked levels are visitable, completed levels unlock any adjacent levels*
+**** TODO data files (scores)
 **** TODO a sector is completed when its objective is achieved
 **** TODO when a section is completed the adjacent squares become visitable
 **** TODO [#B] radiation areas

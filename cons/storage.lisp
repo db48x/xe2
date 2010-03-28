@@ -189,13 +189,13 @@ around."))
 	       8 :draw)))))
 
 (define-method drop-shockers storage ()
-  (dotimes (n 5)
+  (dotimes (n 10)
     [drop-cell self (clone =shocker=) (random <height>) (random <width>)]))
 
 (define-method drop-scanners storage ()
-  (dotimes (n 2)
+  (dotimes (n 3)
     [drop-cell self (clone =scanner=) (random <height>) (random <width>)]))
 
 (define-method begin-ambient-loop storage ()
-  (play-music "vedex" :loop t))
+  (play-music "neo-eof" :loop t))
     

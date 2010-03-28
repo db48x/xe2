@@ -69,6 +69,7 @@
   message *screen-width* transform-method-body roll-under make-stat
   =formatter= initialize-colors *standard-categories* *left-turn* *right-turn*
   *default-action-points* =world= roll bind-key-to-method *colors*
+  enable-classic-key-repeat disable-classic-key-repeat
   get-color =prompt= =menu-item= =direction-chooser= define-method
   *default-font* *startup* field-value set-field-value object-fields
   dispatch-event run *user-init-file-name* distance icon-resource

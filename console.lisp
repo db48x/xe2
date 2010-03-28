@@ -141,7 +141,17 @@ and the like."
   (setf *active-widgets* (delete widget *active-widgets* :test #'eq))
   (show-widgets))
 
-;;; Key repeat emulation
+;;; "Classic" key repeat
+
+(defun enable-classic-key-repeat (delay interval)
+  ;; (let ((delay-milliseconds (truncate (* delay (/ 1000.0 *frame-rate*))))
+  ;; 	(interval-milliseconds (truncate (* interval (/ 1000.0 *frame-rate*)))))
+    (sdl:enable-key-repeat delay interval))
+
+(defun disable-classic-key-repeat ()
+  (sdl:disable-key-repeat))
+
+;;; "Held Keys" key repeat emulation
 
 (defvar *key-table* (make-hash-table :test 'equal))
 
@@ -154,9 +164,6 @@ for backward-compatibility."
     (message "Warning. DELAY and INTERVAL arguments to XE2:ENABLE-HELD-KEYS are deprecated and ignored."))
   (setf *key-table* (make-hash-table :test 'equal))
   (setf *held-keys* t))
-  ;; (let ((delay-milliseconds (truncate (* delay (/ 1000.0 *frame-rate*))))
-  ;; 	(interval-milliseconds (truncate (* interval (/ 1000.0 *frame-rate*)))))
-  ;;   (sdl:enable-key-repeat delay-milliseconds interval-milliseconds)))
 
 (defun disable-held-keys ()
   "Disable key repeat."
