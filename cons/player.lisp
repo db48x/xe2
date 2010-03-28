@@ -60,7 +60,9 @@
   (categories :initform '(:actor :obstacle :player :target :container :light-source)))
 
 (define-method loadout agent ()
-  (push (clone =buster-defun=) <items>)
+  (push (clone =buster-defun=) <items>))
+
+(define-method start agent ()
   (clon:with-fields (segments) self
     (let ((segs (if (null segments)
 		    3 (length segments))))
@@ -106,14 +108,19 @@
 	[queue-move segment next-dir]
 	(setf next-dir (field-value :last-direction segment))))))
 
+(define-method in-overworld agent ()
+  (field-value :overworld *world*))
+
 (define-method update-tiles agent ()
-  (clon:with-field-values (items segments) self
-    (let ((n 0)
-	  (num-items (length items)))
-      (dolist (segment segments)
-	[show-item segment (when (< n num-items)
-			     (field-value :tile (nth n items)))]
-	(incf n)))))
+  (if [in-overworld self]
+      (setf <tile> "player32")
+      (clon:with-field-values (items segments) self
+	(let ((n 0)
+	      (num-items (length items)))
+	  (dolist (segment segments)
+	    [show-item segment (when (< n num-items)
+				 (field-value :tile (nth n items)))]
+	    (incf n))))))
 
 (define-method add-segment agent (&optional force-row force-column)
   (clon:with-fields (segments) self
@@ -167,19 +174,24 @@
 		  [say self "Nothing to drop."])))))))
 
 (define-method do-action agent ()
-  (cond ([category-at-head self :obstacle]
-	 [play-sample self "error"]
-	 [say self "Nothing to do here."])
-	([category-at-head self :action]
-	 [do-action [category-at-head self :action]])
-	([category-at-head self :item]
-	 [push self])
-	(t 
-	 (if (car <items>)
-	     [pop self]
-	     (progn 
-	       [play-sample self "error"]
-	       [say self "Nothing to do here."])))))
+  (if [in-overworld self]
+      (let ((gateway [category-at-p *world* <row> <column> :gateway]))
+	(if (clon:object-p gateway)
+	    [activate gateway]
+	    (error "No gateway.")))
+      (cond ([category-at-head self :obstacle]
+	     [play-sample self "error"]
+	     [say self "Nothing to do here."])
+	    ([category-at-head self :action]
+	     [do-action [category-at-head self :action]])
+	    ([category-at-head self :item]
+	     [push self])
+	    (t 
+	     (if (car <items>)
+		 [pop self]
+		 (progn 
+		   [play-sample self "error"]
+		   [say self "Nothing to do here."]))))))
 	   
 (define-method expend-item agent ()
   (pop <items>))

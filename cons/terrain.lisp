@@ -101,10 +101,14 @@
 
 (define-prototype sector-gateway (:parent xe2:=gateway=)
   (tile :initform "unknown-gateway")
+  (categories :initform '(:gateway :actor))
   (world :initform nil))
 
 (define-method initialize sector-gateway (address)
   (setf <address> address)
+  [update-tile self])
+
+(define-method run sector-gateway ()
   [update-tile self])
 
 (define-method update-tile sector-gateway ()
@@ -114,19 +118,20 @@
 
 (define-prototype alien-base (:parent xe2:=world=)
   (overworld :initform t)
-  (height :initform 20)
-  (width :initform 20)
+  (height :initform 6)
+  (width :initform 6)
   (tile-size :initform 32)
+  (scale :initform '(1 xm))
   (edge-condition :initform :block)
   (ambient-light :initform :total))
 
 (define-method generate alien-base (&rest params)
-  [create-default-grid self]
-  (dotimes (row <height>)
-    (dotimes (column <width>)
-      [drop-cell self (clone =sector-gateway= (list (car (one-of *sector-names*)))) row column]))
-  [drop-cell self (clone =exit=) 0 0])
-
+  (clon:with-field-values (height width) self
+    [create-default-grid self]
+    (dotimes (row height)
+      (dotimes (column width)
+	[drop-cell self (clone =sector-gateway= (list (car (one-of *sector-names*))
+						      :sequence-number (genseq))) row column]))))
 
 ;;; Corridor with opening eyes
 

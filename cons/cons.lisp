@@ -305,12 +305,9 @@
 						      ;; 		   (message "VAR: ~S" args))
 						      ;; 	       (field-value :variables *world*))
 						      )))
-	       ;; (xe2:enable-held-keys 1 3)
-	       ;; (xe2:enable-held-keys 1 3)
- 	       ;;
 	       [set-player universe player]
 	       [play universe
-	       	     :address '(=reactor=)
+	       	     :address '(=alien-base=)
 	       	     :prompt prompt
 	       	     :narrator terminal
 	       	     :viewport viewport]
@@ -322,7 +319,7 @@
 	       ;;
 	       [set-character *status* player]
 	       ;;
-	       [set-tile-size viewport 16]
+;;	       [set-tile-size viewport 16]
 	       [resize viewport :height 470 :width *cons-window-width*]
 	       [move viewport :x 0 :y 0]
 	       [set-origin viewport :x 0 :y 0 
