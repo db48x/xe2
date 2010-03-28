@@ -7,7 +7,7 @@
   (categories :initform '(:gateway :player-entry-point :action)))
 
 (define-method do-action exit ()
-  [activate self])
+  [exit *universe* :player [get-player *world*]])
 
 ;;; Systematic variations 
 
@@ -108,6 +108,10 @@
   (setf <address> address)
   [update-tile self])
 
+;; (define-method activate sector-gateway ()
+;;   [ex
+;; ;;  [play *universe* :address <address> :player [get-player *world*]])
+
 (define-method run sector-gateway ()
   [update-tile self])
 
@@ -118,8 +122,8 @@
 
 (define-prototype alien-base (:parent xe2:=world=)
   (overworld :initform t)
-  (height :initform 6)
-  (width :initform 6)
+  (height :initform 5)
+  (width :initform 5)
   (tile-size :initform 32)
   (scale :initform '(1 xm))
   (edge-condition :initform :block)
@@ -150,8 +154,9 @@
   (scale :initform '(3 m))
   (edge-condition :initform :block))
 
-(define-method generate corridor (&key (height 80)
-					    (width 50))
+(define-method generate corridor (&key (height 100)
+					    (width 50)
+					    (sequence-number (genseq)))
   (setf *notes* nil)
   (setf <height> height <width> width)
   [create-default-grid self]
@@ -164,8 +169,6 @@
 		 i j]))
     (dotimes (i 20)
       [drop-cell self (clone =block=) (random height) (random width)])
-    (dotimes (i 20)
-      [drop-cell self (clone =gun=) (random height) (random width)])
     (dotimes (i 20)
       [drop-cell self (clone =bomb=) (random height) (random width)])
     (dotimes (i 25)

@@ -481,6 +481,7 @@ cell is placed; nil otherwise."
 			      
 (define-method drop-player-at-last-location world (player)
   (setf <player> player)
+  (message "DROPPING PLAYER ~S" (list <player-exit-row> <player-exit-column>))
   [drop-cell self player <player-exit-row> <player-exit-column>])
   
 (define-method nth-cell world (n row column)
@@ -509,6 +510,7 @@ cell is placed; nil otherwise."
   ;; record current location so we can exit back to it
   (setf <player-exit-row> (field-value :row <player>))
   (setf <player-exit-column> (field-value :column <player>))
+  (message "EXITING AT ~S" (list <player-exit-row> <player-exit-column>))
   [delete-cell self <player> <player-exit-row> <player-exit-column>])
   
 (define-method obstacle-at-p world (row column)
@@ -1123,16 +1125,18 @@ narrator, and VIEWPORT as the viewport."
     [exit (pop stack)]
     ;; 
     (let ((world (car stack)))
-      (when world
-	(setf *world* world)
-	(setf *universe* self)
-	;; resume at previous play coordinates
-	[drop-player-at-last-location world <player>]
-	[start world]
-	[set-receiver <prompt> world]
-	[set-narrator world <narrator>]
-	[set-player world <player>]
-	[set-viewport world <viewport>]))))
+      (if world
+	  (progn (setf *world* world)
+		 (setf *universe* self)
+		 ;; resume at previous play coordinates
+		 [drop-player-at-last-location world <player>]
+		 [start world]
+		 [set-receiver <prompt> world]
+		 [set-world <viewport> world]
+		 [set-narrator world <narrator>]
+		 [set-viewport world <viewport>]
+		 [set-player world <player>])
+	  (error "No world.")))))
 
 ;;; Gateways and launchpads connect worlds together
 
