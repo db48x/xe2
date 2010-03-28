@@ -60,11 +60,10 @@
   (categories :initform '(:actor :obstacle :player :target :container :light-source)))
 
 (define-method loadout agent ()
-  (push (clone =buster-defun=) <items>))
-
-(define-method start agent ()
+  (push (clone =buster-defun=) <items>)
   (clon:with-fields (segments) self
-    (let ((segs (length segments)))
+    (let ((segs (if (null segments)
+		    3 (length segments))))
       (setf segments nil)
       (if (field-value :overworld *world*)
 	  (setf <tile> "player32")
