@@ -232,5 +232,5 @@
 ;;    [set-prompt *form* agent]
     [set-character *status* agent]
     [play *universe*
-	  :address '(=storage=)]
+	  :address (list '=alien-base= :sequence-number (genseq))]
     [loadout agent]))

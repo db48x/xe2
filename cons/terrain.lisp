@@ -67,7 +67,7 @@
   (scale :initform '(1 xm))
   (edge-condition :initform :block)
   (grammar :initform 
-	   '((world >> (=launchpad= :color :drop)))))
+	   '((world >> (=exit= :color :drop)))))
 
 (define-method drop-floor sector (r c)
   [drop-cell self (clone =floor= <floor>) r c])
@@ -129,57 +129,11 @@
   (edge-condition :initform :block)
   (ambient-light :initform :total))
 
-(define-method generate alien-base (&rest params)
+(define-method generate alien-base (&key sequence-number )
   (clon:with-field-values (height width) self
     [create-default-grid self]
     (dotimes (row height)
       (dotimes (column width)
 	[drop-cell self (clone =sector-gateway= (list (car (one-of *sector-names*))
 						      :sequence-number (genseq))) row column]))))
-
-;;; Corridor with opening eyes
-
-(defcell road
-  (description :initform "Security vehicle transit area.")
-  (tile :initform "darkcyanworld"))
-
-(define-prototype corridor (:parent xe2:=world=)
-  gen-row gen-column 
-  ;;
-  (description :initform "You enter a long corridor.")
-  (level :initform 1)
-  ;;
-  (ambient-light :initform :total)
-  (required-modes :initform nil)
-  (scale :initform '(3 m))
-  (edge-condition :initform :block))
-
-(define-method generate corridor (&key (height 100)
-					    (width 50)
-					    (sequence-number (genseq)))
-  (setf *notes* nil)
-  (setf <height> height <width> width)
-  [create-default-grid self]
-  (labels ((drop-barrier (r c)
-	     (prog1 nil
-	       [drop-cell self (clone =barrier=) r c])))
-    (dotimes (i height)
-      (dotimes (j width)
-	[drop-cell self (clone =road=)
-		 i j]))
-    (dotimes (i 20)
-      [drop-cell self (clone =block=) (random height) (random width)])
-    (dotimes (i 20)
-      [drop-cell self (clone =bomb=) (random height) (random width)])
-    (dotimes (i 25)
-      (let ((draw-function (if (= 0 (random 3))
-			       #'trace-row #'trace-column)))
-	(funcall draw-function #'drop-barrier
-		 (+ 10 (random 50))
-		 (+ 10 (random 50))
-		 (+ 10 (random 50)))))
-    [drop-cell self (clone =launchpad=) 10 10]))
-
-(define-method begin-ambient-loop corridor ()
-  (play-music "neo-eof" :loop t))
 
