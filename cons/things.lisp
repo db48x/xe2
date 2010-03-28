@@ -42,9 +42,8 @@
 
 (define-method call buster-defun (caller)
   (clon:with-field-values (direction row column) caller
-    (multiple-value-bind (r c) (step-in-direction row column direction)
-      [play-sample caller "fire"]
-      [drop-cell *world* (clone =buster-particle= direction) r c])))
+    [play-sample caller "fire"]
+    [drop-cell *world* (clone =buster-particle= direction) row column])))
 
 ;;; A bomb with countdown display.
 
