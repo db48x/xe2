@@ -5,7 +5,7 @@
 (defparameter *security-theme* '(:floor "security-background"
 				 :barrier "security-foreground"
 				 :accent "security-accent"
-				 :music "beatup" :loop t))
+				 :music "foo" :loop t))
 
 (defparameter *archive-theme* '(:floor "archive-background"
 				 :barrier "archive-foreground"
@@ -15,7 +15,7 @@
 (defparameter *storage-theme* '(:floor "storage-background"
 				 :barrier "storage-foreground"
 				 :accent "storage-accent"
-				 :music "purity" :loop t))
+				 :music "neo-eof" :loop t))
 
 (defparameter *reactor-theme* '(:floor "reactor-background"
 				 :barrier "reactor-foreground"
@@ -32,23 +32,25 @@
 (defcell floor 
   (categories :initform '(:floor)))
   
-(define-method initialize floor (&optional theme)
-  (setf <tile> (getf theme :floor)))
+(define-method initialize floor (&optional floor)
+  (setf <tile> (or floor (field-value :floor *world*))))
 
 (defcell barrier 
   (auto-loadout :initform t)
   (categories :initform '(:obstacle :barrier :target)))
 
-(define-method initialize barrier (&optional theme)
-  (setf <tile> (getf theme :barrier)))
+(define-method initialize barrier (&optional barrier)
+  (setf <tile> (or barrier (field-value :barrier *world*))))
 
 (define-method loadout barrier ()
-  (setf <tile> (getf (field-value :theme *world*) :barrier)))
+  (setf <tile> (or <tile> (field-value :barrier *world*))))
 
 ;;; Generic sector of alien base; this is specialized below.
 
 (define-prototype sector (:parent xe2:=world=)
-  (theme :initform nil)
+  ;; theme variables
+  floor barrier accent
+  ;; other
   (ambient-light :initform :total)
   (required-modes :initform nil)
   (scale :initform '(1 xm))
@@ -57,10 +59,10 @@
 	   '((world >> (=launchpad= :color :drop)))))
 
 (define-method drop-floor sector (r c)
-  [drop-cell self (clone =floor= <theme>) r c])
+  [drop-cell self (clone =floor= <floor>) r c])
 
 (define-method drop-barrier sector (r c)
-  [drop-cell self (clone =barrier= <theme>) r c])
+  [drop-cell self (clone =barrier= <barrier>) r c])
 
 (define-method generate sector (&rest params)
   [create-default-grid self]
@@ -69,85 +71,10 @@
       [drop-floor self row column]))
   [parent>>generate self])
 
-(define-method begin-ambient-loop sector ()
-  (destructuring-bind (&key music loop &allow-other-keys)
-      <theme>
-    (when music (play-music music :loop loop))))
-
-;;; Storage area, where the player breaks in 
-
-(define-prototype storage (:parent =sector=)
-  (description :initform "Maintenance equipment storage.")
-  (theme :initform *storage-theme*)
-  (height :initform 45)
-  (width :initform 60)
-  (ambient-light :initform :total)
-  (required-modes :initform nil)
-  (scale :initform '(1 xm))
-  (edge-condition :initform :block)
-  (grammar :initform 
-	   '((world >> (=launchpad= :color :drop
-			90 :right
-			5 :jump 
-			=gun= :color :drop
-			90 :left
-			:pushloc room-row :poploc
-			90 :right 12 :jump 90 :left
-			:pushloc room-row :poploc
-			90 :right 12 :jump 90 :left
-			:pushloc room-row :poploc
-			90 :right 12 :jump 90 :left
-			:drop-shockers))
-	     (room-row >> (10 :jump
-			   :pushloc room :poploc 
-			   10 :jump 
-			   :pushloc room :poploc 
-			   10 :jump 
-			   :pushloc room :poploc 
-			   10 :jump 
-			   :pushloc room :poploc ))
-	     (shocker-maybe >> :noop :noop (=shocker= :color :drop))
-             (random-turn >> :right :left)
-	     (room >> (=barrier= :color 
-		       8 :draw 
-		       90 :right 
-		       4 :draw
-		       2 :jump
-		       2 :draw
-		       90 :right 
-		       8 :draw
-		       90 :right
-		       4 :draw)
-	      (=barrier= :color 
-		       5 :draw 
-		       90 :right 
-		       7 :draw
-		       90 :right
-	               5 :draw
-		       90 :right 
-		       3 :draw
-	               2 :jump
-		       90 :right
-		       2 :draw)
-	      (=barrier= :color
-	       2 :draw
-	       2 :jump
-	       4 :draw 
-	       90 :right
-	       8 :draw
-	       90 :right
-	       4 :draw 
-	       :pushloc
-	       90 :right
-	       6 :draw
-	       :poploc
-	       3 :draw
-	       90 :right
-	       8 :draw)))))
-
-(define-method drop-shockers storage ()
-  (dotimes (n 5)
-    [drop-cell self (clone =shocker=) (random <height>) (random <width>)]))
+;; (define-method begin-ambient-loop sector ()
+;;   (destructuring-bind (&key music loop &allow-other-keys)
+;;       <theme>
+;;     (when music (play-music music :loop loop))))
 
 ;;; Reactor core sector
 
@@ -196,6 +123,9 @@
 
 (define-prototype reactor (:parent =sector=)
   (description :initform "Power core station.")
+  (floor :initform "reactor-background")
+  (barrier :initform "reactor-foreground")
+  (accent :initform "reactor-accent")
   (height :initform 120)
   (width :initform 120)
   (level :initform 1)
@@ -205,6 +135,7 @@
   (edge-condition :initform :block)
   (grammar :initform 
 	   '((world >> (=launchpad= :color :drop
+			:drop-drones
 			90 :right
 			20 :jump 
 			=gun= :color :drop
@@ -230,7 +161,7 @@
 				     side-chamber))
              (random-turn >> :right :left)
 	     (random-brick >> =purple-brick= =blue-brick=)
-	     (room >> (=orange-barrier= :color 
+	     (room >> (=barrier= :color 
 		       10 :draw 
 		       90 :right 
 		       4 :draw
@@ -264,16 +195,17 @@
       [drop-cell self (clone =orange-road=) row column]))
   [parent>>generate self])
 
-(define-method begin-ambient-loop reactor ()
-  (play-music "beatup" :loop t))
+(define-method drop-drones reactor ()
+  (dotimes (n 5)
+    [drop-sprite self (clone =drone=) (+ 600 (random 600)) (+ 600 (random 600)) :loadout t]))
 
-;;; Basic level
+;;; Corridor with opening eyes
 
 (defcell road
   (description :initform "Security vehicle transit area.")
   (tile :initform "darkcyanworld"))
 
-(define-prototype highway (:parent xe2:=world=)
+(define-prototype corridor (:parent xe2:=world=)
   gen-row gen-column 
   ;;
   (description :initform "You enter a long corridor.")
@@ -284,7 +216,7 @@
   (scale :initform '(3 m))
   (edge-condition :initform :block))
 
-(define-method generate highway (&key (height 80)
+(define-method generate corridor (&key (height 80)
 					    (width 50))
   (setf *notes* nil)
   (setf <height> height <width> width)
@@ -311,6 +243,6 @@
 		 (+ 10 (random 50)))))
     [drop-cell self (clone =launchpad=) 10 10]))
 
-(define-method begin-ambient-loop highway ()
-  (play-music "beatup" :loop t))
+(define-method begin-ambient-loop corridor ()
+  (play-music "neo-eof" :loop t))
 

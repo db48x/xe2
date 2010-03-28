@@ -30,36 +30,6 @@ or each turn waited. Melee combat uses 2 units per hit."))
     [>>stat-effect stepper :oxygen 40]
     [>>die self]))
 
-;;; The storage crate.
-
-(defcell tech-box
-  (tile :initform "tech-box")
-  (name :initform "Storage crate")
-  (categories :initform '(:obstacle :opaque :pushable :destructible :target))
-  (hit-points :initform (make-stat :base 10 :min 0)))
-
-(defcell tech-box-debris
-  (tile :initform "tech-box-debris")
-  (name :initform "Crate debris"))
-
-(define-method die tech-box ()
-  [>>drop self (clone =tech-box-debris=)]
-  [parent>>die self])
-
-(defcell tech-box-special 
-  (name :initform "Interesting storage crate")
-  (categories :initform '(:obstacle :opaque :pushable :destructible :target))
-  (hit-points :initform (make-stat :base 10 :min 0))
-  (tile :initform "tech-box-special"))
-  
-(define-method die tech-box-special ()
-  [>>drop self (clone (ecase (random 5)
-			(0 =level-up=)
-			(1 =speed-up=)
-			(2 =big-crystal=)
-			(3 =ion-shield=)
-			(4 =diamond=)))]
-  [parent>>die self])
 
 ;;; The obelix patrollers
 

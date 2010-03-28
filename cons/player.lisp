@@ -154,7 +154,7 @@
 	    (let ((item (car items)))
 	      (if (clon:object-p item)
 		  (progn (setf items (delete item items))
-			 [play-sample self "doorbell"]
+			 [play-sample self "doorbell2"]
 			 [drop-cell *world* item row column])
 		  [say self "Nothing to drop."])))))))
 	       

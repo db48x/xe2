@@ -1,4 +1,7 @@
 ** CONS!e
+*** TODO enable sdl key repeat and rework controls to xong-ish
+*** TODO get restart function working in cons
+*** TODO weapon powerup?
 *** TODO storage sector
 **** TODO gun
 **** TODO storage boxes with mystery items (and/or surprise macrovirii)
