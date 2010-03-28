@@ -591,7 +591,7 @@
  (:name "purity" :type :music :file "purity.ogg" :properties (:volume 20))
  (:name "neo-eof" :type :music :file "neo-eof.ogg" :properties (:volume 255)) 
  (:name "vixon" :type :music :file "vixon.ogg" :properties (:volume 18))
- (:name "vedex" :type :music :file "vedex.ogg" :properties (:volume 40))
+ (:name "vedex" :type :music :file "vedex.ogg" :properties (:volume 70))
  (:name "launchpad" :type :image :file "launchpad.png")
  (:name "resonator" :type :image :file "resonator.png")
  (:name "resonator-on" :type :image :file "resonator-on.png")
@@ -738,7 +738,7 @@
  (:name "beatup" :type :music :file "beatup.ogg" :properties (:volume 24))
  (:name "reprise" :type :music :file "reprise.ogg" :properties (:volume 24))
  (:name "xiobox" :type :music :file "xiobox.ogg" :properties (:volume 24))
- (:name "mello" :type :music :file "mello.ogg" :properties (:volume 24))
+ (:name "mello" :type :music :file "mello.ogg" :properties (:volume 40))
  (:name "dirge" :type :music :file "dirge.ogg" :properties (:volume 200)) 
  (:name "darker" :type :music :file "darker.ogg" :properties (:volume 20)) 
 

@@ -137,3 +137,6 @@
 	[drop-cell self (clone =sector-gateway= (list (car (one-of *sector-names*))
 						      :sequence-number (genseq))) row column]))))
 
+(define-method begin-ambient-loop alien-base ()
+  (play-music "mello"))
+

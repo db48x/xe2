@@ -6,7 +6,7 @@
   (tile :initform "segment")
   (item-tile :initform nil :documentation "When non-nil, superimpose this tile.")
   (description :initform "List snake body segment.")
-  (direction :initform :north :documentation "When non-nil, move once in this direction.")
+  (direction :initform nil :documentation "When non-nil, move once in this direction.")
   (last-direction :initform :north)
   (movement-cost :initform (make-stat :base 10))
   (speed :initform (make-stat :base 10 :min 0 :max 10))
@@ -41,6 +41,7 @@
 (defcell agent 
   (tile :initform "agent-north")
   (description :initform "You are a sentient warrior cons cell.")
+  (tail-length :initform 3)
   (segments :initform nil)
   (items :initform nil)
   (direction :initform :north)
@@ -64,15 +65,13 @@
 
 (define-method start agent ()
   (clon:with-fields (segments) self
-    (let ((segs (if (null segments)
-		    3 (length segments))))
-      (setf segments nil)
-      (if (field-value :overworld *world*)
-	  (setf <tile> "player32")
-	  (clon:with-field-values (row column) self
-	    (setf <tile> "agent-north")
-	    (dotimes (n segs)
-	      [add-segment self (- (+ row 4) n) column]))))))
+    (setf segments nil)
+    (if (field-value :overworld *world*)
+	(setf <tile> "player32")
+	(clon:with-field-values (row column) self
+	  (setf <tile> "agent-north")
+	    (dotimes (n <tail-length>)
+	      [add-segment self (- (+ row <tail-length>) n) column])))))
 
 (define-method hit agent (&optional object)
   [play-sample self "ouch"]

@@ -386,7 +386,7 @@
 		 (+ row (random size)) (+ column (random size))])))
 
 (define-method begin-ambient-loop corridor ()
-  (play-music "neo-eof" :loop t))
+  (play-music "vedex" :loop t))
 
 (define-method generate corridor (&key (height 200)
 					    (width 30)
