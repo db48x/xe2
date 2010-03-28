@@ -206,9 +206,9 @@
 
 (defcell plasma
   (tile :initform "rezblur1")
-  (speed :initform (make-stat :base 10))
+  (speed :initform (make-stat :base 3))
   (movement-cost :initform (make-stat :base 10))
-  (clock :initform 5)
+  (clock :initform (+ 10 (random 10)))
   (samples :initform *plasma-samples*)
   (categories :initform '(:actor :paint-source :plasma))
   (description :initform "Spreading toxic paint gas. Avoid at all costs!"))
@@ -785,271 +785,106 @@
 (define-method disembark paddle ()
   [unproxy self :dy -50 :dx 20])
 
-;;; The xiobreak room
+;; ;;; The xiobreak room
 
-(defcell drop-point 
-  (categories :initform '(:player-entry-point))
-  (tile :initform "floor"))
+;; (defcell drop-point 
+;;   (categories :initform '(:player-entry-point))
+;;   (tile :initform "floor"))
 
-(defparameter *room-height* (truncate (/ (- *xiobreak-window-height* 20) *tile-size*)))
-(defparameter *room-width* (truncate (/ *xiobreak-window-width* *tile-size*)))
+;; (defparameter *room-height* (truncate (/ (- *xiobreak-window-height* 20) *tile-size*)))
+;; (defparameter *room-width* (truncate (/ *xiobreak-window-width* *tile-size*)))
 
-(define-prototype room (:parent xe2:=world=)
-  (height :initform *room-height*)
-  (width :initform *room-width*)
-  (edge-condition :initform :block))
+;; (define-prototype room (:parent xe2:=world=)
+;;   (height :initform *room-height*)
+;;   (width :initform *room-width*)
+;;   (edge-condition :initform :block))
 
-(define-method drop-border room ()
-  (clon:with-field-values (height width) self
-    (labels ((drop-horz-wall (r c)
-	       (prog1 nil [drop-cell self (clone =wall-horizontal=) r c]))
-	     (drop-vert-wall (r c)
-	       (prog1 nil [drop-cell self (clone =wall-vertical=) r c]))
-	     (drop-pit (r c)
-	       (prog1 nil [drop-cell self (clone =pit=) r c])))
-      (drop-horz-wall 0 0)
-      (trace-row #'drop-horz-wall 0 0 width)
-      (trace-row #'drop-pit (- height 1) 0 width)
-      (trace-column #'drop-vert-wall 0 0 (- height 1))
-      (trace-column #'drop-vert-wall (- width 1) 0 (- height 1)))))
+;; (define-method drop-border room ()
+;;   (clon:with-field-values (height width) self
+;;     (labels ((drop-horz-wall (r c)
+;; 	       (prog1 nil [drop-cell self (clone =wall-horizontal=) r c]))
+;; 	     (drop-vert-wall (r c)
+;; 	       (prog1 nil [drop-cell self (clone =wall-vertical=) r c]))
+;; 	     (drop-pit (r c)
+;; 	       (prog1 nil [drop-cell self (clone =pit=) r c])))
+;;       (drop-horz-wall 0 0)
+;;       (trace-row #'drop-horz-wall 0 0 width)
+;;       (trace-row #'drop-pit (- height 1) 0 width)
+;;       (trace-column #'drop-vert-wall 0 0 (- height 1))
+;;       (trace-column #'drop-vert-wall (- width 1) 0 (- height 1)))))
 	          
-(define-method drop-floor room ()
-  (clon:with-field-values (height width) self
-    (dotimes (i height)
-      (dotimes (j width)
-	[drop-cell self (clone =floor=) i j]))))
+;; (define-method drop-floor room ()
+;;   (clon:with-field-values (height width) self
+;;     (dotimes (i height)
+;;       (dotimes (j width)
+;; 	[drop-cell self (clone =floor=) i j]))))
 
-(define-method drop-brick-row room (row x0 x1 color)
-  (labels ((drop-brick (r c)
-	     (let ((brick (clone =brick=)))
-	       [paint brick color]
-	       [drop-cell self brick r c :loadout t])))
-    (xe2:trace-row #'drop-brick row x0 x1)))
+;; (define-method drop-brick-row room (row x0 x1 color)
+;;   (labels ((drop-brick (r c)
+;; 	     (let ((brick (clone =brick=)))
+;; 	       [paint brick color]
+;; 	       [drop-cell self brick r c :loadout t])))
+;;     (xe2:trace-row #'drop-brick row x0 x1)))
 
-(defparameter *classic-layout-horz-margin* 0)
+;; (defparameter *classic-layout-horz-margin* 0)
 
-(defparameter *classic-layout-top-margin* 4)
+;; (defparameter *classic-layout-top-margin* 4)
 
-(defparameter *classic-layout-layers* 2)
+;; (defparameter *classic-layout-layers* 2)
 
-(define-method drop-classic-layout room (&optional (row-delta 0))
-  (let ((left *classic-layout-horz-margin*)
-	(right (- <width> 2 *classic-layout-horz-margin*))
-	(row (+ 1 row-delta *classic-layout-top-margin*))
-	(scheme (car (one-of *color-schemes*))))
-    (dotimes (n *classic-layout-layers*)
-      (dolist (color scheme)
-	[drop-brick-row self row left right color]
-	(incf row)))))
+;; (define-method drop-classic-layout room (&optional (row-delta 0))
+;;   (let ((left *classic-layout-horz-margin*)
+;; 	(right (- <width> 2 *classic-layout-horz-margin*))
+;; 	(row (+ 1 row-delta *classic-layout-top-margin*))
+;; 	(scheme (car (one-of *color-schemes*))))
+;;     (dotimes (n *classic-layout-layers*)
+;;       (dolist (color scheme)
+;; 	[drop-brick-row self row left right color]
+;; 	(incf row)))))
 
-(define-method drop-unbreakable-mass room (row column height width)
-  (labels ((drop-wall (r c)
-	     (prog1 nil
-	       [delete-category-at self r c :brick]
-	       [drop-cell self (clone =hard-brick=) r c])))
-    (trace-rectangle #'drop-wall row column height width t))) 
+;; (define-method drop-unbreakable-mass room (row column height width)
+;;   (labels ((drop-wall (r c)
+;; 	     (prog1 nil
+;; 	       [delete-category-at self r c :brick]
+;; 	       [drop-cell self (clone =hard-brick=) r c])))
+;;     (trace-rectangle #'drop-wall row column height width t))) 
 
-(define-method drop-masses room ()
-  (dotimes (i 3)
-    [drop-unbreakable-mass self (+ 5 (random 4)) (+ 3 (random (- <width> 15)))
-			   (+ 3 (random 3)) (+ 5 (random 7))]))
+;; (define-method drop-masses room ()
+;;   (dotimes (i 3)
+;;     [drop-unbreakable-mass self (+ 5 (random 4)) (+ 3 (random (- <width> 15)))
+;; 			   (+ 3 (random 3)) (+ 5 (random 7))]))
 
-(define-method generate room (&key (height *room-height*)
-				   (width *room-width*)
-				   (grow-bricks 2)
-				   (bomb-bricks 22)
-				   (extra-bricks 2)
-				   (platforms 3))
-  (setf <height> height)
-  (setf <width> width)
-  [create-default-grid self]
-  [drop-floor self]
-  [drop-border self]
-  [drop-classic-layout self]
-  (dotimes (n grow-bricks)
-    (let ((row (1+ (random 5)))
-	  (column (1+ (random (- width 1)))))
-      [delete-category-at self row column :brick]
-      [drop-cell self (clone =grow-brick=) row column :loadout t]))
-  ;; (dotimes (n platforms)
-  ;;   (let ((platform (clone =platform=)))
-  ;;     [add-sprite self platform]
-  ;;     [update-position platform (+ 100 (random 400)) (+ 400 (random 120))]))
-  (dotimes (n extra-bricks)
-    (let ((row (1+ (random 5)))
-	  (column (1+ (random (- width 1)))))
-      [delete-category-at self row column :brick]
-      [drop-cell self (clone =extra-brick=) row column :loadout t]))
-  (dotimes (n bomb-bricks)
-    (let ((row (+ 6 (random 5)))
-	  (column (1+ (random (- width 3)))))
-      [delete-category-at self row column :brick]
-      [drop-cell self (clone =bomb-brick=) row column :loadout t]))
-  [drop-masses self]
-  [drop-cell self (clone =drop-point=) 32 5])
+;; (define-method generate room (&key (height *room-height*)
+;; 				   (width *room-width*)
+;; 				   (grow-bricks 2)
+;; 				   (bomb-bricks 22)
+;; 				   (extra-bricks 2)
+;; 				   (platforms 3))
+;;   (setf <height> height)
+;;   (setf <width> width)
+;;   [create-default-grid self]
+;;   [drop-floor self]
+;;   [drop-border self]
+;;   [drop-classic-layout self]
+;;   (dotimes (n grow-bricks)
+;;     (let ((row (1+ (random 5)))
+;; 	  (column (1+ (random (- width 1)))))
+;;       [delete-category-at self row column :brick]
+;;       [drop-cell self (clone =grow-brick=) row column :loadout t]))
+;;   ;; (dotimes (n platforms)
+;;   ;;   (let ((platform (clone =platform=)))
+;;   ;;     [add-sprite self platform]
+;;   ;;     [update-position platform (+ 100 (random 400)) (+ 400 (random 120))]))
+;;   (dotimes (n extra-bricks)
+;;     (let ((row (1+ (random 5)))
+;; 	  (column (1+ (random (- width 1)))))
+;;       [delete-category-at self row column :brick]
+;;       [drop-cell self (clone =extra-brick=) row column :loadout t]))
+;;   (dotimes (n bomb-bricks)
+;;     (let ((row (+ 6 (random 5)))
+;; 	  (column (1+ (random (- width 3)))))
+;;       [delete-category-at self row column :brick]
+;;       [drop-cell self (clone =bomb-brick=) row column :loadout t]))
+;;   [drop-masses self]
+;;   [drop-cell self (clone =drop-point=) 32 5])
 
-(define-method begin-ambient-loop room ()
-  (play-music (getf *theme* :music) :loop t))
-
-;;; Controlling the game
-
-(define-prototype room-prompt (:parent xe2:=prompt=))
-
-(defparameter *numpad-keybindings* 
-  '(("KP4" nil "walk :west .")
-    ("KP6" nil "walk :east .")
-    ;;
-    ("KP7" (:control) "serve-ball :northwest .")
-    ("KP9" (:control) "serve-ball :northeast .")
-    ("JOYSTICK" (:right :button-down) "joywaslk :east .")
-    ("JOYSTICK" (:left :button-down) "joywaslk :west .") 
-    ("JOYSTICK" (:right :button-up) "joystop .")
-    ("JOYSTICK" (:left :button-up) "joystop .")
-    ("JOYSTICK" (:square :button-down) "serve-ball :northwest .")
-    ("JOYSTICK" (:cross :button-down) "serve-ball :northeast .")
-    ("LEFT" nil "walk :west .")
-    ("RIGHT" nil "walk :east .")
-    ;;
-    ("C" nil "jump :northwest .")
-    ("F" nil "jump :north .")
-    ("V" nil "jump :northeast .")
-    ;;
-    ("N" nil "embark .")
-    ("M" nil "disembark .")
-    ("Z" nil "serve-ball :northwest .")
-    ("X" nil "serve-ball :northeast .")))
-
-(defparameter *qwerty-keybindings*
-  (append *numpad-keybindings*
-	  '(("H" nil "walk :west .")
-	    ("L" nil "walk :east .")
-	    ;;
-	    ("Y" (:control) "serve-ball :northwest .")
-	    ("U" (:control) "serve-ball :northeast .")
-	    ;;
-	    ("ESCAPE" nil "restart .")
-	    ("Q" (:control) "quit ."))))
-
-(define-method install-keybindings room-prompt ()
-  (dolist (k (append *numpad-keybindings* *qwerty-keybindings*))
-    (apply #'bind-key-to-prompt-insertion self k))
-  ;; we also want to respond to timer events. this is how. 
-  [define-key self nil '(:timer) (lambda ()
-				   (click-beat)
-				   (message "FPS: ~S" (truncate (sdl:average-fps)))
-				   [run-cpu-phase *world* :timer])])
-
-;;; A status widget for score display
-
-(defvar *status*)
-
-(define-prototype status (:parent xe2:=formatter=)
-  (character :documentation "The character cell."))
-
-(define-method set-character status (character)
-  (setf <character> character))
-
-(define-method print-stat status (stat-name &key warn-below show-max)
-  (let* ((stat (field-value stat-name <character>))
-	 (value [stat-value <character> stat-name]))
-    (destructuring-bind (&key min max base delta unit) stat
-      (let ((color (if (and (numberp warn-below)
-			    (< value warn-below))
-		       ".red"
-		       ".gray40")))
-	[print self (symbol-name stat-name)
-	       :foreground ".white"]
-	[print self ":["]
-	[print self (format nil "~S" value) 
-	       :foreground ".yellow"
-	       :background color]
-	(when show-max
-	  [print self (format nil "/~S" max)
-		 :foreground ".yellow"
-		 :background color])
-	(when unit 
-	  [print self " "]
-	  [print self (symbol-name unit)])
-	[print self "]"]
-	))))
-
-(defparameter *status-bar-character* " ")
-
-(define-method print-stat-bar status (stat &key 
-					   (color ".yellow")
-					   (background-color ".gray40"))
-  (let ((value (truncate [stat-value <character> stat]))
-	(max (truncate [stat-value <character> stat :max])))
-    (dotimes (i max)
-      [print self *status-bar-character*
-	     :foreground ".yellow"
-	     :background (if (< i value)
-			     color
-			   background-color)])))
-
-(define-method update status ()
-  [delete-all-lines self]
-  (let* ((char <character>))
-    (when char
-      ;; :font "fat-bits"
-      [print self (format nil "THEME: ~6A   " (getf *theme* :name))]
-	[print self (format nil "SCORE: ~S   " *score*)  :foreground ".white" :background ".black"]
-	[print self (format nil "BALLS: ~S   " [stat-value char :balls])]
-	[print self (format nil "BRICKS: ~S   " *bricks*)]
-	[print self " ARROWS: MOVE / Z+X: FIRE / CONTROL-Q: QUIT / ESC: RESET"]
-	[newline self])))
-
-;;; Main program. 
-
-(defun init-xiobreak ()
-  (xe2:message "Initializing Xiobreak...")
-  (clon:initialize)
-  (xe2:set-screen-height *xiobreak-window-height*)
-  (xe2:set-screen-width *xiobreak-window-width*)
-  (let* ((prompt (clone =room-prompt=))
-	 (universe (clone =universe=))
-	 (narrator (clone =narrator=))
-	 (status (clone =status=))
-	 (hero (clone =hero=))
-	 (paddle (clone =paddle=))
-	 (viewport (clone =viewport=)))
-    (setf *hero* hero)
-    (setf *alive* t)
-    (setf *balls* 0)
-    (setf *bricks* 0)
-    (setf *score* 0)
-    (setf *theme* (car (one-of (list *psi-theme* *chi-theme* *plasma-theme*))))
-    ;;
-    [resize prompt :height 20 :width 100]
-    [move prompt :x 0 :y 0]
-    [hide prompt]
-    [install-keybindings prompt]
-    ;;
-    (setf *status* status)
-    [resize status :height 20 :width *xiobreak-window-width*]
-    [move status :x 0 :y (- *xiobreak-window-height* 20)]
-    [set-character status paddle]
-    ;;
-    [resize narrator :height 80 :width *xiobreak-window-width*]
-    [move narrator :x 0 :y (- *xiobreak-window-height* 80)]
-    [set-verbosity narrator 0]
-    ;;
-    [play universe
-	  :address '(=room=)
-	  :player paddle
-	  :narrator narrator
-	  :prompt prompt
-	  :viewport viewport]
-    [loadout paddle]
-    [loadout hero]
-    [proxy paddle hero]
-    [set-tile-size viewport *tile-size*]
-    [resize viewport :height 470 :width *xiobreak-window-width*]
-    [move viewport :x 0 :y 0]
-    [set-origin viewport :x 0 :y 0 
-		:height (truncate (/ *xiobreak-window-height* *tile-size*))
-		:width (truncate (/ *xiobreak-window-width* *tile-size*))] 
-    [adjust viewport] 
-    (xe2:install-widgets prompt viewport status)))
-
-(init-xiobreak)

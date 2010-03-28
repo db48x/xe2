@@ -60,7 +60,7 @@ around."))
   (tile :initform "crate")
   (name :initform "Storage crate")
   (categories :initform '(:obstacle :opaque :pushable :destructible :target))
-  (hit-points :initform (make-stat :base 10 :min 0)))
+  (hit-points :initform (make-stat :base 4 :min 0)))
 
 (defcell crate-debris
   (tile :initform "crate-debris")

@@ -10,7 +10,7 @@
   (clock :initform 2)
   (tile :initform "flash-1")
   (categories :initform '(:actor))
-  (speed :initform (make-stat :base 10)))
+  (speed :initform (make-stat :base 1)))
 
 (define-method run flash ()
   [expend-action-points self 10]
@@ -25,13 +25,16 @@
   (clock :initform 1)
   (tile :initform "sparkle")
   (categories :initform '(:actor))
-  (speed :initform (make-stat :base 10)))
+  (speed :initform (make-stat :base 1)))
 
 (define-method run sparkle ()
-  [expend-action-points self 10]
+  [expend-action-points self 20]
   (case <clock>
     (1 (setf <tile> "sparkle"))
-    (0 [>>die self]))
+    (0 (percent-of-time 40
+	 [move self (random-direction)]
+	 [drop self (clone =sparkle=)])
+       [die self]))
   (decf <clock>))
 
 ;;; An explosion.
@@ -48,11 +51,11 @@
   (if (zerop <clock>)
       [die self]
       (progn
-	(percent-of-time 10 [play-sample self "crunch"])
+	(setf <tile> (car (one-of '("explosion" "explosion2"))))
+	(percent-of-time 30 [play-sample self "crunch"])
 	(decf <clock>)
+	(percent-of-time 80 [move self (random-direction)])
 	[expend-action-points self 20]
-	(dotimes (n (random 3))
-	  [drop self (clone =particle=)])
 	(xe2:do-cells (cell [cells-at *world* <row> <column>])
 	  [damage cell <damage-per-turn>]))))
 
@@ -83,6 +86,7 @@
 		       [move self <direction>]
 		       (progn (when (and (clon:has-method :hit thing)
 					 (not (same-team self thing)))
+				[drop self (clone =flash=)]
 				[hit thing])
 			      [die self])))))
 	  [move self <direction>]))))
@@ -134,6 +138,8 @@
 		     (- <row> 2) 
 		     (- <column> 2) 
 		     5 5)
+    (dotimes (n (+ 10 (random 10)))
+      [drop self (clone =plasma=)])
     [die self]))
 
 (defcell bomb-defun
@@ -567,12 +573,21 @@
 					 '(:obstacle :target)]))
     (if target
 	(progn	
-	  [>>drop target (clone =flash=)]
-	  [>>damage target [stat-value self :hit-damage]]
-	  [>>die self])
+	  [drop target (clone =sparkle=)]
+	  [damage target [stat-value self :hit-damage]]
+	  [play-sample target "serve"]
+	  (labels ((do-circle (image)
+		     (prog1 t
+		       (multiple-value-bind (x y) 
+			   [screen-coordinates self]
+			 (let ((x0 (+ x 8))
+			       (y0 (+ y 8)))
+			   (draw-circle x0 y0 40 :destination image)
+			   (draw-circle x0 y0 35 :destination image))))))
+	    [>>add-overlay :viewport #'do-circle])	  [die self])
 	(progn 
-	  [>>drop self (clone =lepton-trail= <direction>)]
-	  [>>move self <direction>]))))
+	  [drop self (clone =lepton-trail= <direction>)]
+	  [move self <direction>]))))
 
 (define-method update-tile lepton-particle ()
   (setf <tile> (getf *lepton-tiles* <direction>)))

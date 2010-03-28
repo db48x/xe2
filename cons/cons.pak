@@ -322,6 +322,7 @@
 
  (:name "gravity-beam" :type :image :file "gravity-beam.png")
  (:name "explosion" :type :image :file "explosion.png")
+ (:name "explosion2" :type :image :file "explosion2.png")
 
  (:name "space" :type :image :file "space.png")
  (:name "space2" :type :image :file "space2.png")
@@ -803,6 +804,7 @@
 
  (:name ".default-font" :type :font :properties (:height 14 :width 7) :data "7x14b")
  (:name "cons-package-lisp" :type :lisp :file "cons-package.lisp" :properties (:autoload t))
+ (:name "break-lisp" :type :lisp :file "break.lisp" :properties (:autoload t))
  (:name "things-lisp" :type :lisp :file "things.lisp" :properties (:autoload t))
  (:name "xiotank-lisp" :type :lisp :file "xiotank.lisp" :properties (:autoload t))
  (:name "terrain-lisp" :type :lisp :file "terrain.lisp" :properties (:autoload t))
