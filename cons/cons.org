@@ -1,14 +1,14 @@
 ** CONS!e
 *** TODO enable sdl key repeat and rework controls to xong-ish
-*** TODO get restart function working in cons
-*** TODO weapon powerup?
 *** TODO storage sector
-**** TODO gun
+**** TODO start with basic buster gun in an introductory level
 **** TODO storage boxes with mystery items (and/or surprise macrovirii)
 **** TODO healing item
 **** TODO data files (scores)
 **** TODO bombs 
 **** TODO lightly infested areas
+*** TODO get restart function working in cons
+*** TODO weapon powerup?
 *** TODO corridor sector
 *** TODO security sector
 *** TODO archive sector

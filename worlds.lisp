@@ -231,18 +231,13 @@ initialize the arrays for a world of the size specified there."
       (dolist (op program)
 	(typecase op
 	  (keyword (if (clon:has-method op self)
-		       (progn (message (prin1-to-string op))
-			      (send nil op self))
+		       (send nil op self)
 		       (message "WARNING: Found keyword without corresponding method in turtle program.")))
 	  (symbol (when (null (keywordp op))
 		    (when (boundp op)
-		      (message "PUSHING ~S" (list op (symbol-value op)))
 		      (push (symbol-value op) stack))))
-	  (string (message "PUSHING ~S" op)
-	     (push op stack))
-	  (number (message "PUSHING ~S" op)
-	     (push op stack)))
-	(message (prin1-to-string (list '---stack---- stack)))))))
+	  (string (push op stack))
+	  (number (push op stack)))))))
 
 (define-method generate-with world (parameters)
   (apply #'send self :generate self parameters))
@@ -257,6 +252,14 @@ the stack."
     (if (clon:object-p prototype)
 	(setf <paint> prototype)
 	(error "Must pass a =FOO= prototype symbol as a COLOR."))))
+
+(define-method push-color world ()
+  "Push the symbol name of the current <paint> object onto the stack."
+  (clon:with-fields (paint stack) self
+      (if (clon:object-p paint)
+	  (prog1 (message "PUSHING PAINT ~S" (clon:object-name paint))
+	    (push paint stack))
+	  (error "No paint to save on stack during PUSH-COLOR."))))
 
 (define-method drop world ()
   "Clone the current <paint> object and drop it at the current turtle

@@ -1,5 +1,9 @@
 (in-package :cons-game)
 
+(defun same-team (obj1 obj2)
+  (eq (field-value :team obj1)
+      (field-value :team obj2)))
+
 ;;; Particle gun
 
 (defcell buster-particle 
@@ -15,14 +19,21 @@
 
 (define-method run buster-particle ()
   (multiple-value-bind (r c) (step-in-direction <row> <column> <direction>)
-    (let ((thing (or [category-at-p *world* r c :obstacle]
-		     [category-at-p *world* r c :target])))
-      (if (null thing)
-	  [move self <direction>]
-	  (progn (when (and (clon:has-method :hit thing)
-			    (not (same-team self thing)))
-		   [hit thing])
-		 [die self])))))
+    (let ((obs [obstacle-at-p *world* r c]))
+      (if obs
+	  (cond ((eq t obs)
+		 ;; out of bounds.
+		 [die self])
+		((clon:object-p obs)
+		 ;; hit it
+		 (let ((thing (or [category-at-p *world* r c :target] obs)))
+		   (if (null thing)
+		       [move self <direction>]
+		       (progn (when (and (clon:has-method :hit thing)
+					 (not (same-team self thing)))
+				[hit thing])
+			      [die self])))))
+	  [move self <direction>]))))
 
 (defcell buster-defun
   agent
@@ -53,7 +64,7 @@
     (if (zerop clock) 
 	[explode self]
 	(progn 
-	  [expend-action-points self 10]		    
+	  [expend-action-points self 30]		    
 	  (setf <tile> (bomb-tile clock))
 	  (decf clock)))))
 

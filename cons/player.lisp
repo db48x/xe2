@@ -60,12 +60,13 @@
   (categories :initform '(:actor :obstacle :player :target :container :light-source)))
 
 (define-method loadout agent ()
+  (push (clone =buster-defun=) <items>)
   (clon:with-field-values (row column) self
     (dotimes (n 3)
       [add-segment self (- (+ row 4) n) column])))
 
 (define-method hit agent (&optional object)
-  [play-sample self "buzzouch"]
+  [play-sample self "ouch"]
   [damage self 1])
 
 (define-method pause agent ()
@@ -189,8 +190,8 @@
     (halt-sample t)
     [destroy *universe*]
     [set-player *universe* agent]
-    [set-player *form* agent]
+;;    [set-prompt *form* agent]
     [set-character *status* agent]
     [play *universe*
-	  :address '(=highway=)]
+	  :address '(=storage=)]
     [loadout agent]))

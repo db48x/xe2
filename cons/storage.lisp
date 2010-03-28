@@ -67,8 +67,12 @@ around."))
   (name :initform "Storage crate debris"))
 
 (define-method die crate ()
-  [>>drop self (clone =crate-debris=)]
+  [drop self (clone =crate-debris=)]
   [parent>>die self])
+
+(define-method hit crate (&optional hitter)
+  [play-sample self "bip"]
+  [damage self 1])
 
 (defcell crate-special 
   (name :initform "Interesting storage crate")
@@ -77,8 +81,15 @@ around."))
   (tile :initform "crate-special"))
   
 (define-method die crate-special ()
-  [>>drop self (clone =health=)]
+  [drop self (ecase (random 3)
+	       (0 (clone =health=))
+	       (1 (clone =bomb-defun=))
+	       (2 (clone =shocker=)))]
   [parent>>die self])
+
+(define-method hit crate-special (&optional hitter)
+  [play-sample self "bip"]
+  [damage self 1])
 
 ;;; Storage world generation
 
@@ -97,15 +108,15 @@ around."))
 	   '((world >> (=launchpad= :color :drop
 			90 :right
 			5 :jump 
-			=gun= :color :drop
 			90 :left
+			=bomb-defun= :color :drop
 			:pushloc room-row :poploc
 			90 :right 12 :jump 90 :left
 			:pushloc room-row :poploc
 			90 :right 12 :jump 90 :left
 			:pushloc room-row :poploc
 			90 :right 12 :jump 90 :left
-			:drop-shockers :drop-drones))
+			:drop-shockers :drop-scanners))
 	     (room-row >> (10 :jump
 			   :pushloc room :poploc 
 			   10 :jump 
@@ -114,6 +125,13 @@ around."))
 			   :pushloc room :poploc 
 			   10 :jump 
 			   :pushloc room :poploc ))
+	     (random-crate >> =crate= =crate= =crate= =crate= =crate-special=)
+	     (crate-to-right >> (:push-color :pushloc
+				random-crate :color
+				90 :right
+				1 :jump 
+				1 :draw
+				:poploc :color))
 	     (shocker-maybe >> :noop :noop (=shocker= :color :drop))
              (random-turn >> :right :left)
 	     (room >> (=barrier= :color 
@@ -123,7 +141,13 @@ around."))
 		       2 :jump
 		       2 :draw
 		       90 :right 
-		       8 :draw
+		       2 :draw
+		       crate-to-right
+		       1 :draw
+		       crate-to-right
+		       1 :draw
+		       crate-to-right
+		       4 :draw
 		       90 :right
 		       4 :draw)
 	      (=barrier= :color 
@@ -136,6 +160,12 @@ around."))
 		       3 :draw
 	               2 :jump
 		       90 :right
+		       2 :draw
+		       crate-to-right
+		       1 :draw
+		       crate-to-right
+		       1 :draw
+		       crate-to-right
 		       2 :draw)
 	      (=barrier= :color
 	       2 :draw
@@ -147,7 +177,12 @@ around."))
 	       4 :draw 
 	       :pushloc
 	       90 :right
-	       6 :draw
+	       4 :draw
+	       crate-to-right
+	       1 :draw
+	       crate-to-right
+	       1 :draw
+	       crate-to-right
 	       :poploc
 	       3 :draw
 	       90 :right
@@ -157,6 +192,10 @@ around."))
   (dotimes (n 5)
     [drop-cell self (clone =shocker=) (random <height>) (random <width>)]))
 
-(define-method drop-drones storage ()
+(define-method drop-scanners storage ()
   (dotimes (n 2)
-    [drop-sprite self (clone =drone=) (+ 300 (random 200)) (+ 200 (random 200)) :loadout t]))
+    [drop-cell self (clone =scanner=) (random <height>) (random <width>)]))
+
+(define-method begin-ambient-loop storage ()
+  (play-music "vedex" :loop t))
+    

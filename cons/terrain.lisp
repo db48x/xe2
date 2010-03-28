@@ -135,7 +135,7 @@
   (edge-condition :initform :block)
   (grammar :initform 
 	   '((world >> (=launchpad= :color :drop
-			:drop-drones
+			:drop-scanners
 			90 :right
 			20 :jump 
 			=gun= :color :drop
@@ -195,9 +195,9 @@
       [drop-cell self (clone =orange-road=) row column]))
   [parent>>generate self])
 
-(define-method drop-drones reactor ()
-  (dotimes (n 5)
-    [drop-sprite self (clone =drone=) (+ 600 (random 600)) (+ 600 (random 600)) :loadout t]))
+(define-method drop-scanners reactor ()
+  (dotimes (n 2)
+    [drop-cell self (clone =scanner=) (random <height>) (random <width>)]))
 
 ;;; Corridor with opening eyes
 

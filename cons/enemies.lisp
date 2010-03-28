@@ -13,7 +13,7 @@ Then it fires and gives chase.")
   (hit-points :initform (make-stat :base 2 :min 0 :max 45))
   (movement-cost :initform (make-stat :base 10))
   (max-items :initform (make-stat :base 2))
-  (speed :initform (make-stat :base 10 :min 0 :max 25))
+  (speed :initform (make-stat :base 5 :min 0 :max 25))
   (strength :initform (make-stat :base 10))
   (defense :initform (make-stat :base 10))
   (hearing-range :initform 15)
@@ -197,9 +197,10 @@ Then it fires and gives chase.")
   [move self <direction> [stat-value self :movement-distance]])
 
 (define-method hit drone (&optional thing)
-  (when [in-category thing :wave]
-    [play-sample self "yelp"]
-    [damage self 1]))
+  (if [in-category thing :wave]
+      (progn [play-sample self "yelp"]
+	     [damage self 1])
+      [>>say :narrator "This weapon has no effect on the Drone."]))
 
 (define-method die drone ()
   [say self "The drone is destroyed!"]
@@ -287,8 +288,9 @@ Two heads. One human, one droid."))
   (tile :initform "scanner")
   (name :initform "Scanner")
   (categories :initform '(:obstacle :actor :equipper :opaque))
-  (direction :initform nil)
-  (speed :initform (make-stat :base 5))
+  (auto-loadout :initform t)
+  (direction :initform :north)
+  (speed :initform (make-stat :base 1))
   (hit-points :initform (make-stat :base 20 :min 0))
   (equipment-slots :initform '(:robotic-arm))
   (max-items :initform (make-stat :base 3))
@@ -304,40 +306,35 @@ They fire powerful heat-seeking bullets, but these can be shot down."))
 	       
 (define-method choose-new-direction scanner ()
   (setf <direction>
-	(if (= 0 (random 20))
-	    ;; occasionally choose a random dir
-	    (nth (random 3)
-		 '(:north :south :east :west))
-	    ;; otherwise turn left
-	    (getf '(:north :west :west :south :south :east :east :north)
-		  (or <direction> :north)))))
+	(getf xe2:*left-turn*
+	      (or <direction> :north))))
   
 (define-method loadout scanner ()
+  [make-inventory self]
+  [make-equipment self]
   (let ((cannon (clone =lepton-cannon=)))
     [equip self [add-item self cannon]]
     [choose-new-direction self]))
   
-(define-method initialize scanner ()
-  [make-inventory self]
-  [make-equipment self])
-
 (define-method run scanner ()
+  [expend-action-points self 10]
   (clon:with-field-values (row column) self
     (let ((world *world*))
-      (if (< [distance-to-player world row column] 8)
+      (if (< [distance-to-player world row column] 10)
 	  (let ((player-dir [direction-to-player world row column]))
-	    [queue>>fire self player-dir])
+	    [fire self player-dir])
 	  (multiple-value-bind (r c)
-	      (step-in-direction <row> <column> <direction>)
+	      (step-in-direction row column <direction>)
 	    (when [obstacle-at-p world r c]
 	      [choose-new-direction self])
-	    [queue>>move self <direction>])))))
+	    [move self <direction>])))))
 
 (define-method die scanner ()
   [play-sample self "death-alien"]
-  (when (> 4 (random 10))
-    [drop self (clone (random-stat-powerup))])
   [parent>>die self])
+
+(define-method hit scanner (&optional other)
+  [damage self 1])
 
 ;;; Rooks are the most difficult enemies. They bomb you.
 
