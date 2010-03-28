@@ -14,10 +14,10 @@
 	 (player [get-player *world*]))
     (labels ((draw-beam (image)
 	       (multiple-value-bind (x0 y0) 
-		   [viewport-coordinates self]
+		   [screen-coordinates self]
 		 (multiple-value-bind (x1 y1)
-		     [viewport-coordinates player]
-		   (xe2:draw-line x0 y0 x1 y1 
+		     [screen-coordinates player]
+		   (xe2:draw-line (+ 8 x0) (+ 8 y0) (+ x1 8) (+ y1 8)
 				  :destination image)))))
       [damage player 2]
       [say self "You sustain 2 damage from the laser."]
@@ -36,7 +36,7 @@
 	    (world *world*))
 	(if (< [distance-to-player self] 8)
 	    (progn
-	      [>>fire self direction]
+	      [fire self direction]
 	      (setf <clock> 6
 		    <behavior> :fleeing))
 	    (if [obstacle-in-direction-p world row column direction]

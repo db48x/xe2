@@ -1,12 +1,13 @@
 ** CONS!e
 *** TODO storage sector
 *** TODO play breakout using snake as paddle, pong ball is an item
-**** TODO lightly infested areas
-*** TODO weapon powerup?
 *** TODO corridor sector
 *** TODO security sector
 *** TODO archive sector
 *** TODO reactor sector
+**** TODO destroyable cores
+**** TODO destroyable drones
+**** TODO defended cores
 *** TODO xiotank sector!
 *** TODO overworld map whose output data target the area synth.
 **** TODO overworld does not fill grid. only short intersecting horz/vert rows. 

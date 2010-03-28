@@ -117,8 +117,16 @@
 				     side-chamber))
              (random-turn >> :right :left)
 	     (random-brick >> =purple-brick= =blue-brick=)
+	     (bombs >> (:push-color :pushloc 
+			90 :left 
+			=bomb-defun= :color
+			1 :jump
+			2 :draw
+			:poploc :color))
 	     (room >> (=barrier= :color 
-		       10 :draw 
+		       5 :draw 
+		       bombs
+		       5 :draw 
 		       90 :right 
 		       4 :draw
 		       2 :jump
@@ -158,8 +166,10 @@
       [drop-sprite self (clone =reactor-core=) x y])))
 
 (define-method drop-drones reactor ()
+  (dotimes (n 3)
+    [drop-cell self (clone =corruptor=) (+ 2 (random (- <height> 10))) (+ 2 (random (- <width> 10)))])
   (dotimes (n 2)
     [drop-sprite self (clone =drone=) (+ 40 (random (* 13 <height>))) (+ 40 (* 13 (random <width>)))]))
 
 (define-method begin-ambient-loop reactor ()
-  (play-music "beatup" :loop t))
+  (play-music "neo-eof" :loop t))

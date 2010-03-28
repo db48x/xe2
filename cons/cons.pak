@@ -738,7 +738,7 @@
  (:name "beatup" :type :music :file "beatup.ogg" :properties (:volume 24))
  (:name "reprise" :type :music :file "reprise.ogg" :properties (:volume 24))
  (:name "xiobox" :type :music :file "xiobox.ogg" :properties (:volume 24))
- (:name "mello" :type :music :file "mello.ogg" :properties (:volume 40))
+ (:name "mello" :type :music :file "mello.ogg" :properties (:volume 200))
  (:name "dirge" :type :music :file "dirge.ogg" :properties (:volume 200)) 
  (:name "darker" :type :music :file "darker.ogg" :properties (:volume 20)) 
 
