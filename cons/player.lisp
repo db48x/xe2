@@ -66,6 +66,8 @@
 (define-method start agent ()
   (clon:with-fields (segments) self
     (setf segments nil)
+    (setf <direction> :north)
+    (setf <last-direction> :north)
     (if (field-value :overworld *world*)
 	(setf <tile> "player32")
 	(clon:with-field-values (row column) self
