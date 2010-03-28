@@ -105,10 +105,16 @@ around."))
   (scale :initform '(1 xm))
   (edge-condition :initform :block)
   (grammar :initform 
-	   '((world >> (=launchpad= :color :drop
+	   '((world >> (:pushloc
+			5 :jump
+			90 :right
+			4 :jump
+			=launchpad= :color :drop
+			:poploc
 			90 :right
 			5 :jump 
 			90 :left
+			1 :jump
 			=bomb-defun= :color :drop
 			:pushloc room-row :poploc
 			90 :right 12 :jump 90 :left
@@ -116,7 +122,7 @@ around."))
 			90 :right 12 :jump 90 :left
 			:pushloc room-row :poploc
 			90 :right 12 :jump 90 :left
-			:drop-shockers :drop-scanners))
+			:drop-shockers :drop-biclops))
 	     (room-row >> (10 :jump
 			   :pushloc room :poploc 
 			   10 :jump 
@@ -192,9 +198,9 @@ around."))
   (dotimes (n 10)
     [drop-cell self (clone =shocker=) (random <height>) (random <width>)]))
 
-(define-method drop-scanners storage ()
-  (dotimes (n 3)
-    [drop-cell self (clone =scanner=) (random <height>) (random <width>)]))
+(define-method drop-biclops storage ()
+  (dotimes (n 2)
+    [drop-cell self (clone =biclops=) (random <height>) (random <width>)]))
 
 (define-method begin-ambient-loop storage ()
   (play-music "neo-eof" :loop t))

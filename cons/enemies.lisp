@@ -238,8 +238,8 @@ Then it fires and gives chase.")
   (equipment-slots :initform '(:robotic-arm))
   (max-items :initform (make-stat :base 3))
   (stepping :initform t)
-  (speed :initform (make-stat :base 5))
-  (movement-cost :initform (make-stat :base 5))
+  (speed :initform (make-stat :base 1))
+  (movement-cost :initform (make-stat :base 30))
   (attacking-with :initform :robotic-arm)
   (max-weight :initform (make-stat :base 25))
   (hit-points :initform (make-stat :base 25 :min 0 :max 10))
@@ -252,12 +252,17 @@ Two heads. One human, one droid."))
   [make-inventory self]
   [make-equipment self])
 
+(define-method hit biclops (&optional object)
+  [play-sample self "spark-pop"]
+  [damage self 4])
+
 (define-method loadout biclops ()
   (let ((probe (clone =shock-probe=)))
     [equip self [add-item self probe]]))
 
 (define-method attack biclops (target)
-  [play-sample self "drill-big"]
+  [play-sample self "yelp"]
+  [expend-action-points self 50]
   [parent>>attack self target])
 
 (define-method run biclops ()
@@ -277,8 +282,6 @@ Two heads. One human, one droid."))
 		     [>>move self direction]))))))
 
 (define-method die biclops ()
-  (when (> 8 (random 10))
-    [drop self (clone (random-stat-powerup))])
   [play-sample self "blaagh3"]
   [parent>>die self])
 
@@ -325,7 +328,7 @@ They fire powerful heat-seeking bullets, but these can be shot down."))
 	    [fire self player-dir])
 	  (multiple-value-bind (r c)
 	      (step-in-direction row column <direction>)
-	    (when [obstacle-at-p world r c]
+	    (when [category-at-p world r c :obstacle]
 	      [choose-new-direction self])
 	    [move self <direction>])))))
 

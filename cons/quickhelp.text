@@ -1,7 +1,7 @@
 ((("CONTROLS:                          " :background ".blue" :foreground ".white"))
- (("movement: numeric keypad / hjklyubn" :background ".gray20" :foreground ".gray80"))
- (("shooting: Control-DIRECTION        "  :background ".gray14" :foreground ".gray80"))
- (("pausing: Pause key or Control-P    "  :background ".gray14" :foreground ".gray80"))
- (("help: F1 / Pause and click objects "  :background ".gray20" :foreground ".gray80")))
-
+ (("move: arrows / numpad / hjkl       " :background ".gray20" :foreground ".gray80"))
+ (("shoot: SHIFT-Direction             "  :background ".gray14" :foreground ".gray80"))
+ (("get/drop/action: Z    rotate: X    "  :background ".gray14" :foreground ".gray80"))
+ (("help: F1      pause: CONTROL-P     "  :background ".gray20" :foreground ".gray80")))
+ 
 		     

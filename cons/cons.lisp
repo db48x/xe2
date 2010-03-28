@@ -78,11 +78,8 @@
 	    ("L" (:shift) "call :east .")
 	    ("J" (:shift) "call :south .")
 	    ;;
-	    ("Z" nil "push .")
-	    ("X" nil "pop .")
-	    ("C" nil "call .")
-	    ("V" nil "rotate .")
-	    ("SPACE" nil "move .")
+	    ("Z" nil "do-action .")
+	    ("X" nil "rotate .")
 	    ;;
 	    ("P" (:control) "pause .")
 	    ("PAUSE" nil "pause .")
@@ -340,7 +337,7 @@
     	  (funcall #'send nil :print-formatted-string help string))
     	[newline help]))
     ;;
-    [resize quickhelp :height 85 :width 250] 
+    [resize quickhelp :height 72 :width 250] 
     [move quickhelp :y (- *cons-window-height* 130) :x (- *cons-window-width* 250)]
     (let ((text	(find-resource-object "quickhelp-message")))
       (dolist (line text)

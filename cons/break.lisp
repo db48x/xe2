@@ -266,10 +266,10 @@
 
 (defcell psi
   (tile :initform "psiblur1")
-  (speed :initform (make-stat :base 10))
+  (speed :initform (make-stat :base 4))
   (movement-cost :initform (make-stat :base 10))
   (direction :initform (random-direction))
-  (clock :initform 10)
+  (clock :initform 20)
   (samples :initform *psi-samples*)
   (categories :initform '(:actor :paint-source :psi)))
 

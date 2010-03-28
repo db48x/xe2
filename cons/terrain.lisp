@@ -64,11 +64,18 @@
 (define-method drop-barrier sector (r c)
   [drop-cell self (clone =barrier= <barrier>) r c])
 
+(define-method drop-border sector ()
+  (labels ((drop (r c)
+	     (prog1 nil 
+	       [drop-cell self (clone =barrier= <barrier>) r c])))
+    (trace-rectangle #'drop 0 0 <height> <width>)))
+
 (define-method generate sector (&rest params)
   [create-default-grid self]
   (dotimes (row <height>)
     (dotimes (column <width>)
       [drop-floor self row column]))
+  [drop-border self]
   [parent>>generate self])
 
 ;; (define-method begin-ambient-loop sector ()

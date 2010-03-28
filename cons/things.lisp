@@ -31,10 +31,7 @@
   [expend-action-points self 20]
   (case <clock>
     (1 (setf <tile> "sparkle"))
-    (0 (percent-of-time 40
-	 [move self (random-direction)]
-	 [drop self (clone =sparkle=)])
-       [die self]))
+    (0 [die self]))
   (decf <clock>))
 
 ;;; An explosion.
@@ -44,7 +41,7 @@
   (categories :initform '(:actor))
   (tile :initform "explosion")
   (speed :initform (make-stat :base 4))
-  (damage-per-turn :initform 5)
+  (damage-per-turn :initform 10)
   (clock :initform 2))
 
 (define-method run explosion ()
@@ -140,6 +137,15 @@
 		     5 5)
     (dotimes (n (+ 10 (random 10)))
       [drop self (clone =plasma=)])
+    (labels ((do-circle (image)
+	       (prog1 t
+		 (multiple-value-bind (x y) 
+		     [screen-coordinates self]
+		   (let ((x0 (+ x 8))
+			 (y0 (+ y 8)))
+		     (draw-circle x0 y0 40 :destination image)
+		     (draw-circle x0 y0 35 :destination image))))))
+      [>>add-overlay :viewport #'do-circle])
     [die self]))
 
 (defcell bomb-defun
@@ -584,7 +590,8 @@
 			       (y0 (+ y 8)))
 			   (draw-circle x0 y0 40 :destination image)
 			   (draw-circle x0 y0 35 :destination image))))))
-	    [>>add-overlay :viewport #'do-circle])	  [die self])
+	    [>>add-overlay :viewport #'do-circle])
+	  [die self])
 	(progn 
 	  [drop self (clone =lepton-trail= <direction>)]
 	  [move self <direction>]))))

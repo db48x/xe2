@@ -158,7 +158,22 @@
 			 [play-sample self "doorbell2"]
 			 [drop-cell *world* item row column])
 		  [say self "Nothing to drop."])))))))
-	       
+
+(define-method do-action agent ()
+  (cond ([category-at-head self :obstacle]
+	 [play-sample self "error"]
+	 [say self "Nothing to do here."])
+	([category-at-head self :action]
+	 [do-action [category-at-head self :action]])
+	([category-at-head self :item]
+	 [push self])
+	(t 
+	 (if (car <items>)
+	     [pop self]
+	     (progn 
+	       [play-sample self "error"]
+	       [say self "Nothing to do here."])))))
+	   
 (define-method expend-item agent ()
   (pop <items>))
 
