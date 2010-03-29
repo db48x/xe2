@@ -200,8 +200,9 @@
 
 (define-method rotate agent () 
   (clon:with-fields (items) self
-    (let ((tail (pop items)))
-      (setf items (append items (list tail))))))
+    (when items
+      (let ((tail (pop items)))
+	(setf items (append items (list tail)))))))
 
 (define-method call agent (&optional direction)
   (when direction

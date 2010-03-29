@@ -24,11 +24,6 @@
       [play-sample self "laser2"]
       [>>add-overlay :viewport #'draw-beam])))
 
-(define-method die xr7 ()
-  [drop self (clone (if (= 0 (random 2))
-			=energy= =crystal=))]
-  [delete-from-world self])
-
 (define-method seek xr7 ()
   (clon:with-field-values (row column) self
     (when (< [distance-to-player *world* row column] <chase-distance>)
