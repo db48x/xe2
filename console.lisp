@@ -498,8 +498,9 @@ scaled by that factor unless marked with the property :nozoom t.")
 (defun zoom-image (image &optional (factor *zoom-factor*))
   "Return a zoomed version of IMAGE, zoomed by FACTOR.
 Allocates a new image."
-  (assert (integerp *zoom-factor*))
-  (lispbuilder-sdl-gfx:zoom-surface *zoom-factor* *zoom-factor*
+  (assert (integerp factor))
+  (print factor)
+  (lispbuilder-sdl-gfx:zoom-surface factor factor
 				    :surface image
 				    :smooth nil))
 
@@ -1068,14 +1069,27 @@ of the record.")
 	(subseq name (1+ delimiter-pos))
 	(subseq name 1))))
 
-(defun rotate-image (image degrees)
-  (sdl:rotate-surface degrees :surface image))
+(defun rotate-image (res degrees)
+  (sdl:rotate-surface degrees :surface (resource-object res)))
+
+(defun subsect-image (res x y)
+  (let ((props (resource-properties res)))
+    (draw-image (resource-object res)
+                (* -1 x) (* -1 y)
+                :destination (create-image (getf props :width)
+                                           (getf props :height)))))
+
+(defun scale-image (res scale)
+  (print "scale-image")
+  (zoom-image (resource-object res) scale))
 
 ;; (defun reflect-image (image direction)
 ;;   (sdl:reflect-surface 
 
 (defvar *resource-transformations* 
-  (list :rotate #'rotate-image))
+  (list :rotate #'rotate-image
+        :subimage #'subsect-image
+        :scale #'scale-image))
 
 (defun load-resource (resource)
   "Load the driver-dependent object of RESOURCE into the OBJECT field
@@ -1121,8 +1135,7 @@ when NAME cannot be found."
 						   (make-keyword operation)))
 				    (source-res (find-resource source-name))
 				    (source-type (resource-type source-res))
-				    (source (resource-object source-res))
-				    (xformed-resource (apply xformer source
+				    (xformed-resource (apply xformer source-res
 							     arguments)))
 			       (make-resource :name name 
 					      :type source-type
