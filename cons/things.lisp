@@ -89,7 +89,10 @@
 	  [move self <direction>]))))
 
 (defcell buster-defun
-  agent
+  (name :initform "BUSTER")
+  (description :initform 
+"The BUSTER program fires a relatively weak particle weapon when activated.
+However, ammunition is unlimited, making BUSTER an old standby.")
   (tile :initform "buster")
   (categories :initform '(:item :target :defun)))
 
@@ -162,6 +165,8 @@
     [die self]))
 
 (defcell bomb-defun
+  (name :initform "BOMB")
+  (description :initform "This single-use BOMB program drops a timed explosive device.")
   (tile :initform "bomb-ammo")
   (categories :initform '(:item :target :defun)))
 
@@ -437,7 +442,8 @@
 ;;; Health powerup
 
 (defcell health
-  (description :initform "Restores a few hit points when used.")
+  (name :initform "REPAIR-1")
+  (description :initform "The single-use program REPAIR-1 restores a few hit points when activated.")
   (tile :initform "health")
   (categories :initform '(:item)))
 
