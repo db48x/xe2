@@ -475,7 +475,7 @@ unproxying. By default, it does nothing."
       ;; otherwise maybe we're a vehicle
       (let ((occupant <occupant>))
 	(when (null occupant)
-	  (error "Cannot forward message without an occupant cell to send it to."))
+	  (error "Cannot forward message ~S. No implementation found." method))
 	(apply #'send self method occupant args))))
   
 (define-method embark cell (&optional v)

@@ -436,15 +436,16 @@
 
 ;;; Health powerup
 
-(defcell health 
-  (description :initform "Restores a few hit points.")
-  (tile :initform "health"))
+(defcell health
+  (description :initform "Restores a few hit points when used.")
+  (tile :initform "health")
+  (categories :initform '(:item)))
 
-(define-method step health (stepper)
-  (when [is-player stepper]
-    [stat-effect stepper :hit-points 7]
+(define-method call health (caller)
+  (when [is-player caller]
+    [stat-effect stepper :hit-points 6]
     [play-sample self "buzzfan"]
-    [say stepper "Recovered 7 hit points."]
+    [say stepper "Recovered 6 hit points."]
     [die self]))
 
 ;;; Shield

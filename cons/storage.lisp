@@ -80,7 +80,7 @@ around."))
   (hit-points :initform (make-stat :base 10 :min 0))
   (tile :initform "crate-special"))
   
-  (define-method die crate-special ()
+(define-method die crate-special ()
   [drop self (ecase (random 4)
 	       (0 (clone =health=))
 	       (1 (clone =bomb-defun=))

@@ -1,9 +1,8 @@
-** CONS!e
-*** DONE BUG can't get out of reactor when launchpad spawns on wall
-CLOSED: [2010-03-29 Mon 07:20]
+** CONS
+*** TODO WRITE 2nd design document in this file
+*** 
 *** TODO integrated tutorial?
 *** TODO describe ship map menu with onscreen help
-*** TODO WRITE 2nd design document in this file
 *** TODO storage sector
 *** TODO reactor sector
 **** TODO destroyable cores

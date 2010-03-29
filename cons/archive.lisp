@@ -6,13 +6,13 @@
   (hit-points :initform (make-stat :base 10 :min 0))
   (tile :initform "archive-crate"))
   
-(define-method die archive-crate ()
+(define-method die archive-crate () 
+  [drop self (clone =crate-debris=)]
   (percent-of-time 50
       [drop self (ecase (random 3)
 		   (0 (clone =health=))
 		   (1 (clone =health=))
 		   (2 (clone =red-key=)))])
-  [drop self (clone =crate-debris=)]
   [parent>>die self])
 
 (define-method hit archive-crate (&optional hitter)

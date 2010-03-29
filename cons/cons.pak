@@ -747,6 +747,7 @@
  (:name "buzzouch" :type :sample :file "buzzouch.wav" :properties (:volume 10))
  (:name "doorbell" :type :sample :file "doorbell.wav" :properties (:volume 20))
  (:name "doorbell2" :type :sample :file "doorbell2.wav" :properties (:volume 20))
+ (:name "doorbell3" :type :sample :file "doorbell3.wav" :properties (:volume 80))
  (:name "fanfare" :type :sample :file "fanfare.wav" :properties (:volume 40))
  (:name "buzzfan" :type :sample :file "buzzfan.wav" :properties (:volume 40))
 

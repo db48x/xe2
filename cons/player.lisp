@@ -200,9 +200,13 @@
 
 (define-method rotate agent () 
   (clon:with-fields (items) self
-    (when items
-      (let ((tail (pop items)))
-	(setf items (append items (list tail)))))))
+    (if items
+	(let ((tail (pop items)))
+	  [play-sample self "doorbell3"]
+	  (setf items (append items (list tail))))
+	(progn 
+	  [play-sample self "error"]
+	  [say self "Cannot rotate empty list."]))))
 
 (define-method call agent (&optional direction)
   (when direction
