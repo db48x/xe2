@@ -13,12 +13,12 @@
   (let* ((world *world*)
 	 (player [get-player *world*]))
     (labels ((draw-beam (image)
-	       (multiple-value-bind (x0 y0) 
-		   [screen-coordinates self]
-		 (multiple-value-bind (x1 y1)
-		     [screen-coordinates player]
-		   (xe2:draw-line (+ 8 x0) (+ 8 y0) (+ x1 8) (+ y1 8)
-				  :destination image)))))
+	       (prog1 t (multiple-value-bind (x0 y0) 
+			    [screen-coordinates self]
+			  (multiple-value-bind (x1 y1)
+			      [screen-coordinates player]
+			    (xe2:draw-line (+ 8 x0) (+ 8 y0) (+ x1 8) (+ y1 8)
+					   :destination image))))))
       [damage player 2]
       [say self "You sustain 2 damage from the laser."]
       [play-sample self "laser2"]
