@@ -4,39 +4,11 @@
 
 (define-prototype exit (:parent xe2:=launchpad=)
   (tile :initform "launchpad")
-  (categories :initform '(:gateway :player-entry-point :action)))
+  (categories :initform '(:gateway :player-entry-point :action))
+  (description :initform "Exit the area by activating this object with the Z key."))
 
 (define-method do-action exit ()
   [exit *universe* :player [get-player *world*]])
-
-;;; Systematic variations 
-
-;; TODO remove this section. 
-
-(defparameter *security-theme* '(:floor "security-background"
-				 :barrier "security-foreground"
-				 :accent "security-accent"
-				 :music "foo" :loop t))
-
-(defparameter *archive-theme* '(:floor "archive-background"
-				 :barrier "archive-foreground"
-				 :accent "archive-accent"
-				 :music "mello" :loop t))
-
-(defparameter *storage-theme* '(:floor "storage-background"
-				 :barrier "storage-foreground"
-				 :accent "storage-accent"
-				 :music "neo-eof" :loop t))
-
-(defparameter *reactor-theme* '(:floor "reactor-background"
-				 :barrier "reactor-foreground"
-				 :accent "reactor-accent"
-				 :music "beatup" :loop t))
-
-(defparameter *corridor-theme* '(:floor "corridor-background"
-				 :barrier "corridor-foreground"
-				 :accent "corridor-accent"
-				 :music "beatup" :loop t))
 
 ;;; Indestructible wall of many colors
 
@@ -100,20 +72,24 @@
 			       =corridor= "corridor-gateway"))
 
 (define-prototype sector-gateway (:parent xe2:=gateway=)
+  (name :initform "Sector gateway")
   (tile :initform "unknown-gateway")
   (categories :initform '(:gateway :actor))
-  (world :initform nil))
+  (world :initformp nil))
 
 (define-method initialize sector-gateway (address)
   (setf <address> address)
-  [update-tile self])
-
-;; (define-method activate sector-gateway ()
-;;   [ex
-;; ;;  [play *universe* :address <address> :player [get-player *world*]])
+  (let ((world (symbol-value (car <address>))))
+    (assert (clon:object-p world))
+    (clon:with-field-values (description name) world
+      (setf <description> description <name> name))
+    [update-tile self]))
 
 (define-method run sector-gateway ()
   [update-tile self])
+
+(define-method step sector-gateway (stepper)
+  [describe self])
 
 (define-method update-tile sector-gateway ()
   (setf <tile> (getf *sector-tiles* (car <address>))))
@@ -121,6 +97,13 @@
 ;;; Alien base consists of a grid of sectors
 
 (define-prototype alien-base (:parent xe2:=world=)
+  (name :initform (format nil "Xiobase #~S~S" (random 9) (+ 32768 (random 32768))))
+  (description :initform 
+"Welcome to CONS. Your mission is to infiltrate, explore, and
+ultimately destroy a high-security enemy starbase of unknown purpose.
+The colored squares above represent the sectors of the base you can
+currently visit. Use the movement keys (see sidebar at right) to
+select a sector; press Z to enter. Press F1 for help.")
   (overworld :initform t)
   (height :initform 5)
   (width :initform 5)
@@ -136,6 +119,9 @@
       (dotimes (column width)
 	[drop-cell self (clone =sector-gateway= (list (car (one-of *sector-names*))
 						      :sequence-number (genseq))) row column]))))
+
+(define-method after-start-method alien-base ()
+  [describe self])
 
 (define-method begin-ambient-loop alien-base ()
   (play-music "mello"))

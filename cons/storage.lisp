@@ -96,6 +96,10 @@ around."))
 
 (define-prototype storage (:parent =sector=)
   (description :initform "Equipment and supply storage.")
+  (name :initform "Storage cube")
+  (description :initform 
+"You never know what you'll find in a storage chamber. All manner of
+supplies, ammunition, and sometimes special items may be found here.")
   (floor :initform "storage-background")
   (barrier :initform "storage-foreground")
   (accent :initform "storage-accent")

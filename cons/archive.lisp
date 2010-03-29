@@ -22,7 +22,9 @@
 ;;; Archive world generation
 
 (define-prototype archive (:parent =sector=)
-  (description :initform "Data archive.")
+  (name :initform "Data archive")
+  (description :initform 
+"These long-term data storage facilities can hold valuable secret data.")
   (floor :initform "archive-background")
   (barrier :initform "archive-foreground")
   (accent :initform "archive-accent")

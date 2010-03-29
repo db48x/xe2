@@ -22,7 +22,11 @@
 ;;; Security world generation
 
 (define-prototype security (:parent =sector=)
-  (description :initform "Data security.")
+  (name :initform "Security sector")
+  (description :initform 
+"The station's data security depends on the operation of the computers
+here. Important secret data files may sometimes be obtained, or even
+new abilities.")
   (floor :initform "security-background")
   (barrier :initform "security-foreground")
   (accent :initform "security-accent")

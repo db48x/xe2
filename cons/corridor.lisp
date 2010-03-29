@@ -359,9 +359,11 @@
   (tile :initform "darkcyanworld"))
 
 (define-prototype corridor (:parent =sector=)
-  gen-row gen-column 
-  ;;
-  (description :initform "You enter a long corridor.")
+  (name :initform "Corridor")
+  (description :initform 
+"These massive tube-like corridors are used to transport materials and
+vehicles all over the base. Steam flows upward along the sloped
+channel; corridors adjacent to a reactor are especially hot.")
   (level :initform 1)
   ;;
   (floor :initform "corridor-background")

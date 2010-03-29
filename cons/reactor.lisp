@@ -70,7 +70,10 @@
   (tile :initform "darkorangeworld"))
 
 (define-prototype reactor (:parent =sector=)
-  (description :initform "Power core station.")
+  (name :initform "XIO Reactor")
+  (description :initform 
+"The reactor cores contained in these chambers are the main source of
+the enemy's power.")
   (floor :initform "reactor-background")
   (barrier :initform "reactor-foreground")
   (accent :initform "reactor-accent")

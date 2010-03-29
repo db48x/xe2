@@ -94,8 +94,17 @@
   (setf <world> world))
 
 (define-method set-tile-size viewport (&optional size)
-  (setf <tile-size> (or size (field-value :tile-size <world>))))
+  (with-fields (tile-size origin-width origin-height) self
+    (setf tile-size (or size (field-value :tile-size <world>)))))
     
+(define-method update-geometry viewport (&optional resize)    
+  (with-field-values (tile-size origin-width origin-height width height) self
+    (let ((new-width (* tile-size origin-width))
+	  (new-height (* tile-size origin-height)))
+      (unless (and (= new-width width)
+		   (= new-height height))
+	(when resize [resize self :height new-height :width new-width])))))
+
 (define-method render viewport ()
   (declare (optimize (speed 3)))
   (when <visible>
@@ -155,12 +164,7 @@
                      (multiple-value-bind (x y) [image-coordinates cell]
                        [draw cell x y image]))
              pending-draws)
-        ;; update geometry
-        (let ((width (* tile-size origin-width))
-              (height (* tile-size origin-height)))
-          (unless (and (= width <width>)
-                       (= height <height>))
-            [resize self :height height :width width]))
+	[update-geometry self]
         ;; draw the overlays
         [draw-overlays self]))))
 
