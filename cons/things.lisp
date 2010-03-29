@@ -443,10 +443,10 @@
 
 (define-method call health (caller)
   (when [is-player caller]
-    [stat-effect stepper :hit-points 6]
+    [stat-effect caller :hit-points 6]
     [play-sample self "buzzfan"]
-    [say stepper "Recovered 6 hit points."]
-    [die self]))
+    [say caller "Recovered 6 hit points."]
+    [expend-item caller]))
 
 ;;; Shield
 

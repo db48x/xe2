@@ -1,6 +1,6 @@
 ** CONS
 *** TODO WRITE 2nd design document in this file
-*** 
+*** TODO help and descriptions everywhere
 *** TODO integrated tutorial?
 *** TODO describe ship map menu with onscreen help
 *** TODO storage sector
