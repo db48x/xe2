@@ -42,7 +42,7 @@
   (tile :initform "explosion")
   (speed :initform (make-stat :base 4))
   (damage-per-turn :initform 10)
-  (clock :initform 2))
+  (clock :initform 6))
 
 (define-method run explosion ()
   (if (zerop <clock>)
@@ -52,7 +52,7 @@
 	(percent-of-time 30 [play-sample self "crunch"])
 	(decf <clock>)
 	(percent-of-time 80 [move self (random-direction)])
-	[expend-action-points self 20]
+	[expend-action-points self 10]
 	(xe2:do-cells (cell [cells-at *world* <row> <column>])
 	  [damage cell <damage-per-turn>]))))
 
@@ -125,7 +125,15 @@
 	     (prog1 nil
 	       (when (and (< (random 100) probability)
 			  [in-bounds-p *world* r c])
-		 [drop-cell *world* (clone =explosion=) r c :no-collisions nil]))))
+		 [drop-cell *world* (clone =explosion=) r c :no-collisions nil])))
+	   (damage (r c &optional (probability 100))
+	     (prog1 nil
+	       (when (and (< (random 100) probability)
+			  [in-bounds-p *world* r c])
+		 (do-cells (cell [cells-at *world* r c])
+		   (if [is-player cell]
+		       [damage cell 4]
+		       [hit cell self]))))))
     (dolist (dir xe2:*compass-directions*)
       (multiple-value-bind (r c)
 	  (step-in-direction <row> <column> dir)
@@ -135,6 +143,11 @@
 		     (- <row> 2) 
 		     (- <column> 2) 
 		     5 5)
+    ;; definitely damage everything in radius
+    (trace-rectangle #'damage
+		     (- <row> 2) 
+		     (- <column> 2) 
+		     5 5 :fill)
     (dotimes (n (+ 10 (random 10)))
       [drop self (clone =plasma=)])
     (labels ((do-circle (image)

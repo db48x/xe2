@@ -374,9 +374,6 @@
   (accent :initform "corridor-accent")
   (grammar :initform 
 	   '((world >> (10 :jump 90 :right 10 :jump =exit= :color :drop))))
-			
-	     
-
   ;;
   (ambient-light :initform :total)
   (required-modes :initform nil)

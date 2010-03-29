@@ -7,6 +7,7 @@
 **** TODO destroyable drones
 **** TODO defended cores
 *** TODO TODO security sector play breakout using snake as paddle, pong ball is an item
+*** TODO security crate
 *** TODO corridor sector
 *** TODO archive sector
 *** TODO xiotank sector!

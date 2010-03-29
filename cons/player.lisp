@@ -79,6 +79,10 @@
   [play-sample self "ouch"]
   [damage self 1])
 
+(define-method damage agent (points)
+  (message "DAMAGE OF ~S" points)
+  [parent>>damage self points])
+  
 (define-method pause agent ()
   [pause *world*])
 
