@@ -11,7 +11,7 @@
       [drop self (ecase (random 3)
 		   (0 (clone =health=))
 		   (1 (clone =health=))
-		   (3 (clone =red-key=)))])
+		   (2 (clone =red-key=)))])
   [drop self (clone =crate-debris=)]
   [parent>>die self])
 
