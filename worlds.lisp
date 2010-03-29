@@ -511,6 +511,7 @@ cell is placed; nil otherwise."
   (setf <player-exit-row> (field-value :row <player>))
   (setf <player-exit-column> (field-value :column <player>))
   (message "EXITING AT ~S" (list <player-exit-row> <player-exit-column>))
+  [exit <player>]
   [delete-cell self <player> <player-exit-row> <player-exit-column>])
   
 (define-method obstacle-at-p world (row column)
@@ -797,17 +798,17 @@ sources and ray casting."
   "Begin looping your music for this world here."
   nil)
 
-(define-method describe world ()
-  (when <narrator>
-    (if (stringp <description>)
-	(dolist (line (split-string-on-lines <description>))
-	  [>>narrateln :narrator line])
-	;; it's a formatted string
-	(dolist (line <description>)
-	  (dolist (string line)
-	    (apply #'send-queue nil :print :narrator string))
-	  (send-queue nil :newline :narrator)
-	  (send-queue nil :newline :narrator)))))
+(define-method describe world (&optional description)
+  (setf description (or description <description>))
+  (if (stringp description)
+      (dolist (line (split-string-on-lines description))
+	[>>narrateln :narrator line])
+      ;; it's a formatted string
+      (dolist (line description)
+	(dolist (string line)
+	  (apply #'send-queue nil :print :narrator string))
+	(send-queue nil :newline :narrator)
+	(send-queue nil :newline :narrator))))
 
 (define-method start world ()
   "Prepare the world for play."
@@ -829,15 +830,18 @@ sources and ray casting."
   ;; clear out any pending messages
   (setf <message-queue> (make-queue))
   (with-message-queue <message-queue>
-    [describe self]
     [run-cpu-phase self]
     (incf <phase-number>)
     [start <player>]
     [begin-phase <player>]
     ;; (when (has-method :show-location <player>)
     ;;   [show-location <player>])
+    [after-start-method self]
     [process-messages self])
   [begin-ambient-loop self])
+
+(define-method after-start-method world ()
+  nil)
     
 (define-method set-viewport world (viewport)
   "Set the viewport widget."

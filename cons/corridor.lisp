@@ -13,21 +13,16 @@
   (let* ((world *world*)
 	 (player [get-player *world*]))
     (labels ((draw-beam (image)
-	       (multiple-value-bind (x0 y0) 
-		   [screen-coordinates self]
-		 (multiple-value-bind (x1 y1)
-		     [screen-coordinates player]
-		   (xe2:draw-line (+ 8 x0) (+ 8 y0) (+ x1 8) (+ y1 8)
-				  :destination image)))))
+	       (prog1 t (multiple-value-bind (x0 y0) 
+			    [screen-coordinates self]
+			  (multiple-value-bind (x1 y1)
+			      [screen-coordinates player]
+			    (xe2:draw-line (+ 8 x0) (+ 8 y0) (+ x1 8) (+ y1 8)
+					   :destination image))))))
       [damage player 2]
       [say self "You sustain 2 damage from the laser."]
       [play-sample self "laser2"]
       [>>add-overlay :viewport #'draw-beam])))
-
-(define-method die xr7 ()
-  [drop self (clone (if (= 0 (random 2))
-			=energy= =crystal=))]
-  [delete-from-world self])
 
 (define-method seek xr7 ()
   (clon:with-field-values (row column) self
@@ -364,9 +359,11 @@
   (tile :initform "darkcyanworld"))
 
 (define-prototype corridor (:parent =sector=)
-  gen-row gen-column 
-  ;;
-  (description :initform "You enter a long corridor.")
+  (name :initform "Corridor")
+  (description :initform 
+"These massive tube-like corridors are used to transport materials and
+vehicles all over the base. Steam flows upward along the sloped
+channel; corridors adjacent to a reactor are especially hot.")
   (level :initform 1)
   ;;
   (floor :initform "corridor-background")
@@ -374,9 +371,6 @@
   (accent :initform "corridor-accent")
   (grammar :initform 
 	   '((world >> (10 :jump 90 :right 10 :jump =exit= :color :drop))))
-			
-	     
-
   ;;
   (ambient-light :initform :total)
   (required-modes :initform nil)

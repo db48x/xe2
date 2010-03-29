@@ -37,7 +37,7 @@
   (tile :initform "darkorangeworld2")
   (categories :initform '(:obstacle)))
 
-(define-method hit blue-brick ()
+(define-method hit blue-brick (&optional other)
   [play-sample self "break"]
   [damage self 1])
 
@@ -52,7 +52,7 @@
   (tile :initform "darkorangeworld3")
   (categories :initform '(:obstacle)))
 
-(define-method hit purple-brick ()
+(define-method hit purple-brick (&optional other)
   [play-sample self "break"]
   [damage self 1])
 
@@ -70,7 +70,10 @@
   (tile :initform "darkorangeworld"))
 
 (define-prototype reactor (:parent =sector=)
-  (description :initform "Power core station.")
+  (name :initform "XIO Reactor")
+  (description :initform 
+"The reactor cores contained in these chambers are the main source of
+the enemy's power.")
   (floor :initform "reactor-background")
   (barrier :initform "reactor-foreground")
   (accent :initform "reactor-accent")

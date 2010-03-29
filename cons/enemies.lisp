@@ -343,33 +343,38 @@ They fire powerful heat-seeking bullets, but these can be shot down."))
 
 (defcell rook 
   (categories :initform '(:actor :target :obstacle :opaque :enemy))
+  (auto-loadout :initform t)
   (equipment-slots :initform '(:robotic-arm :shoulder-mount))
   (attacking-with :initform :robotic-arm)
   (firing-with :initform :robotic-arm)
   (dexterity :initform (make-stat :base 20))
   (max-items :initform (make-stat :base 1))
-  (speed :initform (make-stat :base 12))
-  (chase-distance :initform 10)
+  (speed :initform (make-stat :base 2))
+  (chase-distance :initform 15)
   (stepping :initform t)
   (behavior :initform :seeking)
   (clock :initform 0)
   (last-direction :initform :north)
   (strength :initform (make-stat :base 50))
-  (movement-cost :initform (make-stat :base 8))
+  (movement-cost :initform (make-stat :base 14))
   (tile :initform "rook")
   (target :initform nil)
-  (hit-points :initform (make-stat :base 40 :min 0 :max 40))
+  (hit-points :initform (make-stat :base 16 :min 0 :max 40))
   (description :initform 
 "The Rook is a cargo lifter modified to chase and bomb a target.
 Hard to kill because of their evasive manuevers.")) 
 
 (define-method run rook ()
+  [expend-action-points self 1]
   (ecase <behavior>
     (:seeking [seek self])
     (:fleeing [flee self])))
 
+(define-method hit rook (&optional object)
+  [play-sample self "yelp"]
+  [damage self 1])
+
 (define-method die rook ()
-  [drop self (clone =repair-module=)]
   [play-sample self "blaagh2"]
   [parent>>die self])
 

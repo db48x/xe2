@@ -79,6 +79,10 @@
   [play-sample self "ouch"]
   [damage self 1])
 
+(define-method damage agent (points)
+  (message "DAMAGE OF ~S" points)
+  [parent>>damage self points])
+  
 (define-method pause agent ()
   [pause *world*])
 
@@ -180,10 +184,7 @@
 	(if (clon:object-p gateway)
 	    [activate gateway]
 	    (error "No gateway.")))
-      (cond ([category-at-head self :obstacle]
-	     [play-sample self "error"]
-	     [say self "Nothing to do here."])
-	    ([category-at-head self :action]
+      (cond ([category-at-head self :action]
 	     [do-action [category-at-head self :action]])
 	    ([category-at-head self :item]
 	     [push self])
@@ -199,8 +200,13 @@
 
 (define-method rotate agent () 
   (clon:with-fields (items) self
-    (let ((tail (pop items)))
-      (setf items (append items (list tail))))))
+    (if items
+	(let ((tail (pop items)))
+	  [play-sample self "doorbell3"]
+	  (setf items (append items (list tail))))
+	(progn 
+	  [play-sample self "error"]
+	  [say self "Cannot rotate empty list."]))))
 
 (define-method call agent (&optional direction)
   (when direction
@@ -216,6 +222,11 @@
   
 (define-method quit agent ()
   (xe2:quit :shutdown))
+
+(define-method exit agent ()
+  (dolist (segment <segments>)
+    [die segment])
+  (setf <segments> nil))
 
 (define-method die agent ()
   (unless <dead>

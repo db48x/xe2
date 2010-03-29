@@ -1,5 +1,13 @@
-** CONS!e
+** CONS
 *** TODO WRITE 2nd design document in this file
+*** DONE FIX no docs for exit
+CLOSED: [2010-03-29 Mon 11:42]
+*** TODO fix bad rook behavior
+*** TODO help and descriptions everywhere
+*** TODO LOS enemies with [can-see-player self ]
+*** TODO upgrade weapon power with chips and upgrade stations
+*** TODO integrated tutorial?
+*** TODO describe ship map menu with onscreen help
 *** TODO storage sector
 *** TODO reactor sector
 **** TODO destroyable cores
@@ -7,6 +15,7 @@
 **** TODO destroyable drones
 **** TODO defended cores
 *** TODO TODO security sector play breakout using snake as paddle, pong ball is an item
+*** TODO security crate
 *** TODO corridor sector
 *** TODO archive sector
 *** TODO xiotank sector!

@@ -80,7 +80,7 @@ around."))
   (hit-points :initform (make-stat :base 10 :min 0))
   (tile :initform "crate-special"))
   
-  (define-method die crate-special ()
+(define-method die crate-special ()
   [drop self (ecase (random 4)
 	       (0 (clone =health=))
 	       (1 (clone =bomb-defun=))
@@ -96,6 +96,10 @@ around."))
 
 (define-prototype storage (:parent =sector=)
   (description :initform "Equipment and supply storage.")
+  (name :initform "Storage cube")
+  (description :initform 
+"You never know what you'll find in a storage chamber. All manner of
+supplies, ammunition, and sometimes special items may be found here.")
   (floor :initform "storage-background")
   (barrier :initform "storage-foreground")
   (accent :initform "storage-accent")

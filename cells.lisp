@@ -189,16 +189,17 @@ cells."
 
 ;;; Names, knowledge, and descriptions
 
-(define-method describe cell ()
+(define-method describe cell (&optional description)
   "Narrate a description of the object. By default, uses
 the :description field of the cell."
-  [>>print-object-tag :narrator  self] 
+  (setf description (or description <description>))
+  [>>print-object-tag :narrator self] 
   [>>newline :narrator]
-  (if (stringp <description>)
-      (dolist (line (split-string-on-lines <description>))
+  (if (stringp description)
+      (dolist (line (split-string-on-lines description))
 	[>>narrateln :narrator line])
       ;; it's a formatted string
-      (dolist (line <description>)
+      (dolist (line description)
 	(dolist (string line)
 	  (apply #'send-queue nil :print :narrator string))
 	(send-queue nil :newline :narrator))))
@@ -475,7 +476,7 @@ unproxying. By default, it does nothing."
       ;; otherwise maybe we're a vehicle
       (let ((occupant <occupant>))
 	(when (null occupant)
-	  (error "Cannot forward message without an occupant cell to send it to."))
+	  (error "Cannot forward message ~S. No implementation found." method))
 	(apply #'send self method occupant args))))
   
 (define-method embark cell (&optional v)
@@ -545,6 +546,10 @@ is in the way. Returns non-nil if a move occurred."
 (define-method move-to cell (r c)
   [delete-cell *world* self <row> <column>]
   [drop-cell *world* self r c])
+
+(define-method exit cell ()
+  "This method is invoked on a player cell when it leaves a world."
+  nil)
 
 (define-method step-on-current-square cell ()
   "Send :step events to all the cells on the current square."

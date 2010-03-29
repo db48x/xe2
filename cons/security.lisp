@@ -1,33 +1,35 @@
 (in-package :cons-game)
 
-(defcell archive-crate 
-  (name :initform "Data storage crate")
+(defcell security-crate 
+  (name :initform "Security storage crate")
   (categories :initform '(:obstacle :opaque :pushable :destructible :target))
   (hit-points :initform (make-stat :base 10 :min 0))
-  (tile :initform "archive-crate"))
+  (tile :initform "crate"))
   
-(define-method die archive-crate () 
-  [drop self (clone =crate-debris=)]
+(define-method die security-crate ()
   (percent-of-time 50
       [drop self (ecase (random 3)
 		   (0 (clone =health=))
 		   (1 (clone =health=))
 		   (2 (clone =red-key=)))])
+  [drop self (clone =crate-debris=)]
   [parent>>die self])
 
-(define-method hit archive-crate (&optional hitter)
+(define-method hit security-crate (&optional hitter)
   [play-sample self "bip"]
   [damage self 1])
 
-;;; Archive world generation
+;;; Security world generation
 
-(define-prototype archive (:parent =sector=)
-  (name :initform "Data archive")
+(define-prototype security (:parent =sector=)
+  (name :initform "Security sector")
   (description :initform 
-"These long-term data storage facilities can hold valuable secret data.")
-  (floor :initform "archive-background")
-  (barrier :initform "archive-foreground")
-  (accent :initform "archive-accent")
+"The station's data security depends on the operation of the computers
+here. Important secret data files may sometimes be obtained, or even
+new abilities.")
+  (floor :initform "security-background")
+  (barrier :initform "security-foreground")
+  (accent :initform "security-accent")
   (height :initform 50)
   (width :initform 50)
   (ambient-light :initform :total)
@@ -53,15 +55,15 @@
 			90 :left 90 :left 8 :jump 90 :right 90 :right
   			:pushloc room-row :poploc
   			90 :right 8 :jump 90 :left))
-	     (drop-eye >> (:push-color :pushloc 
-			   =guardic-eye= :color
+	     (drop-rook >> (:push-color :pushloc 
+			   =rook= :color
 			   90 :right 1 :jump
 			   1 :draw :poploc :color))
   	     (room-row >> (10 :jump
   			   :pushloc room :poploc 
   			   10 :jump 
   			   :pushloc room :poploc))
-  	     (random-crate >> =crate= =crate= =archive-crate=)
+  	     (random-crate >> =crate= =crate= =security-crate=)
   	     (crate-to-right >> (:push-color :pushloc
   				random-crate :color
   				90 :right
@@ -85,8 +87,8 @@
   		       crate-to-right
   		       4 :draw
   		       90 :right
-  		       4 :draw drop-eye)))))
+  		       4 :draw drop-rook)))))
 
-(define-method begin-ambient-loop archive ()
-  (play-music "xiomacs" :loop t))
+(define-method begin-ambient-loop security ()
+  (play-music "purity" :loop t))
     

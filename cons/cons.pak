@@ -747,6 +747,7 @@
  (:name "buzzouch" :type :sample :file "buzzouch.wav" :properties (:volume 10))
  (:name "doorbell" :type :sample :file "doorbell.wav" :properties (:volume 20))
  (:name "doorbell2" :type :sample :file "doorbell2.wav" :properties (:volume 20))
+ (:name "doorbell3" :type :sample :file "doorbell3.wav" :properties (:volume 80))
  (:name "fanfare" :type :sample :file "fanfare.wav" :properties (:volume 40))
  (:name "buzzfan" :type :sample :file "buzzfan.wav" :properties (:volume 40))
 
@@ -821,7 +822,7 @@
 
  (:name "break" :type :sample :file "break.wav" :properties (:volume 20))
  (:name "fire" :type :sample :file "fire.wav" :properties (:volume 10))
- (:name "break2" :type :sample :file "break2.wav" :properties (:volume 13))
+ (:name "break2" :type :sample :file "break2.wav" :properties (:volume 7))
 
  (:name ".default-font" :type :font :properties (:height 14 :width 7) :data "7x14b")
  (:name "cons-package-lisp" :type :lisp :file "cons-package.lisp" :properties (:autoload t))
@@ -834,6 +835,7 @@
  (:name "reactor-lisp" :type :lisp :file "reactor.lisp"  :properties (:autoload t))
  (:name "archive-lisp" :type :lisp :file "archive.lisp"  :properties (:autoload t))
  (:name "storage-lisp" :type :lisp :file "storage.lisp" :properties (:autoload t))
+ (:name "security-lisp" :type :lisp :file "security.lisp" :properties (:autoload t))
  (:name "player-lisp" :type :lisp :file "player.lisp" :properties (:autoload t))
  (:name "enemies-lisp" :type :lisp :file "enemies.lisp" :properties (:autoload t))
  (:name ".startup" :type :lisp :file "cons.lisp" :properties (:autoload t))

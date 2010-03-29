@@ -42,7 +42,7 @@
   (tile :initform "explosion")
   (speed :initform (make-stat :base 4))
   (damage-per-turn :initform 10)
-  (clock :initform 2))
+  (clock :initform 6))
 
 (define-method run explosion ()
   (if (zerop <clock>)
@@ -52,7 +52,7 @@
 	(percent-of-time 30 [play-sample self "crunch"])
 	(decf <clock>)
 	(percent-of-time 80 [move self (random-direction)])
-	[expend-action-points self 20]
+	[expend-action-points self 10]
 	(xe2:do-cells (cell [cells-at *world* <row> <column>])
 	  [damage cell <damage-per-turn>]))))
 
@@ -89,7 +89,10 @@
 	  [move self <direction>]))))
 
 (defcell buster-defun
-  agent
+  (name :initform "BUSTER")
+  (description :initform 
+"The BUSTER program fires a relatively weak particle weapon when activated.
+However, ammunition is unlimited, making BUSTER an old standby.")
   (tile :initform "buster")
   (categories :initform '(:item :target :defun)))
 
@@ -125,7 +128,15 @@
 	     (prog1 nil
 	       (when (and (< (random 100) probability)
 			  [in-bounds-p *world* r c])
-		 [drop-cell *world* (clone =explosion=) r c :no-collisions nil]))))
+		 [drop-cell *world* (clone =explosion=) r c :no-collisions nil])))
+	   (damage (r c &optional (probability 100))
+	     (prog1 nil
+	       (when (and (< (random 100) probability)
+			  [in-bounds-p *world* r c])
+		 (do-cells (cell [cells-at *world* r c])
+		   (if [is-player cell]
+		       [damage cell 4]
+		       [hit cell self]))))))
     (dolist (dir xe2:*compass-directions*)
       (multiple-value-bind (r c)
 	  (step-in-direction <row> <column> dir)
@@ -135,6 +146,11 @@
 		     (- <row> 2) 
 		     (- <column> 2) 
 		     5 5)
+    ;; definitely damage everything in radius
+    (trace-rectangle #'damage
+		     (- <row> 2) 
+		     (- <column> 2) 
+		     5 5 :fill)
     (dotimes (n (+ 10 (random 10)))
       [drop self (clone =plasma=)])
     (labels ((do-circle (image)
@@ -149,6 +165,8 @@
     [die self]))
 
 (defcell bomb-defun
+  (name :initform "BOMB")
+  (description :initform "This single-use BOMB program drops a timed explosive device.")
   (tile :initform "bomb-ammo")
   (categories :initform '(:item :target :defun)))
 
@@ -423,16 +441,18 @@
 
 ;;; Health powerup
 
-(defcell health 
-  (description :initform "Restores a few hit points.")
-  (tile :initform "health"))
+(defcell health
+  (name :initform "REPAIR-1")
+  (description :initform "The single-use program REPAIR-1 restores a few hit points when activated.")
+  (tile :initform "health")
+  (categories :initform '(:item)))
 
-(define-method step health (stepper)
-  (when [is-player stepper]
-    [stat-effect stepper :hit-points 7]
+(define-method call health (caller)
+  (when [is-player caller]
+    [stat-effect caller :hit-points 6]
     [play-sample self "buzzfan"]
-    [say stepper "Recovered 7 hit points."]
-    [die self]))
+    [say caller "Recovered 6 hit points."]
+    [expend-item caller]))
 
 ;;; Shield
 
