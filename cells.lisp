@@ -546,6 +546,10 @@ is in the way. Returns non-nil if a move occurred."
   [delete-cell *world* self <row> <column>]
   [drop-cell *world* self r c])
 
+(define-method exit cell ()
+  "This method is invoked on a player cell when it leaves a world."
+  nil)
+
 (define-method step-on-current-square cell ()
   "Send :step events to all the cells on the current square."
   (when <stepping>

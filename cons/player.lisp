@@ -184,10 +184,7 @@
 	(if (clon:object-p gateway)
 	    [activate gateway]
 	    (error "No gateway.")))
-      (cond ([category-at-head self :obstacle]
-	     [play-sample self "error"]
-	     [say self "Nothing to do here."])
-	    ([category-at-head self :action]
+      (cond ([category-at-head self :action]
 	     [do-action [category-at-head self :action]])
 	    ([category-at-head self :item]
 	     [push self])
@@ -220,6 +217,11 @@
   
 (define-method quit agent ()
   (xe2:quit :shutdown))
+
+(define-method exit agent ()
+  (dolist (segment <segments>)
+    [die segment])
+  (setf <segments> nil))
 
 (define-method die agent ()
   (unless <dead>

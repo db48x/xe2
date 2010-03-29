@@ -1,4 +1,5 @@
 ** CONS!e
+*** TODO BUG can't get out of reactor when launchpad spawns on wall
 *** TODO WRITE 2nd design document in this file
 *** TODO storage sector
 *** TODO reactor sector

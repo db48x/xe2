@@ -511,6 +511,7 @@ cell is placed; nil otherwise."
   (setf <player-exit-row> (field-value :row <player>))
   (setf <player-exit-column> (field-value :column <player>))
   (message "EXITING AT ~S" (list <player-exit-row> <player-exit-column>))
+  [exit <player>]
   [delete-cell self <player> <player-exit-row> <player-exit-column>])
   
 (define-method obstacle-at-p world (row column)
