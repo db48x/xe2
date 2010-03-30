@@ -499,7 +499,6 @@ scaled by that factor unless marked with the property :nozoom t.")
   "Return a zoomed version of IMAGE, zoomed by FACTOR.
 Allocates a new image."
   (assert (integerp factor))
-  (print factor)
   (lispbuilder-sdl-gfx:zoom-surface factor factor
 				    :surface image
 				    :smooth nil))
@@ -944,13 +943,27 @@ table."
 (defun load-image-resource (resource)
   ;; handle zooming
   (let ((image 
-	 (sdl-image:load-image (namestring (resource-file resource)) 
-			       :alpha 255)))
+         (sdl-image:load-image (namestring (resource-file resource))
+                               :alpha 255)))
     (if (or (= 1 *zoom-factor*)
-	    (not (is-zoomed-resource resource)))
-	image
-	(zoom-image image *zoom-factor*))))
+            (not (is-zoomed-resource resource)))
+        image
+        (zoom-image image *zoom-factor*))))
 
+(defun load-sprite-sheet (resource)
+  (let* ((image (load-image-resource resource))
+         (props (resource-properties resource))
+         (w (getf props :width))
+         (h (getf props :height))
+         (sw (getf props :sprite-width))
+         (sh (getf props :sprite-height))
+         (sprite-cells (loop for y from 0 to (- h sh) by sh
+                             append (loop for x from 0 to (- w sw) by sw
+                                           collect (list x y sw sh)))))
+    (setf (sdl:cells image) sprite-cells)
+    (setf (getf props :sprite-cells) sprite-cells)
+    image))
+             
 (defun load-bitmap-font-resource (resource)
   (let ((props (resource-properties resource)))
     (if (null props)
@@ -1025,6 +1038,7 @@ table."
 	      (setf (sdl-mixer:sample-volume chunk) volume))))))))
 
 (defvar *resource-handlers* (list :image #'load-image-resource
+                                  :sprite-sheet #'load-sprite-sheet
 				  :lisp #'load-lisp-resource
 				  :color #'load-color-resource
 				  :music #'load-music-resource
@@ -1072,12 +1086,11 @@ of the record.")
 (defun rotate-image (res degrees)
   (sdl:rotate-surface degrees :surface (resource-object res)))
 
-(defun subsect-image (res x y)
-  (let ((props (resource-properties res)))
-    (draw-image (resource-object res)
-                (* -1 x) (* -1 y)
-                :destination (create-image (getf props :width)
-                                           (getf props :height)))))
+(defun subsect-image (res x y w h)
+  (let ((image (sdl:copy-surface :cells (sdl:rectangle :x x :y y :w w :h h)
+                                 :surface (resource-object res) :inherit t)))
+    (sdl:set-surface-* image :x 0 :y 0)
+    image))
 
 (defun scale-image (res scale)
   (print "scale-image")
@@ -1305,15 +1318,15 @@ found."
   "Create a new XE2 image of size (* WIDTH HEIGHT)."
   (sdl:create-surface width height))
 
-(defun draw-image (image x y &key (destination sdl:*default-surface*))
+(defun draw-image (image x y &key (destination sdl:*default-surface*) (render-cell nil))
   "Draw the IMAGE at offset (X Y) on the image DESTINATION.
 The default destination is the main window."
-  (sdl:draw-surface-at-* image x y :surface destination))
+  (sdl:draw-surface-at-* image x y :cell render-cell :surface destination))
 
-(defun draw-resource-image (name x y &key (destination sdl:*default-surface*))
+(defun draw-resource-image (name x y &key (destination sdl:*default-surface*) (render-cell nil))
   "Draw the image named by NAME at offset (X Y) on the image DESTINATION.
 The default destination is the main window."
-  (draw-image (find-resource-object name) x y :destination destination))
+  (draw-image (find-resource-object name) x y :render-cell render-cell :destination destination))
 
 (defun image-height (image)
   "Return the height in pixels of IMAGE."

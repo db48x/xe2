@@ -143,7 +143,7 @@
                       (let ((j0 (* j tile-size))
                             (i0 (* i tile-size)))
                         (setf tile (field-value :tile cell))
-                        (when tile (draw-resource-image tile j0 i0 :destination image))
+                        (when tile (draw-resource-image tile j0 i0 :render-cell (field-value :render-cell cell) :destination image))
                         (when (or (member :drawn (field-value :categories cell))
                                   (null tile))
                           (vector-push-extend cell pending-draws))))))

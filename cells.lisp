@@ -80,6 +80,7 @@ Sprites are also based on cells. See `defsprite'.")
   (weight :documentation "Weight of the cell, in kilograms.")
   (tile :initform nil :documentation "Resource name of image. 
 When nil, the method DRAW is invoked instead of using a tile.")
+  (render-cell :initform nil :documentation "Subcell to render. See load-sprite-sheet.")
   (row :documentation "When non-nil, the current row location of the cell.")
   (column :documentation "When non-nil, the current column of the cell.")
   ;; <: categories :>
