@@ -1,8 +1,8 @@
 ** CONS
-*** TODO WRITE 2nd design document in this file
 *** DONE FIX no docs for exit
 CLOSED: [2010-03-29 Mon 11:42]
 *** TODO fix bad rook behavior
+*** TODO fix no c-q during help mode
 *** TODO help and descriptions everywhere
 *** TODO LOS enemies with [can-see-player self ]
 *** TODO upgrade weapon power with chips and upgrade stations

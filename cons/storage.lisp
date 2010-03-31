@@ -200,8 +200,10 @@ supplies, ammunition, and sometimes special items may be found here.")
 	       8 :draw)))))
 
 (define-method drop-shockers storage ()
-  (dotimes (n 10)
-    [drop-cell self (clone =shocker=) (random <height>) (random <width>)]))
+  (dotimes (n 17)
+    [drop-cell self (clone =shocker=) (random <height>) (random <width>)])
+  (dotimes (n 4)
+    [drop-cell self (clone =scanner=) (random <height>) (random <width>)]))
 
 (define-method drop-scanners storage ()
   (dotimes (n 4)

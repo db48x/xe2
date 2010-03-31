@@ -946,24 +946,26 @@ table."
          (sdl-image:load-image (namestring (resource-file resource))
                                :alpha 255)))
     (if (or (= 1 *zoom-factor*)
-            (not (is-zoomed-resource resource)))
-        image
-        (zoom-image image *zoom-factor*))))
+	    (not (is-zoomed-resource resource)))
+	image 
+	;; TODO get rid of this. subclass viewport instead
+	;; if you want to zoom everything. 
+	(zoom-image image *zoom-factor*))))
 
-(defun load-sprite-sheet (resource)
+(defun load-sprite-sheet-resource (resource)
   (let* ((image (load-image-resource resource))
-         (props (resource-properties resource))
-         (w (getf props :width))
-         (h (getf props :height))
-         (sw (getf props :sprite-width))
-         (sh (getf props :sprite-height))
-         (sprite-cells (loop for y from 0 to (- h sh) by sh
-                             append (loop for x from 0 to (- w sw) by sw
-                                           collect (list x y sw sh)))))
+	 (props (resource-properties resource))
+	 (w (getf props :width))
+	 (h (getf props :height))
+	 (sw (getf props :sprite-width))
+	 (sh (getf props :sprite-height))
+	 (sprite-cells (loop for y from 0 to (- h sh) by sh
+			     append (loop for x from 0 to (- w sw) by sw
+					  collect (list x y sw sh)))))
     (setf (sdl:cells image) sprite-cells)
     (setf (getf props :sprite-cells) sprite-cells)
     image))
-             
+
 (defun load-bitmap-font-resource (resource)
   (let ((props (resource-properties resource)))
     (if (null props)
@@ -1038,8 +1040,8 @@ table."
 	      (setf (sdl-mixer:sample-volume chunk) volume))))))))
 
 (defvar *resource-handlers* (list :image #'load-image-resource
-                                  :sprite-sheet #'load-sprite-sheet
 				  :lisp #'load-lisp-resource
+				  :sprite-sheet #'load-sprite-sheet-resource
 				  :color #'load-color-resource
 				  :music #'load-music-resource
 				  :bitmap-font #'load-bitmap-font-resource
@@ -1083,26 +1085,22 @@ of the record.")
 	(subseq name (1+ delimiter-pos))
 	(subseq name 1))))
 
-(defun rotate-image (res degrees)
-  (sdl:rotate-surface degrees :surface (resource-object res)))
+(defun rotate-image (resource degrees)
+  (sdl:rotate-surface degrees :surface (resource-object resource)))
 
-(defun subsect-image (res x y w h)
-  (let ((image (sdl:copy-surface :cells (sdl:rectangle :x x :y y :w w :h h)
-                                 :surface (resource-object res) :inherit t)))
-    (sdl:set-surface-* image :x 0 :y 0)
-    image))
+(defun subsect-image (resource x y w h)
+(let ((image (sdl:copy-surface :cells (sdl:rectangle :x x :y y :w w :h h)
+			       :surface (resource-object resource) :inherit t)))
+  (sdl:set-surface-* image :x 0 :y 0)
+  image))
 
-(defun scale-image (res scale)
-  (print "scale-image")
-  (zoom-image (resource-object res) scale))
-
-;; (defun reflect-image (image direction)
-;;   (sdl:reflect-surface 
+(defun scale-image (resource scale)
+  (zoom-image (resource-object resource) scale))
 
 (defvar *resource-transformations* 
   (list :rotate #'rotate-image
-        :subimage #'subsect-image
-        :scale #'scale-image))
+	:subimage #'subsect-image
+	:scale #'scale-image))
 
 (defun load-resource (resource)
   "Load the driver-dependent object of RESOURCE into the OBJECT field
@@ -1148,6 +1146,7 @@ when NAME cannot be found."
 						   (make-keyword operation)))
 				    (source-res (find-resource source-name))
 				    (source-type (resource-type source-res))
+				    (source (resource-object source-res))
 				    (xformed-resource (apply xformer source-res
 							     arguments)))
 			       (make-resource :name name 
@@ -1316,6 +1315,7 @@ found."
 
 (defun create-image (width height)
   "Create a new XE2 image of size (* WIDTH HEIGHT)."
+  (assert (and (integerp width) (integerp height)))
   (sdl:create-surface width height))
 
 (defun draw-image (image x y &key (destination sdl:*default-surface*) (render-cell nil))
