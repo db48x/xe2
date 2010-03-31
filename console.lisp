@@ -1095,10 +1095,13 @@ of the record.")
   (sdl:rotate-surface degrees :surface (resource-object resource)))
 
 (defun subsect-image (resource x y w h)
-(let ((image (sdl:copy-surface :cells (sdl:rectangle :x x :y y :w w :h h)
-			       :surface (resource-object resource) :inherit t)))
-  (sdl:set-surface-* image :x 0 :y 0)
-  image))
+(defun subsect-image (image x y w h)
+  (let ((new-surf (sdl:create-surface w h
+                                      :alpha (sdl:alpha-enabled-p image)
+                                      :pixel-alpha (sdl:pixel-alpha-enabled-p image))))
+    (setf (sdl:cells image) (sdl:rectangle :x x :y y :w w :h h))
+    (sdl:draw-surface image :surface new-surf)
+    new-surf))
 
 (defun scale-image (resource scale)
   (zoom-image (resource-object resource) scale))
