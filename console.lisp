@@ -941,6 +941,7 @@ table."
 ;;; Driver-dependent resource object loading handlers
 
 (defun load-image-resource (resource)
+  "Loads an :IMAGE-type pak resource from a :FILE on disk."
   ;; handle zooming
   (let ((image 
          (sdl-image:load-image (namestring (resource-file resource))
@@ -953,6 +954,9 @@ table."
 	(zoom-image image *zoom-factor*))))
 
 (defun load-sprite-sheet-resource (resource)
+  "Loads a :SPRITE-SHEET-type pak resource from a :FILE on disk. Looks
+for :SPRITE-WIDTH and :SPRITE-HEIGHT properties on the resource to
+control the size of the individual frames or subimages."
   (let* ((image (load-image-resource resource))
 	 (props (resource-properties resource))
 	 (w (getf props :width))
