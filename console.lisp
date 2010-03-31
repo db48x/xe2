@@ -958,16 +958,16 @@ table."
 for :SPRITE-WIDTH and :SPRITE-HEIGHT properties on the resource to
 control the size of the individual frames or subimages."
   (let* ((image (load-image-resource resource))
-	 (props (resource-properties resource))
-	 (w (or (getf props :width)
-                (image-width image))
-	 (h (or (getf props :height)
-                (image-height image))
-	 (sw (getf props :sprite-width))
-	 (sh (getf props :sprite-height))
-	 (sprite-cells (loop for y from 0 to (- h sh) by sh
-			     append (loop for x from 0 to (- w sw) by sw
-					  collect (list x y sw sh)))))
+         (props (resource-properties resource))
+         (w (or (getf props :width)
+                (image-width image)))
+         (h (or (getf props :height)
+                (image-height image)))
+         (sw (getf props :sprite-width))
+         (sh (getf props :sprite-height))
+         (sprite-cells (loop for y from 0 to (- h sh) by sh
+                             append (loop for x from 0 to (- w sw) by sw
+                                          collect (list x y sw sh)))))
     (setf (sdl:cells image) sprite-cells)
     (setf (getf props :sprite-cells) sprite-cells)
     image))
@@ -1094,7 +1094,6 @@ of the record.")
 (defun rotate-image (resource degrees)
   (sdl:rotate-surface degrees :surface (resource-object resource)))
 
-(defun subsect-image (resource x y w h)
 (defun subsect-image (image x y w h)
   (let ((new-surf (sdl:create-surface w h
                                       :alpha (sdl:alpha-enabled-p image)
